@@ -15,8 +15,8 @@ function plotGMM(X::Matrix, clusters::Vector, γ::Matrix)
                 -2*sqrt(cov(clusters[k])[2,2]) 2*sqrt(cov(clusters[k])[2,2])] + repmat(mean(clusters[k]), 1, 2)
         for i=1:50
             for j=1:50
-                X1[i,j] = (i-1)/50 * abs(lims[1,2]-lims[1,1]) + lims[1,1]
-                X2[i,j] = (j-1)/50 * abs(lims[2,2]-lims[2,1]) + lims[2,1]
+                X1[i,j] = (i-1)/50 * abs.(lims[1,2]-lims[1,1]) + lims[1,1]
+                X2[i,j] = (j-1)/50 * abs.(lims[2,2]-lims[2,1]) + lims[2,1]
                 d[i,j] = pdf(clusters[k], [X1[i,j];X2[i,j]])
             end
         end
@@ -32,7 +32,7 @@ function plotGMM(X::Matrix, clusters::Vector, γ::Matrix)
 
     # Figure make-up
     plotlimits = hcat(minimum(X,2), maximum(X,2))
-    margin = 0.2*abs(plotlimits[:,1] - plotlimits[:,2])
+    margin = 0.2*abs.(plotlimits[:,1] - plotlimits[:,2])
     xlim([plotlimits[1,1]-margin[1]; plotlimits[1,2]+margin[1]])
     ylim([plotlimits[2,1]-margin[2]; plotlimits[2,2]+margin[2]])
 end
