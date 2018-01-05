@@ -29,7 +29,7 @@ function pPCA(X::Matrix, M::Int64)
     # ε ~ N(0, v*I), where v is a scalar
 
     N = size(X, 2); D = size(X, 1)
-    missing_values = isnan(X)
+    missing_values = isnan.(X)
     has_missing_values = sum(missing_values) > 0
 
     # Find row means of X, ignoring missing values
