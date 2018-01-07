@@ -37,8 +37,8 @@ function pPCA(X::Matrix, M::Int64)
         X[missing_values] = 0.0
         m = ( sum(X, 2) ./ (N*ones(D) - sum(missing_values,2)) )[:,1] # [:,1] makes sure this is a vector
         X[missing_values] = NaN
-        observed_d = [find(!missing_values[:,n]) for n=1:N] # observed dimensions for every data vector
-        observed_n = [find(!missing_values[d,:]) for d=1:D] # observed value indexes per dimension
+        observed_d = [find(.!missing_values[:,n]) for n=1:N] # observed dimensions for every data vector
+        observed_n = [find(.!missing_values[d,:]) for d=1:D] # observed value indexes per dimension
         x_observed = [X[observed_d[n],n] for n=1:N]  # data vectors without the missing data
     else
         m = ( sum(X, 2) ./ N )[:,1] # [:,1] makes sure this is a vector
