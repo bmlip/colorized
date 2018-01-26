@@ -1,15 +1,15 @@
 # Interactive Expectation Maximization demo for the 'old faithful' data set
 # This script should be executed from the commandline
 
-using DataFrames
+using DataFrames, CSV
 include("gmm_plot.jl")
 
 function continueOrExit()
     # Helper function: wait for keypress, quit on q
-    if (readline()[1] == 'q') exit() end
+    if (readline() == "q") exit() end
 end
 
-old_faithful = readtable("../../files/datasets/old_faithful.csv")
+old_faithful = CSV.read("../datasets/old_faithful.csv")
 X = convert(Matrix{Float64}, [old_faithful[1] old_faithful[2]]') # Every column is a data point
 N = size(X, 2)
 
