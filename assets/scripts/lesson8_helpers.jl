@@ -6,6 +6,7 @@ function genDataset(N::Int64)
     # x is a 2d feature vector [x1;x2]
     # y ∈ {false,true} is a binary class label
     # p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
+    srand(123)
     X = Matrix{Float64}(2,N); y = Vector{Bool}(N)
     for n=1:N
         if (y[n]=(rand()>0.6)) # p(y=true) = 0.6
