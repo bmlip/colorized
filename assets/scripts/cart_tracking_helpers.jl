@@ -1,5 +1,5 @@
-include("linear_transition_model.jl")
-using Distributions, PyPlot
+using PyPlot
+import Distributions: Normal, pdf
 
 function generateNoisyMeasurements( z_start::Vector{Float64},
                                     u::Vector{Float64},
@@ -26,18 +26,22 @@ function generateNoisyMeasurements( z_start::Vector{Float64},
 
     x = Vector[] # x will be a list of n vectors
     z = copy(z_start)
-    proc_noise = MvNormal(zeros(d), Σz)
+    chol_Σz = chol(Σz)
+    chol_Σx = chol(Σx)
+    proc_noise = chol_Σz * randn(d)
     for i=1:n
-        z = A*z + b*u[i] + rand(proc_noise)
-        push!(x, rand(MvNormal(z, Σx)))
+        proc_noise = chol_Σz * randn(d)
+        z = A*z + b*u[i] + proc_noise
+        obs_noise = chol_Σx * randn(length(z))
+        push!(x, z + obs_noise)
     end
 
     return x
 end
 
-function plotCartPrediction(prediction::MvGaussian{2},
-                            measurement::MvGaussian{2},
-                            corr_prediction::MvGaussian{2})
+function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Gaussian},
+                            measurement::ProbabilityDistribution{Multivariate, Gaussian},
+                            corr_prediction::ProbabilityDistribution{Multivariate, Gaussian})
     # Make a fancy plot of the Kalman-filtered cart position
     p = Normal(mean(prediction)[1], var(prediction)[1])
     m = Normal(mean(measurement)[1], var(measurement)[1])
