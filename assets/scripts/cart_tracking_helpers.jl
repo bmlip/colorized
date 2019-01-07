@@ -1,5 +1,5 @@
 using PyPlot
-using Distributions
+import Distributions
 
 function generateNoisyMeasurements( z_start::Vector{Float64},
                                     u::Vector{Float64},
@@ -43,9 +43,9 @@ function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Ga
                             measurement::ProbabilityDistribution{Multivariate, GaussianMeanVariance},
                             corr_prediction::ProbabilityDistribution{Multivariate, GaussianMeanVariance})
     # Make a fancy plot of the Kalman-filtered cart position
-    p = Normal(mean(prediction)[1], var(prediction)[1])
-    m = Normal(mean(measurement)[1], var(measurement)[1])
-    c = Normal(mean(corr_prediction)[1], var(corr_prediction)[1])
+    p = Distributions.Normal(mean(prediction)[1], var(prediction)[1])
+    m = Distributions.Normal(mean(measurement)[1], var(measurement)[1])
+    c = Distributions.Normal(mean(corr_prediction)[1], var(corr_prediction)[1])
 
     plot_range = range(mean(c)-8*sqrt(var(p)),300, stop= mean(c)+8*sqrt(var(p)))
     PyPlot.figure(figsize=(15,5))
