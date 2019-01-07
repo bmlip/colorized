@@ -1,8 +1,8 @@
 # This file implements the DotProductNode and corresponding sum-product rules
 
-using ForneyLab # v0.7.0
+# using ForneyLab 
 
-import ForneyLab: DeltaFactor, Univariate, Multivariate, generateId, associate!, addNode!, ensureParameters!
+# import ForneyLab: DeltaFactor, Univariate, Multivariate, generateId, associate!, addNode!
 export DotProduct
 
 """
@@ -29,7 +29,7 @@ Construction:
 
     DotProduct(out, in1, in2, id=:my_node)
 """
-type DotProduct <: DeltaFactor
+mutable struct DotProduct <: DeltaFactor
     id::Symbol
     interfaces::Vector{Interface}
     i::Dict{Symbol,Interface}
@@ -60,14 +60,15 @@ slug(::Type{DotProduct}) = "dot"
 
 @sumProductRule(:node_type     => DotProduct,
                 :outbound_type => Message{Gaussian},
-                :inbound_types => (Void, Message{PointMass}, Message{Gaussian}),
+                :inbound_types => (Nothing, Message{PointMass}, Message{Gaussian}),
                 :name          => SPDotProductOutVPG)
 
-function ruleSPDotProductOutVPG(msg_out::Void,
+function ruleSPDotProductOutVPG(msg_out::Nothing,
                             msg_in1::Message{PointMass, Multivariate},
                             msg_in2::Message{Gaussian, Multivariate})
     x = msg_in1.dist.params[:m]
-    β = ensureParameters!(msg_in2.dist, (:m, :V))
+    β = convert(ProbabilityDistribution{Multivariate,GaussianMeanVariance}, msg_in2.dist)
+#     β = ensureParameters!(msg_in2.dist, (:m, :V))
     out_m = x' * β.m
     out_v = x' * β.V * x
 
@@ -85,10 +86,10 @@ end
 
 @sumProductRule(:node_type     => DotProduct,
                 :outbound_type => Message{Gaussian},
-                :inbound_types => (Void, Message{Gaussian}, Message{PointMass}),
+                :inbound_types => (Nothing, Message{Gaussian}, Message{PointMass}),
                 :name          => SPDotProductOutVGP)
 
-function ruleSPDotProductOutVGP(msg_out::Void,
+function ruleSPDotProductOutVGP(msg_out::Nothing,
                             msg_in1::Message{Gaussian, Multivariate},
                             msg_in2::Message{PointMass, Multivariate})
     SPDotProductOutVGP(msg_out, msg_in2, msg_in1)
@@ -104,16 +105,16 @@ end
 
 @sumProductRule(:node_type     => DotProduct,
                 :outbound_type => Message{Gaussian},
-                :inbound_types => (Message{Gaussian}, Message{PointMass}, Void),
+                :inbound_types => (Message{Gaussian}, Message{PointMass}, Nothing),
                 :name          => SPDotProductIn2GPV)
 
 function ruleSPDotProductIn2GPV(msg_out::Message{Gaussian, Univariate},
                             msg_in1::Message{PointMass, Multivariate},
-                            msg_in2::Void)
+                            msg_in2::Nothing)
     x = msg_in1.dist.params[:m] # We'll call in1 x
     d = length(x)
-
-    y = ensureParameters!(msg_out.dist, (:xi, :w))
+    y = convert(ProbabilityDistribution{Univariate,GaussianWeightedMeanPrecision}, msg_out.dist)
+#     y = ensureParameters!(msg_out.dist, (:xi, :w))
     xi = x * y.params[:xi]
     w = x * y.params[:w] * x'
 
@@ -130,11 +131,11 @@ end
 
 @sumProductRule(:node_type     => DotProduct,
                 :outbound_type => Message{Gaussian},
-                :inbound_types => (Message{Gaussian}, Void, Message{PointMass}),
+                :inbound_types => (Message{Gaussian}, Nothing, Message{PointMass}),
                 :name          => SPDotProductIn1GVP)
 
 function ruleSPDotProductIn1GVP(msg_out::Message{Gaussian, Univariate},
-                            msg_in1::Void,
+                            msg_in1::Nothing,
                             msg_in2::Message{PointMass, Multivariate})
     SPDotProductIn2GPV(msg_out, msg_in2, msg_in1)
 end
