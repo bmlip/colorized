@@ -1,5 +1,5 @@
 using PyPlot
-import Distributions: Normal, pdf
+import Distributions
 
 function generateNoisyMeasurements( z_start::Vector{Float64},
                                     u::Vector{Float64},
@@ -26,28 +26,28 @@ function generateNoisyMeasurements( z_start::Vector{Float64},
 
     x = Vector[] # x will be a list of n vectors
     z = copy(z_start)
-    chol_Σz = chol(Σz)
-    chol_Σx = chol(Σx)
-    proc_noise = chol_Σz * randn(d)
+    chol_Σz = cholesky(Σz)
+    chol_Σx = cholesky(Σx)
+    proc_noise = convert(Matrix,chol_Σz) * randn(d)
     for i=1:n
-        proc_noise = chol_Σz * randn(d)
+        proc_noise = convert(Matrix,chol_Σz) * randn(d)
         z = A*z + b*u[i] + proc_noise
-        obs_noise = chol_Σx * randn(length(z))
+        obs_noise = convert(Matrix,chol_Σx) * randn(length(z))
         push!(x, z + obs_noise)
     end
 
     return x
 end
 
-function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Gaussian},
-                            measurement::ProbabilityDistribution{Multivariate, Gaussian},
-                            corr_prediction::ProbabilityDistribution{Multivariate, Gaussian})
+function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, GaussianMeanVariance},
+                            measurement::ProbabilityDistribution{Multivariate, GaussianMeanVariance},
+                            corr_prediction::ProbabilityDistribution{Multivariate, GaussianMeanVariance})
     # Make a fancy plot of the Kalman-filtered cart position
-    p = Normal(mean(prediction)[1], var(prediction)[1])
-    m = Normal(mean(measurement)[1], var(measurement)[1])
-    c = Normal(mean(corr_prediction)[1], var(corr_prediction)[1])
+    p = Distributions.Normal(mean(prediction)[1], var(prediction)[1])
+    m = Distributions.Normal(mean(measurement)[1], var(measurement)[1])
+    c = Distributions.Normal(mean(corr_prediction)[1], var(corr_prediction)[1])
 
-    plot_range = linspace(mean(c)-8*sqrt(var(p)), mean(c)+8*sqrt(var(p)), 300)
+    plot_range = range(mean(c)-8*sqrt(var(p)),300, stop= mean(c)+8*sqrt(var(p)))
     PyPlot.figure(figsize=(15,5))
     bg_img = imread("figures/cart-bg.png")
     height = floor((plot_range[end] - plot_range[1])/3)

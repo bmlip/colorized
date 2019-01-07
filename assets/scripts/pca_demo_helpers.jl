@@ -1,21 +1,21 @@
 # Helper function for the PCA demo
 
+mutable struct pPCAParams
+    W::Matrix{Float64}
+    m::Vector{Float64}
+    v::Float64
+end
+
 function readDataSet(filename)
     f = open(filename);
     data = nothing
     for line in eachline(f)
-        row = map((s) -> parse(Int, s), split(replace(line, "  ", " "), " "))
+        row = map((s) -> parse(Int, s), split(replace(line, "  " => " "), " "))
         data = (data == nothing) ? row' : vcat(data, row')
     end
     close(f)
 
     return data
-end
-
-type pPCAParams
-    W::Matrix{Float64}
-    m::Vector{Float64}
-    v::Float64
 end
 
 function pPCA(X::Matrix, M::Int64)
@@ -27,26 +27,23 @@ function pPCA(X::Matrix, M::Int64)
     # x[n] = W*z[n] + m + ε, where W is a matrix, m is a vector and ε is a noise term
     # z[n] ~ N(0,I), where I is the identity matrix
     # ε ~ N(0, v*I), where v is a scalar
-
     N = size(X, 2); D = size(X, 1)
     missing_values = isnan.(X)
     has_missing_values = sum(missing_values) > 0
-
     # Find row means of X, ignoring missing values
     if has_missing_values
-        X[missing_values] = 0.0
-        m = ( sum(X, 2) ./ (N*ones(D) - sum(missing_values,2)) )[:,1] # [:,1] makes sure this is a vector
-        X[missing_values] = NaN
-        observed_d = [find(.!missing_values[:,n]) for n=1:N] # observed dimensions for every data vector
-        observed_n = [find(.!missing_values[d,:]) for d=1:D] # observed value indexes per dimension
+        X[findall(missing_values)] .= 0
+        m = ( sum(X, dims=2) ./ (N*ones(D) - sum(missing_values,dims=2)) )[:,1] # [:,1] makes sure this is a vector
+        X[findall(missing_values)] .= NaN
+        observed_d = [findall(.!missing_values[:,n]) for n=1:N] # observed dimensions for every data vector
+        observed_n = [findall(.!missing_values[d,:]) for d=1:D] # observed value indexes per dimension
         x_observed = [X[observed_d[n],n] for n=1:N]  # data vectors without the missing data
-    else
-        m = ( sum(X, 2) ./ N )[:,1] # [:,1] makes sure this is a vector
+    else    
+        m = (sum(X, dims=2) ./ N)[:,1] # [:,1] makes sure this is a vector
         _X = X .- m # shift data to be zero-mean
-    end
-
+    end 
     # Initialize variables
-    θ = pPCAParams(Matrix{Float64}(D,M), m, 1.0) # θ holds the parameters
+    θ = pPCAParams(Matrix{Float64}(undef,D,M), m, 1.0) # θ holds the parameters
     Mz = randn(M,N)              # Mz[:,n] = MEAN[z[n]]
     Σz = [zeros(M,M) for n=1:N]  # Σz[n] = COV[z[n]]
 
@@ -58,12 +55,13 @@ function pPCA(X::Matrix, M::Int64)
             for n=1:N
                 _W = W[observed_d[n],:]
                 _x = x_observed[n] - θ.m[observed_d[n]]
-                M_inv = inv(_W'*_W + v*eye(M))
+                M_inv = inv(_W'*_W + v*Matrix{Float64}(I, M, M))
                 Σz[n] = v * M_inv
                 Mz[:,n] = M_inv * _W' * _x
             end
         else
-            M_inv = inv(W'*W + v*eye(M))
+          
+            M_inv = inv(W'*W + v*Matrix{Float64}(I, M, M))
             Mz[:] = M_inv * W' * _X
             Σz[1] = v * M_inv # COV[z[n]] is equal for all n. We only update the one for n=1
         end
@@ -74,16 +72,16 @@ function pPCA(X::Matrix, M::Int64)
         if has_missing_values
             m = zero(θ.m)
             for n=1:N
-                m[observed_d[n]] += x_observed[n] - (θ.W[observed_d[n],:] * Mz[:,n])[:,1]
+                m[observed_d[n]] += x_observed[n] .- (θ.W[observed_d[n],:] * Mz[:,n])[:,1]
             end
-            m = m ./ (N - sum(missing_values, 2)[:,1])
+            m = m ./ (N .- sum(missing_values, dims=2)[:,1])
             θ.m = m
 
             for d=1:D
                 A = inv(Mz[:,observed_n[d]]*Mz[:,observed_n[d]]' + sum(Σz[observed_n[d]]))
                 b = zeros(M)
                 for n in observed_n[d]
-                    b += Mz[:,n]*(X[d,n] - m[d])
+                    b += Mz[:,n]*(X[d,n] .- m[d])
                 end
                 θ.W[d,:] = ( A * b )'
             end
@@ -92,7 +90,7 @@ function pPCA(X::Matrix, M::Int64)
             θ.v = 0.0
             for n=1:N
                 for d in observed_d[n]
-                    θ.v +=  (X[d,n] - (W[d,:]'*Mz[:,n])[1] - m[d])^2 + (W[d,:]' * Σz[n] * W[d,:])[1]
+                    θ.v +=  (X[d,n] .- (W[d,:]'*Mz[:,n])[1] - m[d])^2 + (W[d,:]' * Σz[n] * W[d,:])[1]
                 end
             end
             θ.v = θ.v / (N*D-sum(missing_values))
@@ -101,7 +99,7 @@ function pPCA(X::Matrix, M::Int64)
             # no need to update m
             W = _X * Mz' * inv(Mz*Mz' + N*Σz[1])
             θ.W = W
-            θ.v = sum((_X - W*Mz).^2)/(N*D) + trace(W*Σz[1]*W')/D
+            θ.v = sum((_X - W*Mz).^2)/(N*D) + tr(W*Σz[1]*W')/D
         end
     end
 
