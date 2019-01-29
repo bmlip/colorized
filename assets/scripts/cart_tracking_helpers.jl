@@ -66,3 +66,28 @@ function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Ga
     ax[:yaxis][:set_visible](false)
     xlabel("Position")
 end
+
+function plotCartPrediction2(predictive_mean, predictive_cov, mean, cov,measurement_position,measurement_cov)
+    # Make a fancy plot of the Kalman-filtered cart position
+    p = Distributions.Normal(predictive_mean, predictive_cov)
+    m = Distributions.Normal(measurement_position, measurement_cov)
+    c = Distributions.Normal(mean, cov)
+    plot_range = range(mean-8*sqrt(predictive_cov), 300, stop=mean+8*sqrt(predictive_cov))
+    PyPlot.figure(figsize=(15,5))
+    bg_img = imread("figures/cart-bg.png")
+    height = floor((plot_range[end] - plot_range[1])/3)
+    imshow(bg_img, zorder=0, extent=[plot_range[1], plot_range[end], 0., height])
+    plot(plot_range, height*Distributions.pdf.(p, plot_range), "r-")
+    plot(plot_range, height*Distributions.pdf.(m, plot_range), "b-")
+    plot(plot_range, height*Distributions.pdf.(c, plot_range), "g-")
+    legend(["Prediction "*L"p(z[n]|z[n-1],u[n])",
+            "Noisy measurement "*L"p(z[n]|x[n])",
+            "Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])"], prop=Dict("size"=>14), loc=1)
+    fill_between(plot_range, 0, height*Distributions.pdf.(p, plot_range), color="r", alpha=0.1)
+    fill_between(plot_range, 0, height*Distributions.pdf.(m, plot_range), color="b", alpha=0.1)
+    fill_between(plot_range, 0, height*Distributions.pdf.(c, plot_range), color="g", alpha=0.1)
+    xlim([plot_range[1],plot_range[end]]); ylim([0.,height])
+    ax=gca()
+    ax[:yaxis][:set_visible](false)
+    xlabel("Position")
+end
