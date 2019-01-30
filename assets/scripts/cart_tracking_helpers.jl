@@ -1,4 +1,4 @@
-using PyPlot
+using PyPlot, ForneyLab
 import Distributions
 
 function generateNoisyMeasurements( z_start::Vector{Float64},
