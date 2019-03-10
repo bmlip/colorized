@@ -47,7 +47,7 @@ function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Ga
     m = Distributions.Normal(mean(measurement)[1], var(measurement)[1])
     c = Distributions.Normal(mean(corr_prediction)[1], var(corr_prediction)[1])
 
-    plot_range = range(mean(c)-8*sqrt(var(p)),300, stop= mean(c)+8*sqrt(var(p)))
+    plot_range = range(mean(c)-8*sqrt(var(p)), mean(c)+8*sqrt(var(p)), length=300)
     PyPlot.figure(figsize=(15,5))
     bg_img = imread("figures/cart-bg.png")
     height = floor((plot_range[end] - plot_range[1])/3)
@@ -72,7 +72,7 @@ function plotCartPrediction2(predictive_mean, predictive_cov, mean, cov,measurem
     p = Distributions.Normal(predictive_mean, predictive_cov)
     m = Distributions.Normal(measurement_position, measurement_cov)
     c = Distributions.Normal(mean, cov)
-    plot_range = range(mean-8*sqrt(predictive_cov), 300, stop=mean+8*sqrt(predictive_cov))
+    plot_range = range(mean-8*sqrt(predictive_cov), mean+8*sqrt(predictive_cov), length=300)
     PyPlot.figure(figsize=(15,5))
     bg_img = imread("figures/cart-bg.png")
     height = floor((plot_range[end] - plot_range[1])/3)
