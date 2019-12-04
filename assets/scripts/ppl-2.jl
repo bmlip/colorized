@@ -1,5 +1,5 @@
-using Turing
-using Distributions
+import Turing: logaddexp
+import Distributions: MvNormal, logpdf
 using Plots
 pyplot()
 
@@ -13,7 +13,7 @@ function predict(x, y, w, μ1, μ2)
     logp2 = log(w[2]) + logpdf(MvNormal(μ2, 1.), [x, y])
 
     # Add probabilities using log-sum-exp trick for numeric stability.
-    return Turing.logaddexp(logp1, logp2)
+    return logaddexp(logp1, logp2)
 end
 
 function plot_posteriors(X, μ1_estimated, μ2_estimated)
