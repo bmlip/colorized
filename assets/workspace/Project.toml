@@ -1,0 +1,4 @@
+[deps]
+ForneyLab = "9fc3f58a-c2cc-5bff-9419-6a294fefdca9"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
