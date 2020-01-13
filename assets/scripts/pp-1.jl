@@ -58,3 +58,8 @@ function plot_normal_gamma(m_μ, v_μ, a_τ, b_τ; label=nothing, color=nothing,
     xlabel!("μ")
     ylabel!("τ")
 end
+
+function mean_chain(chain::Chains, param::Symbol)
+    "Quick function to extract sample average from MCMCChains object"
+    return vec(convert(Array{Float64,2}, mean(chain[param].value.data, dims=[1, 3])[:,:,1]))
+end;
