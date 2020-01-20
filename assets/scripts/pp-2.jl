@@ -10,12 +10,12 @@ import MCMCChains: Chains
 using Plots
 pyplot()
 
-function prob_cluster(x, y, π, μ1, Σ1)
+function prob_cluster(x, y, ϕ, μ1, Σ1)
     "Weighted probability under Gaussian"
-    return π*pdf(MvNormal(μ1, Σ1), [x, y])
+    return ϕ*pdf(MvNormal(μ1, Σ1), [x, y])
 end
 
-function plot_posteriors(X, μ1, μ2; Σ1=[1. 0.;0. 1.], Σ2=[1. 0.;0. 1.], π=[0.5, 0.5], x1=range(-5, stop=3), x2=range(-5, stop=4), size=(500, 500))
+function plot_posteriors(X, μ1, μ2; Σ1=[1. 0.;0. 1.], Σ2=[1. 0.;0. 1.], ϕ=[0.5, 0.5], x1=range(-5, stop=3), x2=range(-5, stop=4), size=(500, 500))
     "Scatter data and overlay posterior probabilities via contour plot."
 
     # Show the data
@@ -30,8 +30,8 @@ function plot_posteriors(X, μ1, μ2; Σ1=[1. 0.;0. 1.], Σ2=[1. 0.;0. 1.], π=[
             size=size)
 
     # Overlay the posterior probabilities for each cluster
-    contour!(x1, x2, (x, y) -> prob_cluster(x, y, π[1], μ1, Σ1), color="red", label="C1", cbar=nothing)
-    contour!(x1, x2, (x, y) -> prob_cluster(x, y, π[2], μ2, Σ2), color="blue", label="C2", cbar=nothing)
+    contour!(x1, x2, (x, y) -> prob_cluster(x, y, ϕ[1], μ1, Σ1), color="red", label="C1", cbar=nothing)
+    contour!(x1, x2, (x, y) -> prob_cluster(x, y, ϕ[2], μ2, Σ2), color="blue", label="C2", cbar=nothing)
 end
 
 function mean_chain(chain::Chains, param::Symbol)
