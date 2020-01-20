@@ -54,6 +54,12 @@ git-tree-sha1 = "bc779df8d73be70e4e05a63727d3a4dfb4c52b1f"
 uuid = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
 version = "0.1.5"
 
+[[AssetRegistry]]
+deps = ["Distributed", "JSON", "Pidfile", "SHA", "Test"]
+git-tree-sha1 = "b25e88db7944f98789130d7b503276bc34bc098e"
+uuid = "bf4720bc-e11a-5d0c-854e-bdca1663c893"
+version = "0.1.0"
+
 [[AxisAlgorithms]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
 git-tree-sha1 = "a4d07a1c313392a77042855df46c5f534076fab9"
@@ -92,6 +98,12 @@ deps = ["Libdl", "SHA"]
 git-tree-sha1 = "5b08ed6036d9d3f0ee6369410b830f8873d4024c"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.5.8"
+
+[[CSSUtil]]
+deps = ["Colors", "Compat", "JSON", "Measures", "Pkg", "WebIO"]
+git-tree-sha1 = "ff13fd99e4dd54f56eb064815f843bc992a871a2"
+uuid = "70588ee8-6100-5070-97c1-3cb50ed05fe8"
+version = "0.1.0"
 
 [[Calculus]]
 deps = ["LinearAlgebra"]
@@ -158,6 +170,11 @@ deps = ["LinearAlgebra", "StaticArrays", "Test"]
 git-tree-sha1 = "b974e164358fea753ef853ce7bad97afec15bb80"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.5.1"
+
+[[Crayons]]
+git-tree-sha1 = "cb7a62895da739fe5bb43f1a26d4292baf4b3dc0"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.0.1"
 
 [[DataAPI]]
 git-tree-sha1 = "674b67f344687a88310213ddfa8a2b3c76cc4252"
@@ -291,6 +308,12 @@ git-tree-sha1 = "88b082d492be6b63f967b6c96b352e25ced1a34c"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
 version = "0.10.9"
 
+[[FunctionalCollections]]
+deps = ["Test"]
+git-tree-sha1 = "04cb9cfaa6ba5311973994fe3496ddec19b6292a"
+uuid = "de31a74c-ac4f-5751-b3fd-e18cd04993ca"
+version = "0.5.0"
+
 [[Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
@@ -325,6 +348,18 @@ git-tree-sha1 = "fb8e1c7a5594ba56f9011310790e03b5384998d6"
 uuid = "1d5cc7b8-4909-519e-a0f8-d0f5ad9712d0"
 version = "2018.0.3+0"
 
+[[Interact]]
+deps = ["CSSUtil", "InteractBase", "JSON", "Knockout", "Observables", "OrderedCollections", "Reexport", "WebIO", "Widgets"]
+git-tree-sha1 = "381c584142ac744bcc23af64bff3e3dc44d7f632"
+uuid = "c601a237-2ae4-5e1e-952c-7a85b0c7eef1"
+version = "0.10.3"
+
+[[InteractBase]]
+deps = ["Base64", "CSSUtil", "Colors", "Dates", "JSExpr", "JSON", "Knockout", "Observables", "OrderedCollections", "Random", "WebIO", "Widgets"]
+git-tree-sha1 = "4528a536425453c9658ad00cf097c979cc0fa03f"
+uuid = "d3863d7c-f0c8-5437-a7b4-3ae773c01009"
+version = "0.10.3"
+
 [[InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -357,6 +392,12 @@ git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
 
+[[JSExpr]]
+deps = ["JSON", "MacroTools", "Observables", "Test", "WebIO"]
+git-tree-sha1 = "013bc2143a2e84ea489365cf30db3407deb540c2"
+uuid = "97c1335a-c9c5-57fe-bc5d-ec35cebe8660"
+version = "0.5.0"
+
 [[JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
@@ -374,6 +415,12 @@ deps = ["Distributions", "FFTW", "Interpolations", "Optim", "StatsBase", "Test"]
 git-tree-sha1 = "c1048817fe5711f699abc8fabd47b1ac6ba4db04"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 version = "0.5.1"
+
+[[Knockout]]
+deps = ["JSExpr", "JSON", "Observables", "Pkg", "Test", "WebIO"]
+git-tree-sha1 = "5cca7f070f85392cd0f42220c8ea5f7be96dacf4"
+uuid = "bcebb21b-c2e3-54f8-a781-646b90f6d2cc"
+version = "0.2.2"
 
 [[LaTeXStrings]]
 deps = ["Compat"]
@@ -505,6 +552,12 @@ git-tree-sha1 = "fcfb0d1acd89dd37bbfce2873c8401713a855f80"
 uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 version = "1.0.1"
 
+[[OhMyREPL]]
+deps = ["Crayons", "Markdown", "Pkg", "Printf", "REPL", "Tokenize"]
+git-tree-sha1 = "8857a079cb486e1f4f148a616505743ede7ec95c"
+uuid = "5fb14364-9ced-5910-84b2-373655c76a03"
+version = "0.5.3"
+
 [[OpenBLAS_jll]]
 deps = ["Libdl", "Pkg"]
 git-tree-sha1 = "3a6e5767e8ae022871c19162cc3ecd80748bd3dc"
@@ -540,6 +593,12 @@ deps = ["Dates", "Test"]
 git-tree-sha1 = "0139ba59ce9bc680e2925aec5b7db79065d60556"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "0.3.10"
+
+[[Pidfile]]
+deps = ["FileWatching", "Test"]
+git-tree-sha1 = "1ffd82728498b5071cde851bbb7abd780d4445f3"
+uuid = "fa939f87-e72e-5be4-a000-7fc836dbe307"
+version = "1.1.0"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Test", "UUIDs"]
@@ -627,6 +686,12 @@ deps = ["Compat"]
 git-tree-sha1 = "cdbbe0f350581296f3a2e3e7a91b214121934407"
 uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
 version = "0.3.1"
+
+[[Reactive]]
+deps = ["DataStructures", "Distributed", "Test"]
+git-tree-sha1 = "5862d915387ebb954016f50a88e34f79a9e5fcd2"
+uuid = "a223df75-4e93-5b7c-acf9-bdd599c0f4de"
+version = "0.8.3"
 
 [[RecipesBase]]
 git-tree-sha1 = "7bdce29bc9b2f5660a6e5e64d64d91ec941f6aa2"
@@ -746,6 +811,11 @@ version = "0.2.11"
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
+[[Tokenize]]
+git-tree-sha1 = "c3aab236f122445406cf7a6de8af0b794da5a950"
+uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
+version = "0.5.7"
+
 [[Tracker]]
 deps = ["Adapt", "DiffRules", "ForwardDiff", "LinearAlgebra", "MacroTools", "NNlib", "NaNMath", "Printf", "Random", "Requires", "SpecialFunctions", "Statistics", "Test"]
 git-tree-sha1 = "86929a5811dca5ce76c65a1d3fecda92d90c2e49"
@@ -781,6 +851,12 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 git-tree-sha1 = "80229be1f670524750d905f8fc8148e5a8c4537f"
 uuid = "81def892-9a0e-5fdd-b105-ffc91e053289"
 version = "1.2.0"
+
+[[WebIO]]
+deps = ["AssetRegistry", "Base64", "Compat", "FunctionalCollections", "JSON", "Logging", "Observables", "Random", "Requires", "Sockets", "Test", "UUIDs", "Widgets"]
+git-tree-sha1 = "c1f259d4c23f12262f4fa69263a4e54fbea77450"
+uuid = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
+version = "0.7.0"
 
 [[Widgets]]
 deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
