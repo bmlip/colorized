@@ -6,6 +6,7 @@ Last update: 09-01-2020
 
 using SpecialFunctions: gamma
 using Distributions: Normal, Gamma
+using MCMCChains: Chains
 using Plots
 pyplot()
 
