@@ -4,6 +4,10 @@ Wouter Kouw
 Last update: 07-01-2020
 """
 
+using MCMCChains: Chains
+using Plots
+pyplot()
+
 function one_hot(index::Number, length_vector::Integer; nonzero::Bool=false)
     "Map integer to one-hot encoding"
     
