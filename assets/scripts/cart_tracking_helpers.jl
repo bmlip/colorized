@@ -63,7 +63,7 @@ function plotCartPrediction(prediction::ProbabilityDistribution{Multivariate, Ga
     fill_between(plot_range, 0, height*Distributions.pdf.(c, plot_range), color="g", alpha=0.1)
     xlim([plot_range[1],plot_range[end]]); ylim([0.,height])
     ax=gca()
-    ax[:yaxis][:set_visible](false)
+    ax.yaxis.set_visible(false)
     xlabel("Position")
 end
 
@@ -88,6 +88,6 @@ function plotCartPrediction2(predictive_mean, predictive_cov, mean, cov,measurem
     fill_between(plot_range, 0, height*Distributions.pdf.(c, plot_range), color="g", alpha=0.1)
     xlim([plot_range[1],plot_range[end]]); ylim([0.,height])
     ax=gca()
-    ax[:yaxis][:set_visible](false)
+    ax.yaxis.set_visible(false)
     xlabel("Position")
 end
