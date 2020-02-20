@@ -7,8 +7,8 @@ function plotGMM(X::Matrix, clusters::Vector, γ::Matrix)
     # γ contains p(cluster|X), and should contain NaN elements if not yet known
 
     # Plot contours of the element distributions
-    cluster_colors = ["#4D9221"; "#C51B7D"]
-    for k=1:2
+    K = length(clusters)
+    for k=1:K
         X1=Matrix{Float64}(undef,50,50); X2=Matrix{Float64}(undef,50,50); d=Matrix{Float64}(undef,50,50)
         # Create bounding box for thse contour plot
         lims = [-2*sqrt(cov(clusters[k])[1,1]) 2*sqrt(cov(clusters[k])[1,1]);
@@ -20,7 +20,7 @@ function plotGMM(X::Matrix, clusters::Vector, γ::Matrix)
                 d[i,j] = pdf(clusters[k], [X1[i,j];X2[i,j]])
             end
         end
-        contour(X1, X2, d, 3, colors=cluster_colors[k])
+        contour(X1, X2, d, 3)
     end
 
     # Plot data points
