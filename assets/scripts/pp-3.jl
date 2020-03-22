@@ -4,30 +4,29 @@ Wouter Kouw
 Last update: 07-01-2020
 """
 
-using MCMCChains: Chains
-using Plots
-pyplot()
+import MCMCChains: Chains
+
 
 function one_hot(index::Number, length_vector::Integer; nonzero::Bool=false)
     "Map integer to one-hot encoding"
-    
+
     # Initialize encoded vector
     encoded = zeros(length_vector,)
-    
+
     # Set i-th index to 1
     encoded[index] = 1.0
-    
+
     # Check for strictly positive vector
     if nonzero
-        
+
         # Add epsilon
         encoded .+= 1e-8
-        
+
         # Re-normalize to 1
         encoded ./= sum(encoded)
     end
-    
-    return encoded    
+
+    return encoded
 end
 
 function mean_chain(chain::Chains, param::Symbol)
