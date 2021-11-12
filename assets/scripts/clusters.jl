@@ -1,5 +1,6 @@
 import Distributions: MvNormal, pdf, logpdf
 import Plots: scatter, contour, contour!, xlabel!, ylabel!
+using ColorSchemes
 using LaTeXStrings
 
 
@@ -31,14 +32,14 @@ function plot_clusters(observations;
                        Σ=[[1. 0.;0. 1.], [1. 0.;0. 1.]],
                        x1=range(-5, stop=3),
                        x2=range(-5, stop=4),
-                       colorlist=["red", "blue", "green"],
+                       colorlist=["reds", "blues", "greens"],
                        size=(500, 500))
     "Scatter data and overlay Gaussian clusters."
 
     # Show the data
     plt = scatter(observations[:,1],
                   observations[:,2],
-                  label="observations",
+                  label="",
                   color="black",
                   xlims=[x1[1] x1[end]],
                   ylims=[x2[1] x2[end]],
@@ -54,7 +55,6 @@ function plot_clusters(observations;
         contour!(plt, x1, x2,
                  (x, y) -> prob_cluster(x, y, μ[k], Σ[k]),
                  color=colorlist[k],
-                 label="C"*string(k),
                  cbar=nothing)
     end
     plot(plt)

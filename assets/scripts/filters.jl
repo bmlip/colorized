@@ -4,7 +4,8 @@ import Plots: plot, plot!, xlabel!, ylabel!
 
 function plot_messages(state_prediction::ProbabilityDistribution{Univariate, GaussianMeanVariance},
                        measurement_likelihood::ProbabilityDistribution{Univariate, GaussianMeanVariance},
-                       corrected_state_prediction::ProbabilityDistribution{Univariate, GaussianMeanVariance})
+                       corrected_state_prediction::ProbabilityDistribution{Univariate, GaussianMeanVariance};
+                       size=(800,300))
 
     # Extract parameters
     m_p = mean(state_prediction)
@@ -27,7 +28,7 @@ function plot_messages(state_prediction::ProbabilityDistribution{Univariate, Gau
     probs_c = [pdf(corrected_state_prediction, a) for a in plot_range]
 
     # Start plotting
-    plot(plot_range, probs_p, color="red", label="state prediction", size=(800,500))
+    plot(plot_range, probs_p, color="red", label="state prediction", size=size)
     plot!(plot_range, probs_l, color="blue", label="observation likelihood")
     plot!(plot_range, probs_c, color="green", label="state estimate")
     xlabel!("x-coordinate")

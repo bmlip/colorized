@@ -35,10 +35,4 @@ function pdf_contours_simplex(concentration_params; nlevels=200, subdiv=8)
     pvals = [pdf_Dir(xy2bc(xy, pair_corners, AREA=AREA), concentration_params) for xy in zip(trimesh.x, trimesh.y)]
 
     return trimesh, pvals
-    # plt.tricontourf(trimesh, pvals, nlevels, cmap="jet")
-    # plt.axis("equal")
-    # plt.xlim(0, 1)
-    # plt.ylim(0, 0.75^0.5)
-    # plt.axis("off")
-    # plt.show()
 end
