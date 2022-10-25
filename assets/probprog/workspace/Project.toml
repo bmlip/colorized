@@ -1,5 +1,7 @@
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ForneyLab = "9fc3f58a-c2cc-5bff-9419-6a294fefdca9"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
