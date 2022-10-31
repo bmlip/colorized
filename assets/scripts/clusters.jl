@@ -1,7 +1,6 @@
-import Distributions: MvNormal, pdf, logpdf
+import Distributions: MvNormal, pdf
 import Plots: scatter, contour, contour!, xlabel!, ylabel!
 using ColorSchemes
-using LaTeXStrings
 
 
 function prob_cluster(x, y, μ, Σ)
@@ -30,10 +29,15 @@ end
 function plot_clusters(observations;
                        μ=[],
                        Σ=[[1. 0.;0. 1.], [1. 0.;0. 1.]],
-                       x1=range(-5, stop=3),
-                       x2=range(-5, stop=4),
-                       colorlist=["reds", "blues", "greens"],
-                       size=(500, 500))
+                       xlims=(-3,3),
+                       ylims=(-3,3),
+                       colors=["reds", "blues", "greens"],     
+                       xlabel="x₁",
+                       ylabel="x₂",
+                       fontsize=15,
+                       linewidth=3,
+                       grid=false,
+                       figsize=(500, 500))
     "Scatter data and overlay Gaussian clusters."
 
     # Show the data
@@ -41,20 +45,31 @@ function plot_clusters(observations;
                   observations[:,2],
                   label="",
                   color="black",
-                  xlims=[x1[1] x1[end]],
-                  ylims=[x2[1] x2[end]],
-                  xlabel=L"$x_1$",
-                  ylabel=L"$x_2$",
-                  grid=false,
-                  size=size)
+                  xlims=xlims,
+                  ylims=ylims,
+                  xlabel=xlabel,
+                  ylabel=ylabel,
+                  labelfontsize=fontsize-2,
+                  guidefontsize=fontsize,
+                  grid=grid,
+                  size=figsize)
+
+    # Number of components              
+    K = length(μ)
+
+    # Ranges for contour plots
+    xr = range(xlims[1], step=0.01, stop=xlims[2])
+    yr = range(ylims[1], step=0.01, stop=ylims[2])
 
     # Loop over clusters
-    for k = 1:length(μ)
+    for k = 1:K
 
         # Overlay the posterior probabilities for k-th cluster
-        contour!(plt, x1, x2,
+        contour!(plt, xr, yr,
                  (x, y) -> prob_cluster(x, y, μ[k], Σ[k]),
-                 color=colorlist[k],
+                 color=colors[k],
+                 fontsize=fontsize,
+                 linewidth=linewidth,
                  cbar=nothing)
     end
     plot(plt)
