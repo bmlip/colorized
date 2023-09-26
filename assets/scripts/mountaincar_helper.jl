@@ -19,8 +19,8 @@ function plot_car(y, title_plot)
 
     animation_car = @animate for i in 1:N
     plot(valley_x, valley_y, title = title_plot , label = "Landscape", color = "black", size = (800, 400))
-    scatter!([y[i][1]], [height(y[i][1])], label="car")
-    scatter!([target[1]], [height(target[1])], label="goal")   
+    scatter!([target[1]], [height(target[1])], label="goal", markersize= 15) 
+    scatter!([y[i][1]], [height(y[i][1])], label="car", markersize= 15)  
     end
 
     file_name = "./ai_agent/ " * title_plot * ".gif"
