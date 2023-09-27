@@ -1,5 +1,4 @@
-using PyPlot
-import Distributions
+using Plots, Distributions, Images, LaTeXStrings
 
 function generateNoisyMeasurements( z_start::Vector{Float64},
                                     u::Vector{Float64},
@@ -41,25 +40,18 @@ end
 
 function plotCartPrediction(predictive_mean, predictive_cov, mean, cov,measurement_position,measurement_cov)
     # Make a fancy plot of the Kalman-filtered cart position
-    p = Distributions.Normal(predictive_mean, predictive_cov)
-    m = Distributions.Normal(measurement_position, measurement_cov)
-    c = Distributions.Normal(mean, cov)
+    p = Normal(predictive_mean, predictive_cov)
+    m = Normal(measurement_position, measurement_cov)
+    c = Normal(mean, cov)
     plot_range = range(mean-8*sqrt(predictive_cov), mean+8*sqrt(predictive_cov), length=300)
-    PyPlot.figure(figsize=(15,5))
-    bg_img = imread("figures/cart-bg.png")
+    bg_img = load("figures/cart-bg.png")
     height = floor((plot_range[end] - plot_range[1])/3)
-    imshow(bg_img, zorder=0, extent=[plot_range[1], plot_range[end], 0., height])
-    plot(plot_range, height*Distributions.pdf.(p, plot_range), "r-")
-    plot(plot_range, height*Distributions.pdf.(m, plot_range), "b-")
-    plot(plot_range, height*Distributions.pdf.(c, plot_range), "g-")
-    legend(["Prediction "*L"p(z[n]|z[n-1],u[n])",
-            "Noisy measurement "*L"p(z[n]|x[n])",
-            "Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])"], prop=Dict("size"=>14), loc=1)
-    fill_between(plot_range, 0, height*Distributions.pdf.(p, plot_range), color="r", alpha=0.1)
-    fill_between(plot_range, 0, height*Distributions.pdf.(m, plot_range), color="b", alpha=0.1)
-    fill_between(plot_range, 0, height*Distributions.pdf.(c, plot_range), color="g", alpha=0.1)
-    xlim([plot_range[1],plot_range[end]]); ylim([0.,height])
-    ax=gca()
-    ax.yaxis.set_visible(false)
-    xlabel("Position")
+    sz = size(bg_img)
+    x, y = LinRange(plot_range[begin], plot_range[end], sz[1]), collect(LinRange(0, 5, sz[2]))
+    result = plot(x, y, bg_img, xlabel="Position")
+    plot!(plot_range, height*pdf.(p, plot_range), label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
+    plot!(plot_range, height*pdf.(m, plot_range), label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
+    plot!(plot_range, height*pdf.(c, plot_range), label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", xrange = (plot_range[begin], plot_range[end]), yrange=(-3, height), fill=(0, .1))
+  
+    return result
 end
