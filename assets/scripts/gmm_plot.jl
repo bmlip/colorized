@@ -1,4 +1,4 @@
-using Distributions, Plots
+using Distributions, Plots, StatsPlots
 
 function plotGMM(X::Matrix, clusters::Vector, γ::Matrix, title)
     # Plot data set and (fitted) mixture model consisting of two Gaussian distributions
@@ -16,16 +16,16 @@ function plotGMM(X::Matrix, clusters::Vector, γ::Matrix, title)
                 -2*sqrt(cov(clusters[k])[2,2]) 2*sqrt(cov(clusters[k])[2,2])] + repeat(mean(clusters[k]), 1, 2)
         X1 = LinRange(lims[1,1], lims[1,2], 50)
         X2 = LinRange(lims[2,1], lims[2,2], 50)
-
-        contour!(X1, X2, (x, y) -> pdf(clusters[k], [x, y]))
+        alpha = sum(γ[k,:])/sum(γ)
+        covellipse!(clusters[k].μ, clusters[k].Σ, label="", alpha=max(0.1, alpha), color=:cyan)
     end
 
 
     # Plot data points
     if isnan(γ[1,1])
-        scatter!(X[1,:], X[2,:], label="observations")
+        scatter!(X[1,:], X[2,:], label="observations", markersize=2, linewidth=0)
     else
-        scatter!(X[1,:], X[2,:], label="observations")
+        scatter!(X[1,:], X[2,:], label="observations", markersize=2, linewidth=0)
     end
 
     return result
