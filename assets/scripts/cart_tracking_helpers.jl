@@ -49,7 +49,7 @@ function plotCartPrediction(predictive_mean, predictive_cov, mean, cov,measureme
     sz = size(bg_img)
     x, y = LinRange(plot_range[begin], plot_range[end], sz[1]), collect(LinRange(0, 5, sz[2]))
     bg_img = bg_img[end:-1:1, :]
-    result = plot(x, y, bg_img, xlabel="Position")
+    result = plot(x, y, bg_img, xlabel="Position", legend=:bottom)
     plot!(plot_range, height*pdf.(p, plot_range), label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
     plot!(plot_range, height*pdf.(m, plot_range), label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
     plot!(plot_range, height*pdf.(c, plot_range), label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", xrange = (plot_range[begin], plot_range[end]), yrange=(-3, height), fill=(0, .1))
