@@ -16,177 +16,105 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ 62abfc12-dcab-11ef-3ee6-1991c0729d7e
+# ╔═╡ b54a06b3-0b49-4bdc-96a8-6af9bb9e1a67
 using HypertextLiteral
 
-# ╔═╡ fee14013-e70a-4ebf-b6e6-fa11f87b774f
+# ╔═╡ 5cfb7da3-a8ee-462c-b1e1-300de6229c4a
 using PlutoUI
 
-# ╔═╡ edbcaefa-84ab-4658-98d0-3e2bed6c5488
-function data_picker_1D(initial_data::Vector{<:Real}=Float64[]; xlim=(0,100), radius::Real=4.0, height::Real=160)
-@htl """
-    <script id="yolo">
-
-	
-
-    const Plot = this?.plotlib ?? await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
-	const div = this ?? document.createElement("div")
-
-	const initial_data = $(initial_data)
-	let data = [...initial_data]
-	
-	const reset_button = document.createElement("input")
-	reset_button.type = "button"
-	reset_button.value = "Reset"
-
-	let plot = undefined
+# ╔═╡ a1ee5e0e-dcbc-11ef-390a-1b984b56eccb
+md"""
+# Different standard deviations
 
 
-	const radius = $(radius)
+Model stddev (parameter)
 
-	const render = () => {
-		
-		plot = Plot.plot({
-		  height: $(height),
-		  marks: [
-		    Plot.dotX(data, Plot.dodgeY({x: (el=>el), r: radius, fill: "currentColor", padding:0})),
-			data.length > initial_data.length ? null : Plot.text(["Click to add data"], {frameAnchor: "middle", fontSize: 20}),
-		  ],
-			x: {
-				domain: $(xlim),
-			}
-		})
-
-	    div.innerHTML = ""
-		div.value = data
-	    div.append(plot);
-		div.append(reset_button)
-	}
-
-render()
+Data stddev (statistical)
 
 
-div.addEventListener("click", (e) => {
-	// if(e.target !== plot) return
-	if(!plot.contains(e.target)) return
-
-	const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(plot.getScreenCTM().inverse());
-
-	const domain = plot.scale("x").domain
-
-	const randn = (Math.random() + Math.random() + Math.random() - Math.random() - Math.random() - Math.random()) / 1.7
-	
-	const noise = 0 * randn * radius
-
-	const clicked = plot.scale("x").invert(p.x + noise)
-
-	data.push(clicked + noise)
-	render()
-	div.dispatchEvent(new CustomEvent("input"))
-})
 
 
-reset_button.addEventListener("click", (e) => {
-console.log(123)
-	data = [...initial_data]
+# Bad model
 
-	render()
-	div.dispatchEvent(new CustomEvent("input"))
-})
+A bad model will still "fit" and the posterior will get more narrow with more data (when you use a Normal)
 
 
-    div.plotlib = Plot
-    return div
 
-    </script>
+Maybe data from multimodal
+
+
+Better model will have lower free energy
+
+
+
+
+
+# Comparing models multimodal
+
+> A big advantage of Bayesian analysis is that it can help you compare models. You can see which 
+
+You can input some 2D data
+
+It will fit a 1,2,3 normals and show the free energy below.
+
+Free energy will show the best model!
+
+
+
+
+
+# Why Bayesian?
+Advantages:
+- "Correct" approach: based on information theory
+- Uncertainty of results is baked into the method
+- You can compare models objectively
+- No training verification split
+
+
+# Bayesian stats is the "math of (un)certainty"
+
+Maybe draw parallels between regular logic and bayesian logic
+- Scientific measurements of continuous a, b, and how it leads to a certainty of c = f(a,b)
+- 
+
+
+# Background noise and signal noise
+
+Example from the book
+
+
+
+
+
+
+
 """
-end
 
-# ╔═╡ fcc155ed-6176-4223-843a-9dc905d339bc
-@bind yollo data_picker_1D([60,61,62])
+# ╔═╡ f29ac164-63a6-4406-a9a4-3f9d43ac9aff
+begin
+	X_bind = @bind X_prob Scrubbable(0.0:0.1:1.0; default=0.1, format=".0%")
+	Y_bind = @bind Y_prob Scrubbable(0.0:0.1:1.0; default=0.9, format=".0%")
+end;
 
-# ╔═╡ 1d766b00-22c2-4a12-a663-d37b3c8bdbb2
-yollo
+# ╔═╡ 19bc4d32-171e-47ae-8091-3c390f54bb5b
+X_and_Y_prob = X_prob * Y_prob
 
-# ╔═╡ 5840dc91-ea47-4410-a8a6-19796c797167
-function data_picker_2D(initial_data::Vector{<:Real}=Float64[]; xlim=(0,100), ylim=(0,100))
-@htl """
-    <script id="yolo">
+# ╔═╡ 7153e962-5afe-41c9-bb6c-b97e126773fa
+PlutoUI.ExperimentalLayout.grid([
+	md"``X``" md"``Y``" md"``X \wedge Y``"
+	0 0 0
+	0 1 0
+	1 0 0
+	1 1 1
+	X_bind Y_bind @htl("<span>$(round(Int, 100 * X_and_Y_prob))%</span>")
+]; fill_width=false, style=Dict(
+	"font-family" => "system-ui",
+	"font-variant-numeric" => "tabular-nums",
+	"justify-items" => "center",
+))
 
-	
+# ╔═╡ 74dbe995-3ab2-40cf-ad76-0bfb8c5b7b53
 
-    const Plot = this?.plotlib ?? await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
-	const div = this ?? document.createElement("div")
-
-	const initial_data = $(initial_data)
-
-	let data = [...initial_data]
-	const reset_button = document.createElement("input")
-	reset_button.type = "button"
-	reset_button.value = "Reset"
-
-	let plot = undefined
-
-
-	const radius = 7.0
-
-	const render = () => {
-		
-		plot = Plot.plot({
-		  marks: [
-		    Plot.dot(data, { r: radius, title: "name", fill: "currentColor", padding:0})
-		  ],
-			x: {
-				domain: $(xlim),
-			},
-			y: {
-				domain: $(ylim),
-			},
-		})
-
-	    div.innerHTML = ""
-		div.value = data
-	    div.append(plot);
-		div.append(reset_button)
-	}
-
-render()
-
-
-div.addEventListener("click", (e) => {
-	// if(e.target !== plot) return
-	if(!plot.contains(e.target)) return
-
-	const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(plot.getScreenCTM().inverse());
-
-
-	data.push([plot.scale("x").invert(p.x), plot.scale("y").invert(p.y)])
-	render()
-	div.dispatchEvent(new CustomEvent("input"))
-})
-
-
-reset_button.addEventListener("click", (e) => {
-console.log(123)
-	data = [...initial_data]
-
-	render()
-	div.dispatchEvent(new CustomEvent("input"))
-})
-
-
-    div.plotlib = Plot
-    return div
-
-    </script>
-"""
-end
-
-# ╔═╡ 541901aa-9ab5-4035-a817-ba82a04ea15e
-@bind aaa data_picker_2D()
-
-# ╔═╡ 1692b522-296f-4591-9985-357a8c6c893e
-aaa
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -481,13 +409,12 @@ version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
-# ╠═62abfc12-dcab-11ef-3ee6-1991c0729d7e
-# ╠═fee14013-e70a-4ebf-b6e6-fa11f87b774f
-# ╠═1d766b00-22c2-4a12-a663-d37b3c8bdbb2
-# ╠═fcc155ed-6176-4223-843a-9dc905d339bc
-# ╠═edbcaefa-84ab-4658-98d0-3e2bed6c5488
-# ╠═1692b522-296f-4591-9985-357a8c6c893e
-# ╠═541901aa-9ab5-4035-a817-ba82a04ea15e
-# ╠═5840dc91-ea47-4410-a8a6-19796c797167
+# ╠═a1ee5e0e-dcbc-11ef-390a-1b984b56eccb
+# ╠═7153e962-5afe-41c9-bb6c-b97e126773fa
+# ╠═b54a06b3-0b49-4bdc-96a8-6af9bb9e1a67
+# ╠═19bc4d32-171e-47ae-8091-3c390f54bb5b
+# ╠═f29ac164-63a6-4406-a9a4-3f9d43ac9aff
+# ╠═74dbe995-3ab2-40cf-ad76-0bfb8c5b7b53
+# ╠═5cfb7da3-a8ee-462c-b1e1-300de6229c4a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
