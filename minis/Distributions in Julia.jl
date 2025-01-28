@@ -35,6 +35,23 @@ md"""
 > You can run `names(Distributions)` to see the list of all variables that get exported.
 """
 
+# ╔═╡ 86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
+html"""
+<style>
+	pluto-output h2:first-child,
+	pluto-output h2
+	{
+		margin-block-start: 8rem;
+	}
+	
+	pluto-output h3:first-child,
+	pluto-output h3
+	{
+		margin-block-start: 5rem;
+	}
+</style>
+"""
+
 # ╔═╡ dcd02dba-1463-40cd-a135-968e7d79631b
 md"""
 ## Distributions as types
@@ -251,22 +268,37 @@ let
 	plot!(x -> pdf(secret_distribution, x))
 end
 
-# ╔═╡ 86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
-html"""
-<style>
-	pluto-output h2:first-child,
-	pluto-output h2
-	{
-		margin-block-start: 8rem;
-	}
-	
-	pluto-output h3:first-child,
-	pluto-output h3
-	{
-		margin-block-start: 5rem;
-	}
-</style>
+# ╔═╡ 55e20ec1-f809-4647-8619-beae88b17c16
+md"""
+### Scatter
+For two-dimensional data, a `scatter` plot is very useful!
+
+Let's use the `rand` function to sample from a Multivariate Normal distribution. Instead of a number and a number, we use a `Vector` for the mean, and a `Matrix` for the covariance:
+
 """
+
+# ╔═╡ b02beec7-8499-4cdb-ba90-22dec8ec9c13
+sample_mv_gaussian_data = rand(
+	MvNormal([5.0, 7.0], [
+		2.0  0.8
+		0.8  0.35
+	]),
+	1000
+)
+
+# ╔═╡ 58a61472-98c0-447f-b2f1-76e78099cbbb
+md"""
+The result is a **`2×100` matrix of numbers**, each column corresponding to one sample.
+
+Let's make a scatter plot. Each point corresponds to one sample.
+"""
+
+# ╔═╡ 32dcb058-dacc-4ce7-92d3-7c08aa0105a9
+scatter(
+	sample_mv_gaussian_data[1,:], sample_mv_gaussian_data[2,:];
+	color="black", markersize=3, opacity=.5,
+	size=(600,400)
+)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1570,5 +1602,9 @@ version = "1.4.1+2"
 # ╠═42bcc83e-0e9f-4338-9399-d28b5d17cbac
 # ╟─e931674f-0494-4d73-bf2c-45cce404587e
 # ╠═323eafb0-08e9-4f23-a6db-22b8eb45a081
+# ╟─55e20ec1-f809-4647-8619-beae88b17c16
+# ╠═b02beec7-8499-4cdb-ba90-22dec8ec9c13
+# ╟─58a61472-98c0-447f-b2f1-76e78099cbbb
+# ╠═32dcb058-dacc-4ce7-92d3-7c08aa0105a9
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
