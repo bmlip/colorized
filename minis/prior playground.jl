@@ -29,7 +29,7 @@ using HypertextLiteral
 using Integrals
 
 # ╔═╡ 366896d1-6034-4dfd-85b5-e1de86521aa2
-myplot(args...; kwargs...) = plot(args...; xlim=(-.4,1.4), ylim=(0,2), legend=false, size=(600,200), palette=:lipariS, kwargs...)
+myplot(args...; kwargs...) = plot(args...; xlim=(-.4,1.4), ylim=(0,3), legend=false, size=(600,200), palette=:lipariS, kwargs...)
 
 # ╔═╡ 5dd3e81e-b023-41af-8e68-6c719b04ddc0
 md"""
@@ -87,6 +87,15 @@ md"""
 
 # ╔═╡ eb6e0c3e-a30c-48e8-8128-2f1c95b121f1
 
+
+# ╔═╡ 1def182c-a8af-4270-a55e-a2b75bb3443d
+md"""
+Homework exercise:
+
+"Vertel iets dat je verrassend vond!"
+
+(dit kan niet met chatgpt omgg)
+"""
 
 # ╔═╡ 660cead8-1ad9-4c94-8cea-c9db51e272fb
 
@@ -400,6 +409,9 @@ begin
 	myplot(x_range, y_values ./ normalizer)#; ylim=:auto)
 end
 
+# ╔═╡ d4fa964e-8c5f-4433-8623-127cb2f6056b
+evidence
+
 # ╔═╡ c7aa2f19-6f33-4f0c-b185-8c9b6551b328
 ∫(posterior, (-100, 100))
 
@@ -414,14 +426,24 @@ evidence = ∫(posterior_unnormalized, (-100, 100))
 
 # ╔═╡ 74c39ff2-0315-440a-b98e-6102c087563b
 begin
-	prior = μ -> Distributions.pdf(prior_distribution, μ)
-	likelihood = μ -> prod(Distributions.pdf(model(μ), x) for x in data; init=1.0)
+	prior = 
+		μ -> Distributions.pdf(prior_distribution, μ)
 
-	posterior_unnormalized = μ -> likelihood(μ) * prior(μ)
+	
+	likelihood = 
+		μ -> prod(Distributions.pdf(model(μ), x) for x in data; init=1.0)
+
+	
+	posterior_unnormalized = 
+		μ -> likelihood(μ) * prior(μ)
+
+	
 	evidence = ∫(posterior_unnormalized, (-100, 100))
 
-	posterior = μ -> posterior_unnormalized(μ) / evidence
-end
+	
+	posterior = 
+		μ -> posterior_unnormalized(μ) / evidence
+end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2080,7 +2102,7 @@ version = "1.4.1+2"
 # ╔═╡ Cell order:
 # ╠═85b25128-dca3-11ef-1395-5181ae1f5704
 # ╠═ac34637d-7b89-4938-a262-c35adda8ba06
-# ╟─366896d1-6034-4dfd-85b5-e1de86521aa2
+# ╠═366896d1-6034-4dfd-85b5-e1de86521aa2
 # ╟─ad18d493-04f1-4b54-8414-efdc41dea546
 # ╟─5dd3e81e-b023-41af-8e68-6c719b04ddc0
 # ╟─448d10ea-9f50-49ff-ab4f-e98df97c23b9
@@ -2095,12 +2117,14 @@ version = "1.4.1+2"
 # ╟─e89b2403-8c78-46b1-be39-f9c606533f4d
 # ╟─7a3a0244-de9e-4a2f-b2c1-2d5221448dae
 # ╟─eb6e0c3e-a30c-48e8-8128-2f1c95b121f1
+# ╟─1def182c-a8af-4270-a55e-a2b75bb3443d
 # ╠═a3349b41-d84b-425d-9fa7-8643eb2b0f91
 # ╟─f51a9c99-319d-42f1-bfa3-dd167903f4e2
 # ╠═660cead8-1ad9-4c94-8cea-c9db51e272fb
 # ╠═af41dd06-74d5-4b37-8acb-7f277e502c43
 # ╠═efd519b1-c053-43bd-b279-3da80c6a082c
 # ╠═74c39ff2-0315-440a-b98e-6102c087563b
+# ╠═d4fa964e-8c5f-4433-8623-127cb2f6056b
 # ╠═7ad2499e-65d3-4fb1-910d-60d3602add25
 # ╠═0ad367d4-9a0a-4ca4-9c5c-ff3d1e642183
 # ╠═11e918df-f6f7-4e2f-9c54-ddf24f8f3d9b
