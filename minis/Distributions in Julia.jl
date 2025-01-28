@@ -8,7 +8,17 @@ using InteractiveUtils
 using Distributions
 
 # ╔═╡ a6436e1e-47c4-4705-9baf-6a66e2bf089d
-using Plots
+begin
+	using Plots
+
+	# set some default styles, not necessary!
+	default(
+		size=(600, 200),
+		palette=:Dark2_8,
+		width=2,
+		legend=false,
+   )
+end
 
 # ╔═╡ 5f4c4feb-be08-4fcf-ad74-67cfab522c99
 md"""
@@ -121,9 +131,6 @@ rand(Categorical([0.1, 0.1, 0.7, 0.0, 0.1]), 10)
 # ╔═╡ 6c30c0f9-4e5c-4c9f-826a-48974dcbff9c
 rand(Bernoulli(0.8), 3, 5, 2)
 
-# ╔═╡ 33bf985d-fae2-4065-b5d5-d710df227293
-
-
 # ╔═╡ d09ef2c3-6120-41b3-b32b-67ee18dfe0c1
 md"""
 ## `pdf` and `cdf`
@@ -168,7 +175,7 @@ Sometimes, you want the `pdf` or `cdf` "as a function", not just at one specific
 """
 
 # ╔═╡ b079d0da-4878-4ac7-acef-6b89e4c17aa2
-my_cdf = x -> cdf(Normal(7, 2), x)
+my_cdf = x -> cdf(Normal(7, 2), x);
 
 # ╔═╡ 0e566c76-cce5-4491-9b86-2a286393b733
 my_cdf(9.0)
@@ -206,9 +213,10 @@ Using a `let` or `begin` block, you can overlay plots:
 
 # ╔═╡ 4b9ab901-712f-407c-aa00-eaa732992290
 let
-	plot(x -> cdf(Exponential(4), x); xlim=(-3,50), label="λ = 4")
-	plot!(x -> cdf(Exponential(20), x); xlim=(-3,50), label="λ = 20")
-	plot!(x -> cdf(Exponential(30), x); xlim=(-3,50), label="λ = 30")
+	p = plot(xlim=(-3,50), legend=true)
+	plot!(p, x -> cdf(Exponential(4), x); label="λ = 4")
+	plot!(p, x -> cdf(Exponential(20), x); label="λ = 20")
+	plot!(p, x -> cdf(Exponential(30), x); label="λ = 30")
 end
 
 # ╔═╡ 579c1ab0-1dda-43d0-a733-f202648ab3dd
@@ -219,19 +227,46 @@ When you have a `Vector` of data, it is often useful to look at a histogram of y
 """
 
 # ╔═╡ 2d40fd79-0cde-480a-a9d8-89dfd12c60a1
-data = [
-	rand(Exponential(30), 1000)...,
-	rand(Uniform(150, 200), 200)...,
-]
+data = begin
+	secret_distribution = MixtureModel([
+		Exponential(30),
+		Uniform(150, 200)
+	], [0.8, 0.2])
+		
+	rand(secret_distribution, 1000)
+end
 
 # ╔═╡ 42bcc83e-0e9f-4338-9399-d28b5d17cbac
 histogram(data; bins=40)
 
-# ╔═╡ d10b80c1-c150-4ef9-bc12-d0d38eecbb76
-Truncated
+# ╔═╡ e931674f-0494-4d73-bf2c-45cce404587e
+md"""
+You can use the keyword argument `normalize=:pdf` to scale the result so that the total bar area is ``1``. This is useful when you want to overlay a PDF.
+"""
 
-# ╔═╡ a49c7086-6984-427c-bc7c-c6ab67b2dfd6
-Sums, functions etc
+# ╔═╡ 323eafb0-08e9-4f23-a6db-22b8eb45a081
+let
+	histogram(data; bins=40, normalize=:pdf)
+
+	plot!(x -> pdf(secret_distribution, x))
+end
+
+# ╔═╡ 86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
+html"""
+<style>
+	pluto-output h2:first-child,
+	pluto-output h2
+	{
+		margin-block-start: 8rem;
+	}
+	
+	pluto-output h3:first-child,
+	pluto-output h3
+	{
+		margin-block-start: 5rem;
+	}
+</style>
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1507,7 +1542,6 @@ version = "1.4.1+2"
 # ╠═a9e834af-fb03-4970-90c7-86c98bf82abd
 # ╠═8bbfb599-d51e-485e-ab79-0ca861f34461
 # ╠═6c30c0f9-4e5c-4c9f-826a-48974dcbff9c
-# ╟─33bf985d-fae2-4065-b5d5-d710df227293
 # ╟─d09ef2c3-6120-41b3-b32b-67ee18dfe0c1
 # ╠═44c2efea-6d7d-4c06-8239-1bc24efb3c9c
 # ╠═90f1b82f-0a31-448a-b410-86e9e7260866
@@ -1533,7 +1567,8 @@ version = "1.4.1+2"
 # ╟─579c1ab0-1dda-43d0-a733-f202648ab3dd
 # ╟─2d40fd79-0cde-480a-a9d8-89dfd12c60a1
 # ╠═42bcc83e-0e9f-4338-9399-d28b5d17cbac
-# ╠═d10b80c1-c150-4ef9-bc12-d0d38eecbb76
-# ╠═a49c7086-6984-427c-bc7c-c6ab67b2dfd6
+# ╟─e931674f-0494-4d73-bf2c-45cce404587e
+# ╠═323eafb0-08e9-4f23-a6db-22b8eb45a081
+# ╟─86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
