@@ -26,7 +26,7 @@ jobs:
             - name: Install Julia
               uses: julia-actions/setup-julia@v2
               with:
-                  version: "1" # This will automatically pick the latest Julia version
+                  version: "1.11"
 
             - name: Cache Julia artifacts & such
               uses: julia-actions/cache@v2
@@ -38,29 +38,21 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: pluto_state_cache
-                  key: ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}-${{ hashFiles('**/*jl') }}
+                  key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                   restore-keys: |
-                      ${{ runner.os }}-pluto_state_cache-v2-${{ hashFiles('**/Project.toml', '**/Manifest.toml', '.github/workflows/*' ) }}
+                      ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
 
 
             - name: Run & export Pluto notebooks
               run: |
                 julia -e 'using Pkg
-                  Pkg.activate(mktempdir())
-                  Pkg.add([
-                    Pkg.PackageSpec(name="PlutoSliderServer", version="0.3.2-0.3"),
-                  ])
+                  Pkg.activate("pluto-slider-server-environment")
 
                   import PlutoSliderServer
 
                   PlutoSliderServer.github_action(".";
                     Export_cache_dir="pluto_state_cache",
-                    Export_baked_notebookfile=false,
-                    Export_baked_state=false,
-                    Export_exclude=[
-                      "jupyter conversion script.jl",
-                    ]
-                    # more parameters can go here
+                    # more parameters can go here or in PlutoDeployment.toml
                   )'
 
 
