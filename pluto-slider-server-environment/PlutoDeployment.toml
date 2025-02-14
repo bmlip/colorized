@@ -5,8 +5,7 @@ host = "0.0.0.0"
 [Export]
 baked_state = false
 baked_notebookfile = false
-create_pluto_featured_index = true
-slider_server_url = "http://145.38.187.167/"
+# create_pluto_featured_index = true
 exclude = [
     "jupyter conversion script.jl",
 ]
