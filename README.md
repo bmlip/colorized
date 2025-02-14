@@ -1,5 +1,14 @@
 # BMLIP *2025-2026 edition*
 
+
+> [!IMPORTANT]
+> View the notebooks online: https://biaslab.github.io/BMLIP-colorized/
+> 
+> *(experimental)* with interactive sliders: http://145.38.187.167/
+
+
+
+
 This is the **work-in-pogress** *new* version of the course [Bayesian Machine Learning and Information Processing](https://github.com/bertdv/BMLIP). ✨
 
 There will be new lecture materials based on [Pluto.jl](https://plutojl.org/) with interactivity and color!
