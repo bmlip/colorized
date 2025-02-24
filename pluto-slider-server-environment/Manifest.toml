@@ -2,7 +2,7 @@
 
 julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "13a51ad2b377d764861ea553e631182e0e81a599"
+project_hash = "406b56fc154a0381b979e4ce277d338a5df2c9ce"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -182,6 +182,18 @@ git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.4"
 
+[[deps.JSON3]]
+deps = ["Dates", "Mmap", "Parsers", "PrecompileTools", "StructTypes", "UUIDs"]
+git-tree-sha1 = "1d322381ef7b087548321d3f878cb4c9bd8f8f9b"
+uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+version = "1.14.1"
+
+    [deps.JSON3.extensions]
+    JSON3ArrowExt = ["ArrowTypes"]
+
+    [deps.JSON3.weakdeps]
+    ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+
 [[deps.LazilyInitializedFields]]
 git-tree-sha1 = "0f2da712350b020bc3957f269c9caad516383ee0"
 uuid = "0e77f7df-68c5-4e49-93ce-4cd80f5598bf"
@@ -237,6 +249,12 @@ deps = ["Dates", "Logging"]
 git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
+
+[[deps.LoggingFormats]]
+deps = ["JSON3", "Logging"]
+git-tree-sha1 = "7aecd6f3027f5b35f9184d721ccea483f1c9c8fe"
+uuid = "98105f81-4425-4516-93fd-1664fb551ab6"
+version = "1.5.0"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "1833212fd6f580c20d4291da9c1b4e8a655b128e"
@@ -415,6 +433,12 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
+
+[[deps.StructTypes]]
+deps = ["Dates", "UUIDs"]
+git-tree-sha1 = "159331b30e94d7b11379037feeb9b690950cace8"
+uuid = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
 version = "1.11.0"
 
 [[deps.StyledStrings]]
