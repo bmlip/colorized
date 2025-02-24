@@ -7,7 +7,7 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     #! format: off
-    quote
+    return quote
         local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
@@ -123,6 +123,12 @@ model(μ) = Normal(μ, 0.5)
 # ╔═╡ 11e918df-f6f7-4e2f-9c54-ddf24f8f3d9b
 
 
+# ╔═╡ 2b04320c-3c5b-48ab-95c1-505fc64b2248
+# ╠═╡ disabled = true
+#=╠═╡
+evidence = ∫(posterior_unnormalized, (-100, 100))
+  ╠═╡ =#
+
 # ╔═╡ b813f9cd-4834-4d04-b431-65d0d6a997e7
 
 
@@ -166,6 +172,9 @@ function data_picker_1D(initial_data::Vector{<:Real}=Float64[]; xlim=(0,100), ra
 
 	const radius = $(radius)
 
+	
+	
+
 	const render = () => {
 		
 		plot = Plot.plot({
@@ -180,12 +189,22 @@ function data_picker_1D(initial_data::Vector{<:Real}=Float64[]; xlim=(0,100), ra
 		})
 
 	    div.innerHTML = ""
-		div.value = data
 	    div.append(plot);
 		div.append(reset_button)
 	}
 
 render()
+
+
+	Object.defineProperty(div, "value", {
+		get: () => {
+			return data
+		},
+		set: (newval) => {
+			data = [...newval]
+			render()
+		}
+	})
 
 
 div.addEventListener("click", (e) => {
@@ -395,6 +414,27 @@ prior_distribution = let
 	end
 end
 
+# ╔═╡ 74c39ff2-0315-440a-b98e-6102c087563b
+begin
+	prior = 
+		μ -> Distributions.pdf(prior_distribution, μ)
+
+	
+	likelihood = 
+		μ -> prod(Distributions.pdf(model(μ), x) for x in data; init=1.0)
+
+	
+	posterior_unnormalized = 
+		μ -> likelihood(μ) * prior(μ)
+
+	
+	evidence = ∫(posterior_unnormalized, (-100, 100))
+
+	
+	posterior = 
+		μ -> posterior_unnormalized(μ) / evidence
+end;
+
 # ╔═╡ cfc4c784-8ee9-402d-a9a4-c94e9b49b191
 myplot(prior)
 
@@ -417,33 +457,6 @@ evidence
 
 # ╔═╡ deaf2a93-bd6b-453a-8a71-9c7664d50dac
 likelihood(0.9)
-
-# ╔═╡ 2b04320c-3c5b-48ab-95c1-505fc64b2248
-# ╠═╡ disabled = true
-#=╠═╡
-evidence = ∫(posterior_unnormalized, (-100, 100))
-  ╠═╡ =#
-
-# ╔═╡ 74c39ff2-0315-440a-b98e-6102c087563b
-begin
-	prior = 
-		μ -> Distributions.pdf(prior_distribution, μ)
-
-	
-	likelihood = 
-		μ -> prod(Distributions.pdf(model(μ), x) for x in data; init=1.0)
-
-	
-	posterior_unnormalized = 
-		μ -> likelihood(μ) * prior(μ)
-
-	
-	evidence = ∫(posterior_unnormalized, (-100, 100))
-
-	
-	posterior = 
-		μ -> posterior_unnormalized(μ) / evidence
-end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2110,7 +2123,7 @@ version = "1.4.1+2"
 # ╟─cb3de295-162d-47ff-8ee8-58cb2b0f3cb4
 # ╟─cfc4c784-8ee9-402d-a9a4-c94e9b49b191
 # ╟─e1e0b61e-431c-46b6-9251-d5d9467a65d1
-# ╟─7362663c-a231-4e78-8e5b-0987cc2ad878
+# ╠═7362663c-a231-4e78-8e5b-0987cc2ad878
 # ╟─1d58b505-cd76-4a7b-a6c6-6e752f9b356b
 # ╟─3f97d36c-767e-4fc0-b2e5-764f0598f016
 # ╟─19418933-11fe-41bf-ad78-8ffc37f865b0
@@ -2137,7 +2150,7 @@ version = "1.4.1+2"
 # ╠═8a6fa2fb-bc3e-430e-a80d-e105568fcee5
 # ╠═f15f04bf-5e73-4295-8a79-e55ab8ab0c92
 # ╠═deaf2a93-bd6b-453a-8a71-9c7664d50dac
-# ╟─bb1ce732-d86d-4863-a216-f512ec5d5a5c
+# ╠═bb1ce732-d86d-4863-a216-f512ec5d5a5c
 # ╟─73feb66c-fb81-4e2e-a850-dc7ab213c650
 # ╟─f99ce854-759f-459f-a20d-e68b4f7aa23e
 # ╟─00000000-0000-0000-0000-000000000001
