@@ -3,8 +3,6 @@
 
 > [!IMPORTANT]
 > View the notebooks online: https://biaslab.github.io/BMLIP-colorized/
-> 
-> *(experimental)* with interactive sliders: http://145.38.187.167/
 
 
 
@@ -14,7 +12,7 @@ This is the **work-in-pogress** *new* version of the course [Bayesian Machine Le
 There will be new lecture materials based on [Pluto.jl](https://plutojl.org/) with interactivity and color!
 
 
-# How to preview notebooks
+# For course instructors: How to preview notebooks
 This repository has a GitHub Action that automatically generates a static website on every commit. This uses the [Pluto static export system](https://plutojl.org/en/docs/notebooks-online/) to generate static HTML files.
 
 You can see an index of all exported files at the repository website (link in top-right).
@@ -39,7 +37,7 @@ Open Pluto (`import Pluto; Pluto.run()`). In the main menu, **paste the URL** in
 <img width="1011" alt="image" src="https://github.com/user-attachments/assets/be98b029-41dc-4a8d-8c03-31730fb9a2bd" />
 
 
-# How to run notebooks locally
+# For course instructors: How to run notebooks locally
 
 ## Method A: clone the repository
 You can clone the repository. When you have the notebook files (`.jl`) on your computer, you can run them with Pluto!

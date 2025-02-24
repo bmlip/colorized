@@ -31,6 +31,10 @@ The server is hosted on **SURF Research Cloud**, they provided Fons with credits
 ## Domain
 To get https we need a web domain. Not sure yet!
 
+I set up an A record on the DNS of plutojl.org (cloudflare), so now we have:
+
+https://bmlip-surfer.plutojl.org/ -> http://145.38.187.167/
+
 ## Setup
 **The current setup is exactly the "Sample setup" from the PSS readme.**
 
