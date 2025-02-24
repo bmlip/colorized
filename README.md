@@ -2,7 +2,9 @@
 
 
 > [!IMPORTANT]
-> View the notebooks online: https://biaslab.github.io/BMLIP-colorized/
+> View the **notebooks online**: https://biaslab.github.io/BMLIP-colorized/
+>
+> *Status for live interactivity (PlutoSliderServer):* [![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/1svzl.svg)](https://tue-bmlip.betteruptime.com/)
 
 
 
