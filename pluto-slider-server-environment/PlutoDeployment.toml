@@ -6,6 +6,7 @@ host = "0.0.0.0"
 baked_state = false
 baked_notebookfile = false
 # create_pluto_featured_index = true
+slider_server_url = "https://bmlip-surfer.plutojl.org/"
 exclude = [
     "jupyter conversion script.jl",
 ]
