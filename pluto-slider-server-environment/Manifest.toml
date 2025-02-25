@@ -2,7 +2,7 @@
 
 julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "406b56fc154a0381b979e4ce277d338a5df2c9ce"
+project_hash = "42a8a8a9842f915e4b6ba9f053df9aef71082ff4"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -301,6 +301,12 @@ version = "1.2.1"
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
+[[deps.OpenSSH_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "OpenSSL_jll", "Zlib_jll"]
+git-tree-sha1 = "cf28501224f22b2b4d237d3cc7215c7c0cb52f6a"
+uuid = "9bd350c2-7e96-507f-8002-3f2e150b4e1b"
+version = "9.9.2+0"
+
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
 git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
@@ -405,6 +411,18 @@ deps = ["SHA", "Scratch"]
 git-tree-sha1 = "ffdaf70d81cf6ff22c2b6e733c900c3321cab864"
 uuid = "05181044-ff0b-4ac5-8273-598c1e38db00"
 version = "1.0.1"
+
+[[deps.RemoteREPL]]
+deps = ["Logging", "OpenSSH_jll", "REPL", "ReplMaker", "Serialization", "Sockets", "UUIDs"]
+git-tree-sha1 = "1d75634838e7a07872c3339aed8b86bfce9afafc"
+uuid = "1bd9f7bb-701c-4338-bec7-ac987af7c555"
+version = "0.3.0"
+
+[[deps.ReplMaker]]
+deps = ["REPL", "Unicode"]
+git-tree-sha1 = "f8bb680b97ee232c4c6591e213adc9c1e4ba0349"
+uuid = "b873ce64-0db9-51f5-a568-4457d8e49576"
+version = "0.2.7"
 
 [[deps.Requires]]
 deps = ["UUIDs"]
