@@ -1,0 +1,77 @@
+name: Compare notebook files
+on:
+    workflow_dispatch:
+    push:
+        paths-ignore:
+            - "**.md"
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - "**.md"
+
+concurrency:
+    group: pluto-export
+    cancel-in-progress: false
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                path: website_dir
+
+
+            - name: Install Julia
+              uses: julia-actions/setup-julia@v2
+              with:
+                  # note: this version should match the version in the other actions in this repo
+                  version: "1.11"
+
+            - name: Cache Julia artifacts & such
+              uses: julia-actions/cache@v2
+              with:
+                cache-registries: "true"
+
+
+            # We set up a folder that Pluto can use to cache exported notebooks. If the notebook file did not change, then Pluto can take the exported file from cache instead of running the notebook.
+            - name: Set up notebook state cache
+              uses: actions/cache@v4
+              with:
+                  path: pluto_state_cache
+                  key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                  restore-keys: |
+                      ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+
+            - name: Compare notebooks in PR
+              run: |
+                julia -e 'using Pkg
+                  Pkg.activate("pluto-slider-server-environment")
+                  Pkg.instantiate()
+
+                  using PlutoNotebookComparison
+
+                  sources = [
+                    PSSCache("pluto_state_cache")
+                    WebsiteDir("website_dir")
+                  ]
+
+                  PlutoNotebookComparison.compare_PR(".";
+                    Export_cache_dir="pluto_state_cache",
+                    # more parameters can go here or in PlutoDeployment.toml
+                  )'
+
+
+            # - name: Deploy to gh-pages
+            #   uses: JamesIves/github-pages-deploy-action@releases/v4
+            #   with:
+            #       token: ${{ secrets.GITHUB_TOKEN }}
+            #       branch: gh-pages
+            #       folder: .
+            #       single-commit: true
