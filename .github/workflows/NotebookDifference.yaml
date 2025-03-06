@@ -63,8 +63,8 @@ jobs:
                   ]
 
                   PlutoNotebookComparison.compare_PR(".";
-                    Export_cache_dir="pluto_state_cache",
-                    # more parameters can go here or in PlutoDeployment.toml
+                    sources_old=sources,
+                    sources_new=sources,
                   )'
 
 
