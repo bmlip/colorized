@@ -35,13 +35,6 @@ myplot(args...; kwargs...) = plot(args...; xlim=(-.4,1.4), ylim=(0,3), legend=fa
 md"""
 # What effect does the prior have?
 
-
-
-
-
-
-# Math
-
 Our data is:
 
 ```math
@@ -122,12 +115,6 @@ model(μ) = Normal(μ, 0.5)
 
 # ╔═╡ 11e918df-f6f7-4e2f-9c54-ddf24f8f3d9b
 
-
-# ╔═╡ 2b04320c-3c5b-48ab-95c1-505fc64b2248
-# ╠═╡ disabled = true
-#=╠═╡
-evidence = ∫(posterior_unnormalized, (-100, 100))
-  ╠═╡ =#
 
 # ╔═╡ b813f9cd-4834-4d04-b431-65d0d6a997e7
 
@@ -414,7 +401,39 @@ prior_distribution = let
 	end
 end
 
+# ╔═╡ cfc4c784-8ee9-402d-a9a4-c94e9b49b191
+myplot(prior)
+
+# ╔═╡ 3f97d36c-767e-4fc0-b2e5-764f0598f016
+begin
+	x_lims = (-.4, 1.4)
+	x_range = range(x_lims...; length=200)
+	y_values = map(posterior_unnormalized, x_range)
+
+	normalizer = sum(y_values) * abs(-(x_lims...)) / length(x_range)
+	
+	myplot(x_range, y_values ./ normalizer)#; ylim=:auto)
+end
+
+# ╔═╡ d4fa964e-8c5f-4433-8623-127cb2f6056b
+#=╠═╡
+evidence
+  ╠═╡ =#
+
+# ╔═╡ c7aa2f19-6f33-4f0c-b185-8c9b6551b328
+∫(posterior, (-100, 100))
+
+# ╔═╡ deaf2a93-bd6b-453a-8a71-9c7664d50dac
+likelihood(0.9)
+
+# ╔═╡ 2b04320c-3c5b-48ab-95c1-505fc64b2248
+# ╠═╡ disabled = true
+#=╠═╡
+evidence = ∫(posterior_unnormalized, (-100, 100))
+  ╠═╡ =#
+
 # ╔═╡ 74c39ff2-0315-440a-b98e-6102c087563b
+#=╠═╡
 begin
 	prior = 
 		μ -> Distributions.pdf(prior_distribution, μ)
@@ -434,29 +453,7 @@ begin
 	posterior = 
 		μ -> posterior_unnormalized(μ) / evidence
 end;
-
-# ╔═╡ cfc4c784-8ee9-402d-a9a4-c94e9b49b191
-myplot(prior)
-
-# ╔═╡ 3f97d36c-767e-4fc0-b2e5-764f0598f016
-begin
-	x_lims = (-.4, 1.4)
-	x_range = range(x_lims...; length=200)
-	y_values = map(posterior_unnormalized, x_range)
-
-	normalizer = sum(y_values) * abs(-(x_lims...)) / length(x_range)
-	
-	myplot(x_range, y_values ./ normalizer)#; ylim=:auto)
-end
-
-# ╔═╡ d4fa964e-8c5f-4433-8623-127cb2f6056b
-evidence
-
-# ╔═╡ c7aa2f19-6f33-4f0c-b185-8c9b6551b328
-∫(posterior, (-100, 100))
-
-# ╔═╡ deaf2a93-bd6b-453a-8a71-9c7664d50dac
-likelihood(0.9)
+  ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
