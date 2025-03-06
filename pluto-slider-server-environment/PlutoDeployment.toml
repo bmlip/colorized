@@ -1,6 +1,7 @@
 [SliderServer]
 port = 8080
 host = "0.0.0.0"
+server_timing_header = true
 
 [Export]
 baked_state = false
