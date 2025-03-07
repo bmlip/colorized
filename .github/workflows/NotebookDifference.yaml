@@ -28,7 +28,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                 ref: gh-pages
-                path: website_dir
+                path: gh_pages_dir
 
 
             - name: Install Julia
@@ -60,14 +60,19 @@ jobs:
 
                   using PlutoNotebookComparison
 
-                  sources = [
+                  sources_old = [
+                    # PSSCache("pluto_state_cache")
+                    WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
+                    WebsiteDir("gh_pages_dir")
+                  ]
+                  
+                  sources_new = [
                     PSSCache("pluto_state_cache")
-                    WebsiteDir("website_dir")
                   ]
 
                   PlutoNotebookComparison.compare_PR(".";
-                    sources_old=sources,
-                    sources_new=sources,
+                    sources_old,
+                    sources_new,
                   )'
 
 
