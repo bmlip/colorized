@@ -61,26 +61,26 @@ jobs:
                   Pkg.instantiate()
                   
                   @info "Running new notebooks..."
-                  using PlutoSliderServer
-                  PlutoSliderServer.logger_loaded[] = true
-                  PlutoSliderServer.github_action("source";
-                    Export_cache_dir="pluto_state_cache",
-                  )
+                  # using PlutoSliderServer
+                  # PlutoSliderServer.logger_loaded[] = true
+                  # PlutoSliderServer.github_action("source";
+                  #   Export_cache_dir="pluto_state_cache",
+                  # )
 
 
                   @info "Comparing..."
                   using PlutoNotebookComparison
 
                   sources_old = [
-                    SafePreview()
-                    # PSSCache("pluto_state_cache")
+                    PSSCache("pluto_state_cache")
                     WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
                     WebsiteDir("gh_pages_dir")
+                    SafePreview()
                   ]
                   
                   sources_new = [
-                    SafePreview()
                     PSSCache("pluto_state_cache")
+                    RunWithPlutoSliderServer()
                   ]
 
                   PlutoNotebookComparison.compare_PR("source";
