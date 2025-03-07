@@ -92,7 +92,7 @@ jobs:
                   using PlutoNotebookComparison
 
                   sources_old = [
-                    PSSCache("pluto_state_cache")
+                    # PSSCache("pluto_state_cache")
                     WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
                     WebsiteDir("gh_pages_dir")
                   ]
