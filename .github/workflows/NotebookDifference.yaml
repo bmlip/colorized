@@ -10,10 +10,6 @@ on:
         paths-ignore:
             - "**.md"
 
-concurrency:
-    group: pluto-export
-    cancel-in-progress: false
-
 jobs:
     build-and-deploy:
         runs-on: ubuntu-24.04
@@ -72,6 +68,7 @@ jobs:
                   using PlutoNotebookComparison
 
                   sources_old = [
+                    SafePreview()
                     PSSCache("pluto_state_cache")
                     WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
                     WebsiteDir("gh_pages_dir")
@@ -79,6 +76,7 @@ jobs:
                   ]
                   
                   sources_new = [
+                    SafePreview()
                     PSSCache("pluto_state_cache")
                     RunWithPlutoSliderServer()
                   ]
