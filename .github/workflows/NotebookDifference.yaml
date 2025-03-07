@@ -62,6 +62,7 @@ jobs:
                   
                   @info "Running new notebooks..."
                   using PlutoSliderServer
+                  PlutoSliderServer.logger_loaded[] = true
                   PlutoSliderServer.github_action("source";
                     Export_cache_dir="pluto_state_cache",
                   )
