@@ -57,7 +57,7 @@ jobs:
             - name: Compare notebooks in PR
               run: |
                 julia -e 'using Pkg
-                  Pkg.activate("pluto-slider-server-environment")
+                  Pkg.activate(joinpath("source", "pluto-slider-server-environment"))
                   Pkg.instantiate()
                   
                   @info "Running new notebooks..."
