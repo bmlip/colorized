@@ -52,16 +52,47 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-pluto_state_cache-v3
 
+            - name: Run notebooks
+              run: |
+                julia -e 'using Pkg
+                  Pkg.activate("pluto-slider-server-environment")
+                  Pkg.instantiate()
+                  
+                  using PlutoNotebookComparison
+
+                  sources_old = [
+                    PSSCache("pluto_state_cache")
+                    WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
+                    WebsiteDir("gh_pages_dir")
+                  ]
+                  
+                  sources_new = [
+                    PSSCache("pluto_state_cache")
+                  ]
+
+                  PlutoNotebookComparison.compare_PR(".";
+                    sources_old,
+                    sources_new,
+                  )
+
             - name: Compare notebooks in PR
               run: |
                 julia -e 'using Pkg
                   Pkg.activate("pluto-slider-server-environment")
                   Pkg.instantiate()
+                  
+                  @info "Running new notebooks..."
+                  using PlutoSliderServer
+                  PlutoSliderServer.github_action(".";
+                    Export_cache_dir="pluto_state_cache",
+                  )
 
+
+                  @info "Comparing..."
                   using PlutoNotebookComparison
 
                   sources_old = [
-                    # PSSCache("pluto_state_cache")
+                    PSSCache("pluto_state_cache")
                     WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
                     WebsiteDir("gh_pages_dir")
                   ]
@@ -75,11 +106,3 @@ jobs:
                     sources_new,
                   )'
 
-
-            # - name: Deploy to gh-pages
-            #   uses: JamesIves/github-pages-deploy-action@releases/v4
-            #   with:
-            #       token: ${{ secrets.GITHUB_TOKEN }}
-            #       branch: gh-pages
-            #       folder: .
-            #       single-commit: true
