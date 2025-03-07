@@ -7,7 +7,7 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     #! format: off
-    quote
+    return quote
         local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
@@ -74,6 +74,24 @@ let
 	hist(prod; color="purple", normalize=:pdf)
 	plot!(x -> pdf(Normal(mean(prod),std(prod)),x))
 end
+
+# ╔═╡ ec4d2258-1fa6-41d2-8f11-cf8169dcd403
+md"""
+f^k(x) met f netjes en k groter gaat naar normaal
+
+-> meerdere observaties
+
+
+L(x)p(x)
+
+L(x)(...)
+ etc
+
+-> James s
+
+
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1375,5 +1393,6 @@ version = "1.4.1+2"
 # ╟─d91940c3-ebc2-487e-8e35-10bc31b08feb
 # ╟─fe117a43-ef57-42e0-bd18-f57821b07422
 # ╟─84e60eb7-0d6f-46ed-8720-d323092b8a54
+# ╠═ec4d2258-1fa6-41d2-8f11-cf8169dcd403
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
