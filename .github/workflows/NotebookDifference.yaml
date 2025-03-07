@@ -49,7 +49,7 @@ jobs:
                   path: pluto_state_cache
                   key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
                   restore-keys: |
-                      ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}
+                      ${{ runner.os }}-pluto_state_cache-v3
 
             - name: Compare notebooks in PR
               run: |
