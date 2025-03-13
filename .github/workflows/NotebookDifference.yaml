@@ -1,0 +1,78 @@
+name: Compare notebook files
+on:
+    workflow_dispatch:
+    push:
+        paths-ignore:
+            - "**.md"
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - "**.md"
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+                path: source
+
+
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                ref: gh-pages
+                path: gh_pages_dir
+
+
+            - name: Install Julia
+              uses: julia-actions/setup-julia@v2
+              with:
+                  # note: this version should match the version in the other actions in this repo
+                  version: "1.11"
+
+            - name: Cache Julia artifacts & such
+              uses: julia-actions/cache@v2
+              with:
+                cache-registries: "true"
+
+            # We set up a folder that Pluto can use to cache exported notebooks. If the notebook file did not change, then Pluto can take the exported file from cache instead of running the notebook.
+            - name: Set up notebook state cache
+              uses: actions/cache@v4
+              with:
+                  path: pluto_state_cache
+                  # use the same key as the export action on the main branch:
+                  key: ${{ runner.os }}-pluto_state_cache-v3-${{ hashFiles('**/Project.toml', '**/Manifest.toml') }}-${{ github.run_id }}
+                  # here, you want to use the same restore key, but without the Project/Manifest hash:
+                  restore-keys: |
+                      ${{ runner.os }}-pluto_state_cache-v3
+
+            - name: Compare notebooks in PR
+              run: |
+                julia -e 'using Pkg
+                  Pkg.activate(joinpath("source", "pluto-slider-server-environment"))
+                  Pkg.update("PlutoNotebookComparison") # TODO REMOVE ME
+                  Pkg.instantiate()
+                  
+                  using PlutoNotebookComparison
+
+                  sources_old = [
+                    PSSCache("pluto_state_cache")
+                    WebsiteDir("gh_pages_dir")
+                    WebsiteAddress("https://biaslab.github.io/BMLIP-colorized/")
+                    SafePreview()
+                  ]
+                  
+                  sources_new = [
+                    PSSCache("pluto_state_cache")
+                    RunWithPlutoSliderServer()
+                  ]
+
+                  PlutoNotebookComparison.compare_PR("source";
+                    sources_old,
+                    sources_new,
+                  )'
+
