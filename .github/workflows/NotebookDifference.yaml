@@ -54,7 +54,6 @@ jobs:
               run: |
                 julia -e 'using Pkg
                   Pkg.activate(joinpath("source", "pluto-slider-server-environment"))
-                  Pkg.update("PlutoNotebookComparison") # TODO REMOVE ME
                   Pkg.instantiate()
                   
                   using PlutoNotebookComparison
