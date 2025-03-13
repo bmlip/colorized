@@ -373,7 +373,7 @@ version = "1.2.0"
 
 [[deps.PlutoNotebookComparison]]
 deps = ["Compat", "ExpressionExplorer", "HTTP", "InteractiveUtils", "LibGit2", "Markdown", "Pkg", "Pluto", "PlutoSliderServer", "TOML", "URIs"]
-git-tree-sha1 = "a2d2f5b29e3d5d554d10f77bd5073a9f277e21e0"
+git-tree-sha1 = "02a834896584d61ef38f1f179207ff082130025a"
 repo-rev = "main"
 repo-url = "https://github.com/JuliaPluto/PlutoNotebookComparison.jl"
 uuid = "828d9ff0-206c-6161-646e-6576656f7242"
