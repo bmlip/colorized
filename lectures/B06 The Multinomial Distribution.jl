@@ -357,11 +357,6 @@ Note the similarity for the means between discrete and continuous data.
 
 """
 
-# ╔═╡ d845e6a2-d294-11ef-26b0-fd974d9bf511
-open("../../styles/aipstyle.html") do f
-    display("text/html", read(f, String))
-end
-
 # ╔═╡ Cell order:
 # ╟─d8422bf2-d294-11ef-0144-098f414c6454
 # ╟─d8424e52-d294-11ef-0083-fbb77df4d853
@@ -389,4 +384,3 @@ end
 # ╟─d8453aac-d294-11ef-24c7-71ec0301c913
 # ╟─d8455278-d294-11ef-2455-376c205e7edf
 # ╟─d8456524-d294-11ef-0446-891a67740b28
-# ╠═d845e6a2-d294-11ef-26b0-fd974d9bf511
