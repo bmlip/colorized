@@ -1,20 +1,18 @@
+# GitHub Action 1: Static export
+We have a GHA that runs for every commit to `main`. It runs all the notebooks using Pluto, generates a static html file for every notebook and publishes the output folder as our GitHub Pages website.
 
+The action uses caching: if a notebook file is exactly the same (same file hash), then the notebook does not run, and the previous result is reused.
 
+The result is https://biaslab.github.io/BMLIP-colorized/
 
+This uses [**PlutoSliderServer.jl**](https://github.com/JuliaPluto/PlutoSliderServer.jl).
 
+# GitHub Action 2: PR test
+We have a GitHub action that runs on every PR commit. It runs the modified notebooks, and checks for unexpected changes compared to the `main` branch.
 
+You can see the result as a "Check" on every PR.
 
-
-
-
-
-
-
-
-
-
-
-
+This uses [**PlutoNotebookComparison.jl**](https://github.com/JuliaPluto/PlutoNotebookComparison.jl).
 
 
 # Slider server (for live `@bind` interaction)
