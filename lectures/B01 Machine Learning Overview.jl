@@ -71,6 +71,16 @@ Machine learning technology uses the scientific inquiry loop to develop models a
 
 """
 
+# ╔═╡ fa1d5123-db02-4fda-93d2-3e5e2efed515
+html"""
+<style>
+pluto-output img {
+	background: white;
+	border-radius: 3px;
+}
+</style>
+"""
+
 # ╔═╡ 3cec43d4-d294-11ef-0a9f-43eb506527a6
 md"""
 ## Machine Learning is Difficult
@@ -252,6 +262,7 @@ end
 # ╟─3cec1832-d294-11ef-1317-07fe5c4e69c2
 # ╟─3cec20f4-d294-11ef-1012-c19579a786e4
 # ╟─3cec3062-d294-11ef-3dd6-bfc5588bdf1f
+# ╟─fa1d5123-db02-4fda-93d2-3e5e2efed515
 # ╟─3cec43d4-d294-11ef-0a9f-43eb506527a6
 # ╟─3cec5b96-d294-11ef-39e0-15e93768d2b1
 # ╟─3cec86cc-d294-11ef-267d-7743fd241c64
