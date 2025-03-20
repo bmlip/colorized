@@ -145,6 +145,16 @@ In the above algorithm, ``F[q]`` and ``F_>[q]`` are appropriately defined Free E
 
 """
 
+# ╔═╡ 7128f91d-f3f3-41fe-a491-ede27921a822
+html"""
+<style>
+pluto-output img {
+	background: white;
+	border-radius: 3px;
+}
+</style>
+"""
+
 # ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
 md"""
 ## The Generative Model in an AIF agent
@@ -2854,6 +2864,7 @@ version = "1.4.1+2"
 # ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
 # ╟─2783c686-d294-11ef-3942-c75d2b559fb3
 # ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
+# ╟─7128f91d-f3f3-41fe-a491-ede27921a822
 # ╟─2783dc14-d294-11ef-2df0-1b7474f85e29
 # ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
 # ╟─2784529a-d294-11ef-3b0e-c5a60644fa53

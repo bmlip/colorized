@@ -159,20 +159,22 @@ f_=(x_2,x_2^\prime,x_2^{\prime\prime}) \triangleq \delta(x_2-x_2^\prime)\, \delt
 
 """
 
+# ╔═╡ 2d4d73fc-3fdc-46be-9417-9c8b85a6fdcd
+html"""
+<style>
+pluto-output img {
+	background: white;
+	border-radius: 3px;
+}
+</style>
+"""
+
 # ╔═╡ 96561594-d294-11ef-1590-198382927808
 md"""
 Note that through introduction of auxiliary variables ``X_2^{\prime}`` and ``X_2^{\prime\prime}`` and a factor ``f_=(x_2,x_2^\prime,x_2^{\prime\prime})``, each variable in ``g`` appears in maximally two factors.
 
-"""
-
-# ╔═╡ 96563a44-d294-11ef-3ba4-23fd588b99a5
-md"""
 The constraint ``f_=(x,x^\prime,x^{\prime\prime})`` enforces that ``X=X^\prime=X^{\prime\prime}`` **for every valid configuration**.
 
-"""
-
-# ╔═╡ 9656566e-d294-11ef-37c9-a536fc435e36
-md"""
 Since ``f`` is a marginal of ``g``, i.e., 
 
 ```math
@@ -188,7 +190,6 @@ f(x_1 \mid x_2) &\triangleq \frac{\iint f(x_1,x_2,x_3,x_4) \,\mathrm{d}x_3 \math
   &= g(x_1 \mid x_2)
 \end{align*}
 ```
-
 """
 
 # ╔═╡ 965679f0-d294-11ef-13e0-bf28c9a9a505
@@ -201,16 +202,13 @@ md"""
 
 """
 
-# ╔═╡ 9656b67c-d294-11ef-1541-3d3607375fd2
+# ╔═╡ 9656cf72-d294-11ef-03aa-b715dd686c09
 md"""
 ## Probabilistic Models as Factor Graphs
 
 FFGs can be used to express conditional independence (factorization) in probabilistic models. 
 
-"""
 
-# ╔═╡ 9656cf72-d294-11ef-03aa-b715dd686c09
-md"""
 For example, the (previously shown) graph for 
 
 ```math
@@ -2758,11 +2756,9 @@ version = "1.4.1+2"
 # ╟─9655ed6e-d294-11ef-370f-937b590036f3
 # ╟─9655fb88-d294-11ef-1ceb-91585012d142
 # ╟─965606f2-d294-11ef-305b-870427879e50
+# ╟─2d4d73fc-3fdc-46be-9417-9c8b85a6fdcd
 # ╟─96561594-d294-11ef-1590-198382927808
-# ╟─96563a44-d294-11ef-3ba4-23fd588b99a5
-# ╟─9656566e-d294-11ef-37c9-a536fc435e36
 # ╟─965679f0-d294-11ef-13e0-bf28c9a9a505
-# ╟─9656b67c-d294-11ef-1541-3d3607375fd2
 # ╟─9656cf72-d294-11ef-03aa-b715dd686c09
 # ╟─9656d850-d294-11ef-21a1-474b07ea7729
 # ╟─9656e606-d294-11ef-1daa-312623552a5b
