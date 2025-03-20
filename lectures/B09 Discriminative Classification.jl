@@ -1,8 +1,20 @@
 ### A Pluto.jl notebook ###
-# v0.19.47
+# v0.20.4
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
+using Random
+
+# ╔═╡ ae2a65fa-1322-43b1-80cf-ee3ad1c47312
+using Plots, LaTeXStrings
+
+# ╔═╡ 6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
+using Optim # Optimization library
+
+# ╔═╡ 616e84d7-063d-4d9d-99e4-56aecf3c7ee4
+using Distributions
 
 # ╔═╡ 25eefb10-d294-11ef-0734-2daf18636e8e
 md"""
@@ -39,25 +51,16 @@ Our task will be the same as in the preceding class on (generative) classificati
 
 """
 
-# ╔═╡ 25ef4188-d294-11ef-3e85-bb4e7900df5c
-using Random; Random.seed!(1234);
+# ╔═╡ ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
 # Generate dataset {(x1,y1),...,(xN,yN)}
 # x is a 2-d feature vector [x_1;x_2]
 # y ∈ {false,true} is a binary class label
 # p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
-using Plots, LaTeXStrings
-include("./scripts/lesson8_helpers.jl")
-N = 200
-X, y = genDataset(N) # Generate data set, collect in matrix X and vector y
-X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
+
+N = 200;
+
+# ╔═╡ c5777ae3-e499-46a6-998a-05b97693b3e1
 X_test = [3.75; 1.0] # Features of 'new' data point
-function plotDataSet()
-    result = scatter(X_c1[:,1], X_c1[:,2],markersize=4, label=L"y=0", xlabel=L"x_1", ylabel=L"x_2", xlims=(-1.6, 9), ylims=(-2, 7))
-    scatter!(X_c2[:,1], X_c2[:,2],markersize=4, label=L"y=1")
-    scatter!([X_test[1]], [X_test[2]], markersize=7, marker=:star, label=L"y=?") 
-    return result  
-end
-plotDataSet()
 
 # ╔═╡ 25ef6ece-d294-11ef-270a-999c8d457b24
 md"""
@@ -581,37 +584,6 @@ We plot the resulting maximum likelihood discrimination boundary. For comparison
 
 """
 
-# ╔═╡ 25f3de00-d294-11ef-11d7-7fb74d60a8d2
-using Optim # Optimization library
-
-y_1 = zeros(length(y))# class 1 indicator vector
-y_1[findall(y)] .= 1
-X_ext = vcat(X, ones(1, length(y))) # Extend X with a row of ones to allow an offset in the discrimination boundary
-
-# Implement negative log-likelihood function
-function negative_log_likelihood(θ::Vector)
-    # Return negative log-likelihood: -L(θ)
-    p_1 = 1.0 ./ (1.0 .+ exp.(-X_ext' * θ))   # P(C1|X,θ)
-    return -sum(log.( (y_1 .* p_1) + ((1 .- y_1).*(1 .- p_1))) ) # negative log-likelihood
-end
-
-# Use Optim.jl optimiser to minimize the negative log-likelihood function w.r.t. θ
-results = optimize(negative_log_likelihood, zeros(3), LBFGS())
-θ = results.minimizer
-
-# Plot the data set and ML discrimination boundary
-plotDataSet()
-p_1(x) = 1.0 ./ (1.0 .+ exp(-([x;1.]' * θ)))
-boundary(x1) = -1 ./ θ[2] * (θ[1]*x1 .+ θ[3])
-
-generative_boundary = buildGenerativeDiscriminationBoundary(X, y)
-
-
-x_test = [3.75;1.0]
-println("P(C1|x•,θ) = $(p_1(x_test))")
-plot!([-2., 10.], boundary.([-2., 10.]), label="Discr. boundary", linewidth=2)
-plot!([-2.,10.], generative_boundary.([-2,10]), label="Gen. boundary", linewidth=2)
-
 # ╔═╡ 25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
 md"""
 The generative model gives a bad result because the feature distribution of one class is clearly non-Gaussian: the model does not fit the data well. 
@@ -741,7 +713,7 @@ since ``(2y_n-1)^2=1`` for ``y_n \in \{0,1\}``.
 md"""
 ## $(HTML("<span id='ML-for-LG'>Proof of Derivative of Log-likelihood for Logistic Regression</span>"))
 
-The Log-likelihood is $   \mathrm{L}(\theta) = \log \prod*n \prod*k {\underbrace{p(\mathcal{C}*k|x*n,\theta)}*{p*{nk}}}^{y*{nk}} = \sum*{n,k} y*{nk} \log p*{nk}$
+The Log-likelihood is ``\mathrm{L}(\theta) = \log \prod*n \prod*k {\underbrace{p(\mathcal{C}*k|x*n,\theta)}*{p*{nk}}}^{y*{nk}} = \sum*{n,k} y*{nk} \log p*{nk}``
 
 Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative:
 
@@ -768,16 +740,146 @@ Take the derivative of ``\mathrm{L}(\theta)`` (or: how to spend a hour ...)
 
 """
 
-# ╔═╡ 25f480a8-d294-11ef-1b0f-7f1a4e88a79c
-open("../../styles/aipstyle.html") do f
-    display("text/html", read(f,String))
+# ╔═╡ 6eee35ee-fd55-498f-9441-f18c2508de19
+md"""
+# Appendix
+"""
+
+# ╔═╡ fcec3c3a-8b0b-4dfd-b010-66abbf330069
+function generate_dataset(N::Int64)
+	Random.seed!(1234)
+    # Generate dataset {(x1,y1),...,(xN,yN)}
+    # x is a 2d feature vector [x1;x2]
+    # y ∈ {false,true} is a binary class label
+    # p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
+	# srand(123)
+    X = Matrix{Float64}(undef,2,N); y = Vector{Bool}(undef,N)
+    for n=1:N
+        if (y[n]=(rand()>0.6)) # p(y=true) = 0.6
+            # Sample class 1 conditional distribution
+            if rand()<0.5
+                X[:,n] = [6.0; 0.5] .* rand(2) .+ [3.0; 6.0]
+            else
+                X[:,n] = sqrt(0.5) * randn(2) .+ [5.5, 0.0]
+            end
+        else
+            # Sample class 2 conditional distribution
+            X[:,n] = randn(2) .+ [1., 4.]
+        end
+    end
+
+    return (X, y)
+end
+
+# ╔═╡ d908270d-81b4-4c97-8298-2ba66bccc45b
+X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
+
+# ╔═╡ c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
+X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
+
+# ╔═╡ 476f1aef-fb9b-42a6-a0cb-f0f3da1385da
+function plot_dataset()
+    result = scatter(X_c1[:,1], X_c1[:,2],markersize=4, label=L"y=0", xlabel=L"x_1", ylabel=L"x_2", xlims=(-1.6, 9), ylims=(-2, 7))
+    scatter!(X_c2[:,1], X_c2[:,2],markersize=4, label=L"y=1")
+    scatter!([X_test[1]], [X_test[2]], markersize=7, marker=:star, label=L"y=?") 
+    return result  
+end
+
+# ╔═╡ cc016a47-5c5f-4361-85b9-f6f4141e58d3
+plot_dataset()
+
+# ╔═╡ 56598859-2824-4242-a894-684bf1ad1f6e
+y_1 = map(y) do val
+	val == true ? 1.0 : 0.0
+end # class 1 indicator vector
+
+# ╔═╡ 6f483978-29f0-4165-bd8f-650c403e3512
+# Extend X with a row of ones to allow an offset in the discrimination boundary
+X_ext = vcat(X, ones(1, length(y)))
+
+# ╔═╡ a89af0df-c39b-406e-a30a-4706ad2ea043
+function negative_log_likelihood(θ::Vector)
+	# P(C1|X,θ)
+    p_1 = 1.0 ./ (1.0 .+ exp.(-X_ext' * θ))
+	
+	# negative log-likelihood
+    return -sum(log.( (y_1 .* p_1) + ((1 .- y_1).*(1 .- p_1))) ) 
+end
+
+# ╔═╡ a75d69e1-c1e9-45b4-9924-4c2fe59413dc
+# Use Optim.jl optimiser to minimize the negative log-likelihood function w.r.t. θ
+θ = let
+	results = optimize(negative_log_likelihood, zeros(3), LBFGS())
+	results.minimizer
+end
+
+# ╔═╡ 00488cbb-75c6-4df9-9924-fada8f79a6f1
+function build_generative_discrimination_boundary(X::Matrix, y::Vector{Bool})
+    # Generate discrimination boundary function x[2] = boundary(x[1]) for a Gaussian generative model:
+    # X = [x_1,...,x_N]
+    # y = [y_1;...;y_N]
+    # x is a 2-d real (feature) vector
+    # y ∈ {false,true}
+    # x|y ~ 𝓝(x|μ_y, Σ_y)
+    # We find the class-conditional Gaussian distributions by MLE
+    # See lesson (generative classification) for more details
+    (size(X,1)==2) || error("The columns of X should have length 2")
+
+    # MLE of p(y)
+    p_1_est = sum(y.==true) / length(y)
+    π_hat = [p_1_est; 1 .- p_1_est]
+
+    # MLE of class-conditional multivariate Gaussian densities
+    X_cls1 = X[:,y.==true]
+    X_cls2 = X[:,y.==false]
+    d1 = fit_mle(FullNormal, X_cls1)  # MLE density estimation d1 = N(μ₁, Σ₁)
+    d2 = fit_mle(FullNormal, X_cls2)  # MLE density estimation d2 = N(μ₂, Σ₂)
+    Σ = π_hat[1] * cov(d1) + π_hat[2] * cov(d2) # Combine Σ₁ and Σ₂ into Σ
+
+    conditionals = [MvNormal(mean(d1), Σ); MvNormal(mean(d2), Σ)] # p(x|C)
+
+    # Discrimination boundary of the posterior (p(apple|x;D) = p(peach|x;D) = 0.5)
+    β(k) = inv(Σ)* mean(conditionals[k])
+    γ(k) = -0.5 * mean(conditionals[k])' * inv(Σ) * mean(conditionals[k]) + log(π_hat[k])
+    function discriminant_x2(x1)
+        # Solve discriminant equation for x2
+        
+        β12 = β(1) .- β(2)
+        γ12 = (γ(1) .- γ(2))[1,1]
+        return -1 ./ β12[2]*(β12[1]*x1 .+ γ12) 
+    end
+
+    return discriminant_x2
+end
+
+# ╔═╡ 7ad2f815-9d19-448c-bb7e-044a955f82e0
+let
+	# Plot the data set and ML discrimination boundary
+	plot_dataset()
+	p_1(x) = 1.0 / (1.0 + exp(-([x;1.]' * θ)))
+	boundary(x1) = -1 / θ[2] * (θ[1]*x1 + θ[3])
+	
+	generative_boundary = build_generative_discrimination_boundary(X, y)
+	
+	x_test = [3.75;1.0]
+	@debug("P(C1|x•,θ) = $(p_1(x_test))")
+	
+	plot!([-2., 10.], boundary; label="Discr. boundary", linewidth=2)
+	plot!([-2.,10.], generative_boundary; label="Gen. boundary", linewidth=2)
 end
 
 # ╔═╡ Cell order:
 # ╟─25eefb10-d294-11ef-0734-2daf18636e8e
 # ╟─25ef12bc-d294-11ef-1557-d98ba829a804
 # ╟─25ef2806-d294-11ef-3cb6-0f3e76b9177e
-# ╠═25ef4188-d294-11ef-3e85-bb4e7900df5c
+# ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
+# ╠═ae2a65fa-1322-43b1-80cf-ee3ad1c47312
+# ╠═ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
+# ╠═d908270d-81b4-4c97-8298-2ba66bccc45b
+# ╠═c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
+# ╠═c5777ae3-e499-46a6-998a-05b97693b3e1
+# ╠═cc016a47-5c5f-4361-85b9-f6f4141e58d3
+# ╠═476f1aef-fb9b-42a6-a0cb-f0f3da1385da
 # ╟─25ef6ece-d294-11ef-270a-999c8d457b24
 # ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
 # ╟─25efa2fe-d294-11ef-172f-9bb09277f59e
@@ -821,11 +923,19 @@ end
 # ╟─25f3965c-d294-11ef-11b8-af605b86f188
 # ╟─25f3a638-d294-11ef-0cd5-c3a46aa780c6
 # ╟─25f3bef2-d294-11ef-1438-e9f7e469336f
-# ╠═25f3de00-d294-11ef-11d7-7fb74d60a8d2
+# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
+# ╠═56598859-2824-4242-a894-684bf1ad1f6e
+# ╠═6f483978-29f0-4165-bd8f-650c403e3512
+# ╠═a89af0df-c39b-406e-a30a-4706ad2ea043
+# ╠═a75d69e1-c1e9-45b4-9924-4c2fe59413dc
+# ╠═7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╟─25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
 # ╟─25f3ff84-d294-11ef-0031-63b23d23324d
 # ╟─25f41118-d294-11ef-13a8-3fa6587c1bf3
 # ╟─25f41df2-d294-11ef-35a1-73e12752c24d
 # ╟─25f42e98-d294-11ef-1f51-8b6b81987cc4
 # ╟─25f461c2-d294-11ef-2e85-6f1acc16cf3b
-# ╠═25f480a8-d294-11ef-1b0f-7f1a4e88a79c
+# ╟─6eee35ee-fd55-498f-9441-f18c2508de19
+# ╠═616e84d7-063d-4d9d-99e4-56aecf3c7ee4
+# ╠═fcec3c3a-8b0b-4dfd-b010-66abbf330069
+# ╠═00488cbb-75c6-4df9-9924-fada8f79a6f1
