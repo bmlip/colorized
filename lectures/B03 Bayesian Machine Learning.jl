@@ -471,6 +471,16 @@ The Bayesian design process provides a unified framework for the Scientific Inqu
 
 """
 
+# ╔═╡ c050f468-7eec-403f-9304-552bd0d9b222
+html"""
+<style>
+pluto-output img {
+	background: white;
+	border-radius: 3px;
+}
+</style>
+"""
+
 # ╔═╡ 6a2898ea-d294-11ef-39ec-31e4bac1e048
 md"""
 ## Revisiting the Challenge: Predicting a Coin Toss
@@ -2712,6 +2722,7 @@ version = "1.4.1+2"
 # ╟─6a286b04-d294-11ef-1b34-8b7a85c0048c
 # ╟─6a2879e6-d294-11ef-37db-df7babe24d25
 # ╟─6a2889ae-d294-11ef-2439-e1a541a5ccd7
+# ╟─c050f468-7eec-403f-9304-552bd0d9b222
 # ╟─6a2898ea-d294-11ef-39ec-31e4bac1e048
 # ╟─6a28a704-d294-11ef-1bf2-efbdb0cb4cbc
 # ╟─6a28b44c-d294-11ef-15da-81be8753d311

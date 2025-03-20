@@ -168,6 +168,16 @@ The Forney-style factor graph for a state-space model:
 
 """
 
+# ╔═╡ 63f422ca-ba15-41ad-b36b-7a6aa4cc5e2a
+html"""
+<style>
+pluto-output img {
+	background: white;
+	border-radius: 3px;
+}
+</style>
+"""
+
 # ╔═╡ 27290f78-d294-11ef-2ac4-b179be83b812
 md"""
 ## Hidden Markov Models and Linear Dynamical Systems
@@ -3050,6 +3060,7 @@ version = "1.4.1+2"
 # ╟─2728e5c2-d294-11ef-1788-9b3699bb4ccd
 # ╟─2728f76a-d294-11ef-1c88-a5fd653b9d9c
 # ╟─2729087c-d294-11ef-3f71-51112552f7b9
+# ╟─63f422ca-ba15-41ad-b36b-7a6aa4cc5e2a
 # ╟─27290f78-d294-11ef-2ac4-b179be83b812
 # ╟─27293266-d294-11ef-0b84-29ce6dd5924b
 # ╟─2729429c-d294-11ef-014b-0dcbac544528
