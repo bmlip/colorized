@@ -97,23 +97,60 @@ In Jupyter, you often load images using a relative path, e.g.
 <img src="./figures/something-cool.svg">
 ```
 
-In Pluto, we **don't recommend this**. Instead, use images from the web, using their URL. You can link to images on github:
+In Pluto, we **don't recommend this**. Instead, use images from the web, using their URL. 
+
+You can link to images on github:
 
 ```julia
+# ⚠️ maybe use in Pluto, but be careful to use a version-pinned URL
 md"""
-
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/figures/Bishop-Figure4.5b.png?raw=true)
 """
 ```
 
-But the best method is to (ab)use GitHub's Issues feature:
+But the best method is to **(ab)use GitHub's Issues feature**! This gives the most reliable result and it is easy to do!
 
-### Step 1: open a new issue anywhere
+### Step 1: Open a new issue anywhere
 Go to a public GitHub repository and click "New issue".
 
 
 ### Step 2: Upload your image to get a URL
-Drag your image into the writing box.
+Drag your image into the writing box. It will upload and you get an image.
 
 
-### Step 3:
+### Step 3: Copy the image URL
+After uploading, an image tag is inserted. It will look like:
+
+```
+<img width="130" alt="Image" src="https://github.com/user-attachments/assets/e9dcc842-ada4-4508-bf53-bbe3c9f52a30" />
+```
+
+Here, **copy the URL part**, i.e.
+
+```
+https://github.com/user-attachments/assets/e9dcc842-ada4-4508-bf53-bbe3c9f52a30
+```
+
+### Step 4: Markdown
+Now this is your image URL! You can use it in Pluto in a Markdown cell:
+
+```julia
+# ✅ use this in Pluto!
+md"""
+My image:
+
+![some description](https://github.com/user-attachments/assets/e9dcc842-ada4-4508-bf53-bbe3c9f52a30)
+"""
+```
+
+### Step 5: Cancel the issue
+That's it! You can close the Issue tab, you do not need to post the issue.
+
+
+## Code in Pluto
+When coming from Jupyter, you will notice that Pluto has a **stricter runtime**. These restrictions are there to help you write **reproducible**, **reactive**, clean and readable notebooks.
+
+Pluto's restrictions will be frustrating at first (when coming from Jupyter), but Fons thinks that this is a small price to pay for reproducible, interactive notebooks!
+
+### 👉 Read [this article](https://featured.plutojl.org/basic/pluto%20for%20jupyter%20users) about the differences between Jupyter and Pluto.
 
