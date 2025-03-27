@@ -465,7 +465,7 @@ This latter point accentuates that the common practice in machine learning to di
 md"""
 ## Bayesian Machine Learning and the Scientific Method Revisited
 
-The Bayesian design process provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Intelligent-Agents-and-Active-Inference.ipynb).) 
+The Bayesian design process provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B12%20Intelligent%20Agents%20and%20Active%20Inference.html).) 
 
 ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
 
@@ -891,7 +891,7 @@ end
 
 # ╔═╡ 6a2b1f5a-d294-11ef-25d0-e996c07958b9
 md"""
-(If the GIF animation is not rendered, you can try to [view it here](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/Bayesian-Machine-Learning.ipynb)).
+(If the GIF animation is not rendered, you can try to [view it here](https://biaslab.github.io/BMLIP-colorized/lectures/B03%20Bayesian%20Machine%20Learning.html)).
 
 """
 
@@ -927,8 +927,6 @@ end
 
 # ╔═╡ 6a2b9676-d294-11ef-241a-89ff7aa676f9
 md"""
-(If the GIF animation is not rendered, you can try to [view it here](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/Bayesian-Machine-Learning.ipynb)).
-
 Over time, the relative evidence of model ``m_1`` converges to 0. Can you explain this behavior?
 
 """

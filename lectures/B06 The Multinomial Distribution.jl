@@ -126,7 +126,7 @@ This distribution depends on the observations **only** through the quantities ``
 
 # ╔═╡ d8439866-d294-11ef-230b-dfde21aedfbf
 md"""
-We need a prior for the parameters ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)``. In the [binary coin toss example](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Bayesian-Machine-Learning.ipynb#beta-prior), 
+We need a prior for the parameters ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)``. In the [binary coin toss example](https://biaslab.github.io/BMLIP-colorized/lectures/B03%20Bayesian%20Machine%20Learning.html#beta-prior), 
 
 we used a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) that was conjugate with the binomial and forced us to choose prior pseudo-counts. 
 

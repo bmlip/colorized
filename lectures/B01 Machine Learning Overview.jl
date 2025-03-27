@@ -213,7 +213,7 @@ Given the state of the world (obtained from sensory data), the agent must *learn
 
 In contrast to supervised and unsupervised learning, an agent is able to affect its data set by making actions, e.g., a robot can change its input video data stream by turning the head of its camera. 
 
-In this course, we focus on the active inference approach to trial design, see the [Intelligent Agent lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Intelligent-Agents-and-Active-Inference.ipynb) for details. 
+In this course, we focus on the active inference approach to trial design, see the [Intelligent Agent lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B12%20Intelligent%20Agents%20and%20Active%20Inference.html) for details. 
 
 """
 

@@ -1028,7 +1028,7 @@ For proof, see [https://en.wikipedia.org/wiki/Product_distribution](https://en.w
 md"""
 Generally, this integral does not lead to an analytical expression for ``p_z(z)``. 
 
-For example, [the product of two independent variables that are both Gaussian-distributed does not lead to a Gaussian distribution](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/The-Gaussian-Distribution.ipynb#product-of-gaussians).
+For example, [the product of two independent variables that are both Gaussian-distributed does not lead to a Gaussian distribution](https://biaslab.github.io/BMLIP-colorized/lectures/B05%20The%20Gaussian%20Distribution.html#product-of-gaussians).
 
   * Exception: the distribution of the product of two variables that both have [log-normal distributions](https://en.wikipedia.org/wiki/Log-normal_distribution) is again a lognormal distribution. (If ``X`` has a normal distribution, then ``Y=\exp(X)`` has a log-normal distribution.)
 
