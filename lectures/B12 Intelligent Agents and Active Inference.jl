@@ -231,9 +231,9 @@ The state updating task can be formulated as minimization of the above FE (see a
 q(s_t|x_{1:t}) = \arg\min_q F[q]
 ```
 
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Dynamic-Models.ipynb#kalman-filter). 
+In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://biaslab.github.io/BMLIP-colorized/lectures/B11%20Dynamic%20Models.html#kalman-filter). 
 
-In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.  
+In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
 
 Our toolbox [RxInfer](http://rxinfer.ml) specializes in automated execution of  this minimization task. 
 
@@ -346,7 +346,7 @@ Seeking actions that balance goal-seeking behavior (exploitation) and informatio
 
 # ╔═╡ 2784b474-d294-11ef-1305-ef0f0771d28f
 md"""
-## AIF Agents learn both the Problem and Solution
+## $(HTML("<span id='PS-decomposition'></span>")) AIF Agents learn both the Problem and Solution
 
 We highlight another great feature of FE minimizing agents. Consider an AIF agent (``m``) with generative model ``p(x,s,u|m)``.
 

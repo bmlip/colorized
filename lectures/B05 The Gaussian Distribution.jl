@@ -97,7 +97,7 @@ p(x | \mu, \sigma^2) =  \frac{1}{\sqrt{2\pi\sigma^2 }} \,\exp\left\{-\frac{(x-\m
 
 # ╔═╡ b9a50d0c-d294-11ef-0e60-2386cf289478
 md"""
-Alternatively, the $(HTML("<span id='natural-parameterization'>*canonical* (a.k.a. *natural*  or *information* ) parameterization</span>")) of the Gaussian distribution is given by
+Alternatively, the $(HTML("<span id='natural-parameterization'></span>"))*canonical* (a.k.a. *natural*  or *information* ) parameterization of the Gaussian distribution is given by
 
 ```math
 \begin{equation*}
@@ -165,7 +165,7 @@ A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{
 p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
 ```
 
-In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Probability-Theory-Review.ipynb#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
+In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B02%20Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
 
 """
 

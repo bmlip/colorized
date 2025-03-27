@@ -152,7 +152,7 @@ p(w|D) &\propto p(D|w)\cdot p(w) \\
 \end{align*}
 ```
 
-with natural parameters (see the [natural parameterization of Gaussian](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/The-Gaussian-Distribution.ipynb#natural-parameterization)):
+with natural parameters (see the [natural parameterization of Gaussian](https://biaslab.github.io/BMLIP-colorized/lectures/B05%20The%20Gaussian%20Distribution.html#natural-parameterization)):
 
 ```math
 \begin{align*}
