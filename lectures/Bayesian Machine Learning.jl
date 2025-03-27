@@ -465,7 +465,7 @@ This latter point accentuates that the common practice in machine learning to di
 md"""
 ## Bayesian Machine Learning and the Scientific Method Revisited
 
-The Bayesian design process provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
+The Bayesian design process provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
 
 ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
 
@@ -891,7 +891,7 @@ end
 
 # ╔═╡ 6a2b1f5a-d294-11ef-25d0-e996c07958b9
 md"""
-(If the GIF animation is not rendered, you can try to [view it here](https://biaslab.github.io/BMLIP-colorized/lectures/Bayesian%20Machine%20Learning.html)).
+(If the GIF animation is not rendered, you can try to [view it here](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html)).
 
 """
 

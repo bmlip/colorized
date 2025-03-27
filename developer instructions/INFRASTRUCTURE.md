@@ -3,7 +3,7 @@ We have a GHA that runs for every commit to `main`. It runs all the notebooks us
 
 The action uses caching: if a notebook file is exactly the same (same file hash), then the notebook does not run, and the previous result is reused.
 
-The result is https://biaslab.github.io/BMLIP-colorized/
+The result is https://bmlip.github.io/colorized/
 
 This uses [**PlutoSliderServer.jl**](https://github.com/JuliaPluto/PlutoSliderServer.jl).
 
