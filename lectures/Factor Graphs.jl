@@ -4,148 +4,162 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
-using LinearAlgebra, Plots, RxInfer
+# ╔═╡ 965a08f4-d294-11ef-0604-1586ff37c0d4
+using Plots, LinearAlgebra, LaTeXStrings
 
-# ╔═╡ 278382c0-d294-11ef-022f-0d78e9e2d04c
+# ╔═╡ 2cb7d369-e7fd-4d66-8321-66a9197a26bd
+using RxInfer, Random
+
+# ╔═╡ 96547560-d294-11ef-0fa7-6b6489f7baba
 md"""
-# Intelligent Agents and Active Inference
+# Factor Graphs
 
 """
 
-# ╔═╡ 27839788-d294-11ef-30a2-8ff6357aa68b
+# ╔═╡ 9654ea3e-d294-11ef-335c-657af1ceaf19
 md"""
 ## Preliminaries
 
 Goal 
 
-  * Introduction to Active Inference and application to the design of synthetic intelligent agents
+  * Introduction to Forney-style factor graphs and message passing-based inference
 
 Materials        
 
   * Mandatory
 
       * These lecture notes
-      * Bert de Vries - 2021 - Presentation on [Beyond deep learning: natural AI systems](https://youtu.be/QYbcm6G_wsk?si=G9mkjmnDrQH9qk5k) (video)
+      * Loeliger (2007), [The factor graph approach to model based signal processing](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf), pp. 1295-1302 (until section V)
   * Optional
 
-      * Bert de Vries, Tim Scarfe and Keith Duggar - 2023 - Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
+      * Frederico Wadehn (2015), [Probabilistic graphical models: Factor graphs and more](https://www.youtube.com/watch?v=Fv2YbVg9Frc&t=31) video lecture (**recommended**)
+  * References
 
-          * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
-      * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](./files/WIRED-Friston.pdf).
-
-          * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
-      * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
-
-          * Friston's vision on the future of AI.
-      * Van de Laar and De Vries (2019), [Simulating Active Inference Processes by Message Passing](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full)
-
-          * How to implement active inference by message passing in a Forney-style factor graph.
-
-    
+      * Forney (2001), [Codes on graphs: normal realizations](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf)
 
 """
 
-# ╔═╡ 2783a99e-d294-11ef-3163-bb455746bf52
+# ╔═╡ 96552348-d294-11ef-16d8-b53563054687
 md"""
-## Agents
+## Why Factor Graphs?
 
-In the previous lessons we assumed that a data set was given. 
+A probabilistic inference task gets its computational load mainly through the need for marginalization (i.e., computing integrals). E.g., for a model ``p(x_1,x_2,x_3,x_4,x_5)``, the inference task ``p(x_2|x_3)`` is given by 
 
-In this lesson we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
-
-Crucially, by acting onto the environment, the agent is able to affect the data that it will sense in the future.
-
-  * As an example, by changing the direction where I look, I can affect the (visual) data that will be sensed by my retina.
-
-With this definition of an agent, (biological) organisms are agents, and so are robots, self-driving cars, etc.
-
-In an engineering context, we are particularly interesting in agents that behave with a *purpose* (with a goal in mind), e.g., to drive a car or to design a speech recognition algorithm.
-
-In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as minimization of a free energy functional. 
+```math
+p(x_2|x_3) = \frac{p(x_2,x_3)}{p(x_3)} = \frac{\int \cdots \int p(x_1,x_2,x_3,x_4,x_5) \, \mathrm{d}x_1  \mathrm{d}x_4 \mathrm{d}x_5}{\int \cdots \int p(x_1,x_2,x_3,x_4,x_5) \, \mathrm{d}x_1  \mathrm{d}x_2 \mathrm{d}x_4 \mathrm{d}x_5}
+```
 
 """
 
-# ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
+# ╔═╡ 965531da-d294-11ef-1639-db0dd32c16d1
 md"""
-## Illustrative Example: the Mountain Car Problem
-
-In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem) which is a classical benchmark problem in the reinforcement learning literature.
-
-The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill, and subsequently use its momentum to overcome the steep incline towards the goal position. 
-
-We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) are known up to some additive Gaussian noise.
-
-Your challenge is to design an agent that guides the car to the goal position. (The agent should be specified as a probabilistic model and the control signal should be formulated as a Bayesian inference task).  
+Since these computations (integrals or sums) suffer from the "curse of dimensionality", we often need to solve a simpler problem in order to get an answer. 
 
 """
 
-# ╔═╡ 2783b9ca-d294-11ef-0bf7-e767fbfad74a
+# ╔═╡ 96555a72-d294-11ef-1270-f14e47749893
 md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true)
-
-Solution at the end of this lesson.
+Factor graphs provide a computationally efficient approach to solving inference problems **if the probabilistic model can be factorized**. 
 
 """
 
-# ╔═╡ 2783c686-d294-11ef-3942-c75d2b559fb3
+# ╔═╡ 9655959e-d294-11ef-0ca6-5f20aa579e91
 md"""
-## Karl Friston and the Free Energy Principle
+ $(HTML("<span id='factorization-helps'>Factorization helps.</span>")) For instance, if ``p(x_1,x_2,x_3,x_4,x_5) = p(x_1)p(x_2,x_3)p(x_4)p(x_5|x_4)``, then
 
-We begin with a motivating example that requires "intelligent" goal-directed decision making: assume that you are an owl and that you're hungry. What are you going to do?
+```math
+p(x_2|x_3) = \frac{\int \cdots \int p(x_1)p(x_2,x_3)p(x_4)p(x_5|x_4) \, \mathrm{d}x_1  \mathrm{d}x_4 \mathrm{d}x_5}{\int \cdots \int p(x_1)p(x_2,x_3)p(x_4)p(x_5|x_4) \, \mathrm{d}x_1  \mathrm{d}x_2 \mathrm{d}x_4 \mathrm{d}x_5} 
+  = \frac{p(x_2,x_3)}{\int p(x_2,x_3) \mathrm{d}x_2}
+```
 
-Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
-
-Friston argues that intelligent decision making (behavior, action making) by an agent requires *minimization of a functional of beliefs*. 
-
-Friston further argues (later in the lecture and his papers) that this functional is a (variational) free energy (to be defined below), thus linking decision-making and acting to Bayesian inference. 
-
-In fact, Friston's **Free Energy Principle** (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
-
-  * This includes perception, learning, attention mechanisms, recall, acting and decision making, etc.
-
-Taking inspiration from FEP, if we want to develop synthetic "intelligent" agents, we have (only) two issues to consider:
-
-1. Specification of the FE functional.
-2. *How* to minimize the FE functional (often in real-time under situated conditions).
-
-Agents that follow the FEP are said to be involved in **Active Inference** (AIF). An AIF agent updates its states and parameters (and ultimately its model structure) solely by FE minimization, and selects its actions through (expected) FE minimization (to be explained below).    
+which is computationally much cheaper than the general case above.
 
 """
 
-# ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
+# ╔═╡ 9655a94e-d294-11ef-00af-8f49c8821a19
 md"""
-## Execution of an AIF Agent
-
-Consider an AIF agent with observations (sensory states) ``x_t``, latent internal states ``s_t`` and latent control states ``u_t`` for ``t=1,2,\ldots``. 
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/AIF-agent.png?raw=true)
-
-The agent is embedded in an environment with "external states" ``\tilde{s}_t``. The dynamics of the environment are driven by actions. 
-
-Actions ``a_t`` are selected by the agent. Actions affect the environment and consequently affect future observations. 
-
-In pseudo-code, an AIF agent executes the $(HTML("<span id='AIF-algorithm'></span>"))following algorithm:
-
-> **ACTIVE INFERENCE (AIF) AGENT ALGORITHM**    
->
-> SPECIFY generative model ``p(x,s,u)``     ASSUME/SPECIFY environmental process ``R``
->
-> FORALL t DO    
->
-> 1. ``(x_t, \tilde{s}_t) = R(a_t, \tilde{s}_{t-1})``   % environment generates new observation
-> 2. ``q(s_t) = \arg\min_q F[q]``            % update agent's internal states ("perception")
-> 3. ``q(u_{t+1}) = \arg\min_q F_>[q]``      % update agent's control states ("actions")
-> 4. ``a_{t+1} \sim q(u_{t+1})``             % sample next action and push to environment
->
-> END
-
-
-In the above algorithm, ``F[q]`` and ``F_>[q]`` are appropriately defined Free Energy functionals, to be discussed below. Next, we discuss these steps in more details.
+In this lesson, we discuss how computationally efficient inference in *factorized* probability distributions can be automated by message passing-based inference in factor graphs.
 
 """
 
-# ╔═╡ 7128f91d-f3f3-41fe-a491-ede27921a822
+# ╔═╡ 9655b2c2-d294-11ef-057f-9b3984064411
+md"""
+## Factor Graph Construction Rules
+
+Consider a function 
+
+```math
+f(x_1,x_2,x_3,x_4,x_5) = f_a(x_1,x_2,x_3) \cdot f_b(x_3,x_4,x_5) \cdot f_c(x_4)
+```
+
+"""
+
+# ╔═╡ 9655c1ae-d294-11ef-061a-991947cee620
+md"""
+The factorization of this function can be graphically represented by a **Forney-style Factor Graph** (FFG):
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-1.png?raw=true)
+
+"""
+
+# ╔═╡ 9655d360-d294-11ef-0f06-ab58e2ad0e5f
+md"""
+An FFG is an **undirected** graph subject to the following construction rules ([Forney, 2001](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf))
+
+1. A **node** for every factor;
+2. An **edge** (or **half-edge**) for every variable;
+3. Node ``f_\bullet`` is connected to edge ``x`` **iff** variable ``x`` appears in factor ``f_\bullet``.
+
+"""
+
+# ╔═╡ 9655e06c-d294-11ef-0393-9355d6e20afb
+md"""
+A **configuration** is an assigment of values to all variables.
+
+A configuration ``\omega=(x_1,x_2,x_3,x_4,x_5)`` is said to be **valid** iff ``f(\omega) \neq 0``
+
+"""
+
+# ╔═╡ 9655ed6e-d294-11ef-370f-937b590036f3
+md"""
+## Equality Nodes for Branching Points
+
+Note that a variable can appear in maximally two factors in an FFG (since an edge has only two end points).
+
+"""
+
+# ╔═╡ 9655fb88-d294-11ef-1ceb-91585012d142
+md"""
+Consider the factorization (where ``x_2`` appears in three factors) 
+
+```math
+ f(x_1,x_2,x_3,x_4) = f_a(x_1,x_2)\cdot f_b(x_2,x_3) \cdot f_c(x_2,x_4)
+```
+
+"""
+
+# ╔═╡ 965606f2-d294-11ef-305b-870427879e50
+md"""
+For the factor graph representation, we will instead consider the function ``g``, defined as
+
+```math
+\begin{align*}
+ g(x_1,x_2&,x_2^\prime,x_2^{\prime\prime},x_3,x_4) 
+  = f_a(x_1,x_2)\cdot f_b(x_2^\prime,x_3) \cdot f_c(x_2^{\prime\prime},x_4) \cdot f_=(x_2,x_2^\prime,x_2^{\prime\prime})
+\end{align*}
+```
+
+where 
+
+```math
+f_=(x_2,x_2^\prime,x_2^{\prime\prime}) \triangleq \delta(x_2-x_2^\prime)\, \delta(x_2-x_2^{\prime\prime})
+```
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-wEquality-node.png?raw=true)
+
+"""
+
+# ╔═╡ 2d4d73fc-3fdc-46be-9417-9c8b85a6fdcd
 html"""
 <style>
 pluto-output img {
@@ -155,826 +169,697 @@ pluto-output img {
 </style>
 """
 
-# ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
+# ╔═╡ 96561594-d294-11ef-1590-198382927808
 md"""
-## The Generative Model in an AIF agent
+Note that through introduction of auxiliary variables ``X_2^{\prime}`` and ``X_2^{\prime\prime}`` and a factor ``f_=(x_2,x_2^\prime,x_2^{\prime\prime})``, each variable in ``g`` appears in maximally two factors.
 
-What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
+The constraint ``f_=(x,x^\prime,x^{\prime\prime})`` enforces that ``X=X^\prime=X^{\prime\prime}`` **for every valid configuration**.
 
-Conant and Ashley state: "The theorem has the interesting corollary that the living brain, so far as it is to be successful and efficient as a regulator for survival, **must** proceed, in learning, by the formation of a model (or models) of its environment."
-
-Indeed, perception in brains is clearly affected by predictions about sensory inputs by the brain's own generative model.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/the-gardener.png?raw=true)
-
-In the above picture (The Gardener, by Giuseppe Arcimboldo, ca 1590), on the left you will likely see a bowl of vegetables, while the same picture upside down elicits with most people the perception of a gardener's face rather than an upside-down vegetable bowl. 
-
-The reason is that the brain's model predicts to see straight-up faces with much higher probability than upside-down vegetable bowls. 
-
-So the $(HTML("<span id='model-specification'></span>")) agent's model ``p`` will be a model that aims to explain how environmental causes (latent states) lead to sensory observations.
-
-"""
-
-# ╔═╡ 2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-md"""
-## Specification of AIF Agent's model and Environmental Dynamics
-
-In this notebook, for illustrative purposes, we specify the **generative model** at time step ``t`` of an AIF agent as 
+Since ``f`` is a marginal of ``g``, i.e., 
 
 ```math
-p(x_t,s_t,u_t|s_{t-1}) = \underbrace{p(x_t|s_t)}_{\text{observations}} \cdot \underbrace{p(s_t|s_{t-1},u_t)}_{\substack{\text{state} \\ \text{transition}}} \cdot \underbrace{p(u_t)}_{\substack{\text{action} \\ \text{prior}}}
+f(x_1,x_2,x_3,x_4) = \iint g(x_1,x_2,x_2^\prime,x_2^{\prime\prime},x_3,x_4)\, \mathrm{d}x_2^\prime \mathrm{d}x_2^{\prime\prime}
 ```
 
-We will assume that the agent interacts with an environment, which we represent by a dynamic model ``R`` as
-
-```math
-(x_t,\tilde{s}_t) = R\left( a_t,\tilde{s}_{t-1}\right)
-```
-
-where ``a_t`` are *actions* (by the agent), ``x_t`` are *outcomes* (the agent's observations) and ``\tilde{s}_t`` holds the environmental latent *states*. 
-
-Note that ``R`` only needs to be specified for simulated environments. If we were to deploy the agent in a real-world environment, we would not need to specify ``R``. 
-
-The agent's knowledge about environmental process ``R`` is expressed by its generative model ``p(x_t,s_t,u_t|s_{t-1})``. 
-
-Note that we distinguish between *control states* and *actions*. Control states ``u_t`` are latent variables in the agent's generative model. An action ``a_t`` is a realization of a control state as observed by the environment. 
-
-Observations ``x_t`` are generated by the environment and observed by the agent. Vice versa, actions ``a_t`` are generated by the agent and observed by the environment. 
-
-"""
-
-# ╔═╡ 2784529a-d294-11ef-3b0e-c5a60644fa53
-md"""
-## State Updating in the AIF Agent
-
-After the agent makes a new observation ``x_t``, it will update beliefs over its latent variables. First the internal state variables ``s``. 
-
-Assume the following at time step ``t``:
-
-  * the state of the agent's model has already been updated to ``q(s_{t-1}| x_{1:t-1})``.
-  * the agent has selected a new action ``a_t``.
-  * the agent has recorded a new observation ``x_t``.
-
-The **state updating** task is to infer ``q(s_{t}|x_{1:t})``, based on the previous estimate ``q(s_{t-1}| x_{1:t-1})``, the new data ``\{a_t,x_t\}``, and the agent's generative model. 
-
-Technically, this is a Bayesian filtering task. In a real brain, this process is called **perception**.   
-
-We specify the following FE functional
-
-```math
-F[q] = \sum_{s_t} q(s_t| x_{1:t}) \log \frac{\overbrace{q(s_t| x_{1:t})}^{\text{state posterior}}}{\underbrace{p( x_t|s_t) p(s_t|s_{t-1},a_t)}_{\text{generative model w new data}} \underbrace{q(s_{t-1}|x_{1:t-1})}_{\text{state prior}}}
-```
-
-The state updating task can be formulated as minimization of the above FE (see also [AIF Algorithm](#AIF-algorithm), step 2):
-
-```math
-q(s_t|x_{1:t}) = \arg\min_q F[q]
-```
-
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://biaslab.github.io/BMLIP-colorized/lectures/B11%20Dynamic%20Models.html#kalman-filter). 
-
-In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
-
-Our toolbox [RxInfer](http://rxinfer.ml) specializes in automated execution of  this minimization task. 
-
-"""
-
-# ╔═╡ 27846c9e-d294-11ef-0a86-2527c96da2c3
-md"""
-## Policy Updating in an AIF Agent
-
-Once the agent has updated its internal states, it will turn to inferring the next action. 
-
-In order to select a **good** next action, we need to investigate and compare consequences of a *sequence* of future actions. 
-
-A sequence of future actions ``a= (a_{t+1}, a_{t+2}, \ldots, a_{t+T})`` is called a **policy**. Since relevant consequences are usually the result of an future action sequence rather than a single action, we will be interested in updating beliefs over policies. 
-
-In order to assess the consequences of a selected policy, we will, as a function of that policy, run the generative model forward-in-time to make predictions about future observations ``x_{t+1:t+T}``. 
-
-Note that perception (state updating) preceeds policy updating. In order to accurately predict the future, the agent first needs to understand the current state of the world.  
-
-Consider an AIF agent at time step ``t`` with (future) observations ``x = (x_{t+1}, x_{t+2}, \ldots, x_{t+T})``,  latent future internal states ``s= (s_t, s_{t+1}, \ldots, s_{t+T})``, and latent future control variables ``u= (u_{t+1}, u_{t+2}, \ldots, u_{t+T})``. 
-
-From the agent's viewpoint, the evolution of these future variables are constrained by its generative model, rolled out into the future:
+it follows that any inference problem on ``f`` can be executed by a corresponding inference problem on ``g``, e.g.,
 
 ```math
 \begin{align*}
-p(x,s,u) &= \underbrace{q(s_{t})}_{\substack{\text{current}\\ \text{state}}} \cdot \underbrace{\prod_{k=t+1}^{t+T} p(x_k|s_k) \cdot p(s_k | s_{k-1}, u_k) p(u_k)}_{\text{GM roll-out to future}}
+f(x_1 \mid x_2) &\triangleq \frac{\iint f(x_1,x_2,x_3,x_4) \,\mathrm{d}x_3 \mathrm{d}x_4 }{ \int\cdots\int f(x_1,x_2,x_3,x_4) \,\mathrm{d}x_1 \mathrm{d}x_3 \mathrm{d}x_4} \\
+  &= \frac{\int\cdots\int g(x_1,x_2,x_2^\prime,x_2^{\prime\prime},x_3,x_4) \,\mathrm{d}x_2^\prime \mathrm{d}x_2^{\prime\prime} \mathrm{d}x_3 \mathrm{d}x_4 }{ \int\cdots\int g(x_1,x_2,x_2^\prime,x_2^{\prime\prime},x_3,x_4) \,\mathrm{d}x_1 \mathrm{d}x_2^\prime \mathrm{d}x_2^{\prime\prime} \mathrm{d}x_3 \mathrm{d}x_4} \\
+  &= g(x_1 \mid x_2)
 \end{align*}
 ```
+"""
 
-Consider the Free Energy functional for estimating posterior beliefs ``q(s,u)`` over latent *future* states and latent *future* control signals: 
+# ╔═╡ 965679f0-d294-11ef-13e0-bf28c9a9a505
+md"""
+```math
+\Rightarrow
+```
+
+**Any factorization of a global function ``f`` can be represented by a Forney-style Factor Graph**.
+
+"""
+
+# ╔═╡ 9656cf72-d294-11ef-03aa-b715dd686c09
+md"""
+## Probabilistic Models as Factor Graphs
+
+FFGs can be used to express conditional independence (factorization) in probabilistic models. 
+
+
+For example, the (previously shown) graph for 
+
+```math
+f_a(x_1,x_2,x_3) \cdot f_b(x_3,x_4,x_5) \cdot f_c(x_4)
+```
+
+could represent the probabilistic model
+
+```math
+p(x_1,x_2,x_3,x_4,x_5) = p(x_1,x_2|x_3) \cdot p(x_3,x_5|x_4) \cdot p(x_4)
+```
+
+where we identify 
 
 ```math
 \begin{align*}
-F_>[q] &= \overbrace{\sum_{x,s} q(x|s)}^{\text{marginalize }x} \bigg( \overbrace{\sum_u q(s,u) \log \frac{q(s,u)}{p(x,s,u)} }^{\text{"regular" variational Free Energy}}\bigg) \\
-&= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)}
+f_a(x_1,x_2,x_3) &= p(x_1,x_2|x_3) \\
+f_b(x_3,x_4,x_5) &= p(x_3,x_5|x_4) \\
+f_c(x_4) &= p(x_4)
 \end{align*}
 ```
 
-In principle, this is a regular FE functional, with one difference to previous versions: since future observations ``x`` have not yet occurred, ``F_>[q]`` marginalizes not only over latent states ``s`` and policies ``u``, but also over future observations ``x``.
+"""
 
-We will update the beliefs over policies by minimization of Free Energy functional ``F_>[q]``. In the [optional slides below, we prove that the solution to this optimization task](#q-star) is given by (see [AIF Algorithm](#AIF-algorithm), step 3, above)
+# ╔═╡ 9656d850-d294-11ef-21a1-474b07ea7729
+md"""
+This is the graph
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-prob-model.png?raw=true)
+
+"""
+
+# ╔═╡ 9656e606-d294-11ef-1daa-312623552a5b
+md"""
+## Inference by Closing Boxes
+
+Factorizations provide opportunities to cut on the amount of needed computations when doing inference. In what follows, we will use FFGs to process these opportunities in an automatic way by message passing between the nodes of the graph. 
+
+"""
+
+# ╔═╡ 9656ee62-d294-11ef-38f4-7bc8031df7ee
+md"""
+Assume we wish to compute the marginal
 
 ```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&\propto p(u)\exp(-G(u))\,,
-\end{aligned}
+\bar{f}(x_3) \triangleq \sum\limits_{x_1,x_2,x_4,x_5,x_6,x_7}f(x_1,x_2,\ldots,x_7) 
 ```
 
-$(HTML("<span id='q-star-main-cell'></span>")) where the factor ``p(u)`` is a prior over admissible policies, and the factor ``\exp(-G(u))`` updates the prior with information about future consequences of a selected policy ``u``. 
-
-The function 
+for a model ``f`` with given factorization 
 
 ```math
-G(u) = \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}
+f(x_1,x_2,\ldots,x_7) = f_a(x_1) f_b(x_2) f_c(x_1,x_2,x_3) f_d(x_4) f_e(x_3,x_4,x_5) f_f(x_5,x_6,x_7) f_g(x_7)
 ```
 
-is called the **Expected Free Energy** (EFE) for policy ``u``. 
+"""
 
-The FEP takes the following stance: if FE minimization is all that an agent does, then the only consistent and appropriate behavior for an agent is to select actions that minimize the **expected** Free Energy in the future (where expectation is taken over current beliefs about future observations). 
+# ╔═╡ 9656fae2-d294-11ef-10d8-ff921d5956bd
+md"""
+Note that, if each variable ``x_i`` can take on ``10`` values, then the computing the marginal ``\bar{f}(x_3)`` takes about ``10^6`` (1 million) additions. 
 
-Note that, since ``q^*(u) \propto p(u)\exp(-G(u))``, the probability ``q^*(u)`` for selecting a policy ``u`` increases when EFE ``G(u)`` gets smaller. 
+"""
 
-Once the policy (control) variables have been updated, in simulated environments, it is common to assume that the next action ``a_{t+1}`` (an action is the *observed* control variable by the environment) gets selected in proportion to the probability of the related control variable (see [AIF Agent Algorithm](#AIF-algorithm), step 4, above), i.e., the environment samples the action from the control posterior:
+# ╔═╡ 96570d3e-d294-11ef-0178-c34dda717495
+md"""
+Due to the factorization and the [Generalized Distributive Law](https://en.wikipedia.org/wiki/Generalized_distributive_law), we can decompose this sum-of-products to the following product-of-sums:
 
 ```math
-a_{t+1} \sim q(u_{t+1}) 
+\begin{align*}\bar{f}&(x_3) = \\
+  &\underbrace{ \Bigg( \sum_{x_1,x_2} \underbrace{f_a(x_1)}_{\overrightarrow{\mu}_{X_1}(x_1)}\, \underbrace{f_b(x_2)}_{\overrightarrow{\mu}_{X_2}(x_2)}\,f_c(x_1,x_2,x_3)\Bigg) }_{\overrightarrow{\mu}_{X_3}(x_3)} 
+  \underbrace{ \cdot\Bigg( \sum_{x_4,x_5} \underbrace{f_d(x_4)}_{\overrightarrow{\mu}_{X_4}(x_4)}\,f_e(x_3,x_4,x_5) \cdot \underbrace{ \big( \sum_{x_6,x_7} f_f(x_5,x_6,x_7)\,\underbrace{f_g(x_7)}_{\overleftarrow{\mu}_{X_7}(x_7)}\big) }_{\overleftarrow{\mu}_{X_5}(x_5)} \Bigg) }_{\overleftarrow{\mu}_{X_3}(x_3)}
+\end{align*}
 ```
 
-Next, we analyze some properties of the EFE.
+which, in case ``x_i`` has ``10`` values, requires a few hundred additions and is therefore computationally (much!) lighter than executing the full sum ``\sum_{x_1,\ldots,x_7}f(x_1,x_2,\ldots,x_7)``
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-message-passing.png?raw=true)
 
 """
 
-# ╔═╡ 278491ec-d294-11ef-305a-41b583d12d5a
+# ╔═╡ 96571c34-d294-11ef-11ef-29beeb1f96c2
 md"""
-## Active Inference Analysis: exploitation-exploration dilemma
+Note that the auxiliary factor ``\overrightarrow{\mu}_{X_3}(x_3)`` is obtained by multiplying all enclosed factors (``f_a``, ``f_b, f_c``) by the red dashed box, followed by marginalization (summing) over all enclosed variables (``x_1``, ``x_2``).
 
-Consider the following decomposition of EFE:
+"""
+
+# ╔═╡ 96572be8-d294-11ef-2cd1-256972de7b23
+md"""
+This is the **Closing the Box**-rule, which is a general recipe for marginalization of latent variables (inside the box) and leads to a new factor that has the variables (edges) that cross the box as arguments. For instance, the argument of the remaining factor ``\overrightarrow{\mu}_{X_3}(x_3)`` is the variable on the edge that crosses the red box (``x_3``).
+
+"""
+
+# ╔═╡ 96573a0c-d294-11ef-2e99-67fdf2ee2eab
+md"""
+Hence, ``\overrightarrow{\mu}_{X_3}(x_3)`` can be interpreted as a **message from the red box toward variable** ``x_3``.
+
+"""
+
+# ╔═╡ 96574a88-d294-11ef-31a1-e949e6875a3d
+md"""
+We drew *directed edges* in the FFG in order to distinguish forward messages ``\overrightarrow{\mu}_\bullet(\cdot)`` (in the same direction as the arrow of the edge) from backward messages ``\overleftarrow{\mu}_\bullet(\cdot)`` (in opposite direction). This is just a notational convenience since an FFG is computationally an undirected graph. 
+
+"""
+
+# ╔═╡ 96575dd4-d294-11ef-31d6-b39b4c4bdea1
+md"""
+## Sum-Product Algorithm
+
+Closing-the-box can also be interpreted as a **message update rule** for an outgoing message from a node. For a node ``f(y,x_1,\ldots,x_n)`` with incoming messages ``\overrightarrow{\mu}_{X_1}(x_1), \overrightarrow{\mu}_{X_1}(x_1), \ldots,\overrightarrow{\mu}_{X_n}(x_n)``, the outgoing message is given by ([Loeliger (2007), pg.1299](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf)): 
 
 ```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)} \\
-&= \sum_{x,s} q(x,s|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(s|x,u)}\frac{q(s|x)}{q(s|x)} \\
-&= \sum_x q(x|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{q(s|x)} + \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x,u)}}_{E\left[ D_{\text{KL}}[q(s|x),p(s|x,u)] \right]\geq 0} \\
-&\geq \underbrace{\sum_x q(x|u) \log \frac{1}{p(x)}}_{\substack{\text{goal-seeking behavior} \\ \text{(exploitation)}}} - \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}}_{\substack{\text{information-seeking behavior}\\ \text{(exploration)}}} 
-\end{aligned}
+ \boxed{
+\underbrace{\overrightarrow{\mu}_{Y}(y)}_{\substack{ \text{outgoing}\\ \text{message}}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\substack{\text{incoming} \\ \text{messages}}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\substack{\text{node}\\ \text{function}}} }
 ```
 
-Apparently, minimization of EFE leads to selection of policies that balances the following two imperatives: 
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-sum-product.png?raw=true)
 
-1. minimization of the first term of ``G(u)``, i.e. minimizing ``\sum_x q(x|u) \log \frac{1}{p(x)}``, leads to policies (``u``) that align the inferred observations ``q(x|u)`` under policy ``u`` (i.e., predicted future observations under policy ``u``) with a prior ``p(x)`` on future observations. We are in control to choose any prior ``p(x)`` and usually we choose a prior that aligns with desired (goal) observations. Hence, policies with low EFE leads to **$(HTML("<span id='goal-seeking'>goal-seeking behavior</span>"))** (a.k.a. pragmatic behavior or exploitation). [In the OPTIONAL SLIDES](#ambiguity-plus-risk), we derive an alternative (perhaps clearer) expression to support this interpretation].
-2. minimization of ``G(u)`` maximizes the second term
+This is called the **Sum-Product Message** (SPM) update rule. (Look at the formula to understand why it's called the SPM update rule).
+
+"""
+
+# ╔═╡ 96576b24-d294-11ef-027d-9d71159afa34
+md"""
+Note that all SPM update rules can be computed from information that is **locally available** at each node.
+
+"""
+
+# ╔═╡ 96577adc-d294-11ef-0157-37c636011697
+md"""
+If the factor graph for a function ``f`` has **no cycles** (i.e., the graph is a tree), then the marginal ``\bar{f}(x_3) = \sum_{x_1,x_2,x_4,x_5,x_6,x_7}f(x_1,x_2,\ldots,x_7)`` is given by multiplying the forward and backward messages on that edge:
 
 ```math
-\begin{aligned}
-  \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)} &= \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}\frac{q(x|u)}{q(x|u)} \\
-  &= \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(x,s|u)}{q(x|u)q(s|u)}}_{\text{(conditional) mutual information }I[x,s|u]}
-  \end{aligned}
+ \boxed{
+\bar{f}(x_3) = \overrightarrow{\mu}_{X_3}(x_3)\cdot \overleftarrow{\mu}_{X_3}(x_3)}
 ```
-
-which is the (conditional) [**mutual information**](https://en.wikipedia.org/wiki/Mutual_information) between (posteriors on) future observations and states, for a given policy ``u``. Thus, maximizing this term leads to actions that maximize statistical dependency between future observations and states. In other words, a policy with low EFE also leads to **information-seeking behavior** (a.k.a. epistemic behavior or exploration). 
-
-(The third term ``\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x)}`` is an (expected) KL divergence between posterior and prior on the states. This can be interpreted as a complexity/regularization term and ``G(u)`` minimization will drive this term to zero.)   
-
-Seeking actions that balance goal-seeking behavior (exploitation) and information-seeking behavior (exploration) is a [fundamental problem in the Reinforcement Learning literature](https://en.wikipedia.org/wiki/Exploration-exploitation_dilemma). 
-
-**Active Inference solves the exploration-exploitation dilemma**. Both objectives are served by EFE minimization without any need for tuning parameters. 
 
 """
 
-# ╔═╡ 2784b474-d294-11ef-1305-ef0f0771d28f
+# ╔═╡ 965798e4-d294-11ef-291e-89c674ec5689
 md"""
-## $(HTML("<span id='PS-decomposition'></span>")) AIF Agents learn both the Problem and Solution
+It follows that the marginal ``\bar{f}(x_3) = \sum_{x_1,x_2,x_4,x_5,x_6,x_7}f(x_1,x_2,\ldots,x_7)`` can be efficiently computed through sum-product messages. Executing inference through SP message passing is called the **Sum-Product Algorithm** (or alternatively, the **belief propagation** algorithm).
 
-We highlight another great feature of FE minimizing agents. Consider an AIF agent (``m``) with generative model ``p(x,s,u|m)``.
+"""
 
-Consider the Divergence-Evidence decomposition of the FE again:
+# ╔═╡ 9657b088-d294-11ef-3017-e95c4c69b62b
+md"""
+Just as a final note, inference by sum-product message passing is much like replacing the sum-of-products
 
 ```math
-\begin{aligned}
-F[q] &= \sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(x,s,u|m)} \\
-&= \underbrace{-\log p(x|m)}_{\substack{\text{problem} \\ \text{representation costs}}} + \underbrace{\sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(s,u|x,m)}}_{\text{solution costs}}
-\end{aligned}
+ac + ad + bc + bd
 ```
 
-The first term, ``-\log p(x|m)``, is the (negative log-) evidence for model ``m``, given recorded data ``x``. 
+by the following product-of-sums:
 
-Minimization of FE maximizes the evidence for the given model. The model captures the  **problem representation**. A model with high evidence predicts the data well and therefore "understands the world".  
+```math
+(a + b)(c + d) \,.
+```
 
-The second term scores the cost of inference. In almost all cases, the solution to a problem can be phrased as an inference task on the generative model. Hence, the second term **scores the accuracy of the inferred solution**, for the given model. 
-
-FE minimization optimizes a balanced trade-off between a good-enough problem representation and a good-enough solution proposal for that model. Since FE comprises both a cost for solution *and* problem representation, it is a neutral criterion that applies across a very wide set of problems. 
-
-A good solution to the wrong problem is not good enough. A poor solution to a great problem statement is not sufficient either.  In order to solve a problem well, we need both to represent the problem correctly (high model evidence) and we need to solve it well (low inference costs). 
-
-
+Which of these two computations is cheaper to execute?
 
 """
 
-# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
+# ╔═╡ 9657f32a-d294-11ef-2d6b-330969a7e395
 md"""
-## The Brain's Action-Perception Loop by FE Minimization
+## $(HTML("<span id='sp-for-equality-node'>Sum-Product Messages for the Equality Node</span>"))
 
-The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+As an example, let´s evaluate the SP messages for the **equality node** ``f_=(x,y,z) = \delta(z-x)\delta(z-y)``: 
 
-Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-equality-node.png?raw=true)
 
-The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
+```math
+\begin{align*}
+\overrightarrow{\mu}_{Z}(z) &= \iint  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(y) \,\delta(z-x)\delta(z-y) \,\mathrm{d}x \mathrm{d}y \\
+   &=  \overrightarrow{\mu}_{X}(z)  \int  \overrightarrow{\mu}_{Y}(y) \,\delta(z-y) \,\mathrm{d}y \\
+   &=  \overrightarrow{\mu}_{X}(z) \overrightarrow{\mu}_{Y}(z) 
+\end{align*}
+```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/brain-design-cycle.png?raw=true)
+By symmetry, this also implies (for the same equality node) that
+
+```math
+\begin{align*}
+\overleftarrow{\mu}_{X}(x) &= \overrightarrow{\mu}_{Y}(x) \overleftarrow{\mu}_{Z}(x) \quad \text{and} \\
+\overleftarrow{\mu}_{Y}(y) &= \overrightarrow{\mu}_{X}(y) \overleftarrow{\mu}_{Z}(y)\,.
+\end{align*}
+```
+
+Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_X,\overrightarrow{V}_X)``, ``\overrightarrow{\mu}_{Y}(y) = \mathcal{N}(y| \overrightarrow{m}_Y,\overrightarrow{V}_Y)`` and ``\overrightarrow{\mu}_{Z}(z) = \mathcal{N}(z|\overrightarrow{m}_Z,\overrightarrow{V}_Z)``. Let´s also define the precision matrices ``\overrightarrow{W}_X \triangleq \overrightarrow{V}_X^{-1}`` and similarly for ``Y`` and ``Z``. Then applying the SP update rule leads to multiplication of two Gaussian distributions (see [Roweis notes](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-gaussian-identities.pdf)), resulting in 
+
+```math
+\begin{align*}
+\overrightarrow{W}_Z &= \overrightarrow{W}_X + \overrightarrow{W}_Y \qquad &\text{(precisions add)}\\ 
+\overrightarrow{W}_Z \overrightarrow{m}_z &= \overrightarrow{W}_X \overrightarrow{m}_X + \overrightarrow{W}_Y \overrightarrow{m}_Y \qquad &\text{(natural means add)}
+\end{align*}
+```
+
+It follows that **message passing through an equality node is similar to applying Bayes rule**, i.e., fusion of two information sources. Does this make sense?
 
 """
 
-# ╔═╡ 2784cf9a-d294-11ef-2284-a507f840ea99
+# ╔═╡ 9658041e-d294-11ef-228d-09e94ca50366
 md"""
-## The Engineering Challenge: Synthetic AIF Agents
+## Message Passing Schedules
 
-We have here a framework (the FEP) for emergent intelligent behavior in self-organizing biological systems that
-
-  * leads to optimal (Bayesian) information processing, including balancing accuracy vs complexity.
-  * leads to balanced and continual learning of both problem representation and solution proposal
-  * actively selects data in-the-field under situated conditions (no dependency on large data base)
-  * pursues a optimal trade-off between exploration (information-seeking) and exploitation (goal-seeking) behavior
-  * needs no external tuning parameters (such as step sizes, thresholds, etc.)
-
-Clearly, the FEP, and synthetic AIF agents as a realization of FEP, comprise a very attractive framework for all things relating to AI and AI agents. 
-
-A current big AI challenge is to design synthetic AIF agents based solely on FE/EFE minimization.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Synthetic-FEP-agent.png?raw=true) 
-
-Executing a synthetic AIF agent often poses a large computational problem because of the following reasons: 
-
-1. For interesting problems (e.g. speech recognition, scene analysis), generative models may contain thousands of latent variables.
-2. The FE function is a time-varying function, since it is also a function of observable variables.
-3. An AIF agent must execute inference in real-time if it is engaged and embedded in a real world environment.
-
-So, in practice, executing a synthetic AIF agent may lead to a **task of minimizing a time-varying FE function of thousands of variables in real-time**!!
+In a non-cyclic (ie, tree) graph, start with messages from the terminals and keep passing messages through the internal nodes towards the "target" variable (``x_3`` in above problem) until you have both the forward and backward message for the target variable. 
 
 """
 
-# ╔═╡ 2784e0fc-d294-11ef-360c-f14e94324770
+# ╔═╡ 965812b0-d294-11ef-24d0-29e7897375db
 md"""
-## Factor Graph Approach to Modeling of an Active Inference Agent
-
-How to specify and execute a synthetic AIF agent is an active area of research. 
-
-There is no definitive solution approach to AIF agent modeling yet; we ([BIASlab](http://biaslab.org)) think that (reactive) message passing in a factor graph representation provides a promising path. 
-
-After selecting an action ``a_t`` and making an observation ``x_t``, the FFG for the rolled-out generative model is given by the following FFG:
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-active-inference-model-specification.png?raw=true)
-
-The open red nodes for ``p(x_{t+k})`` specify **desired future observations**, whereas the open black boxes for ``p(s_k|s_{k-1},u_k)`` and ``p(x_k|s_k)`` reflect the agent's beliefs about how the world actually evolves (ie, the **veridical model**). 
-
-The (brown) dashed box is the agent's Markov blanket. Given the states on the Markov blanket, the internal states of the agent are independent of the state of the world.   
+In a tree graph, if you continue to pass messages throughout the graph, the Sum-Product Algorithm computes **exact** marginals for all hidden variables.
 
 """
 
-# ╔═╡ 2784e908-d294-11ef-1c3d-ff9c59696590
+# ╔═╡ 96582192-d294-11ef-31b5-aba2da3170c5
 md"""
-## How to minimize FE: Online Active Inference
-
-[Online active inference proceeds by iteratively executing three stages](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full): 
-
-1. act-execute-observe
-2. infer: update the latent variables and select an action
-3. slide forward
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-online-active-inference.png?raw=true)
+If the graph contains cycles, we have in principle an infinite tree by "unrolling" the graph. In this case, the SP Algorithm is not guaranteed to find exact marginals. In practice, if we apply the SP algorithm for just a few iterations ("unrolls"), then we often find satisfying approximate marginals.   
 
 """
 
-# ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
+# ╔═╡ 9658329c-d294-11ef-0d03-45e6872c4985
 md"""
-## The Mountain car Problem Revisited
+## Terminal Nodes and Processing Observations
 
-Here we solve the mountain car problem as stated at the beginning of this lesson. Before implementing the active inference agent, let's first perform a naive approach that executes the engine's maximum power to reach the goal. As can be seen in the results, this approach fails since the car's engine is not strong enough to reach the goal directly. 
+We can use terminal nodes to represent observations, e.g., add a factor ``f(y)=\delta(y−3)`` to terminate the half-edge for variable ``Y``  if  ``y=3``  is observed.
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observation-y-3.png?raw=true)
+
+Terminal nodes that carry observations are denoted by small black boxes.
 
 """
 
-# ╔═╡ f43d3264-f88e-42bf-8147-92b4225807f4
-import .ReactiveMP: getrecent, messageout
-
-# ╔═╡ d3ac9383-fef5-48e9-86b5-8c7f308ae43b
-# Environment variables
-initial_position     = -0.5
-
-# ╔═╡ cc30633a-78ad-4892-ba4a-a9e8071df050
-initial_velocity     =  0.0
-
-# ╔═╡ a726946b-817a-49d1-80cd-cace2915a6b1
-engine_force_limit   =  0.04
-
-# ╔═╡ b9c4d863-0723-4488-9146-b458f1cfdb06
-friction_coefficient =  0.1
-
-# ╔═╡ dfef4a95-89dd-4f58-9ab9-55aa2d78a794
-# Target position and velocity
-target = [0.5, 0.0];
-
-# ╔═╡ 27854ba0-d294-11ef-005b-fd5df84ce6c6
+# ╔═╡ 965842e6-d294-11ef-2810-bbd070da18ba
 md"""
-Next, we try a more sophisticated active inference agent. Above, we specified a probabilistic generative model for the agent's environment and then constrained future observations by a prior distribution that is located on the goal position. We then execute the (1) Act-execute-observe –> (2) infer –> (3) slide procedures as discussed above to infer future actions. 
+The message out of a **terminal node** (attached to only 1 edge) is the factor itself. For instance, closing a box around terminal node ``f_a(x_1)`` would lead to 
+
+```math
+\overrightarrow{\mu}_{X_1}(x_1) \triangleq \sum_{ \stackrel{ \textrm{enclosed} }{ \textrm{variables} } } \;\prod_{\stackrel{ \textrm{enclosed} }{ \textrm{factors} }} f_a(x_1) = f_a(x_1)\,
+```
+
+since there are no enclosed variables. 
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-terminal-node-message.png?raw=true)
 
 """
 
-# ╔═╡ 937a96bc-b2d8-4b11-8907-ea2c3a9b134f
-@model function mountain_car(m_u, V_u, m_x, V_x, m_s_t_min, V_s_t_min, T, Fg, Fa, Ff, engine_force_limit)
+# ╔═╡ 965856b2-d294-11ef-2c5a-d91b9c678730
+md"""
+The message from a half-edge is ``1`` (one). You can verify this by imagining that a half-edge ``x`` can be terminated by a node function ``f(x)=1`` without affecting any inference issue.
+
+"""
+
+# ╔═╡ 96587a66-d294-11ef-2c7a-9fd7bea76582
+md"""
+## Automating Bayesian Inference by Message Passing
+
+The foregoing message update rules can be worked out in closed-form and put into tables (e.g., see Tables 1 through 6 in [Loeliger (2007)](./files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf) for many standard factors such as essential probability distributions and operations such as additions, fixed-gain multiplications and branching (equality nodes).
+
+In the optional slides below, we have worked out a few more update rules for the [addition node](#sp-for-addition-node) and the [multiplication node](#sp-for-multiplication-node).
+
+If the update rules for all node types in a graph have been tabulated, then inference by message passing comes down to executing a set of table-lookup operations, thus creating a completely **automatable Bayesian inference framework**. 
+
+In our research lab [BIASlab](http://biaslab.org) (FLUX 7.060), we are developing [RxInfer](http://rxinfer.com), which is a (Julia) toolbox for automating Bayesian inference by message passing in a factor graph.
+
+"""
+
+# ╔═╡ 96589eb0-d294-11ef-239a-2513a805cdcf
+md"""
+## Example: Bayesian Linear Regression by Message Passing
+
+"""
+
+# ╔═╡ 9658c106-d294-11ef-01db-cfcff611ed81
+md"""
+Assume we want to estimate some function ``f: \mathbb{R}^D \rightarrow \mathbb{R}`` from a given data set ``D = \{(x_1,y_1), \ldots, (x_N,y_N)\}``, with model assumption ``y_i = f(x_i) + \epsilon_i``.
+
+"""
+
+# ╔═╡ 96594d44-d294-11ef-22b8-95165fb08ce4
+md"""
+### model specification
+
+We will assume a linear model with white Gaussian noise and a Gaussian prior on the coefficients ``w``:
+
+```math
+\begin{align*}
+  y_i &= w^T x_i  + \epsilon_i \\
+  \epsilon_i &\sim \mathcal{N}(0, \sigma^2) \\ 
+  w &\sim \mathcal{N}(0,\Sigma)
+\end{align*}
+```
+
+or equivalently
+
+```math
+\begin{align*}
+p(w,\epsilon,D) &= \overbrace{p(w)}^{\text{weight prior}} \prod_{i=1}^N  \overbrace{p(y_i\,|\,x_i,w,\epsilon_i)}^{\text{regression model}} \overbrace{p(\epsilon_i)}^{\text{noise model}} \\
+  &= \mathcal{N}(w\,|\,0,\Sigma) \prod_{i=1}^N \delta(y_i - w^T x_i - \epsilon_i) \mathcal{N}(\epsilon_i\,|\,0,\sigma^2) 
+\end{align*}
+```
+
+"""
+
+# ╔═╡ 96597ce0-d294-11ef-3478-25c6bbef601e
+md"""
+### Inference (parameter estimation)
+
+We are interested in inferring the posterior ``p(w|D)``. We will execute inference by message passing on the FFG for the model.
+
+"""
+
+# ╔═╡ 965998a8-d294-11ef-1d18-85876e3656c5
+md"""
+The left figure shows the factor graph for this model. 
+
+The right figure shows the message passing scheme. 
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-bayesian-linear-regression.png?raw=true)
+
+"""
+
+# ╔═╡ 9659ab66-d294-11ef-027a-d3f7206050af
+md"""
+### CODE EXAMPLE
+
+Let's solve this problem by message passing-based inference with Julia's FFG toolbox [RxInfer](https://biaslab.github.io/rxinfer-website/).
+
+"""
+
+# ╔═╡ 6d90a958-6f2b-4f18-a121-0d1bab9e4d91
+md"""
+#### Parameters
+"""
+
+# ╔═╡ 1070063a-ef85-4527-ae82-1f01c1a506ff
+Σ = 1e5 * Diagonal(I,3) # Covariance matrix of prior on w
+
+# ╔═╡ ba7a2dbd-f068-4249-bc29-77f2d0804676
+σ2 = 2.0;                # Noise variance
+
+# ╔═╡ 480165f9-33d9-4db1-bf05-8d99f0d9fb3e
+md"""
+#### Generating a data set
+"""
+
+# ╔═╡ aec4726a-954e-4e76-aae5-2dd6c979b12d
+w = [1.0; 2.0; 0.25]
+
+# ╔═╡ 1c9c7994-672c-42a3-8ae7-8ce092ada9f0
+N = 30;
+
+# ╔═╡ 99265e22-e8dc-40fe-989f-0d2a6c72faac
+z = 10.0*rand(N)
+
+# ╔═╡ e20e9048-1271-41c7-97d3-635f320aa365
+x_train = [[1.0; z; z^2] for z in z] # Feature vector x = [1.0; z; z^2]
+
+# ╔═╡ 96ef3cfb-ca18-46d6-bcac-0122c2c85fba
+f(x) = (w'*x)[1];
+
+# ╔═╡ 34ebbbe1-2a6b-422b-aeb1-cd2953acddca
+y_train = map(f, x_train) + sqrt(σ2)*randn(N) # y[i] = w' * x[i] + ϵ
+
+# ╔═╡ 7764541a-c11e-4e12-bbac-f8906cbc5dc6
+scatter(z, y_train, label="data", xlabel=L"z", ylabel=L"f([1.0, z, z^2]) + \epsilon")
+
+# ╔═╡ 965a1df0-d294-11ef-323c-3da765f1104a
+md"""
+Now build the factor graph in RxInfer, perform sum-product message passing and plot results (mean of posterior).
+
+"""
+
+# ╔═╡ fd338a30-9622-405a-96fa-caca6bd4ccfb
+@model function linear_regression(y,x, N, Σ, σ2)
+
+    w ~ MvNormalMeanCovariance(zeros(3),Σ)
     
-    # Transition function modeling transition due to gravity and friction
-    g = (s_t_min::AbstractVector) -> begin 
-        
-        s_t    = similar(s_t_min)                               # Next state
-        s_t[2] = s_t_min[2] + Fg(s_t_min[1]) + Ff(s_t_min[2])   # Update velocity
-        s_t[1] = s_t_min[1] + s_t[2]                            # Update position
-        
-        return s_t
+    for i in 1:N
+        y[i] ~ NormalMeanVariance(dot(w , x[i]), σ2)
     end
-    
-    # Function for modeling engine control
-    h = (u::AbstractVector) -> [0.0, Fa(u[1])] 
-    
-    # Inverse engine force, from change in state to corresponding engine force
-    h_inv = (delta_s_dot::AbstractVector) -> [atanh(clamp(delta_s_dot[2], -engine_force_limit+1e-3, engine_force_limit-1e-3)/engine_force_limit)] 
-    
-    # Internal model perameters
-    Gamma = 1e4*diageye(2)      # Transition precision
-    Theta = 1e-4*diageye(2)     # Observation variance
-
-    s_t_min ~ MvNormal(mean = m_s_t_min, cov = V_s_t_min)
-    s_k_min = s_t_min
-
-    local s
-    
-    for k in 1:T
-        u[k]       ~ MvNormal(mean = m_u[k], cov = V_u[k])
-        u_h_k[k]   ~ h(u[k]) where { meta = DeltaMeta(method = Linearization(), inverse = h_inv) }
-        s_g_k[k]   ~ g(s_k_min) where { meta = DeltaMeta(method = Linearization()) }
-        u_s_sum[k] ~ s_g_k[k] + u_h_k[k]
-        s[k]       ~ MvNormal(mean = u_s_sum[k], precision = Gamma)
-        x[k]       ~ MvNormal(mean = s[k], cov = Theta)
-        x[k]       ~ MvNormal(mean = m_x[k], cov = V_x[k])      # goal
-
-        s_k_min    = s[k]
-    end
-    
-    return (s, )
 end
 
-# ╔═╡ 3417a5dc-7d39-4a69-b207-02379731445a
-function create_agent(;T = 20, Fg, Fa, Ff, engine_force_limit, target, initial_position, initial_velocity)
-    
-    Epsilon   = fill(huge, 1, 1)                        # Control prior variance
-    m_u       = Vector{Float64}[ [ 0.0] for k=1:T ]     # Set control priors
-    V_u       = Matrix{Float64}[ Epsilon for k=1:T ]
+# ╔═╡ c03b1140-adce-467a-b953-50ad1bf3bc34
+# Run message passing algorithm 
+results = infer(
+    model      = linear_regression(N=length(x_train), Σ=Σ, σ2=σ2),
+    data       = (y = y_train, x = x_train),
+    returnvars = (w = KeepLast(),),
+    iterations = 20,
+)
 
-    Sigma     = 1e-4*diageye(2)                         # Goal prior variance
-    m_x       = [zeros(2) for k=1:T]
-    V_x       = [huge*diageye(2) for k=1:T]
-    V_x[end]  = Sigma                                   # Set prior to reach goal at t=T
+# ╔═╡ 83a70a4b-b114-4351-8fa2-dd565ebc9916
+convert(MvNormal, results.posteriors[:w])
 
-    # Set initial brain state prior
-    m_s_t_min = [initial_position, initial_velocity] 
-    V_s_t_min = tiny * diageye(2)
-    
-    # Set current inference results
-    result = nothing
-
-    # The `compute` function performs Bayesian inference by message passing
-    compute = (upsilon_t::Float64, y_hat_t::Vector{Float64}) -> begin
-        
-        m_u[1] = [ upsilon_t ]              # Register action with the generative model
-        V_u[1] = fill(tiny, 1, 1)           # Clamp control prior to performed action
-
-        m_x[1] = y_hat_t                    # Register observation with the generative model
-        V_x[1] = tiny*diageye(2)            # Clamp goal prior to observation
-
-        data = Dict(:m_u       => m_u, 
-                    :V_u       => V_u, 
-                    :m_x       => m_x, 
-                    :V_x       => V_x,
-                    :m_s_t_min => m_s_t_min,
-                    :V_s_t_min => V_s_t_min)
-        
-        model  = mountain_car(T=T, Fg=Fg, Fa=Fa, Ff=Ff, engine_force_limit=engine_force_limit) 
-        result = infer(model = model, data = data)
-    end
-    
-    # The `act` function returns the inferred best possible action
-    act = () -> begin
-        if result !== nothing
-            return mode(result.posteriors[:u][2])[1]
-        else
-            # Without inference result we return some 'random' action
-            return 0.0 
-        end
-    end
-    
-    # The `future` function returns the inferred future states
-    future = () -> begin 
-        if result !== nothing 
-            return getindex.(mode.(result.posteriors[:s]), 1)
-        else
-            return zeros(T)
-        end
-    end
-
-    # The `slide` function modifies the `(m_s_t_min, V_s_t_min)` for the next step
-    # and shifts (or slides) the array of future goals `(m_x, V_x)` and inferred actions `(m_u, V_u)`
-    slide = () -> begin
-
-        model  = RxInfer.getmodel(result.model)
-        (s, )  = RxInfer.getreturnval(model)
-        varref = RxInfer.getvarref(model, s) 
-        var    = RxInfer.getvariable(varref)
-        
-        slide_msg_idx = 3       # This index is model dependent
-        (m_s_t_min, V_s_t_min) = mean_cov(getrecent(messageout(var[2], slide_msg_idx)))
-
-        m_u      = circshift(m_u, -1)
-        m_u[end] = [0.0]
-        V_u      = circshift(V_u, -1)
-        V_u[end] = Epsilon
-
-        m_x      = circshift(m_x, -1)
-        m_x[end] = target
-        V_x      = circshift(V_x, -1)
-        V_x[end] = Sigma
-    end
-
-    return (compute, act, slide, future)    
+# ╔═╡ 965a37e8-d294-11ef-340f-0930b229dd32
+let
+	plt = scatter(z, y_train, label="data", xlabel=L"z", ylabel=L"f([1.0, z, z^2]) + \epsilon")
+	z_test = collect(0:0.2:12)
+	x_test = [[1.0; z; z^2] for z in z_test]
+	for i=1:10
+	    w_sample = rand(results.posteriors[:w])
+	    f_est(x) = (w_sample'*x)[1]
+	    plot!(plt, z_test, map(f_est, x_test), alpha=0.3, label=nothing);
+	end
+	plt
 end
 
-# ╔═╡ 27859b3c-d294-11ef-17e9-19c68a3f5ab5
+# ╔═╡ 965a6c20-d294-11ef-1c91-4bd237afbd20
 md"""
-Note that the AIF agent **explores** other options, like going first in the opposite direction of the goal prior, to reach its goals. This agent is able to mix exploration (information-seeking behavior) with exploitation (goal-seeking behavior).
+## Final thoughts: Modularity and Abstraction
+
+The great Michael Jordan (no, not [this one](https://youtu.be/cuLprHh_BRg), but [this one](https://people.eecs.berkeley.edu/~jordan/)), wrote:   
+
+> "I basically know of two principles for treating complicated systems in simple ways: the first is the principle of **modularity** and the second is the principle of **abstraction**. I am an apologist for computational probability in machine learning because I believe that probability theory implements these two principles in deep and intriguing ways — namely through factorization and through averaging. Exploiting these two mechanisms as fully as possible seems to me to be the way forward in machine learning." — Michael Jordan, 1997 (quoted in [Fre98](https://mitpress.mit.edu/9780262062022/)).
+
+
+Factor graphs realize these ideas nicely, both visually and computationally.
+
+Visually, the modularity of conditional independencies in the model are displayed by the graph structure. Each node hides internal complexity and by closing-the-box, we can hierarchically move on to higher levels of abstraction. 
+
+Computationally, message passing-based inference uses the Distributive Law to avoid any unnecessary computations.  
+
+What is the relevance of this lesson? RxInfer is not yet a finished project. Still, my prediction is that in 5-10 years, this lesson on Factor Graphs will be the final lecture of part-A of this class, aimed at engineers who need to develop machine learning applications. In principle you have all the tools now to work out the 4-step machine learning recipe (1. model specification, 2. parameter learning, 3. model evaluation, 4. application) that was proposed in the [Bayesian machine learning lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Bayesian%20Machine%20Learning.html#Bayesian-design). You can propose any model and execute the (learning, evaluation, and application) stages by executing the corresponding inference task automatically in RxInfer. 
+
+Part-B of this class would be about on advanced methods on how to improve automated inference by RxInfer or a similar probabilistic programming package. The Bayesian approach fully supports separating model specification from the inference task. 
 
 """
 
-# ╔═╡ 2785b056-d294-11ef-1415-49b1508736ba
-md"""
-## Extensions and Comments
-
-Just to be sure, you don't need to memorize all FE/EFE decompositions nor are you expected to derive them on-the-spot. We present these decompositions only to provide insight into the multitude of forces that underlie FEM-based action selection.
-
-In a sense, the FEP is an umbrella for describing the mechanics and self-organization of intelligent behavior, in man and machines. Lots of sub-fields in AI, such as reinforcement learning, can be interpreted as a special case of active inference under the FEP, see e.g., [Friston et al., 2009](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421). 
-
-Is EFE minimization really different from "regular" FE minimization? Not really, it appears that [EFE minimization can be reformulated as a special case of FE minimization](https://link.springer.com/article/10.1007/s00422-019-00805-w). In other words, FE minimization is still the only game in town.
-
-Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-complete.png?raw=true)
-
-Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, **AIF is an automated Bayes-optimal engineering design loop**!!
-
-The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.    
-
-
-
-"""
-
-# ╔═╡ 2785c0f8-d294-11ef-2529-0b340c00b8ab
-md"""
-## Final Thoughts
-
-In the end, all the state inference, parameter estimation, etc., in this lecture series could have been implemented by FE minimization in an appropriately specified generative probabilistic model. However, the Free Energy Principle extends beyond state and parameter estimation. Driven by FE minimization, brains change their structure as well over time. In fact, the FEP extends beyond brains to a general theory for biological self-organization, e.g., [Darwin's natural selection process](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5857288/) may be interpreted as a FE minimization-driven model optimization process, and here's an article on [FEP for predictive processing in plants](https://royalsocietypublishing.org/doi/10.1098/rsif.2017.0096). Moreover, Constrained-FE minimization (rephrased as the Principle of Maximum Relative Entropy) provides an elegant framework to derive most (if not all) physical laws, as Caticha exposes in his [brilliant monograph](./files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf) on Entropic Physics. Indeed, the framework of FE minimization is known in the physics community as the very fundamental [Principle of Least Action](https://en.wikipedia.org/wiki/Stationary-action_principle) that governs the equations-of-motion in nature. 
-
-So, the FEP is very fundamental and extends way beyond applications to machine learning. At [our research lab](http://biaslab.org) at TU/e, we work on developing FEP-based intelligent agents that go out into the world and autonomously learn to accomplish a pre-determined task, such as learning-to-walk or learning-to-process-noisy-speech-signals. Free free to approach us if you want to know more about that effort.    
-
-"""
-
-# ╔═╡ 2785cdc8-d294-11ef-0592-5945c1e39d5f
+# ╔═╡ 965a8a1a-d294-11ef-1d2f-65abf76665e8
 md"""
 # OPTIONAL SLIDES
 
 """
 
-# ╔═╡ 27861ca6-d294-11ef-3a75-ff797da3cf44
+# ╔═╡ 965aa14c-d294-11ef-226f-65d587fefa64
 md"""
-## In an AIF Agent, Actions fulfill Desired Expectations about the Future
+## $(HTML("<span id='sp-for-multiplication-node'>Sum-Product Messages for Multiplication Nodes</span>"))
 
-In the [derivations above](#goal-seeking), we decomposed the EFE into an upperbound on the sum of a goal-seeking and information-seeking term. Here, we derive an alternative (exact) decomposition that more clearly reveals the goal-seeking objective.
+Next, let us consider a **multiplication** by a fixed (invertible matrix) gain ``f_A(x,y) = \delta(y-Ax)``
 
-We consider again the EFE and factorize the generative model ``p(x,s|u) = p^\prime(x) p(s|x,u)`` as a product of a **goal prior** ``p^\prime(x)`` on observations and a **veridical** state model ``p(s|x,u)``. 
-
-Through the **goal prior** ``p^\prime(x)``, the agent declares which observations it **wants** to observe in the future. (The prime is just to distinguish the semantics of a desired future from the model for the actual future).
-
-Through the **veridical** state model ``p(s|x,u)`` , the agent implicitly declares its beliefs about how the world will **actually** generate observations.
-
-  * In particular, note that through the equality (by Bayes rule)
-
-```math
-p(s|x,u) = \frac{p(x|s)p(s|u)}{p(x|u)} = \frac{p(x|s)p(s|u)}{\sum_s p(x|s)p(s|u)}\,,
-```
-
-it follows that in practice the agent may specify ``p(s|x,u)`` implicitly by explicitly specifying a state transition model ``p(s|u)`` and observation model ``p(x|s)``. 
-
-Hence, an AIF agent holds both a model for its beliefs about how the world will actually evolve AND a model for its beliefs about how it desires the world to evolve!! 
-
-$(HTML("<span id='ambiguity-plus-risk'></span>")) To highlight the role of these two models in the EFE, consider the following alternative EFE decomposition:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)p(s|x,u)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{1}{p(s|x,u)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{p(x|u)}{p(x|s)p(s|u)} \quad \text{(use Bayes)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} q(x,s|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  p(s|u) p(x|s) \log \frac{p(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} p(s|u) p(x|s) \log \frac{p(x|u)}{p^\prime(x)} \quad \text{( assume }q(x,s|u)=p(x|s)p(s|u)\text{ )}\\
-&= \sum_{s}  p(s|u) \sum_x p(x|s) \log \frac{1}{p(x|s)} + \sum_x p(x|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \underbrace{E_{p(s|u)}\left[ H[p(x|s)]\right]}_{\text{ambiguity}} + \underbrace{D_{\text{KL}}\left[ p(x|u), p^\prime(x)\right]}_{\text{risk}}
-\end{aligned}
-```
-
-In this derivation, we have assumed that we can use the generative model to make inferences in the "forward" direction. Hence, ``q(s|u)=p(s|u)`` and ``q(x|s)=p(x|s)``.  
-
-The terms "ambiguity" and "risk" have their origin in utility theory for behavioral ecocomics. Minimization of EFE leads to minimizing both ambiguity and risk.
-
-Ambiguous (future) states are states that map to large uncertainties about (future) observations. We want to avoid those ambiguous states since it implies that the model is not capable to predict how the world evolves. Ambiguity can be resolved by selecting information-seeking (epistemic) actions. 
-
-Minimization of the second term (risk) leads to choosing actions (``u``) that align **predicted** future observations (represented by ``p(x|u)``) with **desired** future observations (represented by ``p^\prime(x)``). Agents minimize risk by selecting pragmatic (goal-seeking) actions.
-
-```math
-\Rightarrow
-```
-
-**Actions fulfill desired expectations about the future!**
-
-([return to related cell in main text](#goal-seeking)).
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-gain-node.png?raw=true)
 
 """
 
-# ╔═╡ 27862b56-d294-11ef-1f0b-c72293441005
+# ╔═╡ 965ab77c-d294-11ef-2510-95b1a998589f
 md"""
-## Proof ``q^*(u) = \arg\min_q F_>[q] \propto p(u)\exp(-G(u))``
-
-$(HTML("<span id='q-star'></span>"))Consider the following decomposition:
-
 ```math
-\begin{aligned}
-F_>[q] &= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)} \\
-&= \sum_{x,s,u} q(x,s|u) q(u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)} \\
-&= \sum_{u} q(u) \bigg(\sum_{x,s} q(x,s|u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)}\bigg) \\
-&= \sum_{u} q(u) \bigg( \log q(u) + \log \frac{1}{p(u)}+ \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}}_{G(u)}\bigg) \\
-&= \sum_{u} q(u) \log \frac{q(u)}{p(u)\exp\left(- G(u)\right) }
-\end{aligned}
+\begin{align*}
+\overrightarrow{\mu}_{Y}(y) &= \int  \overrightarrow{\mu}_{X}(x) \,\delta(y-Ax) \,\mathrm{d}x \\
+&= \int  \overrightarrow{\mu}_{X}(x) \,|A|^{-1}\delta(x-A^{-1}y) \,\mathrm{d}x \\
+&= |A|^{-1}\overrightarrow{\mu}_{X}(A^{-1}y) \,.
+\end{align*}
 ```
 
-This is a KL-divergence. Minimization of ``F_>[q]`` leads to the following posterior for the policy:
+"""
+
+# ╔═╡ 965af708-d294-11ef-112c-f5470031dbbe
+md"""
+For a Gaussian message input message ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_{X},\overrightarrow{V}_{X})``, the output message is also Gaussian with 
 
 ```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&= \frac{1}{Z}p(u)\exp(-G(u))
-\end{aligned}
+\begin{align*}
+\overrightarrow{m}_{Y} = A\overrightarrow{m}_{X} \,,\,\text{and}\,\,
+\overrightarrow{V}_{Y} = A\overrightarrow{V}_{X}A^T
+\end{align*}
 ```
 
-[(click to return to linked cell in the main text.)](#q-star-main-cell)
+since 
+
+```math
+\begin{align*}
+\overrightarrow{\mu}_{Y}(y) &= |A|^{-1}\overrightarrow{\mu}_{X}(A^{-1}y) \\
+  &\propto \exp \left( -\frac{1}{2} \left( A^{-1}y - \overrightarrow{m}_{X}\right)^T \overrightarrow{V}_{X}^{-1} \left(  A^{-1}y - \overrightarrow{m}_{X}\right)\right) \\
+   &= \exp \big( -\frac{1}{2} \left( y - A\overrightarrow{m}_{X}\right)^T \underbrace{A^{-T}\overrightarrow{V}_{X}^{-1} A^{-1}}_{(A \overrightarrow{V}_{X} A^T)^{-1}} \left( y - A\overrightarrow{m}_{X}\right)\big) \\
+  &\propto  \mathcal{N}(y| A\overrightarrow{m}_{X},A\overrightarrow{V}_{X}A^T) \,.
+\end{align*}
+```
 
 """
 
-# ╔═╡ 27863dee-d294-11ef-3709-955340e17547
+# ╔═╡ 965b11a4-d294-11ef-1d04-dbdf39ce91a3
 md"""
-## What Makes a Good Agent? [The Good Regulator Theorem](https://en.wikipedia.org/wiki/Good_regulator)
+**Exercise**: Prove that, for the same factor ``\delta(y-Ax)`` and Gaussian messages, the (backward) sum-product message ``\overleftarrow{\mu}_{X}`` is given by 
 
-$(HTML("<span id='good-regulator-theorem'></span>")) According to Friston, an "intelligent" agent like a brain minimizes a variational free energy functional, which, in general, is a functional of a probability distribution ``p`` and a variational posterior ``q``. 
+```math
+\begin{align*}
+\overleftarrow{\xi}_{X} &= A^T\overleftarrow{\xi}_{Y} \\
+\overleftarrow{W}_{X} &= A^T\overleftarrow{W}_{Y}A
+\end{align*}
+```
 
-What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
-
-A Quote from Conant and Ashby's paper (this statement was later finessed by [Friston (2013)](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2013.0475)): 
-
-> "The theory has the interesting corollary that the living brain, insofar as it is successful and efficient as a regulator for survival, *must* proceed, in learning, by the formation of a model (or models) of its environment."
-
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/good-regulator.png?raw=true)
-
-([Return to related cell in main text](#model-specification)).
+where ``\overleftarrow{\xi}_X \triangleq \overleftarrow{W}_X \overleftarrow{m}_X`` and ``\overleftarrow{W}_{X} \triangleq \overleftarrow{V}_{X}^{-1}`` (and similarly for ``Y``).
 
 """
 
-# ╔═╡ be0dc5c0-6340-4d47-85ae-d70e06df1676
+# ╔═╡ 965b25ac-d294-11ef-0b9a-9d5a50a76069
 md"""
-# Appendix
+## $(HTML("<span id='sp-for-addition-node'>Code example: Gaussian forward and backward messages for the Addition node</span>"))
+
+Let's calculate the Gaussian forward and backward messages for the addition node in RxInfer.  ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-addition-node.png?raw=true)
+
 """
 
-# ╔═╡ 0652eab9-f472-4dc5-89ed-66787c6bd49e
-import HypergeometricFunctions: _₂F₁
+# ╔═╡ bfbf3d09-23f5-4f54-96f6-bfe536cfc228
+md"Forward message on ``Z``:"
 
-# ╔═╡ cad4c77c-a187-4071-881d-ad76f1bb50fd
-function create_physics(; engine_force_limit = 0.04, friction_coefficient = 0.1)
-    # Engine force as function of action
-    Fa = (a::Real) -> engine_force_limit * tanh(a) 
+# ╔═╡ e7e4b6d0-bdf0-4a93-9a73-7971e6e33065
+@call_rule typeof(+)(:out, Marginalisation) (m_in1 = NormalMeanVariance(1.0, 1.0), m_in2 = NormalMeanVariance(2.0, 1.0))
 
-    # Friction force as function of velocity
-    Ff = (y_dot::Real) -> -friction_coefficient * y_dot 
+# ╔═╡ 2f5415e5-70b1-47ea-9790-7ac953bca538
+md"Backward message on ``X``:"
+
+# ╔═╡ 1b76ab6c-ffa2-40eb-a6c6-55d7097a5108
+@call_rule typeof(+)(:in1, Marginalisation) (m_out = NormalMeanVariance(3.0, 1.0), m_in2 = NormalMeanVariance(2.0, 1.0))
+
+# ╔═╡ 965b886e-d294-11ef-1b10-0319896874cf
+md"""
+## Code Example: forward and backward messages for the Matrix Multiplication node
+
+In the same way we can also investigate the forward and backward messages for the matrix multiplication ("gain") node  ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-gain-node.png?raw=true)
+
+"""
+
+# ╔═╡ 0efe10d8-1d0e-4a8f-8005-25ee261322b8
+md"Forward message on ``Y``:"
+
+# ╔═╡ 1be3121d-be18-46a1-9af9-f108a2257c22
+@call_rule typeof(*)(:out, Marginalisation) (m_A = PointMass(4.0), m_in = NormalMeanVariance(1.0, 1.0))
+
+# ╔═╡ e5658c95-6cd0-426f-b819-31f9f2c7eaf4
+md"Backward message on ``X``:"
+
+# ╔═╡ 94ca674e-1a01-424c-8657-6510be7097c3
+@call_rule typeof(*)(:in, Marginalisation) (m_out = NormalMeanVariance(2.0, 1.0), m_A = PointMass(4.0))
+
+# ╔═╡ 965c18f8-d294-11ef-2456-b945a46241f4
+md"""
+## Example: Sum-Product Algorithm to infer a posterior
+
+Consider a generative model 
+
+```math
+p(x,y_1,y_2) = p(x)\,p(y_1|x)\,p(y_2|x) .
+```
+
+This model expresses the assumption that ``Y_1`` and ``Y_2`` are independent measurements of ``X``.
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observations.png?raw=true)
+
+"""
+
+# ╔═╡ 965c2a4e-d294-11ef-1aab-73725568c64e
+md"""
+Assume that we are interested in the posterior for ``X`` after observing ``Y_1= \hat y_1`` and ``Y_2= \hat y_2``. The posterior for ``X`` can be inferred by applying the sum-product algorithm to the following graph:
+
+![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observations-2.png?raw=true)
+
+"""
+
+# ╔═╡ 965c39a8-d294-11ef-1d83-bde85e3ca790
+md"""
+!!! note
+	We usually draw terminal nodes for observed variables in the graph by smaller solid-black squares. This is just to help the visualization of the graph, since the computational rules are no different than for other nodes. 
+
+"""
+
+# ╔═╡ 965c5f28-d294-11ef-324e-4df3e38b5045
+md"""
+## Code for Sum-Product Algorithm to infer  a posterior
+
+We'll use RxInfer to build the above graph, and perform sum-product message passing to infer the posterior ``p(x|y_1,y_2)``. We assume ``p(y_1|x)`` and ``p(y_2|x)`` to be Gaussian likelihoods with known variances:
+
+```math
+\begin{align*}
+    p(y_1\,|\,x) &= \mathcal{N}(y_1\,|\,x, v_{y1}) \\
+    p(y_2\,|\,x) &= \mathcal{N}(y_2\,|\,x, v_{y2})
+\end{align*}
+```
+
+Under this model, the posterior is given by:
+
+```math
+\begin{align*}
+    p(x\,|\,y_1,y_2) &\propto \overbrace{p(y_1\,|\,x)\,p(y_2\,|\,x)}^{\text{likelihood}}\,\overbrace{p(x)}^{\text{prior}} \\
+    &=\mathcal{N}(x\,|\,\hat{y}_1, v_{y1})\, \mathcal{N}(x\,|\,\hat{y}_2, v_{y2}) \, \mathcal{N}(x\,|\,m_x, v_x) 
+\end{align*}
+```
+
+so we can validate the answer by solving the Gaussian multiplication manually.
+
+"""
+
+# ╔═╡ d27f7af6-e094-44fa-8ba4-4ad2fa38f8bc
+y1_hat = 1.0; y2_hat = 2.0;
+
+# ╔═╡ 90d62ba0-ca97-43f6-8f5a-0c1086a13f3d
+md"""
+Construct the factor graph
+
+"""
+
+# ╔═╡ 053e9dde-c088-4f15-9ca6-98b8185a8a11
+@model function my_model(y1,y2)
+
+    # `x` is the hidden states
+    x ~ NormalMeanVariance(0.0, 4.0)
+
+    # `y1` and `y2` are "clamped" observations
+    y1 ~ NormalMeanVariance(x, 1.0)
+    y2 ~ NormalMeanVariance(x, 2.0)
     
-    # Gravitational force (horizontal component) as function of position
-    Fg = (y::Real) -> begin
-        if y < 0
-            0.05*(-2*y - 1)
-        else
-            0.05*(-(1 + 5*y^2)^(-0.5) - (y^2)*(1 + 5*y^2)^(-3/2) - (y^4)/16)
-        end
-    end
-    
-    # The height of the landscape as a function of the horizontal coordinate
-    height = (x::Float64) -> begin
-        if x < 0
-            h = x^2 + x
-        else
-            h = x * _₂F₁(0.5,0.5,1.5, -5*x^2) + x^3 * _₂F₁(1.5, 1.5, 2.5, -5*x^2) / 3 + x^5 / 80
-        end
-        return 0.05*h
-    end
-
-    return (Fa, Ff, Fg,height)
+    return x
 end
 
-# ╔═╡ eea0b08b-0039-4960-ab2f-c319cd2dfd82
-Fa, Ff, Fg, height = create_physics(
-    engine_force_limit = engine_force_limit,
-    friction_coefficient = friction_coefficient
-);
+# ╔═╡ 07b09ac1-7fa7-4b62-b130-97315adb6fa7
+result = infer(model=my_model(), data=(y1=y1_hat, y2 = y2_hat,))
 
-# ╔═╡ 7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
-function create_world(; Fg, Ff, Fa, initial_position = -0.5, initial_velocity = 0.0)
+# ╔═╡ defb2149-294b-47a8-99ed-1b3746b275f1
+Text("Sum-product message passing result: p(x|y1,y2) = \n\t𝒩($(mean(result.posteriors[:x])),$(var(result.posteriors[:x])))")
 
-    y_t_min = initial_position
-    y_dot_t_min = initial_velocity
-    
-    y_t = y_t_min
-    y_dot_t = y_dot_t_min
-    
-    execute = (a_t::Float64) -> begin
-        # Compute next state
-        y_dot_t = y_dot_t_min + Fg(y_t_min) + Ff(y_dot_t_min) + Fa(a_t)
-        y_t = y_t_min + y_dot_t
-    
-        # Reset state for next step
-        y_t_min = y_t
-        y_dot_t_min = y_dot_t
-    end
-    
-    observe = () -> begin 
-        return [y_t, y_dot_t]
-    end
-        
-    return (execute, observe)
-end
+# ╔═╡ c95bf9a4-2e7b-4b3a-a161-56f3fd16ad0f
+# TODO: could also write this as:
+var"p(x|y1,y2)" = convert(Normal, result.posteriors[:x])
 
-# ╔═╡ 0c12e2dc-15a0-45ca-bade-30ed49bf1cad
-function plot_car(y, target; title_plot="trial", fps=12)
+# ╔═╡ b3656d6c-4717-4fcd-90c6-ae4f4aa5e1be
 
-    function height(x::Float64)
-        if x < 0
-            h = x^2 + x
-        else
-            h = x * _₂F₁(0.5,0.5,1.5, -5*x^2) + x^3 * _₂F₁(1.5, 1.5, 2.5, -5*x^2) / 3 + x^5 / 80
-        end
-        return 0.05*h
-    end
 
-    valley_x = range(-1.3, 1, length=400)
-    valley_y = [ height(xs) for xs in valley_x ];
+# ╔═╡ b15f28ce-c8c1-439b-aeca-74a58d2557e2
+md"""
+We calculate mean and variance of p(x|y1,y2) manually by multiplying 3 Gaussians (see lesson 4 for details)
+"""
 
-    animation_car = @gif for i in eachindex(y)
-        plot(valley_x, valley_y, title = "$title_plot, t=$i", label = "Landscape", color = "black", size = (800, 400))
-        scatter!([target[1]], [height(target[1])], label="goal", markersize= 15) 
-        scatter!([y[i][1]], [height(y[i][1])], label="car", markersize= 15)  
-    end
+# ╔═╡ 86e67c05-068d-4de4-80f3-1a20cc8a43ea
+v = 1 / (1/4 + 1/1 + 1/2)
 
-    # file_name = "./ai_agent/ " * title_plot * ".gif"
-    # gif(animation_car, file_name, fps = fps, show_msg = false);
+# ╔═╡ fffa27d5-eb68-4dd3-9995-4a53fba6c1e4
+m = v * (0/4 + y1_hat/1.0 + y2_hat/2.0)
 
-end
-
-# ╔═╡ 2785277e-d294-11ef-275b-995f8187ea63
-# Simulation of a naive policy, going full power toward the parking place  
-begin
-	# Let there be a world
-	(execute, observe) = create_world(
-	    Fg = Fg, Ff = Ff, Fa = Fa, 
-	    initial_position = initial_position, 
-	    initial_velocity = initial_velocity
-	)
-	
-	# Total simulation time
-	global N = 40 
-
-	
-	y = Vector{Vector{Float64}}(undef, N)
-	for n in 1:N
-	    execute(100.0)      # Act with the maximum power 
-	    y[n] = observe()    # Observe the current environmental outcome
-	end
-
-	plot_car(y, target, title_plot="Mountain Car Problem: naive policy", fps=5)
-end
-
-# ╔═╡ 27853c5a-d294-11ef-012d-018b742488e0
-let
-	# Let's also plot the goal and car positions over time 
-	trajectories = reduce(hcat, y)'
-	plot(trajectories[:,1]; label="car: naive policy", title="Car and Goal Positions", color = "orange")
-	plot!(0.5 * ones(N); color="black", linestyle=:dash, label="goal")
-end
-
-# ╔═╡ 278573d4-d294-11ef-36a2-19eba9a07c1b
-begin
-	# Create another world
-	(execute_ai, observe_ai) = create_world(
-	    Fg = Fg, 
-	    Ff = Ff, 
-	    Fa = Fa, 
-	    initial_position = initial_position, 
-	    initial_velocity = initial_velocity
-	)
-	
-	# Planning horizon
-	T_ai = 50
-	
-	# Let there be an agent
-	(compute_ai, act_ai, slide_ai, future_ai) = create_agent(; 
-	    
-	    T  = T_ai, 
-	    Fa = Fa,
-	    Fg = Fg, 
-	    Ff = Ff, 
-	    engine_force_limit = engine_force_limit,
-	    target             = target,
-	    initial_position   = initial_position,
-	    initial_velocity   = initial_velocity
-	) 
-	
-	# Length of trial
-	N_ai = 100
-	
-	# Step through experimental protocol
-	agent_a = Vector{Float64}(undef, N_ai)          # Actions
-	agent_f = Vector{Vector{Float64}}(undef, N_ai)  # Predicted future
-	agent_x = Vector{Vector{Float64}}(undef, N_ai)  # Observations
-	
-	for t=1:N_ai
-	    agent_a[t] = act_ai()               # Invoke an action from the agent
-	    agent_f[t] = future_ai()            # Fetch the predicted future states
-	    execute_ai(agent_a[t])              # The action influences hidden external states
-	    agent_x[t] = observe_ai()           # Observe the current environmental outcome (update p)
-	    compute_ai(agent_a[t], agent_x[t])  # Infer beliefs from current model state (update q)
-	    slide_ai()                          # Prepare for next iteration
-	end
-	
-	plot_car(agent_x, target, title_plot="Mountain Car Problem: active inference agent", fps=5)
-end
-
-# ╔═╡ 27858c46-d294-11ef-28aa-7744a577e6e5
-let
-	# Again, let's plot the goal and car positions over time
-	trajectories = reduce(hcat, agent_x)'
-	p1 = plot(trajectories[:,1], label="car: AIF agent", title = "Car and Goal Positions", color = "orange")
-	plot!(0.5 * ones(N_ai), color = "black", linestyle=:dash, label = "goal")
-	p2 = plot(agent_a, title = "Actions", color = "orange")
-	plot(p1,p2, layout = @layout [a ; b])
-end
-
-# ╔═╡ 74181be4-02d3-4049-882c-04d64152dad8
-function dzdt(z, a)
-    fc = - 0.1 # friction coefficient 
-    fl = 0.04 # engine force limit
-    function Fg(y::Real) # Gravitational force
-        
-        if y < 0
-            f = 0.05*(-2*y - 1)
-        else
-            f = 0.05*(-(1 + 5*y^2)^(-0.5) - (y^2)*(1 + 5*y^2)^(-3/2) - (y^4)/16)
-        end
-        
-        return f
-    end
-
-    θ̇ = z[2] + Fg(z[1]) + fc * z[2] + fl * tanh(a[1])
-    θ = z[1] + θ̇
-    z_tp1 = [θ, θ̇ ]
-    return z_tp1
-end
-
-# ╔═╡ f6fe4d57-f1a5-46bd-a8b5-b2648899f03a
-@meta function car_meta()
-    dzdt() -> DeltaMeta(method = Linearization())
-end
+# ╔═╡ 578ec319-337d-4396-bb75-eaf99d95a38d
+Text("Manual result: p(x|y1,y2) = \n\t𝒩($(m), $(v))")
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
-HypergeometricFunctions = "~0.3.27"
+LaTeXStrings = "~1.4.0"
 Plots = "~1.40.10"
 RxInfer = "~4.3.1"
 """
@@ -985,7 +870,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "5707bdb2f97df1473968ed8fe3374619d35416fc"
+project_hash = "b84e0f78c6663f36af9712912297a90c25a8282e"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -2857,53 +2742,100 @@ version = "1.4.1+2"
 """
 
 # ╔═╡ Cell order:
-# ╟─278382c0-d294-11ef-022f-0d78e9e2d04c
-# ╟─27839788-d294-11ef-30a2-8ff6357aa68b
-# ╟─2783a99e-d294-11ef-3163-bb455746bf52
-# ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
-# ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
-# ╟─2783c686-d294-11ef-3942-c75d2b559fb3
-# ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
-# ╟─7128f91d-f3f3-41fe-a491-ede27921a822
-# ╟─2783dc14-d294-11ef-2df0-1b7474f85e29
-# ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-# ╟─2784529a-d294-11ef-3b0e-c5a60644fa53
-# ╟─27846c9e-d294-11ef-0a86-2527c96da2c3
-# ╟─278491ec-d294-11ef-305a-41b583d12d5a
-# ╟─2784b474-d294-11ef-1305-ef0f0771d28f
-# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
-# ╟─2784cf9a-d294-11ef-2284-a507f840ea99
-# ╟─2784e0fc-d294-11ef-360c-f14e94324770
-# ╟─2784e908-d294-11ef-1c3d-ff9c59696590
-# ╟─2784f45e-d294-11ef-0439-1903016c1f14
-# ╠═2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
-# ╠═f43d3264-f88e-42bf-8147-92b4225807f4
-# ╠═d3ac9383-fef5-48e9-86b5-8c7f308ae43b
-# ╠═cc30633a-78ad-4892-ba4a-a9e8071df050
-# ╠═a726946b-817a-49d1-80cd-cace2915a6b1
-# ╠═b9c4d863-0723-4488-9146-b458f1cfdb06
-# ╠═eea0b08b-0039-4960-ab2f-c319cd2dfd82
-# ╠═dfef4a95-89dd-4f58-9ab9-55aa2d78a794
-# ╠═2785277e-d294-11ef-275b-995f8187ea63
-# ╠═27853c5a-d294-11ef-012d-018b742488e0
-# ╟─27854ba0-d294-11ef-005b-fd5df84ce6c6
-# ╠═937a96bc-b2d8-4b11-8907-ea2c3a9b134f
-# ╠═f6fe4d57-f1a5-46bd-a8b5-b2648899f03a
-# ╠═3417a5dc-7d39-4a69-b207-02379731445a
-# ╠═278573d4-d294-11ef-36a2-19eba9a07c1b
-# ╠═27858c46-d294-11ef-28aa-7744a577e6e5
-# ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
-# ╟─2785b056-d294-11ef-1415-49b1508736ba
-# ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
-# ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
-# ╟─27861ca6-d294-11ef-3a75-ff797da3cf44
-# ╟─27862b56-d294-11ef-1f0b-c72293441005
-# ╟─27863dee-d294-11ef-3709-955340e17547
-# ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
-# ╠═0652eab9-f472-4dc5-89ed-66787c6bd49e
-# ╟─cad4c77c-a187-4071-881d-ad76f1bb50fd
-# ╟─7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
-# ╟─0c12e2dc-15a0-45ca-bade-30ed49bf1cad
-# ╟─74181be4-02d3-4049-882c-04d64152dad8
+# ╟─96547560-d294-11ef-0fa7-6b6489f7baba
+# ╟─9654ea3e-d294-11ef-335c-657af1ceaf19
+# ╟─96552348-d294-11ef-16d8-b53563054687
+# ╟─965531da-d294-11ef-1639-db0dd32c16d1
+# ╟─96555a72-d294-11ef-1270-f14e47749893
+# ╟─9655959e-d294-11ef-0ca6-5f20aa579e91
+# ╟─9655a94e-d294-11ef-00af-8f49c8821a19
+# ╟─9655b2c2-d294-11ef-057f-9b3984064411
+# ╟─9655c1ae-d294-11ef-061a-991947cee620
+# ╟─9655d360-d294-11ef-0f06-ab58e2ad0e5f
+# ╟─9655e06c-d294-11ef-0393-9355d6e20afb
+# ╟─9655ed6e-d294-11ef-370f-937b590036f3
+# ╟─9655fb88-d294-11ef-1ceb-91585012d142
+# ╟─965606f2-d294-11ef-305b-870427879e50
+# ╟─2d4d73fc-3fdc-46be-9417-9c8b85a6fdcd
+# ╟─96561594-d294-11ef-1590-198382927808
+# ╟─965679f0-d294-11ef-13e0-bf28c9a9a505
+# ╟─9656cf72-d294-11ef-03aa-b715dd686c09
+# ╟─9656d850-d294-11ef-21a1-474b07ea7729
+# ╟─9656e606-d294-11ef-1daa-312623552a5b
+# ╟─9656ee62-d294-11ef-38f4-7bc8031df7ee
+# ╟─9656fae2-d294-11ef-10d8-ff921d5956bd
+# ╟─96570d3e-d294-11ef-0178-c34dda717495
+# ╟─96571c34-d294-11ef-11ef-29beeb1f96c2
+# ╟─96572be8-d294-11ef-2cd1-256972de7b23
+# ╟─96573a0c-d294-11ef-2e99-67fdf2ee2eab
+# ╟─96574a88-d294-11ef-31a1-e949e6875a3d
+# ╟─96575dd4-d294-11ef-31d6-b39b4c4bdea1
+# ╟─96576b24-d294-11ef-027d-9d71159afa34
+# ╟─96577adc-d294-11ef-0157-37c636011697
+# ╟─965798e4-d294-11ef-291e-89c674ec5689
+# ╟─9657b088-d294-11ef-3017-e95c4c69b62b
+# ╟─9657f32a-d294-11ef-2d6b-330969a7e395
+# ╟─9658041e-d294-11ef-228d-09e94ca50366
+# ╟─965812b0-d294-11ef-24d0-29e7897375db
+# ╟─96582192-d294-11ef-31b5-aba2da3170c5
+# ╟─9658329c-d294-11ef-0d03-45e6872c4985
+# ╟─965842e6-d294-11ef-2810-bbd070da18ba
+# ╟─965856b2-d294-11ef-2c5a-d91b9c678730
+# ╟─96587a66-d294-11ef-2c7a-9fd7bea76582
+# ╟─96589eb0-d294-11ef-239a-2513a805cdcf
+# ╟─9658c106-d294-11ef-01db-cfcff611ed81
+# ╟─96594d44-d294-11ef-22b8-95165fb08ce4
+# ╟─96597ce0-d294-11ef-3478-25c6bbef601e
+# ╟─965998a8-d294-11ef-1d18-85876e3656c5
+# ╟─9659ab66-d294-11ef-027a-d3f7206050af
+# ╠═965a08f4-d294-11ef-0604-1586ff37c0d4
+# ╟─6d90a958-6f2b-4f18-a121-0d1bab9e4d91
+# ╠═1070063a-ef85-4527-ae82-1f01c1a506ff
+# ╠═ba7a2dbd-f068-4249-bc29-77f2d0804676
+# ╟─480165f9-33d9-4db1-bf05-8d99f0d9fb3e
+# ╠═aec4726a-954e-4e76-aae5-2dd6c979b12d
+# ╠═1c9c7994-672c-42a3-8ae7-8ce092ada9f0
+# ╠═99265e22-e8dc-40fe-989f-0d2a6c72faac
+# ╠═e20e9048-1271-41c7-97d3-635f320aa365
+# ╠═96ef3cfb-ca18-46d6-bcac-0122c2c85fba
+# ╠═34ebbbe1-2a6b-422b-aeb1-cd2953acddca
+# ╟─7764541a-c11e-4e12-bbac-f8906cbc5dc6
+# ╟─965a1df0-d294-11ef-323c-3da765f1104a
+# ╠═2cb7d369-e7fd-4d66-8321-66a9197a26bd
+# ╠═fd338a30-9622-405a-96fa-caca6bd4ccfb
+# ╠═c03b1140-adce-467a-b953-50ad1bf3bc34
+# ╠═83a70a4b-b114-4351-8fa2-dd565ebc9916
+# ╟─965a37e8-d294-11ef-340f-0930b229dd32
+# ╟─965a6c20-d294-11ef-1c91-4bd237afbd20
+# ╟─965a8a1a-d294-11ef-1d2f-65abf76665e8
+# ╟─965aa14c-d294-11ef-226f-65d587fefa64
+# ╟─965ab77c-d294-11ef-2510-95b1a998589f
+# ╟─965af708-d294-11ef-112c-f5470031dbbe
+# ╟─965b11a4-d294-11ef-1d04-dbdf39ce91a3
+# ╟─965b25ac-d294-11ef-0b9a-9d5a50a76069
+# ╟─bfbf3d09-23f5-4f54-96f6-bfe536cfc228
+# ╠═e7e4b6d0-bdf0-4a93-9a73-7971e6e33065
+# ╟─2f5415e5-70b1-47ea-9790-7ac953bca538
+# ╠═1b76ab6c-ffa2-40eb-a6c6-55d7097a5108
+# ╟─965b886e-d294-11ef-1b10-0319896874cf
+# ╟─0efe10d8-1d0e-4a8f-8005-25ee261322b8
+# ╠═1be3121d-be18-46a1-9af9-f108a2257c22
+# ╟─e5658c95-6cd0-426f-b819-31f9f2c7eaf4
+# ╠═94ca674e-1a01-424c-8657-6510be7097c3
+# ╟─965c18f8-d294-11ef-2456-b945a46241f4
+# ╟─965c2a4e-d294-11ef-1aab-73725568c64e
+# ╟─965c39a8-d294-11ef-1d83-bde85e3ca790
+# ╟─965c5f28-d294-11ef-324e-4df3e38b5045
+# ╠═d27f7af6-e094-44fa-8ba4-4ad2fa38f8bc
+# ╟─90d62ba0-ca97-43f6-8f5a-0c1086a13f3d
+# ╠═053e9dde-c088-4f15-9ca6-98b8185a8a11
+# ╠═07b09ac1-7fa7-4b62-b130-97315adb6fa7
+# ╟─defb2149-294b-47a8-99ed-1b3746b275f1
+# ╠═c95bf9a4-2e7b-4b3a-a161-56f3fd16ad0f
+# ╟─b3656d6c-4717-4fcd-90c6-ae4f4aa5e1be
+# ╟─b15f28ce-c8c1-439b-aeca-74a58d2557e2
+# ╠═86e67c05-068d-4de4-80f3-1a20cc8a43ea
+# ╠═fffa27d5-eb68-4dd3-9995-4a53fba6c1e4
+# ╟─578ec319-337d-4396-bb75-eaf99d95a38d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

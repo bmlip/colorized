@@ -4,22 +4,22 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 5b1e640f-5209-44bc-987a-1495b7adc50e
-using Plots, Distributions, LaTeXStrings, LinearAlgebra
+# ╔═╡ 2cd69006-c4b5-406e-89e2-029ad36aa530
+using Plots, Distributions
 
-# ╔═╡ 234b77a8-d294-11ef-15d5-ff54ed5bec1e
+# ╔═╡ 23c689fc-d294-11ef-086e-47c4f871bed2
 md"""
-# Regression
+# Generative Classification
 
 """
 
-# ╔═╡ 234b8c8e-d294-11ef-296a-3b38564babc4
+# ╔═╡ 23c6997e-d294-11ef-09a8-a50563e5975b
 md"""
 ## Preliminaries
 
 Goal 
 
-  * Introduction to Bayesian (Linear) Regression
+  * Introduction to linear generative classification with a Gaussian-categorical generative model
 
 Materials        
 
@@ -28,500 +28,486 @@ Materials
       * These lecture notes
   * Optional
 
-      * Bishop pp. 152-158
-      * In this and forthcoming lectures, we will make use of some elementary matrix calculus. The most important formulas are summarized at the bottom of this notebook in an [OPTIONAL SLIDE on matrix calculus](#matrix-calculus). For derivations, see Bishop Appendix C.
+      * Bishop pp. 196-202 (section 4.2 focusses on binary classification, whereas in these lecture notes we describe generative classification for multiple classes).
 
 """
 
-# ╔═╡ 234ba8c2-d294-11ef-36f6-b1f61f65557a
+# ╔═╡ 23c6afea-d294-11ef-1264-f7af4807f23f
 md"""
-## Regression - Illustration
+## Challenge: an apple or a peach?
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true)
-
-Given a set of (noisy) data measurements, find the 'best' relation between an input variable ``x \in \mathbb{R}^M`` and input-dependent outcomes ``y \in \mathbb{R}``.
+**Problem**: You're given numerical values for the skin features roughness and color for 200 pieces of fruit, where for each piece of fruit you also know if it is an apple or a peach. Now you receive the roughness and color values for a new piece of fruit but you don't get its class label (apple or peach). What is the probability that the new piece is an apple?
 
 """
 
-# ╔═╡ 234bb452-d294-11ef-24cb-3d171fe9cb4e
+# ╔═╡ 23c6b99a-d294-11ef-3072-83e3233746f7
 md"""
-## Regression vs Density Estimation
+**Solution**: To be solved later in this lesson.
 
-Observe ``N`` IID data **pairs** ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathbb{R}``.
-
-"""
-
-# ╔═╡ 234be90e-d294-11ef-2257-496f155c2b59
-md"""
-Assume that we are interested in (a model for) the responses ``y_n`` for **given inputs** ``x_n``?, I.o.w. we are interested in building a model for the conditional distribution ``p(y|x)``.
+Let's first generate a data set (see next slide).
 
 """
 
-# ╔═╡ 234c27c0-d294-11ef-24c7-1f633aaf02f4
-md"""
-Note that, since ``p(x,y)=p(y|x)\, p(x)``, building a model ``p(y|x)`` is similar to density estimation with the assumption that ``x`` is drawn from a uniform distribution.
-
-"""
-
-# ╔═╡ 234c3684-d294-11ef-1c08-d9d61fc3d471
-md"""
-## Bayesian Linear Regression
-
-Next, we discuss (1) model specification, (2) Inference and (3) a prediction application for a Bayesian linear regression problem. 
-
-"""
-
-# ╔═╡ 234c5394-d294-11ef-1614-c9847412c8fb
-md"""
-#### 1. Model Specification
-
-In a traditional *regression* model, we try to 'explain the data' by a purely deterministic function ``f(x_n,w)``, plus a purely random term ``\epsilon_n`` for 'unexplained noise':
-
-```math
-    y_n  = f(x_n,w) + \epsilon_n
-```
-
-"""
-
-# ╔═╡ 234c6104-d294-11ef-0a18-15e51a878079
-md"""
-In a *linear regression* model, i.e., linear w.r.t. the parameters ``w``, we assume that 
-
-```math
-f(x_n,w)= \sum_{j=0}^{M-1} w_j \phi_j(x_n) = w^T \phi(x_n)
-```
-
-where ``\phi_j(x)`` are called basis functions.
-
-For notational simplicity, from now on we will assume ``f(x_n,w) = w^T x_n``, with ``x_n \in \mathbb{R}^M``.
-
-"""
-
-# ╔═╡ 234c7766-d294-11ef-36fa-1d2beee3dec0
-md"""
-In *ordinary linear regression* , the noise process ``\epsilon_n`` is zero-mean Gaussian with constant variance, i.e.
-
-```math
-\epsilon_n \sim \mathcal{N}(0,\beta^{-1}) \,.
-```
-
-"""
-
-# ╔═╡ 234c8850-d294-11ef-3707-6722628bd9dc
-md"""
-Hence, given a data set  ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the likelihood for an ordinary linear regression model is 
-
-```math
-\begin{align*}
-p(y\,|\,\mathbf{X},w,\beta) &= \mathcal{N}(y\,|\,\mathbf{X} w,\beta^{-1} \mathbf{I}) \\
-  &= \prod_n \mathcal{N}(y_n\,|\,w^T x_n,\beta^{-1}) \tag{B-3.10}
-\end{align*}
-```
-
-where ``w = \left(\begin{matrix} w_1 \\ w_2 \\ \vdots \\ w_{M} \end{matrix} \right)``, the ``(N\times M)``-dim matrix ``\mathbf{X}  = \left(\begin{matrix}x_1^T \\ x_2^T \\ \vdots \\ x_N^T \end{matrix} \right) = \left(\begin{matrix}x_{11},x_{12},\dots,x_{1M}\\ x_{21},x_{22},\dots,x_{2M} \\ \vdots \\ x_{N1},x_{N2},\dots,x_{NM} \end{matrix} \right) $  and $y = \left(\begin{matrix} y_1 \\ y_2 \\ \vdots \\ y_N \end{matrix} \right)``.
-
-"""
-
-# ╔═╡ 234cab14-d294-11ef-1e7c-777fc35ddbd9
-md"""
-For full Bayesian learning we should also choose a prior ``p(w)``:
-
-```math
-\begin{equation}
-p(w\,|\,\alpha) = \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \tag{B-3.52}
-\end{equation}
-```
-
-For simplicity, we will assume that ``\alpha`` and ``\beta`` are fixed and known. 
-
-"""
-
-# ╔═╡ 234cdca6-d294-11ef-0ba3-dd5356b65236
-md"""
-#### 2. Inference
-
-We'll do Bayesian inference for the parameters ``w``. 
-
-```math
-\begin{align*}
-p(w|D) &\propto p(D|w)\cdot p(w) \\
-   &= \mathcal{N}(y\,|\,\mathbf{X} w,\beta^{-1} \mathbf{I}) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \\
-   &\propto \exp \big( -\frac{\beta}{2} \big( {y - \mathbf{X}w } \big)^T \big( {y - \mathbf{X}w } \big)  - \frac{\alpha}{2}w^T w \big) \qquad \text{(B-3.55)} \\
-   &= \exp\big( -\frac{1}{2} w^T\big(\underbrace{\beta \mathbf{X}^T\mathbf{X} + \alpha \mathbf{I}}_{\Lambda_N}\big)w + \big(\underbrace{\beta \mathbf{X}^Ty}_{\eta_N}\big)^T w - \frac{\beta}{2}y^T y \big) \\
-     &\propto \mathcal{N}_c\left(w\,|\,\eta_N,\Lambda_N \right)
-\end{align*}
-```
-
-with natural parameters (see the [natural parameterization of Gaussian](https://biaslab.github.io/BMLIP-colorized/lectures/B05%20The%20Gaussian%20Distribution.html#natural-parameterization)):
-
-```math
-\begin{align*}
-\eta_N &= \beta\mathbf{X}^Ty \\
-\Lambda_N &= \beta \mathbf{X}^T\mathbf{X} + \alpha \mathbf{I}
-\end{align*}
-```
-
-Or equivalently (in the moment parameterization of the Gaussian):
-
-```math
-\begin{align*}
-p(w|D) &= \mathcal{N}\left(w\,|\,m_N,S_N \right) \qquad &&\text{(B-3.49)} \\
-m_N &= \beta S_N \mathbf{X}^T y  \qquad &&\text{(B-3.53)}\\
-S_N &= \left(\alpha \mathbf{I} + \beta \mathbf{X}^T \mathbf{X}\right)^{-1} \qquad &&\text{(B-3.54)}
-\end{align*}
-```
-
-Note that B-3.53 and B-3.54 combine to
-
-```math
-m_N = \left(\frac{\alpha}{\beta}\mathbf{I} + \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T y\,.
-```
-
-"""
-
-# ╔═╡ 234d143c-d294-11ef-2663-d9753288a3a7
-md"""
-(Bishop Fig.3.7) Illustration of sequential Bayesian learning for a simple linear model of the form ``y(x, w) = w_0 + w_1 x``. (Bishop Fig.3.7, detailed description at Bishop, pg.154.)
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.7.png?raw=true)
-
-"""
-
-# ╔═╡ 234d6dd8-d294-11ef-3abf-8d6cb00b1907
-md"""
-#### 3. Application: $(HTML("<span id='predictive-distribution'>Predictive Distribution</span>"))
-
-Assume we are interested in the distribution ``p(y_\bullet \,|\, x_\bullet, D)`` for a new input ``x_\bullet``. This can be worked out as (exercise B-3.10)
-
-```math
-\begin{align*}
-p(y_\bullet \,|\, x_\bullet, D) &= \int p(y_\bullet \,|\, x_\bullet, w) p(w\,|\,D)\,\mathrm{d}w \\
-&= \int \mathcal{N}(y_\bullet \,|\, w^T x_\bullet, \beta^{-1}) \mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w \\
-&= \int \mathcal{N}(y_\bullet \,|\, z, \beta^{-1}) \underbrace{\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z}_{=\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w} \quad \text{(sub. }z=x_\bullet^T w \text{)} \\
-&= \int \underbrace{\underbrace{\mathcal{N}(z \,|\, y_\bullet, \beta^{-1})}_{\text{switch }z \text{ and }y_\bullet} \mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)}_{\text{Use Gaussian product formula SRG-6}}\,\mathrm{d}z  \\
-&= \int \mathcal{N}\left(y_\bullet\,|\, m_N^T x_\bullet, \sigma_N^2(x_\bullet) \right) \underbrace{\mathcal{N}\left(z\,|\, \cdot, \cdot\right)}_{\text{integrate this out}} \mathrm{d}z\\
-&= \mathcal{N}\left(y_\bullet\,|\, m_N^T x_\bullet, \sigma_N^2(x_\bullet) \right)
-\end{align*}
-```
-
-with
-
-```math
-\begin{align*}
-\sigma_N^2(x_\bullet) = \beta^{-1} + x^T_\bullet S_N x_\bullet \tag{B-3.59}
-\end{align*}
-```
-
-So, the uncertainty ``\sigma_N^2(x_\bullet)`` about the output ``y_\bullet`` contains both uncertainty about the process (``\beta^{-1}``) and about the model parameters (``x^T_\bullet S_N x_\bullet``).  
-
-(See the [OPTIONAL SLIDE](#change-of-variable-derivation) below for the step in this derivation where ``\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w`` gets replaced ``\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z``.)
-
-"""
-
-# ╔═╡ 234d858e-d294-11ef-0db5-dbc27b2567a8
-md"""
-## Example Predictive Distribution
-
-As an example, let's do Bayesian Linear Regression for a synthetic sinusoidal data set and a model with 9 Gaussian basis functions 
-
-```math
-\begin{align*}
-y_n &=\sum_{m=1}^9 w_m \phi_m(x_n) + \epsilon_n \\
-\phi_m(x_n) &= \exp\left( \frac{x_n-\mu_m}{\sigma^2}\right) \\
-\epsilon_n &\sim \mathcal{N}(0,\beta^{-1})
-\end{align*}
-```
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.1b.png?raw=true)
-
-The predictive distributions for ``y`` are shown in the following plots (Bishop, Fig.3.8)
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.8.png?raw=true)
-
-"""
-
-# ╔═╡ 234d8fac-d294-11ef-09e6-f522dc9a3a6b
-md"""
-And some plots of draws of posteriors for the functions ``w^T \phi(x)`` (Bishop, Fig.3.9) 
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.9.png?raw=true) 
-
-"""
-
-# ╔═╡ 234da212-d294-11ef-1fdc-c38e13cb41db
-md"""
-## Maximum Likelihood Estimation for Linear Regression Model
-
-Recall the posterior mean for the weight vector
-
-```math
-m_N = \left(\frac{\alpha}{\beta}\mathbf{I} + \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T y
-```
-
-where ``\alpha`` is the prior precision for the weights.
-
-"""
-
-# ╔═╡ 234dab5e-d294-11ef-30b4-39c5e05dfb31
-md"""
-The Maximum Likelihood solution for ``w`` is obtained by letting ``\alpha \rightarrow 0``, which leads to 
-
-```math
-\begin{equation*}
-\hat w_{\text{ML}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T y
-\end{equation*}
-```
-
-"""
-
-# ╔═╡ 234dbda6-d294-11ef-05fe-bd3d1320470a
-md"""
-The matrix ``\mathbf{X}^\dagger \equiv  (\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T`` is also known as the **Moore-Penrose pseudo-inverse** (which is sort-of-an-inverse for non-square matrices).
-
-"""
-
-# ╔═╡ 234dc704-d294-11ef-158b-a9ae9e157251
-md"""
-Note that if we have fewer training samples than input dimensions, i.e., if ``N<M``, then ``\mathbf{X}^T \mathbf{X}``  will not be invertible and maximum likelihood blows up. The Bayesian solution does not suffer from this problem.
-
-"""
-
-# ╔═╡ 234ddbd8-d294-11ef-1cb3-d15a8ffe31a8
-md"""
-## Least-Squares Regression
-
-(You may say that) we don't need to work with probabilistic models. E.g., there's also the deterministic **least-squares** solution: minimize sum of squared errors,
-
-```math
-\begin{align*} \hat w_{\text{LS}} &= \arg\min_{w} \sum_n {\left( {y_n  - w ^T x_n } \right)} ^2 
-  = \arg\min_{w} \left( {y - \mathbf{X}w } \right)^T \left( {y - \mathbf{X} w } \right)
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 234df3ca-d294-11ef-08d9-65d1a42b3fcb
-md"""
-Setting the $(HTML("<span id='regression-gradient'>gradient</span>")) 
-
-$ \frac{\partial \left( {y - \mathbf{X}w } \right)^T \left( {y - \mathbf{X}w } \right)}{\partial w} = -2 \mathbf{X}^T \left(y - \mathbf{X} w  \right) $ to zero yields the so-called  **normal equations**  ``\mathbf{X}^T\mathbf{X} \hat w_{\text{LS}} = \mathbf{X}^T y``  and consequently
-
-```math
-\hat w_{\text{LS}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T y
-```
-
-which is the same answer as we got for the maximum likelihood weights ``\hat w_{\text{ML}}``.
-
-"""
-
-# ╔═╡ 234e0a18-d294-11ef-1713-1d7ef92d6ba5
-md"""
-```math
-\Rightarrow
-```
-
-Least-squares regression (``\hat w_{\text{LS}}``) corresponds to the (probabilistic) maximum likelihood solution (``\hat w_{\text{ML}}``) if the probabilistic model includes the following assumptions:
-
-1. The observations are independently and identically distributed (**IID**) (this determines how errors are combined), and
-2. The noise signal ``\epsilon_n \sim \mathcal{N}(0,\,\beta^{-1})`` is **Gaussian** distributed (determines the error metric)
-
-"""
-
-# ╔═╡ 234e1f6c-d294-11ef-149a-1785e7fd2901
-md"""
-If you use the Least-Squares method, you cannot see (nor modify) these assumptions. The probabilistic method forces you to state all assumptions explicitly! 
-
-"""
-
-# ╔═╡ 234e3470-d294-11ef-35f6-bb410b10dfad
-md"""
-## Not Identically Distributed Data
-
-Let's do an example regarding changing our assumptions. What if we assume that the variance of the measurement error varies with the sampling index,  ``\epsilon_n \sim \mathcal{N}(0,\beta_n^{-1})``?
-
-"""
-
-# ╔═╡ 234e492e-d294-11ef-327a-2bd72cfeccae
-md"""
-The likelihood is now (using ``\Lambda \triangleq \mathrm{diag}(\beta_n)`` )
-
-```math
-p(y\,|\,\mathbf{X},w,\Lambda) = \mathcal{N}(y\,|\,\mathbf{X} w,\Lambda^{-1} ) \,.
-```
-
-"""
-
-# ╔═╡ 234e617a-d294-11ef-1ce4-fd2e1ebf33a1
-md"""
-Combining this likelihood with the prior ``p(w) = \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I})`` leads to a posterior
-
-```math
-\begin{align*}
-p(w|D) &\propto p(D|w)\cdot p(w) \\
-   &= \mathcal{N}(y\,|\,\mathbf{X} w,\Lambda^{-1} \mathbf{I}) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \\
-   &\propto \exp \left\{ \frac{1}{2} \left( {y - \mathbf{X}w } \right)^T \Lambda \left( {y - \mathbf{X}w } \right)  + \frac{\alpha}{2}w^T w \right\} \\
-   &\propto \mathcal{N}\left(w\,|\,m_N,S_N \right) 
-\end{align*}
-```
-
-with
-
-```math
-\begin{align*}
-m_N &=  S_N \mathbf{X}^T \Lambda y  \\
-S_N &= \left(\alpha \mathbf{I} +  \mathbf{X}^T \Lambda \mathbf{X}\right)^{-1} 
-\end{align*}
-```
-
-And maximum likelihood solution 
-
-```math
-\hat{w}_{\text{ML}} = \left. m_N\right|_{\alpha \rightarrow 0} = \left(\mathbf{X}^T \Lambda \mathbf{X}\right)^{-1} \mathbf{X}^T \Lambda y
-```
-
-"""
-
-# ╔═╡ 234e75c0-d294-11ef-0b53-bb3518de0d77
-md"""
-This maximum likelihood solution is also called the **Weighted Least Squares** (WLS) solution. (Note that we just stumbled upon it, the crucial aspect is appropriate model specification!)
-
-"""
-
-# ╔═╡ 234e89d2-d294-11ef-238a-73aac596dbeb
-md"""
-Note also that the dimension of ``\Lambda`` grows with the number of data points. In general, models for which the number of parameters grow as the number of observations increase are called **non-parametric models**.
-
-"""
-
-# ╔═╡ 234ec962-d294-11ef-1033-7b1599057825
-md"""
-## Code Example: Least Squares vs Weighted Least Squares
-
-We'll compare the Least Squares and Weighted Least Squares solutions for a simple linear regression model with input-dependent noise:
-
-```math
-\begin{align*}
-x &\sim \text{Unif}[0,1]\\
-y|x &\sim \mathcal{N}(f(x), v(x))\\
-f(x) &= 5x - 2\\
-v(x) &= 10e^{2x^2}-9.5\\
-\mathcal{D} &= \{(x_1,y_1),\ldots,(x_N,y_N)\}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 234ef126-d294-11ef-17a9-3da87a7e7d0a
-let
-	# Model specification: y|x ~ 𝒩(f(x), v(x))
-	f(x) = 5*x .- 2 
-	v(x) = 10*exp.(2*x.^2) .- 9.5 # input dependent noise variance
-	x_test = [0.0, 1.0]
-	plot(x_test, f(x_test), ribbon=sqrt.(v(x_test)), label=L"f(x)") # plot f(x)
-	
-	# Generate N samples (x,y), where x ~ Unif[0,1]
-	N = 50
-	x = rand(N)
-	y = f(x) + sqrt.(v(x)) .* randn(N)
-	scatter!(x, y, xlabel="x", ylabel="y", label=L"y") # Plot samples
-	
-	# Add constant to input so we can estimate both the offset and the slope
-	_x = [x ones(N)]
-	_x_test = hcat(x_test, ones(2))
-	
-	# LS regression
-	w_ls = pinv(_x) * y
-	plot!(x_test, _x_test*w_ls, color=:red, label="LS") # plot LS solution
-	
-	# Weighted LS regression
-	W = Diagonal(1 ./ v(x)) # weight matrix
-	w_wls = inv(_x'*W*_x) * _x' * W * y
-	plot!(x_test, _x_test*w_wls, color=:green, label="WLS") # plot WLS solution
+# ╔═╡ 1f270b7c-b8f9-4e94-9dcd-b8a086145137
+N = 250;
+
+# ╔═╡ ef1f8d7c-2ad3-4a60-8872-a49245205374
+p_apple = 0.7;
+
+# ╔═╡ ca1cba6a-c63e-4a2d-b28b-cceaee0e7491
+Σ = [0.2 0.1; 0.1 0.3]
+
+# ╔═╡ d5ba1ced-e6cc-4e5e-afc1-4a283bfcd9e7
+p_given_apple = MvNormal([1.0, 1.0], Σ) # p(X|y=apple)
+
+# ╔═╡ 49e4b3ba-c368-4a65-b316-21edc7534c1f
+p_given_peach = MvNormal([1.7, 2.5], Σ) # p(X|y=peach)
+
+# ╔═╡ 48671c93-7b5c-4570-b078-364052926178
+begin
+	X = Matrix{Float64}(undef,2,N); 
+	y = Vector{Bool}(undef,N)       # true corresponds to apple
+	for n=1:N
+	    y[n] = (rand() < p_apple)                                   # Apple or peach?
+	    X[:,n] = y[n] ? rand(p_given_apple) : rand(p_given_peach)   # Sample features
+	end
 end
 
-# ╔═╡ 234f0d8c-d294-11ef-2dc6-b310db2cb027
+# ╔═╡ 085699d8-2f21-46cf-9b25-baaf06155345
+X_apples = X[:,findall(y)]'; X_peaches = X[:,findall(.!y)]'     # Sort features on class
+
+# ╔═╡ a8ed7f97-5712-47ce-8e5a-25d177d97417
+x_test = [2.3; 1.5]                                             # Features of 'new' data point
+
+# ╔═╡ 6b7d5d10-e1e4-4be9-96ed-3c363c789c47
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown")
+end
+
+# ╔═╡ 23c719bc-d294-11ef-26ff-71350fa27678
 md"""
-## Some Final Remarks
+## Generative Classification Problem Statement
+
+Given is a data set  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``
+
+  * inputs ``x_n \in \mathbb{R}^M`` are called **features**.
+  * outputs ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``; The **discrete** targets ``\mathcal{C}_k`` are called **classes**.
 
 """
 
-# ╔═╡ 234f5d32-d294-11ef-279f-f331396e47ad
+# ╔═╡ 23c7236c-d294-11ef-2388-254850d0e76e
 md"""
-Aside from the above example, we also recommend that you read through the [RxInfer Bayesian Linear Regression example](https://reactivebayes.github.io/RxInfer.jl/stable/examples/basic_examples/Bayesian%20Linear%20Regression%20Tutorial/). 
-
-In this lesson, we focussed on modelling the map from given inputs ``x`` to uncertain outputs ``y``, or more formally, on the distribution ``p(y|x)``. What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
-
-While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
-
-"""
-
-# ╔═╡ 234f7254-d294-11ef-316a-05ef2edb9699
-md"""
-#  OPTIONAL SLIDES
-
-"""
-
-# ╔═╡ 234f8a6e-d294-11ef-175e-f316d6b39583
-md"""
-## $(HTML("<span id='matrix-calculus'>Some Useful Matrix Calculus</span>"))
-
-When doing derivatives with matrices, e.g. for maximum likelihood estimation, it will be helpful to be familiar with some matrix calculus. We shortly recapitulate used formulas here. 
-
-We define the **gradient** of a scalar function ``f(A)`` w.r.t. an ``n \times k`` matrix ``A`` as
+We will again use the 1-of-``K`` notation for the discrete classes. Define the binary **class selection variable**
 
 ```math
-\nabla_A f \triangleq
-    \begin{bmatrix}
-\frac{\partial{f}}{\partial a_{11}} & \frac{\partial{f}}{\partial a_{12}} & \cdots & \frac{\partial{f}}{\partial a_{1k}}\\
-\frac{\partial{f}}{\partial a_{21}} & \frac{\partial{f}}{\partial a_{22}} & \cdots & \frac{\partial{f}}{\partial a_{2k}}\\
-\vdots & \vdots & \cdots & \vdots\\
-\frac{\partial{f}}{\partial a_{n1}} & \frac{\partial{f}}{\partial a_{n2}} & \cdots & \frac{\partial{f}}{\partial a_{nk}}
-    \end{bmatrix}
+y_{nk} = \begin{cases} 1 & \text{if  } \, y_n \in \mathcal{C}_k\\
+0 & \text{otherwise} \end{cases}
 ```
 
-The following formulas are useful (see Bishop App.-C)
+(Hence, the notations ``y_{nk}=1`` and ``y_n \in \mathcal{C}_k`` mean the same thing.)
+
+"""
+
+# ╔═╡ 23c73302-d294-11ef-0c12-571686b202a9
+md"""
+The plan for generative classification: build a model for the joint pdf ``p(x,y)= p(x|y)p(y)`` and use Bayes to infer the posterior class probabilities 
+
+```math
+p(y|x) = \frac{p(x|y) p(y)}{\sum_{y^\prime} p(x|y^\prime) p(y^\prime)} \propto p(x|y)\,p(y)
+```
+
+"""
+
+# ╔═╡ 23c73b54-d294-11ef-0ef8-8d9159139a1b
+md"""
+## 1 - Model specification
+
+#### Likelihood
+
+Assume Gaussian **class-conditional distributions** with **equal covariance matrix** across the classes,
+
+```math
+ p(x_n|\mathcal{C}_{k}) = \mathcal{N}(x_n|\mu_k,\Sigma)
+ 
+```
+
+with notational shorthand: ``\mathcal{C}_{k} \triangleq (y_n \in \mathcal{C}_{k})``.
+
+"""
+
+# ╔═╡ 23c74748-d294-11ef-2170-bf45b6379e4d
+md"""
+#### Prior
+
+We use a categorical distribution for the class labels ``y_{nk}``: 
+
+```math
+p(\mathcal{C}_{k}) = \pi_k
+```
+
+"""
+
+# ╔═╡ 23c74f18-d294-11ef-3058-a53b3f1482fb
+md"""
+Hence, using the one-hot coding formulation for ``y_{nk}``, the generative model ``p(x_n,y_n)`` can be written as
 
 ```math
 \begin{align*}
-|A^{-1}|&=|A|^{-1} \tag{B-C.4} \\
-\nabla_A \log |A| &= (A^{T})^{-1} = (A^{-1})^T \tag{B-C.28} \\
-\mathrm{Tr}[ABC]&= \mathrm{Tr}[CAB] = \mathrm{Tr}[BCA] \tag{B-C.9} \\
-\nabla_A \mathrm{Tr}[AB] &=\nabla_A \mathrm{Tr}[BA]= B^T \tag{B-C.25} \\
-\nabla_A \mathrm{Tr}[ABA^T] &= A(B+B^T)  \tag{B-C.27}\\
- \nabla_x x^TAx &= (A+A^T)x \tag{from B-C.27}\\
-\nabla_X a^TXb &= \nabla_X \mathrm{Tr}[ba^TX] = ab^T \notag
+ p(x_n,y_n) &= \prod_{k=1}^K p(x_n,y_{nk}=1)^{y_{nk}} \\
+   &= \prod_{k=1}^K \left( \pi_k \cdot\mathcal{N}(x_n|\mu_k,\Sigma)\right)^{y_{nk}}
 \end{align*}
 ```
 
 """
 
-# ╔═╡ 234fbf72-d294-11ef-3e1f-87a06cbdb0c1
+# ╔═╡ 23c75dc8-d294-11ef-3c57-614e75f06d8f
 md"""
-## $(HTML("<span id='change-of-variable-derivation'>Derivation Predictive Distribution</span>"))
+We will refer to this model as the **Gaussian-Categorical Model** ($(HTML("<span id='GCM'>GCM</span>"))). 
 
-In the [derivation of the predictive distribution](#predictive-distribution), we replaced ``\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w`` with ``\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z``. Here we discuss why that is allowed. 
+  * N.B. In the literature, this model (with possibly unequal ``\Sigma_k`` across classes) is often called the Gaussian Discriminant Analysis  model and the special case with equal covariance matrices ``\Sigma_k=\Sigma`` is also called Linear Discriminant Analysis. We think these names are a bit unfortunate as it may lead to confusion with the [discriminative method for classification](https://biaslab.github.io/BMLIP-colorized/lectures/Discriminative%20Classification.html).
 
-Since ``z = x^T w`` (drop the bullet for notational simplicity), we have
+"""
 
-```math
-p(z) = \mathcal{N}(z|m_z,\Sigma_z)
-```
+# ╔═╡ 23c763ce-d294-11ef-015b-736be1a5e9d6
+md"""
+As usual, once the model has been specified, the rest (inference for parameters and model prediction) through straight probability theory.
 
-with
+"""
 
-```math
-\begin{aligned} m_z &:= E[z] = E[x^T w] = x^T E[w] = x^T m_N \\ \Sigma_z &:= E[(z-m_z)(z-m_z)^T] \\   &= E[(x^T w - x^T m_N)(x^T w - x^T m_N)^T] \\   &= x^T E[(w - m_N)(w - m_N)^T]x \\   &= x^T S_N x \end{aligned}
-```
+# ╔═╡ 23c77196-d294-11ef-379b-cdf1f31a0994
+md"""
+## Computing the log-likelihood
 
-Then we equate probability masses in both domains:
-
-```math
- \mathcal{N}(z|m_z,\Sigma_z)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w
-```
+The $(HTML("<span id='generative-classification-llh'>log-likelihood</span>")) given the full data set ``D=\{(x_n,y_n), n=1,2,\ldots,N\}`` is then
 
 ```math
- \Rightarrow \mathcal{N}(z|x^T m_N,x^T S_N x)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w 
+\begin{align*}
+\log\, p(D|\theta) &\stackrel{\text{IID}}{=} \sum_n \log \prod_k p(x_n,y_{nk}=1\,|\,\theta)^{y_{nk}}  \\
+  &=  \sum_{n,k} y_{nk} \log p(x_n,y_{nk}=1\,|\,\theta) \\
+     &=  \sum_{n,k} y_{nk}  \log p(x_n|y_{nk}=1)  +  \sum_{n,k} y_{nk} \log p(y_{nk}=1) \\
+   &=  \sum_{n,k} y_{nk}  \log\mathcal{N}(x_n|\mu_k,\Sigma)  +  \sum_{n,k} y_{nk} \log \pi_k \\
+   &=  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{see Gaussian lecture} } + \underbrace{ \sum_k m_k \log \pi_k }_{ \text{see multinomial lecture} } 
+\end{align*}
 ```
+
+where we used ``m_k \triangleq \sum_n y_{nk}``.
+
+"""
+
+# ╔═╡ 23c7779a-d294-11ef-2e2c-6ba6cadb1381
+md"""
+## 2 -  Parameter Inference for Classification
+
+We'll do Maximum Likelihood estimation for ``\theta = \{ \pi_k, \mu_k, \Sigma \}`` from data ``D``.
+
+"""
+
+# ╔═╡ 23c78316-d294-11ef-3b6e-d1bdd24620d0
+md"""
+Recall (from the previous slide) the log-likelihood (LLH)
+
+```math
+\log\, p(D|\theta) =  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{Gaussian} } + \underbrace{ \sum_k m_k \log \pi_k }_{ \text{multinomial} } 
+```
+
+"""
+
+# ╔═╡ 23c78d3e-d294-11ef-0309-ff10f58f0252
+md"""
+Maximization of the LLH for the GDA model breaks down into
+
+  * **Gaussian density estimation** for parameters ``\mu_k, \Sigma``, since the first term contains exactly the log-likelihood for MVG density estimation. We've already done this, see the [Gaussian distribution lesson](https://biaslab.github.io/BMLIP-colorized/lectures/The%20Gaussian%20Distribution.html#ML-for-Gaussian).
+  * **Multinomial density estimation** for class priors ``\pi_k``, since the second term holds exactly the log-likelihood for multinomial density estimation, see the [Multinomial distribution lesson](https://biaslab.github.io/BMLIP-colorized/lectures/The%20Multinomial%20Distribution.html#ML-for-multinomial).
+
+"""
+
+# ╔═╡ 23c798ce-d294-11ef-0190-f342f30e2266
+md"""
+The ML for multinomial class prior (we've done this before!)
+
+```math
+\begin{align*}   
+\hat \pi_k = \frac{m_k}{N} 
+\end{align*}
+```
+
+"""
+
+# ╔═╡ 23c7a54c-d294-11ef-0252-ef7a043e995c
+md"""
+Now group the data into separate classes and do MVG ML estimation for class-conditional parameters (we've done this before as well):
+
+```math
+\begin{align*}
+ \hat \mu_k &= \frac{ \sum_n y_{nk} x_n} { \sum_n y_{nk} } = \frac{1}{m_k} \sum_n y_{nk} x_n \\
+ \hat \Sigma  &= \frac{1}{N} \sum_{n,k} y_{nk} (x_n-\hat \mu_k)(x_n-\hat \mu_k)^T \\
+  &= \sum_k \hat \pi_k \cdot \underbrace{ \left( \frac{1}{m_k} \sum_{n} y_{nk} (x_n-\hat \mu_k)(x_n-\hat \mu_k)^T  \right) }_{ \text{class-cond. variance} } \\
+  &= \sum_k \hat \pi_k \cdot \hat \Sigma_k
+\end{align*}
+```
+
+where ``\hat \pi_k``, ``\hat{\mu}_k`` and ``\hat{\Sigma}_k`` are the sample proportion, sample mean and sample variance for the ``k``th class, respectively.
+
+"""
+
+# ╔═╡ 23c7ab20-d294-11ef-1926-afae49e79923
+md"""
+Note that the binary class selection variable ``y_{nk}`` groups data from the same class.
+
+"""
+
+# ╔═╡ 23c7baa4-d294-11ef-22c1-31b0d86f5586
+md"""
+## 3 - Application: Class prediction for new Data
+
+Let's apply the trained model to predict the class for given a 'new' input ``x_\bullet``:
+
+```math
+\begin{align*}
+p(\mathcal{C}_k|x_\bullet,D ) &= \int p(\mathcal{C}_k|x_\bullet,\theta ) \underbrace{p(\theta|D)}_{\text{ML: }\delta(\theta - \hat{\theta})} \mathrm{d}\theta \\
+&= p(\mathcal{C}_k|x_\bullet,\hat{\theta} ) \\
+&\propto p(\mathcal{C}_k)\,p(x_\bullet|\mathcal{C}_k) \\
+&= \hat{\pi}_k \cdot \mathcal{N}(x_\bullet | \hat{\mu}_k, \hat{\Sigma}) \\
+  &\propto \hat{\pi}_k \exp \left\{ { - {\frac{1}{2}}(x_\bullet - \hat{\mu}_k )^T \hat{\Sigma}^{ - 1} (x_\bullet - \hat{\mu}_k )} \right\}\\
+  &=\exp \Big\{ \underbrace{-\frac{1}{2}x_\bullet^T \hat{\Sigma}^{ - 1} x_\bullet}_{\text{not a function of }k} + \underbrace{\hat{\mu}_k^T \hat{\Sigma}^{-1}}_{\beta_k^T} x_\bullet \underbrace{- {\frac{1}{2}}\hat{\mu}_k^T \hat{\Sigma}^{ - 1} \hat{\mu}_k  + \log \hat{\pi}_k }_{\gamma_k} \Big\}  \\
+  &\propto  \frac{1}{Z}\exp\{\beta_k^T x_\bullet + \gamma_k\} \\
+  &\triangleq \sigma\left( \beta_k^T x_\bullet + \gamma_k\right)
+\end{align*}
+```
+
+where  ``\sigma(a_k) \triangleq \frac{\exp(a_k)}{\sum_{k^\prime}\exp(a_{k^\prime})}`` is $(HTML("<span id='softmax'>called a</span>")) [**softmax**](https://en.wikipedia.org/wiki/Softmax_function) (a.k.a. **normalized exponential**) function, and
+
+```math
+\begin{align*}
+\beta_k &= \hat{\Sigma}^{-1} \hat{\mu}_k \\
+\gamma_k &= - \frac{1}{2} \hat{\mu}_k^T \hat{\Sigma}^{-1} \hat{\mu}_k  + \log \hat{\pi}_k \\
+Z &= \sum_{k^\prime}\exp\{\beta_{k^\prime}^T x_\bullet + \gamma_{k^\prime}\}\,. \quad \text{(normalization constant)} 
+\end{align*}
+```
+
+"""
+
+# ╔═╡ 23c7c920-d294-11ef-1b6d-d98dd54dcbe3
+md"""
+The softmax function is a smooth approximation to the max-function. Note that we did not a priori specify a softmax posterior, but rather it followed from applying Bayes rule to the prior and likelihood assumptions. 
+
+"""
+
+# ╔═╡ 23c7d700-d294-11ef-1268-c1441a3301a4
+md"""
+Note the following properties of the softmax function ``\sigma(a_k)``:
+
+  * ```math
+    \sigma(a_k)
+    ```
+
+    is monotonicaly ascending function and hence it preserves the order of ``a_k``. That is, if ``a_j>a_k`` then ``\sigma(a_j)>\sigma(a_k)``.
+  * ```math
+    \sigma(a_k)
+    ```
+
+    is always a proper probability distribution, since ``\sigma(a_k)>0`` and ``\sum_k \sigma(a_k) = 1``.
+
+"""
+
+# ╔═╡ 23c7e4a0-d294-11ef-16e9-6f96a41baf97
+md"""
+## Discrimination Boundaries
+
+The class log-posterior ``\log p(\mathcal{C}_k|x) \propto \beta_k^T x + \gamma_k`` is a linear function of the input features.
+
+"""
+
+# ╔═╡ 23c7f170-d294-11ef-1340-fbdf4ce5fd44
+md"""
+Thus, the contours of equal probability (**discriminant functions**) are lines (hyperplanes) in the feature space
+
+```math
+\log \frac{{p(\mathcal{C}_k|x,\theta )}}{{p(\mathcal{C}_j|x,\theta )}} = \beta_{kj}^T x + \gamma_{kj} = 0
+```
+
+where we defined ``\beta_{kj} \triangleq \beta_k - \beta_j`` and similarly for ``\gamma_{kj}``.
+
+"""
+
+# ╔═╡ 23c82154-d294-11ef-0945-c9c94fc2a44d
+md"""
+How to classify a new input ``x_\bullet``? The Bayesian answer is a posterior distribution $ p(\mathcal{C}*k|x*\bullet)$. If you must choose, then the class with maximum posterior class probability
+
+```math
+\begin{align*}
+k^* &= \arg\max_k p(\mathcal{C}_k|x_\bullet) \\
+  &= \arg\max_k \left( \beta _k^T x_\bullet + \gamma_k \right)
+\end{align*}
+```
+
+is an appealing decision. 
+
+"""
+
+# ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
+md"""
+## $(HTML("<span id='code-generative-classification-example'>Code Example</span>")):  Working out the "apple or peach" example problem
+
+We'll apply the above results to solve the "apple or peach" example problem.
+
+"""
+
+# ╔═╡ 4481b38d-dc67-4c1f-ac0b-b348f0aea461
+md"""
+#### Multinomial (in this case binomial) density estimation
+"""
+
+# ╔═╡ cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
+p_apple_est = sum(y.==true) / length(y)
+
+# ╔═╡ 19360d53-93d8-46fe-82d5-357015e75e22
+π_hat = [p_apple_est; 1-p_apple_est]
+
+# ╔═╡ 5092090d-cfac-4ced-b61e-fb7107a4c638
+md"""
+#### Estimate class-conditional multivariate Gaussian densities
+"""
+
+# ╔═╡ 10bfb9ea-46a6-4f4d-980e-ed2afce7b39a
+d1 = fit_mle(FullNormal, X_apples')  # MLE density estimation d1 = N(μ₁, Σ₁)
+
+# ╔═╡ cd310392-aabd-40e0-b06f-f8297c7eed6f
+d2 = fit_mle(FullNormal, X_peaches') # MLE density estimation d2 = N(μ₂, Σ₂)
+
+# ╔═╡ ba9fa93f-093c-4783-988f-27f4ba228e88
+Σ_computed = π_hat[1]*cov(d1) + π_hat[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
+
+# ╔═╡ 46d2d5e9-bb6b-409a-acdc-cdffd1a6f797
+conditionals = [
+	MvNormal(mean(d1), Σ_computed)
+	MvNormal(mean(d2), Σ_computed)
+] # p(x|C)
+
+# ╔═╡ 90b862a5-d5bc-4122-a942-f01062daa86a
+md"""
+#### Posterior class probability of ``x_∙`` (prediction)
+"""
+
+# ╔═╡ 33d5d6e7-1208-4c5b-b651-429b3b6ad50b
+function predict_class(k, X) # calculate p(Ck|X)
+    norm = π_hat[1]*pdf(conditionals[1],X) + π_hat[2]*pdf(conditionals[2],X)
+    return π_hat[k]*pdf(conditionals[k], X) ./ norm
+end
+
+# ╔═╡ 723e09fc-ec63-4c47-844c-d821515ce0f4
+@debug("p(apple|x=x∙) = $(predict_class(1,x_test))")
+
+# ╔═╡ 3791ac2a-8dc2-4d9a-8310-beae13d5a694
+md"""
+#### Discrimination boundary of the posterior 
+Given by the condition ``p(apple|x;D) = p(peach|x;D) = 0.5``
+"""
+
+# ╔═╡ b06c93fa-3439-4ed1-84ed-befc1ab7e40b
+β(k) = inv(Σ)*mean(conditionals[k]);
+
+# ╔═╡ 8610196d-2e0b-4a7f-96b2-2ca09078ffd6
+γ(k) = -0.5 * mean(conditionals[k])' * inv(Σ) * mean(conditionals[k]) + 
+		log(π_hat[k]);
+
+# ╔═╡ 25002ffd-79c9-44bf-85d8-28c87df6c9df
+function discriminant_x2(x1::Real)
+    # Solve discriminant equation for x2
+    β12 = β(1) .- β(2)
+    γ12 = (γ(1) .- γ(2))[1,1]
+    return -(β12[1]*x1 + γ12) / β12[2]
+end;
+
+# ╔═╡ d5a342ff-6c5c-45af-affb-baf66ac7a7c1
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	scatter!([x_test[1]], [x_test[2]], label="unknown") # 'new' unlabelled data point
+
+	# Discrimination boundary
+	x1 = range(-1,length=10,stop=3)
+	plot!(x1, discriminant_x2, color="black", label="")
+	plot!(x1, discriminant_x2, fillrange=-10, alpha=0.2, color=:blue, label="")
+	plot!(x1, discriminant_x2, fillrange=10, alpha=0.2, color=:red, xlims=(-0.5, 3), ylims=(-1, 4), label="")
+end
+
+# ╔═╡ 23c85d90-d294-11ef-375e-7101d4d3cbfa
+md"""
+## Why Be Bayesian?
+
+A student in one of the previous years posed the following question at Piazza: 
+
+> " After re-reading topics regarding generative classification, this question popped into my mind: Besides the sole purpose of the lecture, which is getting to know the concepts of generative classification and how to implement them, are there any advantages of using this instead of using deep neural nets? DNNs seem simpler and more powerful."
+
+
+The following answer was provided: 
+
+  * If you are only are interested in approximating a function, say ``y=f_\theta(x)``, and you have lots of examples ``\{(x_i,y_i)\}`` of desired behavior, then often a non-probabilistic DNN is a fine approach.
+  * However, if you are willing to formulate your models in a probabilistic framework, you can improve on the deterministic approach in many ways, eg,
+
+> 1. Bayesian evidence for model performance assessment. This means you can use the whole data set for training without an ad-hoc split into testing and training data sets.
+
+
+> 2. Uncertainty about parameters in the model is a measure that allows you to do *active learning*, ie, choose data that is most informative (see also the [lesson on intelligent agents](https://biaslab.github.io/BMLIP-colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). This will allow you to train on small data sets, whereas the deterministic DNNs generally require much larger data sets.
+
+
+> 3. Prediction with uncertainty/confidence bounds.
+
+
+> 4. Explicit specification and separation of your assumptions.
+
+
+> 5. A framework that supports scoring both accuracy and model complexity in the same currency (probability). How are you going to penalize the size of your network in a deterministic framework?
+
+
+> 6. Automatic learning rates, no tuning parameters. For instance, the Kalman gain is a data-dependent, optimal learning rate. How will *you* choose your learning rates in a deterministic framework? Trial and error?
+
+
+> 7. Principled absorption of different sources of knowledge. Eg, outcome of one set of experiments can be captured by a posterior distribution that serves as a prior distribution for the next set of experiments.
+
+
+> Admittedly, it's not easy to understand the probabilistic approach, but it is worth the effort.
+
+
+"""
+
+# ╔═╡ 23c8698e-d294-11ef-2ae8-83bebd89d6c0
+md"""
+## Recap Generative Classification
+
+Gaussian-Categorical Model specification:  
+
+```math
+p(x,\mathcal{C}_k|\,\theta) = \pi_k \cdot \mathcal{N}(x|\mu_k,\Sigma)
+```
+
+"""
+
+# ╔═╡ 23c87654-d294-11ef-3aaf-595b207054a5
+md"""
+If the class-conditional distributions are Gaussian with equal covariance matrices across classes (``\Sigma_k = \Sigma``), then   the discriminant functions are hyperplanes in feature space.
+
+"""
+
+# ╔═╡ 23c88284-d294-11ef-113b-f57800a10e5d
+md"""
+ML estimation for ``\{\pi_k,\mu_k,\Sigma\}`` in the GCM model breaks down to simple density estimation for Gaussian and multinomial/categorical distributions.
+
+"""
+
+# ╔═╡ 23c88ec8-d294-11ef-3e0d-8de1377a14bf
+md"""
+Posterior class probability is a softmax function
+
+```math
+ p(\mathcal{C}_k|x,\theta ) \propto \exp\{\beta_k^T x + \gamma_k\}
+```
+
+where ``\beta _k= \Sigma^{-1} \mu_k`` and ``\gamma_k=- \frac{1}{2} \mu_k^T \Sigma^{-1} \mu_k  + \log \pi_k``.
 
 """
 
@@ -529,13 +515,10 @@ Then we equate probability masses in both domains:
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
 Distributions = "~0.25.118"
-LaTeXStrings = "~1.4.0"
 Plots = "~1.40.10"
 """
 
@@ -545,7 +528,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "a5478c8003b28d7a6ba9b3dbb5bbe03a56fee548"
+project_hash = "4533e59302e9349203ba3a2f4170a7b2109d9a8b"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -1777,43 +1760,62 @@ version = "1.4.1+2"
 """
 
 # ╔═╡ Cell order:
-# ╟─234b77a8-d294-11ef-15d5-ff54ed5bec1e
-# ╟─234b8c8e-d294-11ef-296a-3b38564babc4
-# ╟─234ba8c2-d294-11ef-36f6-b1f61f65557a
-# ╟─234bb452-d294-11ef-24cb-3d171fe9cb4e
-# ╟─234be90e-d294-11ef-2257-496f155c2b59
-# ╟─234c27c0-d294-11ef-24c7-1f633aaf02f4
-# ╟─234c3684-d294-11ef-1c08-d9d61fc3d471
-# ╟─234c5394-d294-11ef-1614-c9847412c8fb
-# ╟─234c6104-d294-11ef-0a18-15e51a878079
-# ╟─234c7766-d294-11ef-36fa-1d2beee3dec0
-# ╟─234c8850-d294-11ef-3707-6722628bd9dc
-# ╟─234cab14-d294-11ef-1e7c-777fc35ddbd9
-# ╟─234cdca6-d294-11ef-0ba3-dd5356b65236
-# ╟─234d143c-d294-11ef-2663-d9753288a3a7
-# ╟─234d6dd8-d294-11ef-3abf-8d6cb00b1907
-# ╟─234d858e-d294-11ef-0db5-dbc27b2567a8
-# ╟─234d8fac-d294-11ef-09e6-f522dc9a3a6b
-# ╟─234da212-d294-11ef-1fdc-c38e13cb41db
-# ╟─234dab5e-d294-11ef-30b4-39c5e05dfb31
-# ╟─234dbda6-d294-11ef-05fe-bd3d1320470a
-# ╟─234dc704-d294-11ef-158b-a9ae9e157251
-# ╟─234ddbd8-d294-11ef-1cb3-d15a8ffe31a8
-# ╟─234df3ca-d294-11ef-08d9-65d1a42b3fcb
-# ╟─234e0a18-d294-11ef-1713-1d7ef92d6ba5
-# ╟─234e1f6c-d294-11ef-149a-1785e7fd2901
-# ╟─234e3470-d294-11ef-35f6-bb410b10dfad
-# ╟─234e492e-d294-11ef-327a-2bd72cfeccae
-# ╟─234e617a-d294-11ef-1ce4-fd2e1ebf33a1
-# ╟─234e75c0-d294-11ef-0b53-bb3518de0d77
-# ╟─234e89d2-d294-11ef-238a-73aac596dbeb
-# ╟─234ec962-d294-11ef-1033-7b1599057825
-# ╠═5b1e640f-5209-44bc-987a-1495b7adc50e
-# ╟─234ef126-d294-11ef-17a9-3da87a7e7d0a
-# ╟─234f0d8c-d294-11ef-2dc6-b310db2cb027
-# ╟─234f5d32-d294-11ef-279f-f331396e47ad
-# ╟─234f7254-d294-11ef-316a-05ef2edb9699
-# ╟─234f8a6e-d294-11ef-175e-f316d6b39583
-# ╟─234fbf72-d294-11ef-3e1f-87a06cbdb0c1
+# ╟─23c689fc-d294-11ef-086e-47c4f871bed2
+# ╟─23c6997e-d294-11ef-09a8-a50563e5975b
+# ╟─23c6afea-d294-11ef-1264-f7af4807f23f
+# ╟─23c6b99a-d294-11ef-3072-83e3233746f7
+# ╠═2cd69006-c4b5-406e-89e2-029ad36aa530
+# ╠═1f270b7c-b8f9-4e94-9dcd-b8a086145137
+# ╠═ef1f8d7c-2ad3-4a60-8872-a49245205374
+# ╠═ca1cba6a-c63e-4a2d-b28b-cceaee0e7491
+# ╠═d5ba1ced-e6cc-4e5e-afc1-4a283bfcd9e7
+# ╠═49e4b3ba-c368-4a65-b316-21edc7534c1f
+# ╠═48671c93-7b5c-4570-b078-364052926178
+# ╠═085699d8-2f21-46cf-9b25-baaf06155345
+# ╠═a8ed7f97-5712-47ce-8e5a-25d177d97417
+# ╠═6b7d5d10-e1e4-4be9-96ed-3c363c789c47
+# ╟─23c719bc-d294-11ef-26ff-71350fa27678
+# ╟─23c7236c-d294-11ef-2388-254850d0e76e
+# ╟─23c73302-d294-11ef-0c12-571686b202a9
+# ╟─23c73b54-d294-11ef-0ef8-8d9159139a1b
+# ╟─23c74748-d294-11ef-2170-bf45b6379e4d
+# ╟─23c74f18-d294-11ef-3058-a53b3f1482fb
+# ╟─23c75dc8-d294-11ef-3c57-614e75f06d8f
+# ╟─23c763ce-d294-11ef-015b-736be1a5e9d6
+# ╟─23c77196-d294-11ef-379b-cdf1f31a0994
+# ╟─23c7779a-d294-11ef-2e2c-6ba6cadb1381
+# ╟─23c78316-d294-11ef-3b6e-d1bdd24620d0
+# ╟─23c78d3e-d294-11ef-0309-ff10f58f0252
+# ╟─23c798ce-d294-11ef-0190-f342f30e2266
+# ╟─23c7a54c-d294-11ef-0252-ef7a043e995c
+# ╟─23c7ab20-d294-11ef-1926-afae49e79923
+# ╟─23c7baa4-d294-11ef-22c1-31b0d86f5586
+# ╟─23c7c920-d294-11ef-1b6d-d98dd54dcbe3
+# ╟─23c7d700-d294-11ef-1268-c1441a3301a4
+# ╟─23c7e4a0-d294-11ef-16e9-6f96a41baf97
+# ╟─23c7f170-d294-11ef-1340-fbdf4ce5fd44
+# ╟─23c82154-d294-11ef-0945-c9c94fc2a44d
+# ╟─23c82e10-d294-11ef-286a-ff6fee0f2805
+# ╟─4481b38d-dc67-4c1f-ac0b-b348f0aea461
+# ╠═cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
+# ╠═19360d53-93d8-46fe-82d5-357015e75e22
+# ╟─5092090d-cfac-4ced-b61e-fb7107a4c638
+# ╠═10bfb9ea-46a6-4f4d-980e-ed2afce7b39a
+# ╠═cd310392-aabd-40e0-b06f-f8297c7eed6f
+# ╠═ba9fa93f-093c-4783-988f-27f4ba228e88
+# ╠═46d2d5e9-bb6b-409a-acdc-cdffd1a6f797
+# ╟─90b862a5-d5bc-4122-a942-f01062daa86a
+# ╠═33d5d6e7-1208-4c5b-b651-429b3b6ad50b
+# ╠═723e09fc-ec63-4c47-844c-d821515ce0f4
+# ╟─3791ac2a-8dc2-4d9a-8310-beae13d5a694
+# ╠═b06c93fa-3439-4ed1-84ed-befc1ab7e40b
+# ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
+# ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
+# ╠═d5a342ff-6c5c-45af-affb-baf66ac7a7c1
+# ╟─23c85d90-d294-11ef-375e-7101d4d3cbfa
+# ╟─23c8698e-d294-11ef-2ae8-83bebd89d6c0
+# ╟─23c87654-d294-11ef-3aaf-595b207054a5
+# ╟─23c88284-d294-11ef-113b-f57800a10e5d
+# ╟─23c88ec8-d294-11ef-3e0d-8de1377a14bf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
