@@ -165,7 +165,7 @@ A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{
 p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
 ```
 
-In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
+In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://bmlip.github.io/colorized/lectures/Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
 
 """
 

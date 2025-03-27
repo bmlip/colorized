@@ -2,7 +2,7 @@
 
 
 > [!IMPORTANT]
-> View the **notebooks online**: https://biaslab.github.io/BMLIP-colorized/
+> View the **notebooks online**: https://bmlip.github.io/colorized/
 >
 > *Status for live interactivity (PlutoSliderServer):* [![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/1svzl.svg)](https://tue-bmlip.betteruptime.com/)
 
@@ -19,7 +19,7 @@ This repository has a GitHub Action that automatically generates a static websit
 
 You can see an index of all exported files at the repository website (link in top-right).
 
-✅ Recent commit? For progress and status of the site generation system, check out the [**Actions** tab](https://github.com/biaslab/BMLIP-colorized/actions).
+✅ Recent commit? For progress and status of the site generation system, check out the [**Actions** tab](https://github.com/bmlip/colorized/actions).
 
 
 ## Notebook from Pull Request

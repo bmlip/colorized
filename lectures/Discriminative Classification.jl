@@ -118,7 +118,7 @@ What model should we use for the posterior distribution ``p(y_n \in \mathcal{C}_
 md"""
 #### Likelihood
 
-We will take inspiration from the [generative classification](https://biaslab.github.io/BMLIP-colorized/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
+We will take inspiration from the [generative classification](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
 
 ```math
 p(y_{nk} = 1\,|\,x_n,\beta_k,\gamma_k) = \sigma(\beta_k^T x_n + \gamma_k)
@@ -544,7 +544,7 @@ Computing the gradient ``\nabla_{\theta_k} \mathrm{L}(\theta)`` leads to (for [p
 
 # ╔═╡ 25f386e4-d294-11ef-2cec-f56f4a6feb19
 md"""
-Compare this to the [gradient for *linear* regression](https://biaslab.github.io/BMLIP-colorized/lectures/Regression.html#regression-gradient):
+Compare this to the [gradient for *linear* regression](https://bmlip.github.io/colorized/lectures/Regression.html#regression-gradient):
 
 ```math
 \nabla_\theta \mathrm{L}(\theta) =  \sum_n \left(y_n - \theta^T x_n \right)  x_n
@@ -570,7 +570,7 @@ The parameter vector ``\theta`` for logistic regression can be estimated through
 \hat{\theta}^{(i+1)} =  \hat{\theta}^{(i)} + \eta \cdot \left. \nabla_\theta   \mathrm{L}(\theta)  \right|_{\theta = \hat{\theta}^{(i)}}
 ```
 
-Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://biaslab.github.io/BMLIP-colorized/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
+Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
 
 """
 
@@ -580,7 +580,7 @@ md"""
 
 Let us perform ML estimation of ``w`` on the data set from the introduction. To allow an offset in the discrimination boundary, we add a constant 1 to the feature vector ``x``. We only have to specify the (negative) log-likelihood and the gradient w.r.t. ``w``. Then, we use an off-the-shelf optimisation library to minimize the negative log-likelihood.
 
-We plot the resulting maximum likelihood discrimination boundary. For comparison we also plot the ML discrimination boundary obtained from the [code example in the generative Gaussian classifier lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Generative%20Classification.html#code-generative-classification-example).
+We plot the resulting maximum likelihood discrimination boundary. For comparison we also plot the ML discrimination boundary obtained from the [code example in the generative Gaussian classifier lesson](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#code-generative-classification-example).
 
 """
 
