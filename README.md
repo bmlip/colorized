@@ -19,7 +19,7 @@ This repository has a GitHub Action that automatically generates a static websit
 
 You can see an index of all exported files at the repository website (link in top-right).
 
-✅ Recent commit? For progress and status of the site generation system, check out the [**Actions** tab](https://github.com/biaslab/BMLIP-colorized/actions).
+✅ Recent commit? For progress and status of the site generation system, check out the [**Actions** tab](https://github.com/bmlip/colorized/actions).
 
 
 ## Notebook from Pull Request

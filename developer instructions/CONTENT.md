@@ -11,7 +11,7 @@ Use git (Fons recommends "GitHub Desktop") to clone this repository locally.
 
 When you open a notebook in Pluto (see next chapter) and make changes, **Pluto will always auto-save, and the `.jl` notebook files get modified**. You can then use git normally to submit the changed files: you can make branches and commits.
 
-Here is an example of a PR made with this method: https://github.com/biaslab/BMLIP-colorized/pull/42
+Here is an example of a PR made with this method: https://github.com/bmlip/colorized/pull/42
 
 ## Using Pluto
 First, set up Pluto: https://plutojl.org/#install
