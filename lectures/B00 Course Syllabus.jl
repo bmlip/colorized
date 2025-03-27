@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.5
 
 using Markdown
 using InteractiveUtils
@@ -168,11 +168,6 @@ The slides below the `OPTIONAL SLIDES` marker are optional for the exam.
 
 """
 
-# ╔═╡ 0d01d38e-d294-11ef-3d7a-791fdf340771
-open("../../styles/aipstyle.html") do f
-    display("text/html", read(f,String))
-end
-
 # ╔═╡ Cell order:
 # ╟─0cfd4bc0-d294-11ef-3537-630954a9dd27
 # ╟─0cffef7e-d294-11ef-3dd5-1fd862260b70
@@ -185,4 +180,3 @@ end
 # ╟─0d019cde-d294-11ef-0563-6b41bc2ca80f
 # ╟─0d01a404-d294-11ef-3fe4-df9726debd05
 # ╟─0d01b03e-d294-11ef-3b2f-53f22689075c
-# ╠═0d01d38e-d294-11ef-3d7a-791fdf340771
