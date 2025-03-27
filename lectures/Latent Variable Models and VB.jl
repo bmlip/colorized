@@ -98,7 +98,7 @@ z_{nk} = \begin{cases} 1 & \text{if } x_n \in \mathcal{C}_k \text{ (the $k$-th c
 
 # ╔═╡ 26c5c1ae-d294-11ef-15c6-13cae5bc0dc8
 md"""
-We consider the same model as we did in the [generative classification lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B08%20Generative%20Classification.html#GDA): the data for each class is distributed as a Gaussian:
+We consider the same model as we did in the [generative classification lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Generative%20Classification.html#GDA): the data for each class is distributed as a Gaussian:
 
 ```math
 \begin{align*}
@@ -176,7 +176,7 @@ md"""
 
 Indeed, the fact that the observation-dependent class labels are *unobserved* for the GMM, leads to a problem for processing new data by Bayes rule in a GMM.
 
-Consider a given data set ``D = \{x_n\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B08%20Generative%20Classification.html):
+Consider a given data set ``D = \{x_n\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Generative%20Classification.html):
 
 ```math
 \log\, p(D|\theta) =  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{Gaussian} } + \underbrace{ \sum_{n,k} y_{nk} \log \pi_k }_{ \text{multinomial} } \,.
@@ -224,7 +224,7 @@ The goal of Bayesian inference is to transform the (known) *likelihood-times-pri
  \underbrace{p(x|z) p(z)}_{\text{what we know}} \rightarrow \underbrace{p(z|x) p(x)}_{\text{what we want}} 
 ```
 
-Remember from the [Bayesian machine learning lesson](https://biaslab.github.io/BMLIP-colorized/lectures/B03%20Bayesian%20Machine%20Learning.html#Bayesian-model-evidence) that negative log-evidence can be decomposed as "complexity" minus "accuracy" terms (the CA decomposition):
+Remember from the [Bayesian machine learning lesson](https://biaslab.github.io/BMLIP-colorized/lectures/Bayesian%20Machine%20Learning.html#Bayesian-model-evidence) that negative log-evidence can be decomposed as "complexity" minus "accuracy" terms (the CA decomposition):
 
 ```math
  -\log p(x) =  \underbrace{ \int p(z|x) \log \frac{p(z|x)}{p(z)} \mathrm{d}z }_{\text{complexity}} - \underbrace{\int p(z|x) \log p(x|z) \mathrm{d}z}_{\text{accuracy}}
@@ -265,7 +265,7 @@ To explain inference by FEM, we first rewrite FE in terms of "inference bound" m
  \end{align*}
 ```
 
-Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://biaslab.github.io/BMLIP-colorized/lectures/B03%20Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
+Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://biaslab.github.io/BMLIP-colorized/lectures/Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
 
 Since the second term (log-evidence) does not involve ``q(z)``, FEM over ``q`` will bring ``q(z)`` closer to the Bayesian posterior ``p(z|x)``.
 
@@ -309,7 +309,7 @@ In short, FE minimization transforms an inference problem (that involves integra
 
 Executing inference by minimizing the variational FE functional is called **Variational Bayes** (VB) or variational inference. 
 
-(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* FE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing Free Energy rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://biaslab.github.io/BMLIP-colorized/lectures/B12%20Intelligent%20Agents%20and%20Active%20Inference.html)). 
+(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* FE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing Free Energy rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://biaslab.github.io/BMLIP-colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
 
 """
 
@@ -892,13 +892,13 @@ $(HTML("<span id='fe-decompositions'></span>")) In rounding up this lession, we 
 
 These decompositions are very insightful and we will label them respectively as *energy-entropy* (EE), *bound-evidence* (BE), and *complexity-accuracy* (CA) decompositions. 
 
-In the [Bayesian Machine Learning](https://biaslab.github.io/BMLIP-colorized/lectures/B03%20Bayesian%20Machine%20Learning.html) lecture, we discussed the CA decomposition of Bayesian model evidence to support the interpretation of evidence as a model performance criterion. Here, we recognize that FE allows a similar CA decomposition: minimizing FE increases data fit and decreases model complexity. Hence, FE is a good model performance criterion.
+In the [Bayesian Machine Learning](https://biaslab.github.io/BMLIP-colorized/lectures/Bayesian%20Machine%20Learning.html) lecture, we discussed the CA decomposition of Bayesian model evidence to support the interpretation of evidence as a model performance criterion. Here, we recognize that FE allows a similar CA decomposition: minimizing FE increases data fit and decreases model complexity. Hence, FE is a good model performance criterion.
 
 The CA decomposition makes use of the prior ``p(z)`` and likelihood ``p(x|z)``, both of which are selected by the engineer, so the FE can be evaluated with this decomposition!
 
 The BE decomposition restates what we derived earlier, namely that the FE is an upperbound on the (negative) log-evidence. The bound is the KL-divergence between the variational posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. Global minimization of FE with only data constraints drives the KL-divergence to zero and results to perfect Bayesian inference.
 
-The BE decomposition can also be interpreted as problem representation costs (negative log-evidence) plus solution proposal costs (the KL-divergence bound), see the [Intelligent Agent and Active Inference lesson (slide on Problem and Solution costs)](https://biaslab.github.io/BMLIP-colorized/lectures/B12%20Intelligent%20Agents%20and%20Active%20Inference.html#PS-decomposition) for more details.
+The BE decomposition can also be interpreted as problem representation costs (negative log-evidence) plus solution proposal costs (the KL-divergence bound), see the [Intelligent Agent and Active Inference lesson (slide on Problem and Solution costs)](https://biaslab.github.io/BMLIP-colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html#PS-decomposition) for more details.
 
 The EE decomposition provides a link to the [second law of thermodynamics](https://en.wikipedia.org/wiki/Second_law_of_thermodynamics): Minimizing FE leads to entropy maximization, subject to constraints, where in this case the constraints are imposed by the postulated generative model. 
 
