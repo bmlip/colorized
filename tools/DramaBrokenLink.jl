@@ -103,7 +103,7 @@ end
 
 # you can test me by setting 
 function PlutoNotebookComparison.check_drama(::DramaBrokenLink, di::DramaContext)
-    tocheck = Set{String}()
+    tocheck = String[]
 	for (cell_id, cell) in di.new_state["cell_results"]
 		b = string(cell["output"]["body"])
 
