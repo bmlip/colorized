@@ -57,7 +57,6 @@ See the parameters of the new distribution
 
 
 
-
 ## Gaussian distribution in code
 
 pdf

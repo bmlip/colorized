@@ -38,4 +38,3 @@ Open Pluto (`import Pluto; Pluto.run()`). In the main menu, **paste the URL** in
 
 <img width="1011" alt="image" src="https://github.com/user-attachments/assets/be98b029-41dc-4a8d-8c03-31730fb9a2bd" />
 
-
