@@ -11,7 +11,7 @@ on:
             - "**.md"
 
 jobs:
-    build-and-deploy:
+    notebook-changes-check:
         runs-on: ubuntu-24.04
         steps:
             - name: Checkout
