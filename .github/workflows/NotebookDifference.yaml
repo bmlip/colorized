@@ -52,5 +52,5 @@ jobs:
 
             - name: Compare notebooks in PR
               run: |
-                julia --threads=auto tools/diff.jl
+                julia --threads=auto source/tools/diff.jl
 
