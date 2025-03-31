@@ -3,7 +3,6 @@
 using Memoization
 using URIs
 import HTTP
-import ThreadsX
 
 struct DramaBrokenLink <: AbstractDrama end
 
@@ -116,7 +115,9 @@ function PlutoNotebookComparison.check_drama(::DramaBrokenLink, di::DramaContext
 		end
 	end
     
-    ThreadsX.foreach(check_url, tocheck)
+    Threads.@threads for u in tocheck
+        check_url(u)
+    end
 end
 
 
