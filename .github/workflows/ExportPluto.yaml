@@ -16,7 +16,7 @@ permissions:
     # (all other permission fields default to "none")
 
 jobs:
-    build-and-deploy:
+    export-to-gh-pages:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout this repository
