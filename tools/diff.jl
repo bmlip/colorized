@@ -15,7 +15,7 @@ pluto_state_cache = tamepath("pluto_state_cache")
 gh_pages_dir = tamepath("gh_pages_dir")
 
 if !isdir(pluto_state_cache) || readdir(pluto_state_cache) == []
-    @warn "Running this script with an empty PlutoSliderServer cache."
+    @warn "Running this script without a GitHub Actions PlutoSliderServer cache. Using a local cache in the temp dir."
     pluto_state_cache = joinpath(tempdir(), "bmlip cache")
 end
 
