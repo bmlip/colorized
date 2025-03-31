@@ -447,7 +447,7 @@ md"""
 
 # ╔═╡ 234f5d32-d294-11ef-279f-f331396e47ad
 md"""
-Aside from the above example, we also recommend that you read through the [RxInfer Bayesian Linear Regression example](https://reactivebayes.github.io/RxInfer.jl/stable/examples/basic_examples/Bayesian%20Linear%20Regression%20Tutorial/). 
+Aside from the above example, we also recommend that you read through the [RxInfer Bayesian Linear Regression example](https://examples.rxinfer.com/categories/basic_examples/bayesian_linear_regression/). 
 
 In this lesson, we focussed on modelling the map from given inputs ``x`` to uncertain outputs ``y``, or more formally, on the distribution ``p(y|x)``. What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
 
