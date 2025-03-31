@@ -52,26 +52,5 @@ jobs:
 
             - name: Compare notebooks in PR
               run: |
-                julia -e 'using Pkg
-                  Pkg.activate(joinpath("source", "pluto-slider-server-environment"))
-                  Pkg.instantiate()
-                  
-                  using PlutoNotebookComparison
-
-                  sources_old = [
-                    PSSCache("pluto_state_cache")
-                    WebsiteDir("gh_pages_dir")
-                    WebsiteAddress("https://bmlip.github.io/colorized/")
-                    SafePreview()
-                  ]
-                  
-                  sources_new = [
-                    PSSCache("pluto_state_cache")
-                    RunWithPlutoSliderServer()
-                  ]
-
-                  PlutoNotebookComparison.compare_PR("source";
-                    sources_old,
-                    sources_new,
-                  )'
+                julia --threads=auto source/tools/diff.jl
 

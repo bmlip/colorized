@@ -910,7 +910,7 @@ md"""
 
 For most interesting models of real-world problems, Bayes rule is not tractible. Therefore, the usage of approximate variational Bayesian inference in real-world settings is rising rapidly.
 
-A toolbox such as [RxInfer](http://rxinfer.ml) makes it possible to specify a complex model and automate the inference process by constrained Free Energy minimization. 
+A toolbox such as [RxInfer](http://rxinfer.com) makes it possible to specify a complex model and automate the inference process by constrained Free Energy minimization. 
 
 Note that model specification, even for complex models, usually does not take more than 1 page of code. As a result, you can, in principle, solve very complex problems by automated inference in a complex model with less than 1 page of code. 
 
