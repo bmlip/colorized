@@ -23,10 +23,19 @@ using PlutoUI
 using HypertextLiteral
 
 # ╔═╡ 6246d44f-281d-4c19-b58d-f5b9abb6f856
-init = map(x -> 100.0 .* x, rand(Tuple{Float64,Float64}, 20))
+init = [
+	(rand() * 100, rand() * 100, rand(1:3))
+	for _ in 1:100
+]
+
+# ╔═╡ ef95e89e-cc71-498e-89ba-9f4c181ab224
+@htl """
+<style>
+figure {margin: 0}
+"""
 
 # ╔═╡ f28c18e5-ac1a-4d42-8227-244571d2eadf
-function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64}}=Tuple{Float64,Float64}[]; xlim=(0,100), ylim=(0,100), radius::Real=4.0, height::Real=300)
+function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64,Int64}}=Tuple{Float64,Float64,Int64}[]; xlim=(20,100), ylim=(20,100), radius::Real=4.0, height::Real=300)
     # <script id="yolo">
 	h = @htl """
     <script>
@@ -48,16 +57,15 @@ function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64}}=Tuple{Flo
 
 
 	const radius = $(radius)
-
-	
 	
 
 	const render = () => {
 		
 		plot = Plot.plot({
+		  color: {legend: true},
 		  height: $(height),
 		  marks: [
-		    Plot.dot(data),
+		    Plot.dot(data, {stroke: x => `Group \${x[2]}`}),
 			data.length > initial_data.length ? null : Plot.text(["Click to add data"], {frameAnchor: "middle", fontSize: 20}),
 		  ],
 			x: {
@@ -88,7 +96,22 @@ div.addEventListener("click", (e) => {
 	// if(e.target !== plot) return
 	if(!plot.contains(e.target)) return
 
-	const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(plot.getScreenCTM().inverse());
+console.log(e)
+	const svg = plot.querySelector(":scope > svg") ?? plot
+	const svg_rect = svg.getBoundingClientRect();
+	const rect = svg_rect
+
+		console.log(svg, rect.width, svg.viewBox.baseVal.width)
+		
+	//const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+
+		const p = new DOMPoint(
+    (e.clientX - rect.left) / rect.width * svg.viewBox.baseVal.width,
+    (e.clientY - rect.top) / rect.height * svg.viewBox.baseVal.height
+);
+
+		console.log({plot})
+
 
 	const domain_x = plot.scale("x").domain
 	const domain_y = plot.scale("y").domain
@@ -98,7 +121,7 @@ div.addEventListener("click", (e) => {
 	const clicked_x = plot.scale("x").invert(p.x + randn() * radius)
 	const clicked_y = plot.scale("y").invert(p.y + randn() * radius)
 
-	data.push([clicked_x, clicked_y])
+	data.push([clicked_x, clicked_y, 2])
 	render()
 	div.dispatchEvent(new CustomEvent("input"))
 })
@@ -424,6 +447,7 @@ version = "17.4.0+2"
 # ╠═3a311274-1064-11f0-11e1-ab38902d7bb7
 # ╠═0559500b-ec4a-4e75-b1c0-05792203037f
 # ╠═6246d44f-281d-4c19-b58d-f5b9abb6f856
+# ╠═ef95e89e-cc71-498e-89ba-9f4c181ab224
 # ╠═7e206141-bf37-44d3-b9cf-626cc6455a3f
 # ╠═d45bafb5-ed36-49e0-a473-b37c60f1cc78
 # ╠═f28c18e5-ac1a-4d42-8227-244571d2eadf
