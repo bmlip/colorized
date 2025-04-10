@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.5
+# v0.20.6
 
 using Markdown
 using InteractiveUtils
@@ -34,14 +34,16 @@ init = let
 			10 3
 			3 12
 		]
-	), 30)
+	), 10)
+	
 	g2 = rand(MvNormal(
 		[71, 64],
 		[
 			10 3
 			3 12
 		]
-	), 30)
+	), 40)
+	
 	g3 = rand(MvNormal(
 		[60, 34],
 		[
@@ -63,7 +65,15 @@ figure {margin: 0}
 """
 
 # ╔═╡ f28c18e5-ac1a-4d42-8227-244571d2eadf
-function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64,Int64}}=Tuple{Float64,Float64,Int64}[]; xlim=(20,80), ylim=(20,80), radius::Real=4.0, height::Real=300)
+function data_picker_2D(
+	initial_data::Vector{<:Tuple{Float64,Float64,Int64}}=Tuple{Float64,Float64,Int64}[],
+	initial_groups::Vector=[],
+	
+	; 
+	groups, 
+	xlim::Union{Tuple{<:Real,<:Real},Nothing}=(20,80), ylim::Union{Tuple{<:Real,<:Real},Nothing}=(20,80), 
+	radius::Real=4.0, height::Real=300,
+)
     # <script id="yolo">
 	h = @htl """
     <script>
@@ -76,10 +86,26 @@ function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64,Int64}}=Tup
 
 	const initial_data = $(initial_data)
 	let data = [...initial_data]
-	
+
+		
+	const undo_button = document.createElement("input")
+	undo_button.type = "button"
+	undo_button.value = "↩️ Undo"
+		
 	const reset_button = document.createElement("input")
 	reset_button.type = "button"
-	reset_button.value = "Reset"
+	reset_button.value = "📄 Reset"
+		
+
+	const groups = $(groups)
+	const group_picker = document.createElement("select")
+	groups.forEach((x) => {
+		const option = document.createElement("option")
+		option.innerText = `Group \${x}`
+		option.__value = x
+		group_picker.append(option)
+	})
+	const get_current_group = () => group_picker.selectedOptions[0].__value
 
 	let plot = undefined
 
@@ -109,9 +135,25 @@ function data_picker_2D(initial_data::Vector{<:Tuple{Float64,Float64,Int64}}=Tup
 			},
 		})
 
+		const legend = plot.querySelector(":scope > div")
+		Array.from(legend.querySelectorAll(":scope > span")).forEach((el, i) => {
+			el.addEventListener("click", () => {
+				group_picker.value = el.innerText.trim()
+			})
+		})
+
 	    div.innerHTML = ""
+		div.style.cssText = "user-select: none;"
 	    div.append(plot);
-		div.append(reset_button)
+		const controls = html`<div style="display: flex; align-items: baseline;
+"></div>`
+		div.append(controls)
+		controls.append(html`<span>&nbsp;Add points to:&nbsp;&nbsp;</span>`)
+		controls.append(group_picker)
+		controls.append(undo_button)
+		controls.append(reset_button)
+		undo_button.disabled = data.length <= initial_data.length
+		undo_button.style.cssText = "margin-inline-start: auto;"
 	}
 
 render()
@@ -142,16 +184,21 @@ div.addEventListener("click", (e) => {
 	const clicked_x = plot.scale("x").invert(p.x + randn() * radius)
 	const clicked_y = plot.scale("y").invert(p.y + randn() * radius)
 
-	data.push([clicked_x, clicked_y, 1])
+	data.push([clicked_x, clicked_y, get_current_group()])
 	render()
 	div.dispatchEvent(new CustomEvent("input"))
 })
 
 
-reset_button.addEventListener("click", (e) => {
-	console.log("reset!")
-	data = [...initial_data]
+undo_button.addEventListener("click", (e) => {
+	data = data.slice(0, -1)
+	render()
+	div.dispatchEvent(new CustomEvent("input"))
+})
 
+		
+reset_button.addEventListener("click", (e) => {
+	data = [...initial_data]
 	render()
 	div.dispatchEvent(new CustomEvent("input"))
 })
@@ -167,7 +214,10 @@ reset_button.addEventListener("click", (e) => {
 end
 
 # ╔═╡ 7e206141-bf37-44d3-b9cf-626cc6455a3f
-@bind zooooo data_picker_2D(init)
+@bind zooooo data_picker_2D(init; groups=1:3)
+
+# ╔═╡ 4a196bb5-5766-4a3c-ae9e-4ad8b5be3616
+length(zooooo)
 
 # ╔═╡ d45bafb5-ed36-49e0-a473-b37c60f1cc78
 zooooo
@@ -673,12 +723,13 @@ version = "17.4.0+2"
 """
 
 # ╔═╡ Cell order:
+# ╠═6246d44f-281d-4c19-b58d-f5b9abb6f856
+# ╟─ef95e89e-cc71-498e-89ba-9f4c181ab224
+# ╠═7e206141-bf37-44d3-b9cf-626cc6455a3f
 # ╠═3a311274-1064-11f0-11e1-ab38902d7bb7
 # ╠═0559500b-ec4a-4e75-b1c0-05792203037f
 # ╠═c8207ba7-f5fe-48fc-b3ff-791c40b8c18d
-# ╠═6246d44f-281d-4c19-b58d-f5b9abb6f856
-# ╠═ef95e89e-cc71-498e-89ba-9f4c181ab224
-# ╠═7e206141-bf37-44d3-b9cf-626cc6455a3f
+# ╠═4a196bb5-5766-4a3c-ae9e-4ad8b5be3616
 # ╠═d45bafb5-ed36-49e0-a473-b37c60f1cc78
 # ╠═f28c18e5-ac1a-4d42-8227-244571d2eadf
 # ╟─00000000-0000-0000-0000-000000000001
