@@ -22,6 +22,10 @@ You can see an index of all exported files at the repository website (link in to
 ✅ Recent commit? For progress and status of the site generation system, check out the [**Actions** tab](https://github.com/bmlip/colorized/actions).
 
 
+## How to edit a lecture
+
+TODO
+
 ## Notebook from Pull Request
 To preview a notebook from a Pull Request, open it locally. The quickest way to do so:
 
@@ -29,7 +33,7 @@ To preview a notebook from a Pull Request, open it locally. The quickest way to 
 Open the PR and go to the "Files" tab. Find the notebook file that you want to preview.
 
 ### Step 2
-Click the (...) button and **Right Click** the *View raw* option. Click **Copy link URL**.
+Click the (...) button and **Right Click** the *View raw* TODO THIS CHANGED option. Click **Copy link URL**.
 
 <img width="1403" alt="Scherm­afbeelding 2025-01-14 om 18 02 22" src="https://github.com/user-attachments/assets/6fc1011b-8a8d-4419-b97c-a972b779a950" />
 
