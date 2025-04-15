@@ -1,13 +1,24 @@
-# Instructions for **course authors**
+# BMLIP Colorized Developer Guide
 
+Welcome to the BMLIP Colorized developer documentation! This guide will help you contribute to the project.
 
+## Content – Documentation for Course Authors
 
-## Content – [read here](https://github.com/bmlip/colorized/blob/main/developer%20instructions/CONTENT.md)
-How to write new lectures, how to modify lectures.
+How to write new lectures, how to modify lectures. You can use the "Content" label in issues and PRs.
 
-You can use the "Content" label in issues and PRs.
+### Quick Links for Content Authors
+- [Setup Guide](SETUP.md) - How to get started with git and Pluto
+- [Content Writing Guide](CONTENT_WRITING.md) - How to write and modify lectures
+- [Publishing Guide](PUBLISHING.md) - How to submit and publish your changes
+- [Presentation Guide](PRESENTATION.md) - How to present lectures using Pluto
 
-## Infrastructure – [read here](https://github.com/bmlip/colorized/blob/main/developer%20instructions/INFRASTRUCTURE.md)
-How to maintain the website infrastructure.
+### Getting Started with Content
+1. First, read the [Setup Guide](SETUP.md) to get your development environment ready
+2. Then, check out the [Content Writing Guide](CONTENT_WRITING.md) to learn how to write and modify lectures
+3. When you're ready to submit your changes, follow the [Publishing Guide](PUBLISHING.md)
 
-You can use the "Infrastructure" label in issues and PRs.
+## Infrastructure – Documentation for Admins
+
+How to maintain the website infrastructure. You can use the "Infrastructure" label in issues and PRs.
+
+For detailed information about the project's infrastructure and technical setup, see [INFRASTRUCTURE.md](INFRASTRUCTURE.md).
