@@ -8,6 +8,10 @@ After using the instructions to launch Pluto, here is a video of launching a lec
 
 
 
+https://github.com/user-attachments/assets/260d0599-c34c-44be-b747-d34578e3373c
+
+*Tip: Use the Status tab to see what is currently busy.*
+
 
 ## Making an edit
 Here is a video showing how to make some changes in Pluto. I then switch to GitHub Desktop, where the edits are visible. (Along with a couple small metadata changes, those are fine to commit.) I create a new branch, bring my changes, create a commit, push, publish.
