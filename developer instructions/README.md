@@ -11,6 +11,7 @@ How to write new lectures, how to modify lectures. You can use the "Content" lab
 - [Content Writing Guide](CONTENT_WRITING.md) - How to write and modify lectures
 - [Publishing Guide](PUBLISHING.md) - How to submit and publish your changes
 - [Presentation Guide](PRESENTATION.md) - How to present lectures using Pluto
+- [Pluto Tips](PLUTO_TIPS.md) - Useful tips and tricks for working with Pluto
 
 ### Getting Started with Content
 1. First, read the [Setup Guide](SETUP.md) to get your development environment ready
