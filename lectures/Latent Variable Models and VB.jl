@@ -1,14 +1,20 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.5
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ df171940-eb54-48e2-a2b8-1a8162cabf3e
+using PlutoUI
 
 # ╔═╡ c90176ea-918b-4643-a10f-cef277c5ea75
 using LinearAlgebra, PDMats, SpecialFunctions, Random
 
 # ╔═╡ 58bd0d43-743c-4745-b353-4a89b35e85ba
 using Distributions, Plots, StatsPlots
+
+# ╔═╡ ce7d086b-ff20-4da1-a4e8-52b5b7dc9e2b
+TableOfContents()
 
 # ╔═╡ 26c56fd8-d294-11ef-236d-81deef63f37c
 md"""
@@ -1436,6 +1442,7 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
@@ -1444,6 +1451,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 Distributions = "~0.25.118"
 PDMats = "~0.11.32"
 Plots = "~1.40.10"
+PlutoUI = "~0.7.23"
 SpecialFunctions = "~2.5.0"
 StatsPlots = "~0.15.7"
 """
@@ -1452,9 +1460,9 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "0cc587359683dc3328956b42f39c3cc586540729"
+project_hash = "be939ba188718147267e236b7bdd6148afc6cfd5"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1466,6 +1474,12 @@ weakdeps = ["ChainRulesCore", "Test"]
     [deps.AbstractFFTs.extensions]
     AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
     AbstractFFTsTestExt = "Test"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -1833,6 +1847,24 @@ git-tree-sha1 = "2bd56245074fab4015b9174f24ceba8293209053"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.27"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.5"
+
 [[deps.IntelOpenMP_jll]]
 deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl"]
 git-tree-sha1 = "0f14a5456bdc6b9731a5682f439a672750a09e48"
@@ -2148,7 +2180,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2253,6 +2285,12 @@ version = "1.40.10"
     IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
+git-tree-sha1 = "5152abbdab6488d5eec6a01029ca6697dff4ec8f"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.23"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2554,6 +2592,11 @@ version = "1.11.0"
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
+
+[[deps.Tricks]]
+git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.10"
 
 [[deps.URIs]]
 git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
@@ -2916,6 +2959,8 @@ version = "1.4.1+2"
 """
 
 # ╔═╡ Cell order:
+# ╠═df171940-eb54-48e2-a2b8-1a8162cabf3e
+# ╠═ce7d086b-ff20-4da1-a4e8-52b5b7dc9e2b
 # ╟─26c56fd8-d294-11ef-236d-81deef63f37c
 # ╟─26c58298-d294-11ef-2a53-2b42b48e0725
 # ╟─26c591fc-d294-11ef-0423-b7a854d09bad
