@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.6
 
 using Markdown
 using InteractiveUtils
@@ -572,7 +572,7 @@ md"""
 \alpha
 ```
 
-and ``\beta`` are called **hyperparameters**, since they parameterize the distribution for another parameter (``\mu``). E.g., ``\alpha=\beta=1`` leads to a uniform prior for ``\mu``. We use Julia below to visualize some priors ``\mathrm{Beta}(\mu|\alpha,\beta)`` for different values for ``\alpha, \beta``.
+and ``\beta`` are called **SUPERparameters**, since they parameterize the distribution for another parameter (``\mu``). E.g., ``\alpha=\beta=1`` leads to a uniform prior for ``\mu``. We use Julia below to visualize some priors ``\mathrm{Beta}(\mu|\alpha,\beta)`` for different values for ``\alpha, \beta``.
 
 """
 
@@ -582,7 +582,7 @@ params = [
     (α=0.1, β=0.1)
     (α=1.0, β=1.0)
     (α=2.0, β=3.0)
-    (α=8.0, β=4.0)
+    (α=900.0, β=4.0)
 ]
 
 # ╔═╡ 513414c7-0a54-4767-a583-7d779f8fbc55
@@ -1204,7 +1204,7 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.5"
 manifest_format = "2.0"
 project_hash = "c8437be39b3fa76e47b8caeeada703f61768dd3a"
 
@@ -1900,7 +1900,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
