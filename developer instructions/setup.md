@@ -12,6 +12,9 @@ Here is an example of a PR made with this method: https://github.com/bmlip/color
 
 ## Setting up Pluto
 
+### Step 0: Install Julia
+Install the latest stable version of Julia from [here](https://julialang.org/install/). At the top of the page, it recommends `juliaup` for this, that's a good choice.
+
 ### Step 1: Install Pluto
 Install Pluto by following the instructions at https://plutojl.org/#install
 
