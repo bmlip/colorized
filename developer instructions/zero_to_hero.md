@@ -4,5 +4,28 @@ This guide will take you through the process of making a lecture edit, starting 
 ## Setup
 Install Git (GitHub Desktop), Julia and Pluto. For instructions, see the [Setup Guide](setup.md). Clone the repository to your computer. Open one of the notebooks in Pluto.
 
+After using the instructions to launch Pluto, here is a video of launching a lecture notebook. The path of the `colorized` folder will be different on your computer.
+
+
+
+
 ## Making an edit
-In Pluto, 
+Here is a video showing how to make some changes in Pluto. I then switch to GitHub Desktop, where the edits are visible. (Along with a couple small metadata changes, those are fine to commit.) I create a new branch, bring my changes, create a commit, push, publish.
+
+https://github.com/user-attachments/assets/175b648c-2ddc-453d-a682-756afeed65bc
+
+More info: [Publishing guide](publishing.md)
+
+
+## Pull request
+
+Here is a video showing how to create a Pull Request directly from your branch in Github Desktop.
+
+'/Users/fons/Desktop/Schermopname 2025-04-15 om 20.29.59_compressed.mp4'
+
+More info: [Publishing guide](publishing.md)
+
+
+
+
+
