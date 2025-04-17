@@ -35,6 +35,6 @@ Click "OPEN" to load the notebook.
 
 ## Next Steps
 
-- Learn how to [write content](CONTENT_WRITING.md)
-- Understand the [publishing process](PUBLISHING.md)
-- Check out [presentation tips](PRESENTATION.md) 
+- Learn how to [write content](content_writing.md)
+- Understand the [publishing process](publishing.md)
+- Check out [presentation tips](presentation.md) 

@@ -14,12 +14,12 @@ How to write new lectures, how to modify lectures. You can use the "Content" lab
 - [Pluto Tips](pluto_tips.md) - Useful tips and tricks for working with Pluto
 
 ### Getting Started with Content
-1. First, read the [Setup Guide](SETUP.md) to get your development environment ready
-2. Then, check out the [Content Writing Guide](CONTENT_WRITING.md) to learn how to write and modify lectures
-3. When you're ready to submit your changes, follow the [Publishing Guide](PUBLISHING.md)
+1. First, read the [Setup Guide](setup.md) to get your development environment ready
+2. Then, check out the [Content Writing Guide](content_writing.md) to learn how to write and modify lectures
+3. When you're ready to submit your changes, follow the [Publishing Guide](publishing.md)
 
 ## Infrastructure – Documentation for Admins
 
 How to maintain the website infrastructure. You can use the "Infrastructure" label in issues and PRs.
 
-For detailed information about the project's infrastructure and technical setup, see [INFRASTRUCTURE.md](INFRASTRUCTURE.md).
+For detailed information about the project's infrastructure and technical setup, see [infrastructure.md](infrastructure.md).
