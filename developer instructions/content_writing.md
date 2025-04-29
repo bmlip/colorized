@@ -94,9 +94,51 @@ $(html"<h1>My header</h1>")
 ## Linking
 
 ### Between Lectures
-Go to the course website, find the lecture you want to link, and use that URL.
+Go to the **course website**, find the lecture you want to link, and use that URL.
 
-### Within Lectures
+### Linking to a specific element in a lecture
+You can link to a specific element on a web page by adding a `#` followed by the element's ID. 
+
+#### Linking from within a lecture
+If you want to link to an element **inside the same notebook**, you can use `#id` as the URL. For example:
+
+```julia
+md"""
+Take a look at [the function we used here](#remove_last_element).
+"""
+```
+
+#### Linking from another lecture
+If you want to link to an element **inside another notebook**, you can use the full URL of the lecture, and add a `#id` to the element you want to link to. For example:
+
+```julia
+md"""
+Take a look at [the beta prior from the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#beta-prior).
+"""
+```
+
+
+
+
+
+### Making elements linkable
+Here are two methods for making elements linkable.
+
+#### ID method 1: Global variable
+The easiest way to create an ID in Pluto is to define a global variable. In Pluto: If a cell defines a variable `example`, then you can link to it by using `#example` in the URL.
+
+For example:
+
+```julia
+function remove_last_element(xs)
+    return xs[1:end-1]
+end
+```
+
+Now you can link to this cell using `#remove_last_element`.
+
+
+#### ID method 2: HTML spans
 Use HTML spans with IDs for linking:
 
 ```julia
@@ -112,5 +154,5 @@ Pluto has a stricter runtime than Jupyter to ensure reproducibility. Read more a
 
 ## Next Steps
 
-- Learn about the [publishing process](PUBLISHING.md)
-- Check out [presentation tips](PRESENTATION.md) 
+- Learn about the [publishing process](publishing.md)
+- Check out [presentation tips](presentation.md) 
