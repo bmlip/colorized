@@ -28,5 +28,6 @@ You can find some inspiration in other Pluto courses. Take a look at:
 - https://featured.plutojl.org/
 - https://computationalthinking.mit.edu/
 - https://teaching.matmat.org/numerical-analysis/
+- https://vchuravy.dev/rse-course/mod1_introduction/parallelism/
 
 

@@ -93,11 +93,21 @@ $(html"<h1>My header</h1>")
 
 ## Linking
 
-### Between Lectures
-Go to the **course website**, find the lecture you want to link, and use that URL.
+### Linking to a lecture
+Go to the **course website**, find the lecture you want to link, and use that URL. For example:
+
+```julia
+md"""
+Take a look at [the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html).
+"""
+```
+
 
 ### Linking to a specific element in a lecture
-You can link to a specific element on a web page by adding a `#` followed by the element's ID. 
+Web browsers have a a special feature for linking to specific elements on a page. You can link to a specific element on a web page by adding a `#` followed by the element's ID. An "element" can be anything on a web page: a paragraph, a header, a pluto cell, etc. If it has an ID, you can link to it.
+
+Because Pluto is a web application, this also works in Pluto. 
+
 
 #### Linking from within a lecture
 If you want to link to an element **inside the same notebook**, you can use `#id` as the URL. For example:
@@ -117,12 +127,29 @@ Take a look at [the beta prior from the Bayesian Machine Learning lecture](https
 """
 ```
 
+Here the URL consists of two parts, joined together:
+```
+# the URL
+https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html
+
+# the ID
+#beta-prior
+```
 
 
+### Adding IDs to elements
 
+Some elements have IDs by default, but most don't. These have **IDs by default**:
+- Global variables: a cell that defines `example` will get a linkable ID of `example`. (More on this below.)
+- Pluto cells: *(not recommended)* each cell has a unique ID, like `f2a42c4d-9607-4f50-bbda-9a9a4942faab`. You can find it by right-clicking the cell and selecting "Inspect", or you can see it in the Julia source code of the notebook. But this is not the easiest way to do it.
 
-### Making elements linkable
-Here are two methods for making elements linkable.
+These elements do **not** have IDs by default:
+- Markdown headers: `# Dynamic Models` ☹️
+- Markdown paragraphs ☹️
+- Markdown LaTeX equations ☹️
+- Markdown images ☹️
+
+Because you often do not get an ID by default, you need to add one yourself. There are two easy ways to do this:
 
 #### ID method 1: Global variable
 The easiest way to create an ID in Pluto is to define a global variable. In Pluto: If a cell defines a variable `example`, then you can link to it by using `#example` in the URL.
@@ -147,6 +174,9 @@ md"""
 This is a paragraph.
 """
 ```
+
+
+
 
 ## Code in Pluto
 
