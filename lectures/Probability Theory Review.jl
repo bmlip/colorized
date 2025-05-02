@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.6
 
 using Markdown
 using InteractiveUtils
@@ -66,7 +66,7 @@ In this lesson we introduce *Probability Theory* (PT) again. As we will see in t
 md"""
 ## Challenge: Disease Diagnosis
 
-**Problem**: Given a disease with prevalence of  1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85% , what is the chance that somebody who tests positive actually has the disease?
+**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
 
 """
 
@@ -83,7 +83,7 @@ md"""
 Define an **event** (or "proposition") ``A`` as a statement that can be considered for its truth by a person. For instance, 
 
 ```math
-𝐴= \texttt{'there is life on Mars'}
+𝐴= \texttt{``there is life on Mars''}
 ```
 
 """
@@ -93,13 +93,13 @@ md"""
 If we assume the fact 
 
 ```math
-I = \texttt{'All known life forms require water'}
+I = \texttt{``All known life forms require water''}
 ```
 
 as background information, and a new piece of information 
 
 ```math
-x = \texttt{'There is water on Mars'}
+x = \texttt{``There is water on Mars''}
 ```
 
 becomes available, how *should* our degree of belief in event ``A`` be affected *if we were rational*? 
@@ -160,7 +160,7 @@ where ``p(a|b)`` means the probability that ``a`` is true, given that ``b`` is t
 
 # ╔═╡ 3e191b6c-d294-11ef-3174-d1b4b36e252b
 md"""
-Examples
+#### Examples
 
   * Predictions
 
@@ -168,13 +168,13 @@ Examples
 p(\,\texttt{future-observations}\,|\,\texttt{past-observations}\,)
 ```
 
-Classify a received data point ``x`` 
+  * Classify a received data point ``x`` 
 
 ```math
 p(\,x\texttt{-belongs-to-class-}k \,|\,x\,)
 ```
 
-Update a model based on a new observation
+  * Update a model based on a new observation
 
 ```math
 p(\,\texttt{model-parameters} \,|\,\texttt{new-observation},\,\texttt{past-observations}\,)
@@ -194,7 +194,7 @@ The interpretation of a probability as a **degree-of-belief** about the truth va
 md"""
 In the **Bayesian** interpretation, the probability is associated with a **state-of-knowledge** (usually held by a person, but formally by a rational agent). 
 
-  * For instance, in a coin tossing experiment, ``p(\texttt{tail}) = 0.4`` should be interpreted as the belief that there is a 40% chance that ``\texttt{tail}`` comes up if the coin were tossed.
+  * For instance, in a coin tossing experiment, ``p(\texttt{outcome} = \texttt{tail}) = 0.4`` should be interpreted as the belief that there is a 40% chance that ``\texttt{tail}`` comes up if the coin were tossed.
   * Under the Bayesian interpretation, PT calculus (sum and product rules) **extends boolean logic to rational reasoning with uncertainty**.
 
 """
@@ -203,13 +203,13 @@ In the **Bayesian** interpretation, the probability is associated with a **state
 md"""
 The Bayesian interpretation contrasts with the **frequentist** interpretation of a probability as the relative frequency that an event would occur under repeated execution of an experiment.
 
-  * For instance, if the experiment is tossing a coin, then ``p(\texttt{tail}) = 0.4`` means that in the limit of a large number of coin tosses, 40% of outcomes turn up as ``\texttt{tail}``.
+  * For instance, if the experiment is tossing a coin, then ``p(\texttt{outcome} = \texttt{tail}) = 0.4`` means that in the limit of a large number of coin tosses, 40% of outcomes turn up as ``\texttt{tail}``.
 
 """
 
 # ╔═╡ 3e1964b4-d294-11ef-373d-712257fc130f
 md"""
-The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like '``\texttt{it will rain tomorrow}``'. 
+The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like ``\texttt{`it will rain tomorrow'}``. 
 
 """
 
@@ -250,7 +250,7 @@ A = \text{`it will rain tomorrow'}
 
 # ╔═╡ 3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
 md"""
-We write the denial of ``A``, i.e. the event **not**-A, as ``\bar{A}``. 
+We write the denial of ``A``, i.e., the event **not**-A, as ``\bar{A}``. 
 
 """
 
@@ -273,19 +273,10 @@ md"""
 For any event ``A``, with background knowledge ``I``, the **conditional probability of ``A`` given ``I``**, is written as 
 
 ```math
-p(A|I)\,.
+p(A|I)\,,
 ```
 
-"""
-
-# ╔═╡ 3e19fd2a-d294-11ef-2a52-b9245f6d02ba
-md"""
-```math
-p(A|I)
-```
-
-indicates the degree-of-belief in event ``A``, given that ``I`` is true. 
-
+which indicates the degree-of-belief in event ``A``, given that ``I`` is true. 
 """
 
 # ╔═╡ 3e1a36b4-d294-11ef-2242-f36061b0b754
@@ -296,13 +287,19 @@ In principle, all probabilities are conditional probabilities of the type ``p(A|
 
 # ╔═╡ 3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 md"""
-The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that ``p(A,B) = p(B,A)``, since ``AB=BA``. Therefore the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
+The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that 
+
+```math
+p(A,B) = p(B,A)\,,
+```
+
+since ``AB = BA``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
 
 """
 
 # ╔═╡ 3e1a69f4-d294-11ef-103e-efc47025fb8f
 md"""
-Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the degree-of-belief that variable ``X`` takes on the value ``5``. 
+Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
 
 """
 
@@ -316,7 +313,7 @@ If ``X`` is a *discretely* valued variable, then ``p(X=x)`` is a probability *ma
 md"""
 If ``X`` is *continuously* valued, then ``p(X=x)`` is a probability *density* function (PDF) with ``p(X=x)\ge 0``  and normalization ``\int_x p(x)\mathrm{d}x=1``. 
 
-  * Note that if ``X`` is continuously valued, then the value of ``p(x)`` is not necessarily ``\le 1``. E.g., a uniform distribution on the continuous domain ``[0,.5]`` has value ``p(x) = 2``.
+  * Note that if ``X`` is continuously valued, then the value of ``p(x)`` is not necessarily ``\le 1``. E.g., a uniform distribution on the continuous domain ``[0,.5]`` has value ``p(x) = 2`` over its domain.
 
 """
 
@@ -343,7 +340,7 @@ md"""
 **Sum rule**. The disjunction of two events ``A`` and ``B`` with given background ``I`` is 
 
 ```math
- \boxed{p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)}
+ p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
 ```
 
 """
@@ -353,7 +350,7 @@ md"""
 **Product rule**. The conjuction of two events ``A`` and ``B`` with given background ``I`` is
 
 ```math
- \boxed{p(A,B|I) = p(A|B,I)\,p(B|I)}
+ p(A,B|I) = p(A|B,I)\,p(B|I)
 ```
 
 """
@@ -372,9 +369,11 @@ md"""
 
 # ╔═╡ 3e1b4b1c-d294-11ef-0423-9152887cc403
 md"""
-## Independent, Exclusive and Exhaustive Events
+## Independent, Exclusive, and Exhaustive Events
 
 It will be helpful to introduce some terms concerning special relationships between events.  
+
+#### Independent events
 
 Two events ``A`` and ``B`` are said to be **independent** if the probability of one event is not altered by information about the truth of the other event, i.e., 
 
@@ -382,41 +381,45 @@ Two events ``A`` and ``B`` are said to be **independent** if the probability of 
 p(A|B) = p(A)\,.
 ```
 
-```math
-\Rightarrow
-```
-
-If ``A`` and ``B`` are independent, then the product rule simplifies to 
+It follows that, if ``A`` and ``B`` are independent, then the product rule simplifies to 
 
 ```math
 p(A,B) = p(A) p(B)\,.
 ```
 
-```math
-A
-```
-
-and ``B`` with given background ``I`` are said to be **conditionally independent** if ``p(A|B,I) = p(A|I)``. In that case, the product rule simplifies to ``p(A,B|I) = p(A|I) p(B|I)``.
-
-Two events ``A_1`` and ``A_2`` are said to be **mutually exclusive** ('disjoint') if they cannot be true simultanously, i.e., if ``p(A_1,A_2)=0``.
+``A`` and ``B`` with given background ``I`` are said to be **conditionally independent** if 
 
 ```math
-\Rightarrow
+p(A|B,I) = p(A|I)\,.
 ```
 
-For mutually exclusive events, probability adds (this follows from the sum rule): 
+In that case, the product rule simplifies to ``p(A,B|I) = p(A|I) p(B|I)``.
+
+#### Mutually exclusive events
+
+Two events ``A_1`` and ``A_2`` are said to be **mutually exclusive** ('disjoint') if they cannot be true simultaneously, i.e., if
 
 ```math
-p(A_1+A_2) = p(A_1) + p(A_2)
+p(A_1,A_2)=0 \,.
 ```
+
+For mutually exclusive events, probabilities add (this follows from the sum rule), hence 
+
+```math
+p(A_1 + A_2) = p(A_1) + p(A_2)
+```
+
+#### Collectively exhaustive events
 
 A set of events ``A_1, A_2, \ldots, A_N`` is said to be **collectively exhaustive** if one of the statements is necessarily true, i.e., ``A_1+A_2+\cdots +A_N=\mathrm{TRUE}``, or equivalently 
 
 ```math
-p(A_1+A_2+\cdots +A_N)=1
+p(A_1+A_2+\cdots +A_N) = 1 \,.
 ```
 
-If a set of events ``A_1, A_2, \ldots, A_n`` are both **mutually exclusive** and **collectively exhausitive** events, then we say that they **partition the universe**. Technically, this means that 
+#### Partitioning the universe
+
+If a set of events ``A_1, A_2, \ldots, A_n`` is both **mutually exclusive** and **collectively exhaustive**, then we say that they **partition the universe**. Technically, this means that 
 
 ```math
 \sum_{n=1}^N p(A_n) = p(A_1 + \ldots + A_N) = 1
@@ -498,16 +501,16 @@ md"""
 Consider two variables ``D`` and ``\theta``. It follows from symmetry arguments that 
 
 ```math
-p(D,\theta)=p(\theta,D)
+p(D,\theta)=p(\theta,D)\,,
 ```
 
-, and hence that
+and hence that
 
 ```math
-p(D|\theta)p(\theta)=p(\theta|D)p(D)
+p(D|\theta)p(\theta)=p(\theta|D)p(D)\,,
 ```
 
-or, equivalently,
+or equivalently,
 
 ```math
  p(\theta|D) = \frac{p(D|\theta) }{p(D)}p(\theta)\,.\qquad \text{(Bayes rule)}
@@ -526,9 +529,6 @@ This last formula is called **Bayes rule**, named after its inventor [Thomas Bay
 
 # ╔═╡ 3e1bf116-d294-11ef-148b-f7a1ca3f3bad
 md"""
-```math
-\Rightarrow
-```
 
 Bayes rule tells us how to update our knowledge about model parameters when facing new data. Hence, 
 
@@ -576,11 +576,7 @@ For a given data set ``D``, the posterior probabilities of the parameters scale 
 p(\theta|D) \propto p(D|\theta) p(\theta)
 ```
 
-```math
-\Rightarrow
-```
-
-All that we can learn from the observed data is contained in the likelihood function ``p(D|\theta)``. This is called the **likelihood principle**.
+Hence, all that we can learn from the observed data is contained in the likelihood function ``p(D|\theta)``. This is called the **likelihood principle**.
 
 """
 
@@ -615,14 +611,14 @@ md"""
 In a machine learning context, often the data is observed, and ``\theta`` is the free variable. In that case, for given observations ``D=D_0``, the **likelihood function** (which is a function only of the model parameters ``\theta``) is defined as 
 
 ```math
-\mathrm{L}(\theta) \triangleq p(D=D_0|\theta)
+L(\theta) \triangleq p(D=D_0|\theta)
 ```
 
 """
 
 # ╔═╡ 3e1c9184-d294-11ef-3e35-5393d97fbc44
 md"""
-Note that ``\mathrm{L}(\theta)`` is not a probability distribution for ``\theta`` since in general ``\sum_\theta \mathrm{L}(\theta) \neq 1``.
+Note that ``L(\theta)`` is not a probability distribution for ``\theta`` since in general ``\sum_\theta L(\theta) \neq 1``.
 
 """
 
@@ -630,7 +626,7 @@ Note that ``\mathrm{L}(\theta)`` is not a probability distribution for ``\theta`
 md"""
 ## Code Example: Sampling Distribution and Likelihood Function for the Coin Toss
 
-Consider the following simple model for the outcome (head or tail) ``y \in \{0,1\}`` of a biased coin toss with parameter ``\theta \in [0,1]``:
+Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
 
 ```math
 \begin{align*}
@@ -647,7 +643,7 @@ p(y|\theta=0.5) = \begin{cases} 0.5 & \text{if }y=0 \\ 0.5 & \text{if } y=1 \end
 and the likelihood function 
 
 ```math
-L(\theta) = p(y=1|\theta) = \theta \,.
+L(\theta) \triangleq p(y=1|\theta) = \theta \,.
 ```
 
 """
@@ -723,7 +719,7 @@ p(X|Z) \stackrel{p}{=} \frac{p(X,Z)}{p(Z)} \stackrel{s}{=} \frac{\sum_Y p(X,Y,Z)
 \end{align*}
 ```
 
-where the 's' and 'p' above the equality sign indicate whether the sum or product rule was used. 
+where the ``s`` and ``p`` above the equality sign indicate whether the sum or product rule was used. 
 
 """
 
@@ -737,7 +733,7 @@ In the rest of this course, we'll encounter many long probabilistic derivations.
 md"""
 ## Revisiting the Challenge: Disease Diagnosis
 
-**Problem**: Given a disease ``D`` with prevalence of ``1\%`` and a test procedure ``T`` with sensitivity ('true positive' rate) of ``95\%`` and specificity ('true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
+**Problem**: Given a disease ``D`` with prevalence (overall occurence percentage) of ``1\%`` and a test procedure `T`` with sensitivity (true positive rate) of ``95\%`` and specificity (true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
 
 """
 
@@ -779,11 +775,7 @@ and a ball is drawn out, which proves to be white. What is now the  chance of dr
 md"""
 **Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
-```math
-\Rightarrow
-```
-
-Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
+``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
 
 """
 
@@ -799,11 +791,8 @@ md"""
 md"""
 **Solution**: (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
-```math
-\Rightarrow
-```
 
-Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
+``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
 
 """
 
@@ -924,21 +913,15 @@ which is the **convolution** of the two marginal PDFs.
 
 # ╔═╡ 3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
 md"""
-[https://en.wikipedia.org/wiki/List*of*convolutions*of*probability_distributions](https://en.wikipedia.org/wiki/List_of_convolutions_of_probability_distributions) shows how these convolutions work out for a few common probability distributions. 
-
-"""
-
-# ╔═╡ 3e1f130a-d294-11ef-292f-37578d61ea52
-md"""
-
+[Wikipedia's List of convolutions of probability distributions](https://en.wikipedia.org/wiki/List_of_convolutions_of_probability_distributions) shows how these convolutions work out for a few common probability distributions. 
 
 """
 
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
-## Code Example: Sum of Two Gaussian Distributed Variables
+## Code Example: Sum of Two Gaussian-distributed Variables
 
-Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wiki:normal-distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
+Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wikipedia normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
 
 ```math
 \begin{align*}
@@ -959,7 +942,7 @@ We illustrate the distributions for ``X``, ``Y`` and ``Z`` using Julia:
 
 # ╔═╡ 98fa17a6-7c8b-46e4-b32d-52db183d88f8
 md"""
-Parameters for ``X`` and ``Y``:
+Set the parameters for the distributions of ``X`` and ``Y``:
 """
 
 # ╔═╡ 27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
@@ -970,17 +953,22 @@ Parameters for ``X`` and ``Y``:
 
 # ╔═╡ 1cb8b2c4-e1ae-4973-ba53-fc6c7fe1f37a
 md"""
-Parameters for ``Z = X + Y``:
+Compute the parameters for the distribution of ``Z = X + Y``:
 """
 
 # ╔═╡ 91a91472-ee6d-416b-b18e-acbedc03a7fe
-μz = μx+μy
+μz = μx + μy
 
 # ╔═╡ 6485575d-c5a5-4891-8210-f50d6f75476f
 σz = sqrt(σx^2 + σy^2)
 
 # ╔═╡ 0abaed25-decc-4dcd-aa04-b68ec0d5c73e
 
+
+# ╔═╡ 218d3b6e-50b6-4b98-a00c-a19dd33d2c03
+md"""
+Let's plot the distributions for ``X``, ``Y``, and ``Z``
+"""
 
 # ╔═╡ e836f877-5ed6-4865-ba3a-1ca5a86b2349
 begin
@@ -1008,13 +996,7 @@ end
 md"""
 ## PDF for the Product of Two Variables
 
-For two continuous **independent** variables
-
-```math
-X
-```
-
-and ``Y``, with PDF's ``p_x(x)`` and ``p_y(y)``, the PDF of  :Z = X Y $ is given by 
+For two continuous **independent** variables ``X`` and ``Y``, with PDF's ``p_x(x)`` and ``p_y(y)``, the PDF of  ``Z = X Y`` is given by 
 
 ```math
 p_z(z) = \int_{-\infty}^{\infty} p_x(x) \,p_y(z/x)\, \frac{1}{|x|}\,\mathrm{d}x\,.
@@ -1028,7 +1010,7 @@ For proof, see [https://en.wikipedia.org/wiki/Product_distribution](https://en.w
 md"""
 Generally, this integral does not lead to an analytical expression for ``p_z(z)``. 
 
-For example, [the product of two independent variables that are both Gaussian-distributed does not lead to a Gaussian distribution](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
+As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
 
   * Exception: the distribution of the product of two variables that both have [log-normal distributions](https://en.wikipedia.org/wiki/Log-normal_distribution) is again a lognormal distribution. (If ``X`` has a normal distribution, then ``Y=\exp(X)`` has a log-normal distribution.)
 
@@ -1066,7 +1048,7 @@ P(a ≤ x ≤ b) &= \int_a^b p_x(x)\mathrm{d}x \\
 \end{align*}
 ```
 
-Equating the two probability masses leads to identification of the relation 
+Equating the two probability masses leads to the identification of the relation 
 
 ```math
 p_y(y) = p_x(g(y)) g^\prime(y)\,,
@@ -1074,13 +1056,13 @@ p_y(y) = p_x(g(y)) g^\prime(y)\,,
 
 which is also known as the [Change-of-Variable theorem](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function). 
 
-If the tranformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains. 
+If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains. 
 
 """
 
 # ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
 md"""
-## Example: Transformation of a Gaussian Variable
+## Challenge: Transformation of a Gaussian Variable
 
 Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
 
@@ -1097,6 +1079,8 @@ p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
   &= \mathcal{N}(y|0,1) 
 \end{align*}
 ```
+
+In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
 
 """
 
@@ -1189,7 +1173,7 @@ Plots = "~1.40.9"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.5"
 manifest_format = "2.0"
 project_hash = "1af62f37696dc6b5e69ddd0c8e89d9d4127a9250"
 
@@ -1728,7 +1712,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2445,7 +2429,6 @@ version = "1.4.1+2"
 # ╟─3e19c06c-d294-11ef-197a-f549e8107a57
 # ╟─3e19d39a-d294-11ef-1a50-7fe8a24777dc
 # ╟─3e19e95a-d294-11ef-3da4-6d23922a5150
-# ╟─3e19fd2a-d294-11ef-2a52-b9245f6d02ba
 # ╟─3e1a36b4-d294-11ef-2242-f36061b0b754
 # ╟─3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 # ╟─3e1a69f4-d294-11ef-103e-efc47025fb8f
@@ -2502,15 +2485,15 @@ version = "1.4.1+2"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
-# ╟─3e1f130a-d294-11ef-292f-37578d61ea52
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
-# ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
+# ╠═98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
 # ╠═de4dbfc9-9340-4ae2-b323-49abfd77f198
 # ╟─1cb8b2c4-e1ae-4973-ba53-fc6c7fe1f37a
 # ╠═91a91472-ee6d-416b-b18e-acbedc03a7fe
 # ╠═6485575d-c5a5-4891-8210-f50d6f75476f
 # ╟─0abaed25-decc-4dcd-aa04-b68ec0d5c73e
+# ╟─218d3b6e-50b6-4b98-a00c-a19dd33d2c03
 # ╠═5394e37c-ae00-4042-8ada-3bbf32fbca9e
 # ╠═e836f877-5ed6-4865-ba3a-1ca5a86b2349
 # ╠═c0ea3253-a06b-426c-91a3-a6dd33e42779
