@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.6
+# v0.20.8
 
 using Markdown
 using InteractiveUtils
@@ -10,11 +10,17 @@ using Plots, LaTeXStrings
 # ╔═╡ 5394e37c-ae00-4042-8ada-3bbf32fbca9e
 using Distributions
 
+# ╔═╡ b305a905-06c2-4a15-8042-72ef6375720f
+using PlutoUI, PlutoTeachingTools
+
 # ╔═╡ 3e17df5e-d294-11ef-38c7-f573724871d8
 md"""
 # Probability Theory Review
 
 """
+
+# ╔═╡ bcb4be20-0439-4809-a166-8c50b6b9206b
+TableOfContents()
 
 # ╔═╡ 3e1803d0-d294-11ef-0304-df2b9b698cd1
 md"""
@@ -50,11 +56,11 @@ Materials
 
 # ╔═╡ 3e1823b0-d294-11ef-3dba-9997a7230cdf
 md"""
-## [Data Analysis: A Bayesian Tutorial](https://www.amazon.com/Data-Analysis-Bayesian-Devinderjit-Sivia/dp/0198568320)
+## 📕 [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322)
 
-The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://www.amazon.com/Data-Analysis-Bayesian-Devinderjit-Sivia/dp/0198568320) (2006), by D.S. Sivia with J.S. Skilling:
+The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
+> ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
 
 Does this fragment resonate with your own experience? 
 
@@ -78,7 +84,7 @@ md"""
 
 # ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
 md"""
-## The Design of Probability Theory
+# The Design of Probability Theory
 
 Define an **event** (or "proposition") ``A`` as a statement that can be considered for its truth by a person. For instance, 
 
@@ -86,10 +92,6 @@ Define an **event** (or "proposition") ``A`` as a statement that can be consider
 𝐴= \texttt{``there is life on Mars''}
 ```
 
-"""
-
-# ╔═╡ 3e189fa2-d294-11ef-1f2b-2151b6c128f8
-md"""
 If we assume the fact 
 
 ```math
@@ -435,14 +437,10 @@ We mentioned before that every inference problem in PT can be evaluated through 
 
 """
 
-# ╔═╡ 3e1b6bce-d294-11ef-2bd9-29c0634b1856
-md"""
-## Marginalization
-
-"""
-
 # ╔═╡ 3e1b7d14-d294-11ef-0d10-1148a928dd57
 md"""
+# Marginalization
+
 Let ``A`` and ``B_1,B_2,\ldots,B_n`` be events, where ``B_1,B_2,\ldots,B_n`` partitions the universe. Then
 
 ```math
@@ -496,7 +494,7 @@ p(X)=\int_Y p(X,Y) \,\mathrm{d}Y
 
 # ╔═╡ 3e1bcb00-d294-11ef-2795-bd225bd00496
 md"""
-## $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
+# $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
 
 Consider two variables ``D`` and ``\theta``. It follows from symmetry arguments that 
 
@@ -531,9 +529,11 @@ This last formula is called **Bayes rule**, named after its inventor [Thomas Bay
 md"""
 
 Bayes rule tells us how to update our knowledge about model parameters when facing new data. Hence, 
+"""
 
- <span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
-
+# ╔═╡ 6669cee9-86df-4226-a40b-829152cdbd4f
+html"""
+<span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
 """
 
 # ╔═╡ 3e1bffec-d294-11ef-2a49-9ff0f6331add
@@ -582,7 +582,7 @@ Hence, all that we can learn from the observed data is contained in the likeliho
 
 # ╔═╡ 3e1c51e2-d294-11ef-2c6d-d32a98308c6f
 md"""
-## The Likelihood Function vs the Sampling Distribution
+# The Likelihood Function vs the Sampling Distribution
 
 Consider a distribution ``p(D|\theta)``, where ``D`` relates to variables that are observed (i.e., a "data set") and ``\theta`` are model parameters.
 
@@ -684,7 +684,7 @@ However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L
 
 # ╔═╡ 3e1d33c8-d294-11ef-0a08-bdc419949925
 md"""
-## Probabilistic Inference
+# Probabilistic Inference
 
 **Probabilistic inference** refers to computing
 
@@ -733,12 +733,9 @@ In the rest of this course, we'll encounter many long probabilistic derivations.
 md"""
 ## Revisiting the Challenge: Disease Diagnosis
 
-**Problem**: Given a disease ``D`` with prevalence (overall occurence percentage) of ``1\%`` and a test procedure `T`` with sensitivity (true positive rate) of ``95\%`` and specificity (true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
+**Problem**: Given a disease ``D`` with prevalence (overall occurence percentage) of ``1\%`` and a test procedure ``T`` with sensitivity (true positive rate) of ``95\%`` and specificity (true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
 
-"""
 
-# ╔═╡ 3e1d9cd2-d294-11ef-2eb0-f99ae4e66ec7
-md"""
 **Solution**: The given information is ``p(D=1)=0.01``, ``p(T=1|D=1)=0.95`` and ``p(T=0|D=0)=0.85``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
 
 ```math
@@ -751,13 +748,11 @@ p( D=1 &| T=1) \\
 \end{align*}
 ```
 
-"""
 
-# ╔═╡ 3e1dc900-d294-11ef-331a-9b17133817d2
-md"""
 Note that ``p(\text{sick}|\text{positive test}) = 0.06`` while ``p(\text{positive test} | \text{sick}) = 0.95``. This is a huge difference that is sometimes called the "medical test paradox" or the [base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy). 
 
 Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and even lots of unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
+
 
 """
 
@@ -798,7 +793,7 @@ md"""
 
 # ╔═╡ 3e1e4dda-d294-11ef-33b7-4bbe3300ca22
 md"""
-## Moments of the PDF
+# Moments of the PDF
 
 Distributions can often usefully be summarized by a set of values known as moments of the distribution.  
 
@@ -840,6 +835,9 @@ Exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T =
 
 # ╔═╡ 3e1e9224-d294-11ef-38b3-137c2be22400
 md"""
+# Transformations of variables
+If we have two variables ``X`` and ``Y``, what can we say about transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
+
 ## $(HTML("<span id='linear-transformation'>Linear Transformations</span>"))
 
 Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\Sigma_x`` and the linear transformation 
@@ -865,7 +863,7 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 md"""
 ## PDF for the Sum of Two Variables
 
-Given eqs SRG-3a and SRG-3b (previous cell), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
+Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
 
 ```math
 \begin{align*}
@@ -1109,7 +1107,7 @@ Also, ``x \sim \mathcal{N}(x|\mu,\Sigma)`` is not proper because you already nam
 
 # ╔═╡ 3e1fd38a-d294-11ef-05d3-ad467328be96
 md"""
-## Summary
+# Summary
 
 Probabilities should be interpretated as degrees of belief, i.e., a state-of-knowledge, rather than a property of nature.
 
@@ -1162,11 +1160,15 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 Distributions = "~0.25.117"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.9"
+PlutoTeachingTools = "~0.3.1"
+PlutoUI = "~0.7.62"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1175,7 +1177,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "1af62f37696dc6b5e69ddd0c8e89d9d4127a9250"
+project_hash = "8e4bea78652364760c63b384672c8163126092f3"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -1211,6 +1219,12 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "009060c9a6168704143100f36ab08f06c2af4642"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.2+1"
+
+[[deps.CodeTracking]]
+deps = ["InteractiveUtils", "UUIDs"]
+git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
+uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
+version = "1.3.9"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1461,6 +1475,24 @@ git-tree-sha1 = "2bd56245074fab4015b9174f24ceba8293209053"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.27"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.5"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -1494,6 +1526,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
+
+[[deps.JuliaInterpreter]]
+deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
+git-tree-sha1 = "ad08bbc177bc329888d21a94b37beb6aa919273a"
+uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
+version = "0.10.2"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1646,6 +1684,17 @@ version = "1.11.0"
 deps = ["Dates", "Logging"]
 git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
+version = "1.1.0"
+
+[[deps.LoweredCodeUtils]]
+deps = ["JuliaInterpreter"]
+git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
+uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
+version = "3.3.0"
+
+[[deps.MIMEs]]
+git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "1.1.0"
 
 [[deps.MacroTools]]
@@ -1818,6 +1867,30 @@ version = "1.40.9"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoHooks]]
+deps = ["InteractiveUtils", "Markdown", "UUIDs"]
+git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
+version = "0.0.5"
+
+[[deps.PlutoLinks]]
+deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
+git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
+version = "0.1.6"
+
+[[deps.PlutoTeachingTools]]
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
+git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
+version = "0.3.1"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.62"
+
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1914,6 +1987,18 @@ deps = ["UUIDs"]
 git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
+
+[[deps.Revise]]
+deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
+git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
+uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
+version = "3.7.6"
+
+    [deps.Revise.extensions]
+    DistributedExt = "Distributed"
+
+    [deps.Revise.weakdeps]
+    Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
@@ -2059,6 +2144,11 @@ version = "1.11.0"
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
+
+[[deps.Tricks]]
+git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.10"
 
 [[deps.URIs]]
 git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
@@ -2404,12 +2494,12 @@ version = "1.4.1+2"
 
 # ╔═╡ Cell order:
 # ╟─3e17df5e-d294-11ef-38c7-f573724871d8
+# ╟─bcb4be20-0439-4809-a166-8c50b6b9206b
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
 # ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
 # ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
-# ╟─3e189fa2-d294-11ef-1f2b-2151b6c128f8
 # ╟─3e18b2fa-d294-11ef-1255-df048f0dcec2
 # ╟─3e18c25c-d294-11ef-11bc-a93c2572b107
 # ╟─3e18d2ea-d294-11ef-35e9-2332dd31dbf0
@@ -2443,7 +2533,6 @@ version = "1.4.1+2"
 # ╟─3e1b05ee-d294-11ef-33de-efed64d01c0d
 # ╟─3e1b4b1c-d294-11ef-0423-9152887cc403
 # ╟─3e1b5c9c-d294-11ef-137f-d75b3731eae4
-# ╟─3e1b6bce-d294-11ef-2bd9-29c0634b1856
 # ╟─3e1b7d14-d294-11ef-0d10-1148a928dd57
 # ╟─3e1b8bf4-d294-11ef-04cc-6364e46fdd64
 # ╟─3e1b9ba8-d294-11ef-18f2-db8eed3d87d0
@@ -2452,6 +2541,7 @@ version = "1.4.1+2"
 # ╟─3e1bcb00-d294-11ef-2795-bd225bd00496
 # ╟─3e1bdd02-d294-11ef-19e8-2f44eccf58af
 # ╟─3e1bf116-d294-11ef-148b-f7a1ca3f3bad
+# ╟─6669cee9-86df-4226-a40b-829152cdbd4f
 # ╟─3e1bffec-d294-11ef-2a49-9ff0f6331add
 # ╟─3e1c0e80-d294-11ef-0d19-375e01988f16
 # ╟─3e1c1e3e-d294-11ef-0955-bdf9d0ba3c53
@@ -2471,8 +2561,6 @@ version = "1.4.1+2"
 # ╟─3e1d51a0-d294-11ef-228e-294b503d2e3d
 # ╟─3e1d5efc-d294-11ef-0627-cfa86f1447ca
 # ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
-# ╟─3e1d9cd2-d294-11ef-2eb0-f99ae4e66ec7
-# ╟─3e1dc900-d294-11ef-331a-9b17133817d2
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
 # ╟─3e1e134c-d294-11ef-18c0-21742fe74fa6
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
@@ -2510,5 +2598,6 @@ version = "1.4.1+2"
 # ╟─3e1fedfc-d294-11ef-30ee-a396bb877037
 # ╟─3e1ffc5c-d294-11ef-27b1-4f6ccb64c5d6
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
+# ╠═b305a905-06c2-4a15-8042-72ef6375720f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
