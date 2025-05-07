@@ -45,7 +45,7 @@ Materials
 
       * Blei et al. (2017), [Variational Inference: A Review for Statisticians](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773)
       * Lanczos (1961), [The variational principles of mechanics](https://www.amazon.com/Variational-Principles-Mechanics-Dover-Physics/dp/0486650677)
-      * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://www.mdpi.com/1099-4300/23/7/807)
+      * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-)
       * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
       * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
 
@@ -1086,7 +1086,7 @@ Sometimes, the SP update rule is not analytically solvable.
 
 Fortunately, for many well-known Bayesian approximation methods, a message passing update rule can be created, e.g. [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) (VMP) for variational inference. 
 
-In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://www.mdpi.com/1099-4300/23/7/807), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Latent-Variable-Models-and-VB.ipynb) is the proper way for updating beliefs. 
+In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Latent-Variable-Models-and-VB.ipynb) is the proper way for updating beliefs. 
 
 Different message passing updates rules can be combined to get a hybrid inference method in one model. 
 
@@ -1307,7 +1307,7 @@ where ``k`` denotes iteration number and the messages are defined as
 \end{align*}
 ```
 
-For a more complete overview of message passing as Bethe Free Energy minimization, see [Senoz et al. (2021)](https://www.mdpi.com/1099-4300/23/7/807).
+For a more complete overview of message passing as Bethe Free Energy minimization, see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-).
 
 """
 

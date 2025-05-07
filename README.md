@@ -14,6 +14,10 @@ This is the **work-in-pogress** *new* version of the course [Bayesian Machine Le
 There will be new lecture materials based on [Pluto.jl](https://plutojl.org/) with interactivity and color!
 
 
+
+This is the class for roughly 15 Nov 2025 - 22 Jan 2026 (2nd quarter).
+
+
 # How to modify lecture materials
 
 Take a look at https://github.com/bmlip/colorized/tree/main/developer%20instructions for more information aimed at the course lecturers and website admins.
