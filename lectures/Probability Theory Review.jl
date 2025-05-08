@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.8
 
 using Markdown
 using InteractiveUtils
@@ -10,11 +10,17 @@ using Plots, LaTeXStrings
 # ╔═╡ 5394e37c-ae00-4042-8ada-3bbf32fbca9e
 using Distributions
 
+# ╔═╡ b305a905-06c2-4a15-8042-72ef6375720f
+using PlutoUI, PlutoTeachingTools
+
 # ╔═╡ 3e17df5e-d294-11ef-38c7-f573724871d8
 md"""
 # Probability Theory Review
 
 """
+
+# ╔═╡ bcb4be20-0439-4809-a166-8c50b6b9206b
+TableOfContents()
 
 # ╔═╡ 3e1803d0-d294-11ef-0304-df2b9b698cd1
 md"""
@@ -50,11 +56,11 @@ Materials
 
 # ╔═╡ 3e1823b0-d294-11ef-3dba-9997a7230cdf
 md"""
-## [Data Analysis: A Bayesian Tutorial](https://www.amazon.com/Data-Analysis-Bayesian-Devinderjit-Sivia/dp/0198568320)
+## 📕 [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322)
 
-The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://www.amazon.com/Data-Analysis-Bayesian-Devinderjit-Sivia/dp/0198568320) (2006), by D.S. Sivia with J.S. Skilling:
+The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
+> ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
 
 Does this fragment resonate with your own experience? 
 
@@ -66,7 +72,7 @@ In this lesson we introduce *Probability Theory* (PT) again. As we will see in t
 md"""
 ## Challenge: Disease Diagnosis
 
-**Problem**: Given a disease with prevalence of  1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85% , what is the chance that somebody who tests positive actually has the disease?
+**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
 
 """
 
@@ -78,28 +84,24 @@ md"""
 
 # ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
 md"""
-## The Design of Probability Theory
+# The Design of Probability Theory
 
 Define an **event** (or "proposition") ``A`` as a statement that can be considered for its truth by a person. For instance, 
 
 ```math
-𝐴= \texttt{'there is life on Mars'}
+𝐴= \texttt{``there is life on Mars''}
 ```
 
-"""
-
-# ╔═╡ 3e189fa2-d294-11ef-1f2b-2151b6c128f8
-md"""
 If we assume the fact 
 
 ```math
-I = \texttt{'All known life forms require water'}
+I = \texttt{``All known life forms require water''}
 ```
 
 as background information, and a new piece of information 
 
 ```math
-x = \texttt{'There is water on Mars'}
+x = \texttt{``There is water on Mars''}
 ```
 
 becomes available, how *should* our degree of belief in event ``A`` be affected *if we were rational*? 
@@ -160,7 +162,7 @@ where ``p(a|b)`` means the probability that ``a`` is true, given that ``b`` is t
 
 # ╔═╡ 3e191b6c-d294-11ef-3174-d1b4b36e252b
 md"""
-Examples
+#### Examples
 
   * Predictions
 
@@ -168,13 +170,13 @@ Examples
 p(\,\texttt{future-observations}\,|\,\texttt{past-observations}\,)
 ```
 
-Classify a received data point ``x`` 
+  * Classify a received data point ``x`` 
 
 ```math
 p(\,x\texttt{-belongs-to-class-}k \,|\,x\,)
 ```
 
-Update a model based on a new observation
+  * Update a model based on a new observation
 
 ```math
 p(\,\texttt{model-parameters} \,|\,\texttt{new-observation},\,\texttt{past-observations}\,)
@@ -194,7 +196,7 @@ The interpretation of a probability as a **degree-of-belief** about the truth va
 md"""
 In the **Bayesian** interpretation, the probability is associated with a **state-of-knowledge** (usually held by a person, but formally by a rational agent). 
 
-  * For instance, in a coin tossing experiment, ``p(\texttt{tail}) = 0.4`` should be interpreted as the belief that there is a 40% chance that ``\texttt{tail}`` comes up if the coin were tossed.
+  * For instance, in a coin tossing experiment, ``p(\texttt{outcome} = \texttt{tail}) = 0.4`` should be interpreted as the belief that there is a 40% chance that ``\texttt{tail}`` comes up if the coin were tossed.
   * Under the Bayesian interpretation, PT calculus (sum and product rules) **extends boolean logic to rational reasoning with uncertainty**.
 
 """
@@ -203,13 +205,13 @@ In the **Bayesian** interpretation, the probability is associated with a **state
 md"""
 The Bayesian interpretation contrasts with the **frequentist** interpretation of a probability as the relative frequency that an event would occur under repeated execution of an experiment.
 
-  * For instance, if the experiment is tossing a coin, then ``p(\texttt{tail}) = 0.4`` means that in the limit of a large number of coin tosses, 40% of outcomes turn up as ``\texttt{tail}``.
+  * For instance, if the experiment is tossing a coin, then ``p(\texttt{outcome} = \texttt{tail}) = 0.4`` means that in the limit of a large number of coin tosses, 40% of outcomes turn up as ``\texttt{tail}``.
 
 """
 
 # ╔═╡ 3e1964b4-d294-11ef-373d-712257fc130f
 md"""
-The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like '``\texttt{it will rain tomorrow}``'. 
+The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like ``\texttt{`it will rain tomorrow'}``. 
 
 """
 
@@ -250,7 +252,7 @@ A = \text{`it will rain tomorrow'}
 
 # ╔═╡ 3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
 md"""
-We write the denial of ``A``, i.e. the event **not**-A, as ``\bar{A}``. 
+We write the denial of ``A``, i.e., the event **not**-A, as ``\bar{A}``. 
 
 """
 
@@ -273,19 +275,10 @@ md"""
 For any event ``A``, with background knowledge ``I``, the **conditional probability of ``A`` given ``I``**, is written as 
 
 ```math
-p(A|I)\,.
+p(A|I)\,,
 ```
 
-"""
-
-# ╔═╡ 3e19fd2a-d294-11ef-2a52-b9245f6d02ba
-md"""
-```math
-p(A|I)
-```
-
-indicates the degree-of-belief in event ``A``, given that ``I`` is true. 
-
+which indicates the degree-of-belief in event ``A``, given that ``I`` is true. 
 """
 
 # ╔═╡ 3e1a36b4-d294-11ef-2242-f36061b0b754
@@ -296,13 +289,19 @@ In principle, all probabilities are conditional probabilities of the type ``p(A|
 
 # ╔═╡ 3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 md"""
-The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that ``p(A,B) = p(B,A)``, since ``AB=BA``. Therefore the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
+The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that 
+
+```math
+p(A,B) = p(B,A)\,,
+```
+
+since ``AB = BA``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
 
 """
 
 # ╔═╡ 3e1a69f4-d294-11ef-103e-efc47025fb8f
 md"""
-Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the degree-of-belief that variable ``X`` takes on the value ``5``. 
+Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
 
 """
 
@@ -316,7 +315,7 @@ If ``X`` is a *discretely* valued variable, then ``p(X=x)`` is a probability *ma
 md"""
 If ``X`` is *continuously* valued, then ``p(X=x)`` is a probability *density* function (PDF) with ``p(X=x)\ge 0``  and normalization ``\int_x p(x)\mathrm{d}x=1``. 
 
-  * Note that if ``X`` is continuously valued, then the value of ``p(x)`` is not necessarily ``\le 1``. E.g., a uniform distribution on the continuous domain ``[0,.5]`` has value ``p(x) = 2``.
+  * Note that if ``X`` is continuously valued, then the value of ``p(x)`` is not necessarily ``\le 1``. E.g., a uniform distribution on the continuous domain ``[0,.5]`` has value ``p(x) = 2`` over its domain.
 
 """
 
@@ -343,7 +342,7 @@ md"""
 **Sum rule**. The disjunction of two events ``A`` and ``B`` with given background ``I`` is 
 
 ```math
- \boxed{p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)}
+ p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
 ```
 
 """
@@ -353,7 +352,7 @@ md"""
 **Product rule**. The conjuction of two events ``A`` and ``B`` with given background ``I`` is
 
 ```math
- \boxed{p(A,B|I) = p(A|B,I)\,p(B|I)}
+ p(A,B|I) = p(A|B,I)\,p(B|I)
 ```
 
 """
@@ -372,9 +371,11 @@ md"""
 
 # ╔═╡ 3e1b4b1c-d294-11ef-0423-9152887cc403
 md"""
-## Independent, Exclusive and Exhaustive Events
+## Independent, Exclusive, and Exhaustive Events
 
 It will be helpful to introduce some terms concerning special relationships between events.  
+
+#### Independent events
 
 Two events ``A`` and ``B`` are said to be **independent** if the probability of one event is not altered by information about the truth of the other event, i.e., 
 
@@ -382,41 +383,45 @@ Two events ``A`` and ``B`` are said to be **independent** if the probability of 
 p(A|B) = p(A)\,.
 ```
 
-```math
-\Rightarrow
-```
-
-If ``A`` and ``B`` are independent, then the product rule simplifies to 
+It follows that, if ``A`` and ``B`` are independent, then the product rule simplifies to 
 
 ```math
 p(A,B) = p(A) p(B)\,.
 ```
 
-```math
-A
-```
-
-and ``B`` with given background ``I`` are said to be **conditionally independent** if ``p(A|B,I) = p(A|I)``. In that case, the product rule simplifies to ``p(A,B|I) = p(A|I) p(B|I)``.
-
-Two events ``A_1`` and ``A_2`` are said to be **mutually exclusive** ('disjoint') if they cannot be true simultanously, i.e., if ``p(A_1,A_2)=0``.
+``A`` and ``B`` with given background ``I`` are said to be **conditionally independent** if 
 
 ```math
-\Rightarrow
+p(A|B,I) = p(A|I)\,.
 ```
 
-For mutually exclusive events, probability adds (this follows from the sum rule): 
+In that case, the product rule simplifies to ``p(A,B|I) = p(A|I) p(B|I)``.
+
+#### Mutually exclusive events
+
+Two events ``A_1`` and ``A_2`` are said to be **mutually exclusive** ('disjoint') if they cannot be true simultaneously, i.e., if
 
 ```math
-p(A_1+A_2) = p(A_1) + p(A_2)
+p(A_1,A_2)=0 \,.
 ```
+
+For mutually exclusive events, probabilities add (this follows from the sum rule), hence 
+
+```math
+p(A_1 + A_2) = p(A_1) + p(A_2)
+```
+
+#### Collectively exhaustive events
 
 A set of events ``A_1, A_2, \ldots, A_N`` is said to be **collectively exhaustive** if one of the statements is necessarily true, i.e., ``A_1+A_2+\cdots +A_N=\mathrm{TRUE}``, or equivalently 
 
 ```math
-p(A_1+A_2+\cdots +A_N)=1
+p(A_1+A_2+\cdots +A_N) = 1 \,.
 ```
 
-If a set of events ``A_1, A_2, \ldots, A_n`` are both **mutually exclusive** and **collectively exhausitive** events, then we say that they **partition the universe**. Technically, this means that 
+#### Partitioning the universe
+
+If a set of events ``A_1, A_2, \ldots, A_n`` is both **mutually exclusive** and **collectively exhaustive**, then we say that they **partition the universe**. Technically, this means that 
 
 ```math
 \sum_{n=1}^N p(A_n) = p(A_1 + \ldots + A_N) = 1
@@ -432,14 +437,10 @@ We mentioned before that every inference problem in PT can be evaluated through 
 
 """
 
-# ╔═╡ 3e1b6bce-d294-11ef-2bd9-29c0634b1856
-md"""
-## Marginalization
-
-"""
-
 # ╔═╡ 3e1b7d14-d294-11ef-0d10-1148a928dd57
 md"""
+# Marginalization
+
 Let ``A`` and ``B_1,B_2,\ldots,B_n`` be events, where ``B_1,B_2,\ldots,B_n`` partitions the universe. Then
 
 ```math
@@ -493,21 +494,21 @@ p(X)=\int_Y p(X,Y) \,\mathrm{d}Y
 
 # ╔═╡ 3e1bcb00-d294-11ef-2795-bd225bd00496
 md"""
-## $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
+# $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
 
 Consider two variables ``D`` and ``\theta``. It follows from symmetry arguments that 
 
 ```math
-p(D,\theta)=p(\theta,D)
+p(D,\theta)=p(\theta,D)\,,
 ```
 
-, and hence that
+and hence that
 
 ```math
-p(D|\theta)p(\theta)=p(\theta|D)p(D)
+p(D|\theta)p(\theta)=p(\theta|D)p(D)\,,
 ```
 
-or, equivalently,
+or equivalently,
 
 ```math
  p(\theta|D) = \frac{p(D|\theta) }{p(D)}p(\theta)\,.\qquad \text{(Bayes rule)}
@@ -526,14 +527,13 @@ This last formula is called **Bayes rule**, named after its inventor [Thomas Bay
 
 # ╔═╡ 3e1bf116-d294-11ef-148b-f7a1ca3f3bad
 md"""
-```math
-\Rightarrow
-```
 
 Bayes rule tells us how to update our knowledge about model parameters when facing new data. Hence, 
+"""
 
- <span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
-
+# ╔═╡ 6669cee9-86df-4226-a40b-829152cdbd4f
+html"""
+<span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
 """
 
 # ╔═╡ 3e1bffec-d294-11ef-2a49-9ff0f6331add
@@ -576,17 +576,13 @@ For a given data set ``D``, the posterior probabilities of the parameters scale 
 p(\theta|D) \propto p(D|\theta) p(\theta)
 ```
 
-```math
-\Rightarrow
-```
-
-All that we can learn from the observed data is contained in the likelihood function ``p(D|\theta)``. This is called the **likelihood principle**.
+Hence, all that we can learn from the observed data is contained in the likelihood function ``p(D|\theta)``. This is called the **likelihood principle**.
 
 """
 
 # ╔═╡ 3e1c51e2-d294-11ef-2c6d-d32a98308c6f
 md"""
-## The Likelihood Function vs the Sampling Distribution
+# The Likelihood Function vs the Sampling Distribution
 
 Consider a distribution ``p(D|\theta)``, where ``D`` relates to variables that are observed (i.e., a "data set") and ``\theta`` are model parameters.
 
@@ -615,14 +611,14 @@ md"""
 In a machine learning context, often the data is observed, and ``\theta`` is the free variable. In that case, for given observations ``D=D_0``, the **likelihood function** (which is a function only of the model parameters ``\theta``) is defined as 
 
 ```math
-\mathrm{L}(\theta) \triangleq p(D=D_0|\theta)
+L(\theta) \triangleq p(D=D_0|\theta)
 ```
 
 """
 
 # ╔═╡ 3e1c9184-d294-11ef-3e35-5393d97fbc44
 md"""
-Note that ``\mathrm{L}(\theta)`` is not a probability distribution for ``\theta`` since in general ``\sum_\theta \mathrm{L}(\theta) \neq 1``.
+Note that ``L(\theta)`` is not a probability distribution for ``\theta`` since in general ``\sum_\theta L(\theta) \neq 1``.
 
 """
 
@@ -630,7 +626,7 @@ Note that ``\mathrm{L}(\theta)`` is not a probability distribution for ``\theta`
 md"""
 ## Code Example: Sampling Distribution and Likelihood Function for the Coin Toss
 
-Consider the following simple model for the outcome (head or tail) ``y \in \{0,1\}`` of a biased coin toss with parameter ``\theta \in [0,1]``:
+Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
 
 ```math
 \begin{align*}
@@ -647,7 +643,7 @@ p(y|\theta=0.5) = \begin{cases} 0.5 & \text{if }y=0 \\ 0.5 & \text{if } y=1 \end
 and the likelihood function 
 
 ```math
-L(\theta) = p(y=1|\theta) = \theta \,.
+L(\theta) \triangleq p(y=1|\theta) = \theta \,.
 ```
 
 """
@@ -688,7 +684,7 @@ However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L
 
 # ╔═╡ 3e1d33c8-d294-11ef-0a08-bdc419949925
 md"""
-## Probabilistic Inference
+# Probabilistic Inference
 
 **Probabilistic inference** refers to computing
 
@@ -723,7 +719,7 @@ p(X|Z) \stackrel{p}{=} \frac{p(X,Z)}{p(Z)} \stackrel{s}{=} \frac{\sum_Y p(X,Y,Z)
 \end{align*}
 ```
 
-where the 's' and 'p' above the equality sign indicate whether the sum or product rule was used. 
+where the ``s`` and ``p`` above the equality sign indicate whether the sum or product rule was used. 
 
 """
 
@@ -737,12 +733,9 @@ In the rest of this course, we'll encounter many long probabilistic derivations.
 md"""
 ## Revisiting the Challenge: Disease Diagnosis
 
-**Problem**: Given a disease ``D`` with prevalence of ``1\%`` and a test procedure ``T`` with sensitivity ('true positive' rate) of ``95\%`` and specificity ('true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
+**Problem**: Given a disease ``D`` with prevalence (overall occurence percentage) of ``1\%`` and a test procedure ``T`` with sensitivity (true positive rate) of ``95\%`` and specificity (true negative' rate) of ``85\%``, what is the chance that somebody who tests positive actually has the disease?
 
-"""
 
-# ╔═╡ 3e1d9cd2-d294-11ef-2eb0-f99ae4e66ec7
-md"""
 **Solution**: The given information is ``p(D=1)=0.01``, ``p(T=1|D=1)=0.95`` and ``p(T=0|D=0)=0.85``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
 
 ```math
@@ -755,13 +748,11 @@ p( D=1 &| T=1) \\
 \end{align*}
 ```
 
-"""
 
-# ╔═╡ 3e1dc900-d294-11ef-331a-9b17133817d2
-md"""
 Note that ``p(\text{sick}|\text{positive test}) = 0.06`` while ``p(\text{positive test} | \text{sick}) = 0.95``. This is a huge difference that is sometimes called the "medical test paradox" or the [base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy). 
 
 Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and even lots of unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
+
 
 """
 
@@ -779,11 +770,7 @@ and a ball is drawn out, which proves to be white. What is now the  chance of dr
 md"""
 **Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
-```math
-\Rightarrow
-```
-
-Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
+``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
 
 """
 
@@ -799,17 +786,14 @@ md"""
 md"""
 **Solution**: (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
-```math
-\Rightarrow
-```
 
-Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
+``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
 
 """
 
 # ╔═╡ 3e1e4dda-d294-11ef-33b7-4bbe3300ca22
 md"""
-## Moments of the PDF
+# Moments of the PDF
 
 Distributions can often usefully be summarized by a set of values known as moments of the distribution.  
 
@@ -851,6 +835,9 @@ Exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T =
 
 # ╔═╡ 3e1e9224-d294-11ef-38b3-137c2be22400
 md"""
+# Transformations of variables
+If we have two variables ``X`` and ``Y``, what can we say about transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
+
 ## $(HTML("<span id='linear-transformation'>Linear Transformations</span>"))
 
 Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\Sigma_x`` and the linear transformation 
@@ -876,7 +863,7 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 md"""
 ## PDF for the Sum of Two Variables
 
-Given eqs SRG-3a and SRG-3b (previous cell), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
+Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
 
 ```math
 \begin{align*}
@@ -924,21 +911,15 @@ which is the **convolution** of the two marginal PDFs.
 
 # ╔═╡ 3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
 md"""
-[https://en.wikipedia.org/wiki/List*of*convolutions*of*probability_distributions](https://en.wikipedia.org/wiki/List_of_convolutions_of_probability_distributions) shows how these convolutions work out for a few common probability distributions. 
-
-"""
-
-# ╔═╡ 3e1f130a-d294-11ef-292f-37578d61ea52
-md"""
-
+[Wikipedia's List of convolutions of probability distributions](https://en.wikipedia.org/wiki/List_of_convolutions_of_probability_distributions) shows how these convolutions work out for a few common probability distributions. 
 
 """
 
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
-## Code Example: Sum of Two Gaussian Distributed Variables
+## Code Example: Sum of Two Gaussian-distributed Variables
 
-Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wiki:normal-distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
+Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wikipedia normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
 
 ```math
 \begin{align*}
@@ -959,7 +940,7 @@ We illustrate the distributions for ``X``, ``Y`` and ``Z`` using Julia:
 
 # ╔═╡ 98fa17a6-7c8b-46e4-b32d-52db183d88f8
 md"""
-Parameters for ``X`` and ``Y``:
+Set the parameters for the distributions of ``X`` and ``Y``:
 """
 
 # ╔═╡ 27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
@@ -970,17 +951,22 @@ Parameters for ``X`` and ``Y``:
 
 # ╔═╡ 1cb8b2c4-e1ae-4973-ba53-fc6c7fe1f37a
 md"""
-Parameters for ``Z = X + Y``:
+Compute the parameters for the distribution of ``Z = X + Y``:
 """
 
 # ╔═╡ 91a91472-ee6d-416b-b18e-acbedc03a7fe
-μz = μx+μy
+μz = μx + μy
 
 # ╔═╡ 6485575d-c5a5-4891-8210-f50d6f75476f
 σz = sqrt(σx^2 + σy^2)
 
 # ╔═╡ 0abaed25-decc-4dcd-aa04-b68ec0d5c73e
 
+
+# ╔═╡ 218d3b6e-50b6-4b98-a00c-a19dd33d2c03
+md"""
+Let's plot the distributions for ``X``, ``Y``, and ``Z``
+"""
 
 # ╔═╡ e836f877-5ed6-4865-ba3a-1ca5a86b2349
 begin
@@ -1008,13 +994,7 @@ end
 md"""
 ## PDF for the Product of Two Variables
 
-For two continuous **independent** variables
-
-```math
-X
-```
-
-and ``Y``, with PDF's ``p_x(x)`` and ``p_y(y)``, the PDF of  :Z = X Y $ is given by 
+For two continuous **independent** variables ``X`` and ``Y``, with PDF's ``p_x(x)`` and ``p_y(y)``, the PDF of  ``Z = X Y`` is given by 
 
 ```math
 p_z(z) = \int_{-\infty}^{\infty} p_x(x) \,p_y(z/x)\, \frac{1}{|x|}\,\mathrm{d}x\,.
@@ -1028,7 +1008,7 @@ For proof, see [https://en.wikipedia.org/wiki/Product_distribution](https://en.w
 md"""
 Generally, this integral does not lead to an analytical expression for ``p_z(z)``. 
 
-For example, [the product of two independent variables that are both Gaussian-distributed does not lead to a Gaussian distribution](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
+As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
 
   * Exception: the distribution of the product of two variables that both have [log-normal distributions](https://en.wikipedia.org/wiki/Log-normal_distribution) is again a lognormal distribution. (If ``X`` has a normal distribution, then ``Y=\exp(X)`` has a log-normal distribution.)
 
@@ -1066,7 +1046,7 @@ P(a ≤ x ≤ b) &= \int_a^b p_x(x)\mathrm{d}x \\
 \end{align*}
 ```
 
-Equating the two probability masses leads to identification of the relation 
+Equating the two probability masses leads to the identification of the relation 
 
 ```math
 p_y(y) = p_x(g(y)) g^\prime(y)\,,
@@ -1074,13 +1054,13 @@ p_y(y) = p_x(g(y)) g^\prime(y)\,,
 
 which is also known as the [Change-of-Variable theorem](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function). 
 
-If the tranformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains. 
+If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains. 
 
 """
 
 # ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
 md"""
-## Example: Transformation of a Gaussian Variable
+## Challenge: Transformation of a Gaussian Variable
 
 Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
 
@@ -1097,6 +1077,8 @@ p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
   &= \mathcal{N}(y|0,1) 
 \end{align*}
 ```
+
+In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
 
 """
 
@@ -1125,7 +1107,7 @@ Also, ``x \sim \mathcal{N}(x|\mu,\Sigma)`` is not proper because you already nam
 
 # ╔═╡ 3e1fd38a-d294-11ef-05d3-ad467328be96
 md"""
-## Summary
+# Summary
 
 Probabilities should be interpretated as degrees of belief, i.e., a state-of-knowledge, rather than a property of nature.
 
@@ -1178,20 +1160,30 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 Distributions = "~0.25.117"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.9"
+PlutoTeachingTools = "~0.3.1"
+PlutoUI = "~0.7.62"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "1af62f37696dc6b5e69ddd0c8e89d9d4127a9250"
+project_hash = "8e4bea78652364760c63b384672c8163126092f3"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -1227,6 +1219,12 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "009060c9a6168704143100f36ab08f06c2af4642"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.2+1"
+
+[[deps.CodeTracking]]
+deps = ["InteractiveUtils", "UUIDs"]
+git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
+uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
+version = "1.3.9"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1477,6 +1475,24 @@ git-tree-sha1 = "2bd56245074fab4015b9174f24ceba8293209053"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.27"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.5"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -1510,6 +1526,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
+
+[[deps.JuliaInterpreter]]
+deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
+git-tree-sha1 = "ad08bbc177bc329888d21a94b37beb6aa919273a"
+uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
+version = "0.10.2"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1664,6 +1686,17 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
+[[deps.LoweredCodeUtils]]
+deps = ["JuliaInterpreter"]
+git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
+uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
+version = "3.3.0"
+
+[[deps.MIMEs]]
+git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "1.1.0"
+
 [[deps.MacroTools]]
 git-tree-sha1 = "72aebe0b5051e5143a079a4685a46da330a40472"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
@@ -1728,7 +1761,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1834,6 +1867,30 @@ version = "1.40.9"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoHooks]]
+deps = ["InteractiveUtils", "Markdown", "UUIDs"]
+git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
+version = "0.0.5"
+
+[[deps.PlutoLinks]]
+deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
+git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
+version = "0.1.6"
+
+[[deps.PlutoTeachingTools]]
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
+git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
+version = "0.3.1"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.62"
+
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1930,6 +1987,18 @@ deps = ["UUIDs"]
 git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
+
+[[deps.Revise]]
+deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
+git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
+uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
+version = "3.7.6"
+
+    [deps.Revise.extensions]
+    DistributedExt = "Distributed"
+
+    [deps.Revise.weakdeps]
+    Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
@@ -2075,6 +2144,11 @@ version = "1.11.0"
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
+
+[[deps.Tricks]]
+git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.10"
 
 [[deps.URIs]]
 git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
@@ -2420,12 +2494,12 @@ version = "1.4.1+2"
 
 # ╔═╡ Cell order:
 # ╟─3e17df5e-d294-11ef-38c7-f573724871d8
+# ╟─bcb4be20-0439-4809-a166-8c50b6b9206b
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
 # ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
 # ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
-# ╟─3e189fa2-d294-11ef-1f2b-2151b6c128f8
 # ╟─3e18b2fa-d294-11ef-1255-df048f0dcec2
 # ╟─3e18c25c-d294-11ef-11bc-a93c2572b107
 # ╟─3e18d2ea-d294-11ef-35e9-2332dd31dbf0
@@ -2445,7 +2519,6 @@ version = "1.4.1+2"
 # ╟─3e19c06c-d294-11ef-197a-f549e8107a57
 # ╟─3e19d39a-d294-11ef-1a50-7fe8a24777dc
 # ╟─3e19e95a-d294-11ef-3da4-6d23922a5150
-# ╟─3e19fd2a-d294-11ef-2a52-b9245f6d02ba
 # ╟─3e1a36b4-d294-11ef-2242-f36061b0b754
 # ╟─3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 # ╟─3e1a69f4-d294-11ef-103e-efc47025fb8f
@@ -2460,7 +2533,6 @@ version = "1.4.1+2"
 # ╟─3e1b05ee-d294-11ef-33de-efed64d01c0d
 # ╟─3e1b4b1c-d294-11ef-0423-9152887cc403
 # ╟─3e1b5c9c-d294-11ef-137f-d75b3731eae4
-# ╟─3e1b6bce-d294-11ef-2bd9-29c0634b1856
 # ╟─3e1b7d14-d294-11ef-0d10-1148a928dd57
 # ╟─3e1b8bf4-d294-11ef-04cc-6364e46fdd64
 # ╟─3e1b9ba8-d294-11ef-18f2-db8eed3d87d0
@@ -2469,6 +2541,7 @@ version = "1.4.1+2"
 # ╟─3e1bcb00-d294-11ef-2795-bd225bd00496
 # ╟─3e1bdd02-d294-11ef-19e8-2f44eccf58af
 # ╟─3e1bf116-d294-11ef-148b-f7a1ca3f3bad
+# ╟─6669cee9-86df-4226-a40b-829152cdbd4f
 # ╟─3e1bffec-d294-11ef-2a49-9ff0f6331add
 # ╟─3e1c0e80-d294-11ef-0d19-375e01988f16
 # ╟─3e1c1e3e-d294-11ef-0955-bdf9d0ba3c53
@@ -2488,8 +2561,6 @@ version = "1.4.1+2"
 # ╟─3e1d51a0-d294-11ef-228e-294b503d2e3d
 # ╟─3e1d5efc-d294-11ef-0627-cfa86f1447ca
 # ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
-# ╟─3e1d9cd2-d294-11ef-2eb0-f99ae4e66ec7
-# ╟─3e1dc900-d294-11ef-331a-9b17133817d2
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
 # ╟─3e1e134c-d294-11ef-18c0-21742fe74fa6
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
@@ -2502,15 +2573,15 @@ version = "1.4.1+2"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
-# ╟─3e1f130a-d294-11ef-292f-37578d61ea52
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
-# ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
+# ╠═98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
 # ╠═de4dbfc9-9340-4ae2-b323-49abfd77f198
 # ╟─1cb8b2c4-e1ae-4973-ba53-fc6c7fe1f37a
 # ╠═91a91472-ee6d-416b-b18e-acbedc03a7fe
 # ╠═6485575d-c5a5-4891-8210-f50d6f75476f
 # ╟─0abaed25-decc-4dcd-aa04-b68ec0d5c73e
+# ╟─218d3b6e-50b6-4b98-a00c-a19dd33d2c03
 # ╠═5394e37c-ae00-4042-8ada-3bbf32fbca9e
 # ╠═e836f877-5ed6-4865-ba3a-1ca5a86b2349
 # ╠═c0ea3253-a06b-426c-91a3-a6dd33e42779
@@ -2527,5 +2598,6 @@ version = "1.4.1+2"
 # ╟─3e1fedfc-d294-11ef-30ee-a396bb877037
 # ╟─3e1ffc5c-d294-11ef-27b1-4f6ccb64c5d6
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
+# ╠═b305a905-06c2-4a15-8042-72ef6375720f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
