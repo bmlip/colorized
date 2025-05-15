@@ -31,3 +31,9 @@ You can find some inspiration in other Pluto courses. Take a look at:
 - https://vchuravy.dev/rse-course/mod1_introduction/parallelism/
 
 
+
+
+
+# Advanced tips
+
+Take a look at [more advanced tips](pluto_tips_advanced.md).
