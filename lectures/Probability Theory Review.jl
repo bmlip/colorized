@@ -25,6 +25,9 @@ using Distributions
 # ╔═╡ b305a905-06c2-4a15-8042-72ef6375720f
 using PlutoUI, PlutoTeachingTools
 
+# ╔═╡ 7910a84c-18b3-4081-9f01-e59258a01adb
+using HypertextLiteral
+
 # ╔═╡ 3e17df5e-d294-11ef-38c7-f573724871d8
 md"""
 # Probability Theory Review
@@ -68,31 +71,19 @@ Materials
 
 # ╔═╡ 3e1823b0-d294-11ef-3dba-9997a7230cdf
 md"""
-## 📕 [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322)
+## 📕 Data Analysis: A Bayesian Tutorial
 
 The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
 
-> ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
+> #### Preface
+> As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
+> 
+> The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use.
+
 
 Does this fragment resonate with your own experience? 
 
 In this lesson we introduce *Probability Theory* (PT) again. As we will see in the next lessons, PT is all you need to make sense of machine learning, artificial intelligence, statistics, etc. 
-
-"""
-
-# ╔═╡ 71de5ad2-d96a-408f-bcab-f1082ae3b162
-md"""
-
-make this literal text instead of a screenshot
-
-
-""" |> TODO
-
-# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
-md"""
-## Challenge: Disease Diagnosis
-
-**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
 
 """
 
@@ -151,14 +142,14 @@ This effort resulted in confirming that the **sum and product rules of Probabili
 """
 
 # ╔═╡ 3e18e4bc-d294-11ef-38bc-cb97cb4e0963
-md"""
-```math
-\Rightarrow
-```
-
-Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
-
-"""
+keyconcept(
+	"This means that:", 
+	md"""
+	
+	Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
+	
+	"""
+)
 
 # ╔═╡ 3e18f18c-d294-11ef-33e4-b7f9495e0508
 md"""
@@ -384,10 +375,13 @@ PT extends (propositional) logic in reasoning about the truth value of events. L
 """
 
 # ╔═╡ 3e1b05ee-d294-11ef-33de-efed64d01c0d
-md"""
-**All legitimate probabilistic relations can be derived from the sum and product rules!**
-
-"""
+keyconcept(
+	"",
+	md"""
+	All legitimate probabilistic relations can be **derived from the sum and product rules**!
+	
+	"""
+)
 
 # ╔═╡ 3e1b4b1c-d294-11ef-0423-9152887cc403
 md"""
@@ -551,10 +545,8 @@ md"""
 Bayes rule tells us how to update our knowledge about model parameters when facing new data. Hence, 
 """
 
-# ╔═╡ 6669cee9-86df-4226-a40b-829152cdbd4f
-html"""
-<span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
-"""
+# ╔═╡ 16c2eb59-16b8-4347-9aab-6e4b99016c79
+keyconcept("", md"Bayes rule is the fundamental rule for learning from data!")
 
 # ╔═╡ 3e1bffec-d294-11ef-2a49-9ff0f6331add
 md"""
@@ -749,21 +741,6 @@ In the rest of this course, we'll encounter many long probabilistic derivations.
 
 """
 
-# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
-md"""
-## Revisiting the Challenge: Disease Diagnosis
-
-**Problem**: Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
-
-
-"""
-
-# ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
-TODO("tell students that they can scorll. And make this interactive")
-
-# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
-prevalence, sensitivity, specificity
-
 # ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
 md"""
 
@@ -787,29 +764,14 @@ Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their head
 
 """
 
-# ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
-md"""
-## Inference Exercise: Bag Counter
-
-**Problem**:  A bag contains one ball, known to be either white or black. A white ball is put in, the bag is shaken,
-
-and a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball?
-
-"""
+# ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
+TODO("tell students that they can scorll. And make this interactive")
 
 # ╔═╡ 3e1e134c-d294-11ef-18c0-21742fe74fa6
 md"""
 **Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 ``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
-
-"""
-
-# ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
-md"""
-## Inference Exercise: Causality?
-
-**Problem**: A dark bag contains five red balls and seven green ones. (a) What is the probability of drawing a red ball on the first draw? Balls are not returned to the bag after each draw. (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
 
 """
 
@@ -1089,30 +1051,6 @@ If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not e
 
 """
 
-# ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
-md"""
-## Challenge: Transformation of a Gaussian Variable
-
-Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
-
-**Problem**: What is ``p_y(y)``? 
-
-**Solution**: Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
-
-```math
-\begin{align*}
-p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
-  &= p_x(\sigma y + \mu) \cdot \sigma \\
-  &= \frac{1}{\sigma\sqrt(2 \pi)} \exp\left( - \frac{(\sigma y + \mu - \mu)^2}{2\sigma^2}\right) \cdot \sigma \\
-  &=  \frac{1}{\sqrt(2 \pi)} \exp\left( - \frac{y^2 }{2}\right)\\
-  &= \mathcal{N}(y|0,1) 
-\end{align*}
-```
-
-In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
-
-"""
-
 # ╔═╡ 3e1fc4da-d294-11ef-12f5-d51f9728fcc0
 md"""
 ## A Notational Convention
@@ -1190,10 +1128,138 @@ md"""
 # Appendix
 """
 
+# ╔═╡ 9ba42512-0a9b-4a37-95ee-510aae5ec0be
+challenge_header(
+	title; 
+	color="green",
+	big::Bool=false,
+	header_level::Int=2,
+	challenge_text="Challenge:",
+) = HypertextLiteral.@htl """
+<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
+	
+<style>
+.ptt-section::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: -25px;
+	right: -6px;
+	top: -4px;
+	height: 200px;
+	border: 4px solid salmon;
+	border-bottom: none;
+	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
+	border-image-slice: 1;
+	opacity: .7;
+	pointer-events: none;
+}
+
+.big.ptt-section::before {
+	height: 500px;
+}
+	
+
+.ptt-section > span {
+	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
+	@media (prefers-color-scheme: dark) {
+		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
+	}
+	font-style: italic;
+}
+
+	
+</style>
+"""
+
+# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
+md"""
+$(challenge_header("Disease Diagnosis"))
+
+**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
+
+"""
+
+# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
+## Revisiting the Challenge: Disease Diagnosis
+md"""
+$(challenge_header("Disease Diagnosis"; big=true, challenge_text="Revisiting the Challenge:", header_level=2))
+
+**Problem**: Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
+
+
+"""
+
+# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
+prevalence, sensitivity, specificity
+
+# ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
+md"""
+$(challenge_header("Bag Counter"; challenge_text="Inference Exercise:"))
+
+**Problem**:  A bag contains one ball, known to be either white or black. A white ball is put in, the bag is shaken,
+
+and a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball?
+
+"""
+
+# ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
+md"""
+$(challenge_header("Causality?"; challenge_text="Inference Exercise:"))
+
+**Problem**: A dark bag contains five red balls and seven green ones. (a) What is the probability of drawing a red ball on the first draw? Balls are not returned to the bag after each draw. (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
+
+"""
+
+# ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
+md"""
+$(challenge_header("Transformation of a Gaussian Variable"; big=true))
+
+Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
+
+**Problem**: What is ``p_y(y)``? 
+
+**Solution**: Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
+
+```math
+\begin{align*}
+p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
+  &= p_x(\sigma y + \mu) \cdot \sigma \\
+  &= \frac{1}{\sigma\sqrt(2 \pi)} \exp\left( - \frac{(\sigma y + \mu - \mu)^2}{2\sigma^2}\right) \cdot \sigma \\
+  &=  \frac{1}{\sqrt(2 \pi)} \exp\left( - \frac{y^2 }{2}\right)\\
+  &= \mathcal{N}(y|0,1) 
+\end{align*}
+```
+
+In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
+
+"""
+
+# ╔═╡ 0fb6912c-d705-4a59-a922-ecd68bf650f1
+@htl """
+$(challenge_header("test test tesT"; big=false, ))
+<p>
+Consider two variables 
+ and 
+. It follows from symmetry arguments that
+
+
+and hence that
+
+
+or equivalently,
+
+
+
+<p>
+This last formula is called Bayes rule, named after its inventor Thomas Bayes (1701-1761). While Bayes rule is always true, a particularly useful application
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
@@ -1201,6 +1267,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 Distributions = "~0.25.117"
+HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.9"
 PlutoTeachingTools = "~0.3.1"
@@ -1213,7 +1280,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.9"
 manifest_format = "2.0"
-project_hash = "fdf668721976c4f2c7d080fc3a9193bec9a38819"
+project_hash = "128db8d25de96c1fbad05329e81ec6eb8e14c5aa"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -2471,7 +2538,6 @@ version = "1.8.1+0"
 # ╟─bcb4be20-0439-4809-a166-8c50b6b9206b
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
 # ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
-# ╟─71de5ad2-d96a-408f-bcab-f1082ae3b162
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
 # ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
@@ -2516,7 +2582,7 @@ version = "1.8.1+0"
 # ╟─3e1bcb00-d294-11ef-2795-bd225bd00496
 # ╟─3e1bdd02-d294-11ef-19e8-2f44eccf58af
 # ╟─3e1bf116-d294-11ef-148b-f7a1ca3f3bad
-# ╟─6669cee9-86df-4226-a40b-829152cdbd4f
+# ╟─16c2eb59-16b8-4347-9aab-6e4b99016c79
 # ╟─3e1bffec-d294-11ef-2a49-9ff0f6331add
 # ╟─3e1c0e80-d294-11ef-0d19-375e01988f16
 # ╟─3e1c1e3e-d294-11ef-0955-bdf9d0ba3c53
@@ -2578,5 +2644,8 @@ version = "1.8.1+0"
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
+# ╟─0fb6912c-d705-4a59-a922-ecd68bf650f1
+# ╟─9ba42512-0a9b-4a37-95ee-510aae5ec0be
+# ╠═7910a84c-18b3-4081-9f01-e59258a01adb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
