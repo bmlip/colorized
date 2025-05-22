@@ -68,25 +68,21 @@ Materials
 
 # ╔═╡ 3e1823b0-d294-11ef-3dba-9997a7230cdf
 md"""
-## 📕 [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322)
+## 📕 Data Analysis: A Bayesian Tutorial
 
 The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
 
-> ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/preface-data-analysis-a-Bayesian-tutorial.png?raw=true)
+> #### Preface
+> As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
+> 
+> The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use.
+
 
 Does this fragment resonate with your own experience? 
 
 In this lesson we introduce *Probability Theory* (PT) again. As we will see in the next lessons, PT is all you need to make sense of machine learning, artificial intelligence, statistics, etc. 
 
 """
-
-# ╔═╡ 71de5ad2-d96a-408f-bcab-f1082ae3b162
-md"""
-
-make this literal text instead of a screenshot
-
-
-""" |> TODO
 
 # ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
 md"""
@@ -151,14 +147,14 @@ This effort resulted in confirming that the **sum and product rules of Probabili
 """
 
 # ╔═╡ 3e18e4bc-d294-11ef-38bc-cb97cb4e0963
-md"""
-```math
-\Rightarrow
-```
-
-Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
-
-"""
+keyconcept(
+	"This means that:", 
+	md"""
+	
+	Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
+	
+	"""
+)
 
 # ╔═╡ 3e18f18c-d294-11ef-33e4-b7f9495e0508
 md"""
@@ -384,10 +380,13 @@ PT extends (propositional) logic in reasoning about the truth value of events. L
 """
 
 # ╔═╡ 3e1b05ee-d294-11ef-33de-efed64d01c0d
-md"""
-**All legitimate probabilistic relations can be derived from the sum and product rules!**
-
-"""
+keyconcept(
+	"",
+	md"""
+	All legitimate probabilistic relations can be **derived from the sum and product rules**!
+	
+	"""
+)
 
 # ╔═╡ 3e1b4b1c-d294-11ef-0423-9152887cc403
 md"""
@@ -551,10 +550,8 @@ md"""
 Bayes rule tells us how to update our knowledge about model parameters when facing new data. Hence, 
 """
 
-# ╔═╡ 6669cee9-86df-4226-a40b-829152cdbd4f
-html"""
-<span style="font-size:large; color:red"> Bayes rule is the fundamental rule for learning from data! </span> 
-"""
+# ╔═╡ 16c2eb59-16b8-4347-9aab-6e4b99016c79
+keyconcept("", md"Bayes rule is the fundamental rule for learning from data!")
 
 # ╔═╡ 3e1bffec-d294-11ef-2a49-9ff0f6331add
 md"""
@@ -758,12 +755,6 @@ md"""
 
 """
 
-# ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
-TODO("tell students that they can scorll. And make this interactive")
-
-# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
-prevalence, sensitivity, specificity
-
 # ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
 md"""
 
@@ -786,6 +777,12 @@ Note that ``p(\text{sick}|\text{positive test}) = 0.06`` while ``p(\text{positiv
 Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and even lots of unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
 
 """
+
+# ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
+TODO("tell students that they can scorll. And make this interactive")
+
+# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
+prevalence, sensitivity, specificity
 
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
 md"""
@@ -2471,7 +2468,6 @@ version = "1.8.1+0"
 # ╟─bcb4be20-0439-4809-a166-8c50b6b9206b
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
 # ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
-# ╟─71de5ad2-d96a-408f-bcab-f1082ae3b162
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
 # ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
@@ -2516,7 +2512,7 @@ version = "1.8.1+0"
 # ╟─3e1bcb00-d294-11ef-2795-bd225bd00496
 # ╟─3e1bdd02-d294-11ef-19e8-2f44eccf58af
 # ╟─3e1bf116-d294-11ef-148b-f7a1ca3f3bad
-# ╟─6669cee9-86df-4226-a40b-829152cdbd4f
+# ╟─16c2eb59-16b8-4347-9aab-6e4b99016c79
 # ╟─3e1bffec-d294-11ef-2a49-9ff0f6331add
 # ╟─3e1c0e80-d294-11ef-0d19-375e01988f16
 # ╟─3e1c1e3e-d294-11ef-0955-bdf9d0ba3c53
