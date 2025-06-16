@@ -1,6 +1,15 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> description = "Introduction to Active Inference and application to the design of synthetic intelligent agents"
+#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true"
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
+
 using Markdown
 using InteractiveUtils
 
