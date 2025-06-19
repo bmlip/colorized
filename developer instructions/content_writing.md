@@ -140,6 +140,7 @@ https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html
 ### Adding IDs to elements
 
 Some elements have IDs by default, but most don't. These have **IDs by default**:
+- (since [Pluto 0.20.11, July 2025](https://github.com/fonsp/Pluto.jl/releases/tag/v0.20.11)) Markdown headers: you can click on the 🔗 button next to header text to copy a link to the header. When editing a notebook, it gives just the hash: `#Header-text`, and when clicked on a website, it gives the full URL with hash: `https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#Header-text`.
 - Global variables: a cell that defines `example` will get a linkable ID of `example`. (More on this below.)
 - Pluto cells: *(not recommended)* each cell has a unique ID, like `f2a42c4d-9607-4f50-bbda-9a9a4942faab`. You can find it by right-clicking the cell and selecting "Inspect", or you can see it in the Julia source code of the notebook. But this is not the easiest way to do it.
 
@@ -165,7 +166,10 @@ end
 Now you can link to this cell using `#remove_last_element`.
 
 
-#### ID method 2: HTML spans
+#### ID method 2: Markdown headers
+Create a Markdown header (of any level, so `#` or `######` are all valid) and click on the 🔗 button next to the header text. Requires Pluto 0.20.11 or later.
+
+#### ID method 3: HTML spans
 Use HTML spans with IDs for linking:
 
 ```julia
