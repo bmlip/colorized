@@ -1,6 +1,13 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> description = "Review of probability theory as a foundation for rational reasoning and Bayesian inference."
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
 using Markdown
 using InteractiveUtils
 

@@ -1,6 +1,14 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true"
+#> description = "Introduction to Bayesian linear regression and predictive modeling for continuous data."
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
 using Markdown
 using InteractiveUtils
 

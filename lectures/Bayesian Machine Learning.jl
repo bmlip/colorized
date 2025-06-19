@@ -1,6 +1,14 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
+#> description = "Introduction to Bayesian modeling, parameter estimation, and model evaluation."
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
 using Markdown
 using InteractiveUtils
 

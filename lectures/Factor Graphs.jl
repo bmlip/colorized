@@ -1,6 +1,14 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-1.png?raw=true"
+#> description = "Introduction to Forney-style factor graphs and message passing-based inference."
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
 using Markdown
 using InteractiveUtils
 

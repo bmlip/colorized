@@ -1,6 +1,13 @@
 ### A Pluto.jl notebook ###
 # v0.20.8
 
+#> [frontmatter]
+#> description = "Can you teach a computer to tell apples from peaches? Discover generative classification!"
+#> 
+#>     [[frontmatter.author]]
+#>     name = "BMLIP"
+#>     url = "https://github.com/bmlip"
+
 using Markdown
 using InteractiveUtils
 
