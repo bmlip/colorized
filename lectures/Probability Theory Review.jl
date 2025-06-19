@@ -83,9 +83,9 @@ md"""
 The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
 
 > #### Preface
-> As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
+> "As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
 > 
-> The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use.
+> The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use."
 
 
 Does this fragment resonate with your own experience? 
@@ -149,8 +149,7 @@ This effort resulted in confirming that the **sum and product rules of Probabili
 """
 
 # ╔═╡ 3e18e4bc-d294-11ef-38bc-cb97cb4e0963
-keyconcept(
-	"This means that:", 
+keyconcept(" ", 
 	md"""
 	
 	Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
@@ -345,12 +344,15 @@ The notational conventions in PT are unfortunately a bit sloppy:( For instance, 
 
 # ╔═╡ 3e1ab104-d294-11ef-1a98-412946949fba
 md"""
-## $(HTML("<span id='PT-calculus'>Probability Theory Calculus</span>"))
+# $(HTML("<span id='PT-calculus'>Probability Theory Calculus</span>"))
 
 """
 
 # ╔═╡ 3e1ac32c-d294-11ef-13be-558397a6cc2a
 md"""
+
+## The Sum and Product Rules
+
 The following product and sum rules are also known as the **axioms of probability theory**, but as discussed above, under some mild assumptions, they can be derived as the unique rules for *rational reasoning under uncertainty* ([Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26).
 
 """
@@ -460,7 +462,7 @@ We mentioned before that every inference problem in PT can be evaluated through 
 
 # ╔═╡ 3e1b7d14-d294-11ef-0d10-1148a928dd57
 md"""
-# Marginalization
+## Marginalization
 
 Let ``A`` and ``B_1,B_2,\ldots,B_n`` be events, where ``B_1,B_2,\ldots,B_n`` partitions the universe. Then
 
@@ -515,7 +517,7 @@ p(X)=\int_Y p(X,Y) \,\mathrm{d}Y
 
 # ╔═╡ 3e1bcb00-d294-11ef-2795-bd225bd00496
 md"""
-# $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
+## $(HTML("<span id='Bayes-rule'>Bayes Rule</span>"))
 
 Consider two variables ``D`` and ``\theta``. It follows from symmetry arguments that 
 
@@ -601,7 +603,7 @@ Hence, all that we can learn from the observed data is contained in the likeliho
 
 # ╔═╡ 3e1c51e2-d294-11ef-2c6d-d32a98308c6f
 md"""
-# The Likelihood Function vs the Sampling Distribution
+## The Likelihood Function vs the Sampling Distribution
 
 Consider a distribution ``p(D|\theta)``, where ``D`` relates to variables that are observed (i.e., a "data set") and ``\theta`` are model parameters.
 
@@ -641,9 +643,12 @@ Note that ``L(\theta)`` is not a probability distribution for ``\theta`` since i
 
 """
 
+# ╔═╡ dc4665b8-f803-4c18-845c-4901553eaa99
+TODO("Can you make a box for ''Code Example''?")
+
 # ╔═╡ 3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
 md"""
-## Code Example: Sampling Distribution and Likelihood Function for the Coin Toss
+### Code Example: Sampling Distribution and Likelihood Function for the Coin Toss
 
 Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
 
@@ -703,7 +708,7 @@ However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L
 
 # ╔═╡ 3e1d33c8-d294-11ef-0a08-bdc419949925
 md"""
-# Probabilistic Inference
+## Probabilistic Inference
 
 **Probabilistic inference** refers to computing
 
@@ -748,6 +753,26 @@ In the rest of this course, we'll encounter many long probabilistic derivations.
 
 """
 
+# ╔═╡ 3e1e134c-d294-11ef-18c0-21742fe74fa6
+md"""
+**Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+
+``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
+
+"""
+
+# ╔═╡ 3e1e3a34-d294-11ef-0053-393751b94f2c
+md"""
+**Solution**: (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+
+
+``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
+
+"""
+
+# ╔═╡ 178721d2-624c-4ac4-8fa1-ded23da7feef
+keyconcept("", md"Probabilities describe beliefs (a ''state of knowledge''), rather than actual properties of nature.")
+
 # ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
 md"""
 
@@ -774,26 +799,12 @@ Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their head
 # ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
 TODO("tell students that they can scorll. And make this interactive")
 
-# ╔═╡ 3e1e134c-d294-11ef-18c0-21742fe74fa6
-md"""
-**Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
-
-``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
-
-"""
-
-# ╔═╡ 3e1e3a34-d294-11ef-0053-393751b94f2c
-md"""
-**Solution**: (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
-
-
-``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
-
-"""
+# ╔═╡ ef264651-854e-4374-8ea8-5476c85150c4
+md"# Moments and Transformations"
 
 # ╔═╡ 3e1e4dda-d294-11ef-33b7-4bbe3300ca22
 md"""
-# Moments of the PDF
+## Moments of the PDF
 
 Distributions can often usefully be summarized by a set of values known as moments of the distribution.  
 
@@ -835,10 +846,9 @@ Exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T =
 
 # ╔═╡ 3e1e9224-d294-11ef-38b3-137c2be22400
 md"""
-# Transformations of variables
-If we have two variables ``X`` and ``Y``, what can we say about transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
-
 ## $(HTML("<span id='linear-transformation'>Linear Transformations</span>"))
+
+If we have two variables ``X`` and ``Y``, what can we say about transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
 
 Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\Sigma_x`` and the linear transformation 
 
@@ -915,9 +925,12 @@ md"""
 
 """
 
+# ╔═╡ a83f164b-c66a-4e56-9151-5969302179d5
+TODO("Use Code Example box for next cell")
+
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
-## Code Example: Sum of Two Gaussian-distributed Variables
+### Code Example: Sum of Two Gaussian-distributed Variables
 
 Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wikipedia normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
 
@@ -1016,7 +1029,7 @@ As a crucial example, [the product of two independent variables that are both Ga
 
 # ╔═╡ 3e1f7d5e-d294-11ef-2878-05744036f32c
 md"""
-## Variable Transformations
+## General Variable Transformations
 
 Suppose ``x`` is a **discrete** variable with probability **mass** function ``P_x(x)``, and ``y = h(x)`` is a one-to-one function with ``x = g(y) = h^{-1}(y)``. Then
 
@@ -1058,9 +1071,33 @@ If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not e
 
 """
 
+# ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
+md"""
+### Example: Transformation of a Gaussian Variable
+
+Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
+
+**Problem**: What is ``p_y(y)``? 
+
+**Solution**: Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
+
+```math
+\begin{align*}
+p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
+  &= p_x(\sigma y + \mu) \cdot \sigma \\
+  &= \frac{1}{\sigma\sqrt(2 \pi)} \exp\left( - \frac{(\sigma y + \mu - \mu)^2}{2\sigma^2}\right) \cdot \sigma \\
+  &=  \frac{1}{\sqrt(2 \pi)} \exp\left( - \frac{y^2 }{2}\right)\\
+  &= \mathcal{N}(y|0,1) 
+\end{align*}
+```
+
+In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
+
+"""
+
 # ╔═╡ 3e1fc4da-d294-11ef-12f5-d51f9728fcc0
 md"""
-## A Notational Convention
+# Notational Conventions
 
 Finally, here is a notational convention that you should be precise about (but many authors are not).
 
@@ -1187,19 +1224,6 @@ $(challenge_header("Disease Diagnosis"))
 
 """
 
-# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
-## Revisiting the Challenge: Disease Diagnosis
-md"""
-$(challenge_header("Disease Diagnosis"; big=true, challenge_text="Revisiting the Challenge:", header_level=2))
-
-**Problem**: Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
-
-
-"""
-
-# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
-prevalence, sensitivity, specificity
-
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
 md"""
 $(challenge_header("Bag Counter"; challenge_text="Inference Exercise:"))
@@ -1218,29 +1242,18 @@ $(challenge_header("Causality?"; challenge_text="Inference Exercise:"))
 
 """
 
-# ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
+# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
+## Revisiting the Challenge: Disease Diagnosis
 md"""
-$(challenge_header("Transformation of a Gaussian Variable"; big=true))
+$(challenge_header("Disease Diagnosis"; big=true, challenge_text="Revisiting the Challenge:", header_level=2))
 
-Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
+**Problem**: Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
 
-**Problem**: What is ``p_y(y)``? 
-
-**Solution**: Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
-
-```math
-\begin{align*}
-p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
-  &= p_x(\sigma y + \mu) \cdot \sigma \\
-  &= \frac{1}{\sigma\sqrt(2 \pi)} \exp\left( - \frac{(\sigma y + \mu - \mu)^2}{2\sigma^2}\right) \cdot \sigma \\
-  &=  \frac{1}{\sqrt(2 \pi)} \exp\left( - \frac{y^2 }{2}\right)\\
-  &= \mathcal{N}(y|0,1) 
-\end{align*}
-```
-
-In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
 
 """
+
+# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
+prevalence, sensitivity, specificity
 
 # ╔═╡ 0fb6912c-d705-4a59-a922-ecd68bf650f1
 @htl """
@@ -1285,9 +1298,9 @@ PlutoUI = "~0.7.62"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "128db8d25de96c1fbad05329e81ec6eb8e14c5aa"
+project_hash = "3afc239179c519e4ba30516488624731ba1e1c5f"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1303,13 +1316,15 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1408,6 +1423,7 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1479,6 +1495,7 @@ version = "4.4.4+1"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1601,6 +1618,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1690,16 +1708,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1708,6 +1727,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1748,6 +1768,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1767,6 +1788,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1793,6 +1815,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1803,7 +1826,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1818,10 +1841,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1842,7 +1866,7 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1851,9 +1875,9 @@ version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
+git-tree-sha1 = "f1a7e086c677df53e064e0fdd2c9d0b0833e3f6e"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1874,9 +1898,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.3+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
+git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1908,9 +1932,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1983,6 +2011,7 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2026,12 +2055,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2098,6 +2129,7 @@ version = "1.2.1"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2112,6 +2144,7 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2122,7 +2155,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2143,9 +2176,14 @@ uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2173,6 +2211,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2180,7 +2222,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2201,6 +2243,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2220,9 +2263,11 @@ version = "1.5.2"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2447,10 +2492,10 @@ uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
 
 [[deps.gperf_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "0ba42241cb6809f1a278d0bcb976e0483c3f1f2d"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "3cad2cf2c8d80f1d17320652b3ea7778b30f473f"
 uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.1.1+1"
+version = "3.3.0+0"
 
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2514,7 +2559,7 @@ version = "1.1.6+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2599,23 +2644,26 @@ version = "1.8.1+0"
 # ╟─3e1c70be-d294-11ef-14ed-0d46515541c5
 # ╟─3e1c806a-d294-11ef-1fad-17e5625279f7
 # ╟─3e1c9184-d294-11ef-3e35-5393d97fbc44
-# ╟─3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
+# ╠═dc4665b8-f803-4c18-845c-4901553eaa99
+# ╠═3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
 # ╠═eeb9a1f5-b857-4843-920b-2e4a9656f66b
 # ╠═fc733d61-fd0f-4a13-9afc-4505ac0253df
 # ╠═8a7dd8b7-5faf-4091-8451-9769f842accb
 # ╟─3e1d20e0-d294-11ef-2044-e1fe6590a600
-# ╟─3e1d33c8-d294-11ef-0a08-bdc419949925
+# ╠═3e1d33c8-d294-11ef-0a08-bdc419949925
 # ╟─3e1d4160-d294-11ef-0dc6-d7aa9bce56a1
 # ╟─3e1d51a0-d294-11ef-228e-294b503d2e3d
 # ╟─3e1d5efc-d294-11ef-0627-cfa86f1447ca
-# ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
-# ╟─2156f96e-eebe-4190-8ce9-c76825c6da71
-# ╠═c593cb52-0538-4180-b9d5-479bdaeb3fc1
-# ╠═444f1e2b-6a2a-47d3-b101-53994087b3a9
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
 # ╟─3e1e134c-d294-11ef-18c0-21742fe74fa6
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
 # ╟─3e1e3a34-d294-11ef-0053-393751b94f2c
+# ╟─178721d2-624c-4ac4-8fa1-ded23da7feef
+# ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
+# ╟─2156f96e-eebe-4190-8ce9-c76825c6da71
+# ╠═444f1e2b-6a2a-47d3-b101-53994087b3a9
+# ╠═c593cb52-0538-4180-b9d5-479bdaeb3fc1
+# ╟─ef264651-854e-4374-8ea8-5476c85150c4
 # ╟─3e1e4dda-d294-11ef-33b7-4bbe3300ca22
 # ╟─3e1e5a5a-d294-11ef-2fdf-efee4eb1a0f2
 # ╟─3e1e7742-d294-11ef-1204-f9be24da07ab
@@ -2624,6 +2672,7 @@ version = "1.8.1+0"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
+# ╠═a83f164b-c66a-4e56-9151-5969302179d5
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
 # ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
@@ -2642,7 +2691,7 @@ version = "1.8.1+0"
 # ╟─3e1f7d5e-d294-11ef-2878-05744036f32c
 # ╟─3e1f8e48-d294-11ef-0f8a-b58294a8543d
 # ╟─3e1fa04a-d294-11ef-00c3-a51d1aaa5553
-# ╟─3e1fb370-d294-11ef-1fb6-63a41a024691
+# ╠═3e1fb370-d294-11ef-1fb6-63a41a024691
 # ╟─3e1fc4da-d294-11ef-12f5-d51f9728fcc0
 # ╟─3e1fd38a-d294-11ef-05d3-ad467328be96
 # ╟─3e1fe0de-d294-11ef-0d8c-35187e394292
