@@ -354,7 +354,7 @@ w.r.t. the parameters ``\mu`` and ``\Sigma``.
 
 We can often use standard gradient-based optimization methods to minimize the FE.
 
-In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian posterior](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Discriminative-Classification.ipynb#Laplace-example) (yellow) for a binary classification problem has been approximated by a Laplace approximation (red) and a variational posterior ``q(z) \sim \mathcal{N}(\mu,\sigma^2)`` (green). 
+In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian posterior](https://bmlip.github.io/colorized/lectures/Discriminative%20Classification.html#Laplace-example) (yellow) for a binary classification problem has been approximated by a Laplace approximation (red) and a variational posterior ``q(z) \sim \mathcal{N}(\mu,\sigma^2)`` (green). 
 
 ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure10.1a.png?raw=true)
 
