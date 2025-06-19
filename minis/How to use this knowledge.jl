@@ -1,5 +1,9 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.10
+
+#> [frontmatter]
+#> image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/P%C3%A4ij%C3%A4nne_and_p%C3%A4ij%C3%A4tsalo.jpg/960px-P%C3%A4ij%C3%A4nne_and_p%C3%A4ij%C3%A4tsalo.jpg"
+#> description = "What can Bayesian machine learning be used for after this course?"
 
 using Markdown
 using InteractiveUtils
@@ -56,7 +60,25 @@ All the best, and thanks for the question,
 –Bert
 """
 
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.10.9"
+manifest_format = "2.0"
+project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+
+[deps]
+"""
+
 # ╔═╡ Cell order:
 # ╟─f9b0981e-ea2b-4efd-aa71-cf9ac64e8100
 # ╟─66e17d86-e7a0-11ef-2a6c-c5394ba61921
 # ╟─3098e2c2-5b68-46a1-b87c-ccbb52139095
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
