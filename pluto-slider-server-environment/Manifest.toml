@@ -373,9 +373,9 @@ weakdeps = ["REPL"]
 
 [[deps.Pluto]]
 deps = ["Base64", "Configurations", "Dates", "Downloads", "ExpressionExplorer", "FileWatching", "GracefulPkg", "HTTP", "HypertextLiteral", "InteractiveUtils", "LRUCache", "Logging", "LoggingExtras", "MIMEs", "Malt", "Markdown", "MsgPack", "Pkg", "PlutoDependencyExplorer", "PrecompileSignatures", "PrecompileTools", "REPL", "RegistryInstances", "RelocatableFolders", "Scratch", "Sockets", "TOML", "Tables", "URIs", "UUIDs"]
-git-tree-sha1 = "cf5ece5d6cbda09d6dbb1facf5d64ce35a4391f1"
+git-tree-sha1 = "bafdc7b4c064d9a473b08e70085273061251b8dd"
 uuid = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
-version = "0.20.12"
+version = "0.20.13"
 
 [[deps.PlutoDependencyExplorer]]
 deps = ["ExpressionExplorer", "InteractiveUtils", "Markdown"]
@@ -385,11 +385,11 @@ version = "1.2.1"
 
 [[deps.PlutoNotebookComparison]]
 deps = ["Compat", "ExpressionExplorer", "HTTP", "InteractiveUtils", "LibGit2", "Logging", "LoggingExtras", "Markdown", "Pkg", "Pluto", "PlutoSliderServer", "TOML", "URIs"]
-git-tree-sha1 = "ad309f681e6f3812d943933ef736267911ebccc3"
+git-tree-sha1 = "222402c5b64f956b3ca936dfbe624dd3441fd8e7"
 repo-rev = "main"
 repo-url = "https://github.com/JuliaPluto/PlutoNotebookComparison.jl"
 uuid = "828d9ff0-206c-6161-646e-6576656f7242"
-version = "1.0.0"
+version = "1.0.1"
 
 [[deps.PlutoSliderServer]]
 deps = ["AbstractPlutoDingetjes", "Base64", "BetterFileWatching", "Configurations", "Distributed", "FromFile", "Git", "Glob", "HTTP", "JSON", "Logging", "Pkg", "Pluto", "PlutoDependencyExplorer", "SHA", "Serialization", "Sockets", "TOML", "TerminalLoggers", "UUIDs"]
