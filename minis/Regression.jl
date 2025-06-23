@@ -16,72 +16,44 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ fa6fc38e-5006-11f0-2421-4152864a7aae
-using Plots, Distributions, PlutoUI
-
-# ╔═╡ 2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
-using LinearAlgebra, Random
-
 # ╔═╡ d336abb0-ab62-4596-baed-dc2ae608fe81
 using HypertextLiteral
 
 # ╔═╡ e497536d-ab0d-4e9c-be95-9e52777642f9
 using PlutoTeachingTools
 
+# ╔═╡ fa6fc38e-5006-11f0-2421-4152864a7aae
+using Plots, Distributions, PlutoUI
+
+# ╔═╡ 2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
+using LinearAlgebra, Random
+
 # ╔═╡ 6eabe335-2291-4a56-8fe9-d73f65afd495
 md"""
 # Mini: Bayesian regression in 1D
 
-This mini demonstrates the core concepts of Bayesian linear regression with one-dimensional data. You can read the full lecture here:
+This mini demonstrates the core concepts of Bayesian linear regression with one-dimensional data.
+
+The challenge of this Mini is to find the **secret function** of unknown shape, given a small set of noisy observations.
 """
 
-# ╔═╡ dcfc2adb-6f11-472f-b291-2099856391e1
-NotebookCard("https://bmlip.github.io/colorized/lectures/Regression.html"; link_text="Read full lecture")
-
-# ╔═╡ b52f8e05-e2c3-4614-a647-7500b9dbb931
-
+# ╔═╡ 84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
+secret_function(x) = sin(x * 2π);
 
 # ╔═╡ afac91b3-c37a-4a32-8121-efc017f05b86
-@bind noise_stdev Slider(0.0:0.01:0.2)
-
-# ╔═╡ 36cecff5-f37c-4967-b153-5394eb4a6056
-@bindname N Slider(1:30; show_value=true)
-
-# ╔═╡ 96200242-14d4-40df-9526-13f2a0121cc0
-@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)
-
-# ╔═╡ 300fe006-24a6-4134-bf91-d5fb6cb72f2e
-const deterministic_randomness = MersenneTwister
-
-# ╔═╡ 84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
-secret_function(x) = sin(x * 2π)
-
-# ╔═╡ 73830436-9b92-41e3-a3ab-d6b2a2b7a573
-D = let
-	xs = rand(deterministic_randomness(42), Uniform(0,1), N)
-
-	ys_exact = secret_function.(xs)
-	ys = ys_exact .+ rand(deterministic_randomness(37), MvNormal(zeros(N), noise_stdev^2*I))
-
-	collect(zip(xs, ys))
+begin
+	σ_noise_bond = @bindname σ_data_noise Slider(0.0:0.01:0.2; default=0.12, show_value=true)
 end
 
-# ╔═╡ 494071d2-5130-4388-b598-f3339d5c89e1
-baseplot(args...; kwargs...) = plot(args...; size=(650,400), xlim=(-0.0, 1.0), ylim=(-1.2,1.2), kwargs...)
+# ╔═╡ 36cecff5-f37c-4967-b153-5394eb4a6056
+begin
+	N_bond = @bindname N Slider(1:150; show_value=true, default=13)
+end
 
-# ╔═╡ b2bd5cd2-4fa8-4604-942f-b3181bc12521
-let
-	baseplot(secret_function)
-	scatter!(D)
-end;
-
-# ╔═╡ 35edda00-1dfb-4a7b-9444-eef2f63a1a9d
-TODO(
-	md"""
-	I'm wondering how 'realistic' it is to approximate this function with a Gaussian basis? It works because we have a fixed domain ``[0,1]``, but it's clear to the reader that this is a sinusoidal function (usually on much larger domains), and maybe you would approximate this in the frequency domain instead?
-
-	Did Bischop pick this example because it is non-linear and not a polynomial?
-	""")
+# ╔═╡ 5c5b86d1-aa16-4161-b75a-1534a7edd05e
+md"""
+Here is the randomly generated dataset:
+"""
 
 # ╔═╡ 3a9f60a8-e4b6-4f0a-881e-ec6ce8098720
 md"""
@@ -93,13 +65,13 @@ Let's look at the individual basis functions first:
 """
 
 # ╔═╡ ca02a3dc-6251-4c6c-80ff-0782ae72a259
-σ² = 0.01
-
-# ╔═╡ 4906d7e7-92c4-48c4-a2a9-fe663f948823
-ϕ(μ, x) = exp(-(x - μ)^2 / σ²)
+σ_basis² = 0.01
 
 # ╔═╡ 2ec7d4f8-409d-4c38-9081-be7125afa715
 μ_basis = range(0.0, 1.0; length=10)
+
+# ╔═╡ 4906d7e7-92c4-48c4-a2a9-fe663f948823
+ϕ(μ, x) = exp(-(x - μ)^2 / σ_basis²)
 
 # ╔═╡ 02409d93-5b09-4395-9086-60de8d7adadd
 highlighted_basis_index = length(μ_basis) ÷ 2
@@ -108,22 +80,6 @@ highlighted_basis_index = length(μ_basis) ÷ 2
 md"""
 Here are the $(length(μ_basis)) basic functions in one graph. The $(highlighted_basis_index)th basis is highlighted.
 """
-
-# ╔═╡ 12a77bed-2ed3-4e3d-ab1c-b94852a783b4
-let
-	baseplot(; ylim=(0,1), legend=false)
-
-	for (i,μ) in enumerate(μ_basis)
-		higlight = i == highlighted_basis_index
-		plot!(
-			x -> ϕ(μ, x); 
-			opacity=higlight ? 1.0 : 0.6,
-			lw=higlight ? 3 : 1,
-		)
-	end
-
-	plot!()
-end
 
 # ╔═╡ d4e5acbd-fdc3-4da1-8f1c-d7bca2443c9c
 md"""
@@ -134,6 +90,13 @@ Taking a linear combination of these basis functions means:
 - Summing the resulting functions.
 """
 
+# ╔═╡ 8584b1dc-a087-4898-9962-80e40ee9efff
+function f(w, x)
+	sum(enumerate(μ_basis)) do (i, μ)
+		w[i] * ϕ(μ, x)
+	end
+end
+
 # ╔═╡ a5159da7-9951-494a-8112-16647ce1c076
 md"""
 ### Interactive example
@@ -143,15 +106,8 @@ In this example, you can control the $(length(μ_basis)) weights (the entries of
 
 # ╔═╡ a2fd6579-e4b4-4b97-a0c7-4099c73e356c
 md"""
-Using these weights, let's what the linear combination looks like:
+Using these weights, let's see what the linear combination looks like:
 """
-
-# ╔═╡ 8584b1dc-a087-4898-9962-80e40ee9efff
-function f(w, x)
-	sum(enumerate(μ_basis)) do (i, μ)
-		w[i] * ϕ(μ, x)
-	end
-end
 
 # ╔═╡ d362d60d-1839-4745-8af3-f57aa2d05de4
 md"""
@@ -257,6 +213,65 @@ end;
 # ╔═╡ d07b0443-1901-4f15-996e-61ccc9905046
 w = coalesce.(w_from_bind, default_w);
 
+# ╔═╡ 6f200846-e9ed-4f15-85a2-8f4cb39c0329
+w
+
+# ╔═╡ f16d06fe-2e9a-490d-a120-e47a45cae889
+md"""
+# Bayesian Inference
+So how do we find these weights _automatically_ to model a set of observations, and how sure are we about the result?
+"""
+
+# ╔═╡ c3a28b48-fc19-495a-98d5-1bd3d327eb73
+md"""
+ You can read the full lecture here:
+"""
+
+# ╔═╡ dcfc2adb-6f11-472f-b291-2099856391e1
+NotebookCard("https://bmlip.github.io/colorized/lectures/Regression.html"; link_text="Read full lecture")
+
+# ╔═╡ 7049ee1c-cdae-473f-a3ef-339bde7f0ee9
+md"""
+# Appendix
+"""
+
+# ╔═╡ 35edda00-1dfb-4a7b-9444-eef2f63a1a9d
+TODO(
+	md"""
+	I'm wondering how 'realistic' it is to approximate this function with a Gaussian basis? It works because we have a fixed domain ``[0,1]``, but it's clear to the reader that this is a sinusoidal function (usually on much larger domains), and maybe you would approximate this in the frequency domain instead?
+
+	Did Bischop pick this example because it is non-linear and not a polynomial?
+	""")
+
+# ╔═╡ 4bb83eaf-dafe-4476-aef9-a707f480f1d7
+const Layout = PlutoUI.ExperimentalLayout
+
+# ╔═╡ db0bdb31-764c-4f50-820e-5439516550f0
+Layout.vbox([
+	σ_noise_bond, 
+	N_bond,
+	(@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)),
+])
+
+# ╔═╡ 494071d2-5130-4388-b598-f3339d5c89e1
+baseplot(args...; kwargs...) = plot(args...; size=(650,400), xlim=(-0.0, 1.0), ylim=(-1.2,1.2), kwargs...)
+
+# ╔═╡ 12a77bed-2ed3-4e3d-ab1c-b94852a783b4
+let
+	baseplot(; ylim=(0,1), legend=false)
+
+	for (i,μ) in enumerate(μ_basis)
+		higlight = i == highlighted_basis_index
+		plot!(
+			x -> ϕ(μ, x); 
+			opacity=higlight ? 1.0 : 0.6,
+			lw=higlight ? 3 : 1,
+		)
+	end
+
+	plot!()
+end
+
 # ╔═╡ e3e29570-8a8e-4aad-92c4-6232136c3fc2
 let
 	baseplot(; legend=true)
@@ -271,49 +286,77 @@ let
 	plot!(x -> f(w, x); color="black", lw=3, label="linear combination")
 end
 
-# ╔═╡ 6f200846-e9ed-4f15-85a2-8f4cb39c0329
-w
+# ╔═╡ d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
+function plot_data!(D)
+	plot!(; legend=:bottomleft)
+	plot!(secret_function;
+		  label="True function",
+		  color=3,
+		  lw=3,
+			linestyle=:dash,
+		 )
+	scatter!(
+		D; 
+		label="Observations",
+		color=1,
+		# markerstrokewidth=0,
+	)
+end
 
-# ╔═╡ f16d06fe-2e9a-490d-a120-e47a45cae889
-md"""
-# Machine learning
-So how do we find these weights _automatically_ to model a set of observations, and how sure are we about the result?
-"""
+# ╔═╡ 300fe006-24a6-4134-bf91-d5fb6cb72f2e
+const deterministic_randomness = MersenneTwister
+
+# ╔═╡ 2037adc1-0acd-4fed-afcd-deb285792dce
+σ_data_noise² = σ_data_noise^2
+
+# ╔═╡ 73830436-9b92-41e3-a3ab-d6b2a2b7a573
+D = let
+	xs = rand(deterministic_randomness(19), Uniform(0,1), N)
+
+	ys_exact = secret_function.(xs)
+	ys = ys_exact .+ rand(deterministic_randomness(37), MvNormal(zeros(N), σ_data_noise²*I))
+
+	collect(zip(xs, ys))
+end
+
+# ╔═╡ 6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
+let
+	baseplot()
+	plot_data!(D)
+end
 
 # ╔═╡ 263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
-# design matrix
+# Design matrix
 Φ = [
 	ϕ(μ, datum[1])
 	for datum in D, μ in μ_basis
-]
-
-# ╔═╡ 9c6313bd-bc78-44eb-889e-a5402cbdc39d
-# Compute posterior parameters
-# Precision matrix (inverse covariance)
-Λ_post = Φ' * Φ / noise_stdev^2 + I / σ_prior²
-
-# ╔═╡ 56067640-2d41-4aed-b532-fded7c5bf934
-# Posterior potential vector
-h_post = Φ' * last.(D) / noise_stdev^2
+];
 
 # ╔═╡ 73d0cff6-614d-4467-b16d-19f6c4667104
-weights_posterior = MvNormalCanon(h_post, Λ_post)
+weights_posterior = MvNormalCanon(
+	# Posterior potential vector
+	Φ' * last.(D) / σ_data_noise²,
+	# Posterior precision matrix (inverse covariance)
+	Φ' * Φ / σ_data_noise² + I / σ_prior²
+)
 
-# ╔═╡ 7049ee1c-cdae-473f-a3ef-339bde7f0ee9
-result = let
-	baseplot(; legend=false)
-	for _ in 1:40
-		w = rand(weights_posterior)
-		plot!(x -> f(w, x); opacity=.3, color="black")
+# ╔═╡ 2f504df9-e594-45ba-8450-d3c4144a8515
+let
+	baseplot()
+	if true
+		for i in 1:40
+			w = rand(weights_posterior)
+			plot!(
+				x -> f(w, x);
+				opacity=.3, 
+				color=2, 
+				label=i==1 ? "Posterior samples" : nothing,
+			)
+		end
 	end
-	plot!(secret_function)
-	scatter!(D)
 
-	plot!()
+	plot_data!(D)
 end
-
-# ╔═╡ d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
-result
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1559,46 +1602,48 @@ version = "1.8.1+0"
 
 # ╔═╡ Cell order:
 # ╟─6eabe335-2291-4a56-8fe9-d73f65afd495
-# ╟─dcfc2adb-6f11-472f-b291-2099856391e1
-# ╠═fa6fc38e-5006-11f0-2421-4152864a7aae
-# ╠═2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
-# ╠═b52f8e05-e2c3-4614-a647-7500b9dbb931
-# ╠═afac91b3-c37a-4a32-8121-efc017f05b86
+# ╠═84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
+# ╟─afac91b3-c37a-4a32-8121-efc017f05b86
 # ╟─36cecff5-f37c-4967-b153-5394eb4a6056
-# ╠═b2bd5cd2-4fa8-4604-942f-b3181bc12521
-# ╟─96200242-14d4-40df-9526-13f2a0121cc0
-# ╠═d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
-# ╟─300fe006-24a6-4134-bf91-d5fb6cb72f2e
-# ╠═73830436-9b92-41e3-a3ab-d6b2a2b7a573
-# ╟─84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
-# ╟─494071d2-5130-4388-b598-f3339d5c89e1
-# ╟─35edda00-1dfb-4a7b-9444-eef2f63a1a9d
+# ╟─5c5b86d1-aa16-4161-b75a-1534a7edd05e
+# ╟─73830436-9b92-41e3-a3ab-d6b2a2b7a573
+# ╟─6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
 # ╟─3a9f60a8-e4b6-4f0a-881e-ec6ce8098720
 # ╠═ca02a3dc-6251-4c6c-80ff-0782ae72a259
-# ╠═4906d7e7-92c4-48c4-a2a9-fe663f948823
 # ╠═2ec7d4f8-409d-4c38-9081-be7125afa715
+# ╠═4906d7e7-92c4-48c4-a2a9-fe663f948823
 # ╟─7713d556-f056-42f4-8e12-98bcb62b5293
 # ╟─12a77bed-2ed3-4e3d-ab1c-b94852a783b4
 # ╟─02409d93-5b09-4395-9086-60de8d7adadd
 # ╟─d4e5acbd-fdc3-4da1-8f1c-d7bca2443c9c
+# ╠═8584b1dc-a087-4898-9962-80e40ee9efff
 # ╟─a5159da7-9951-494a-8112-16647ce1c076
 # ╟─ccda1169-0b72-44df-a01d-b21890eb798b
 # ╟─a2fd6579-e4b4-4b97-a0c7-4099c73e356c
-# ╠═e3e29570-8a8e-4aad-92c4-6232136c3fc2
+# ╟─e3e29570-8a8e-4aad-92c4-6232136c3fc2
 # ╠═6f200846-e9ed-4f15-85a2-8f4cb39c0329
-# ╠═8584b1dc-a087-4898-9962-80e40ee9efff
 # ╟─d362d60d-1839-4745-8af3-f57aa2d05de4
 # ╟─3301371d-56b1-4919-ac8e-d58698aa3dcc
 # ╟─a511517a-fba8-4dd1-8a21-df965e985ff5
 # ╟─d07b0443-1901-4f15-996e-61ccc9905046
 # ╟─bd43e34b-18f3-42ca-ad73-fb7c47852001
 # ╟─f16d06fe-2e9a-490d-a120-e47a45cae889
+# ╟─db0bdb31-764c-4f50-820e-5439516550f0
+# ╟─2f504df9-e594-45ba-8450-d3c4144a8515
 # ╠═263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
-# ╠═9c6313bd-bc78-44eb-889e-a5402cbdc39d
-# ╠═56067640-2d41-4aed-b532-fded7c5bf934
 # ╠═73d0cff6-614d-4467-b16d-19f6c4667104
-# ╠═7049ee1c-cdae-473f-a3ef-339bde7f0ee9
+# ╟─c3a28b48-fc19-495a-98d5-1bd3d327eb73
+# ╟─dcfc2adb-6f11-472f-b291-2099856391e1
+# ╟─7049ee1c-cdae-473f-a3ef-339bde7f0ee9
+# ╟─35edda00-1dfb-4a7b-9444-eef2f63a1a9d
 # ╠═d336abb0-ab62-4596-baed-dc2ae608fe81
 # ╠═e497536d-ab0d-4e9c-be95-9e52777642f9
+# ╠═fa6fc38e-5006-11f0-2421-4152864a7aae
+# ╠═2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
+# ╟─4bb83eaf-dafe-4476-aef9-a707f480f1d7
+# ╟─494071d2-5130-4388-b598-f3339d5c89e1
+# ╟─d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
+# ╟─300fe006-24a6-4134-bf91-d5fb6cb72f2e
+# ╟─2037adc1-0acd-4fed-afcd-deb285792dce
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
