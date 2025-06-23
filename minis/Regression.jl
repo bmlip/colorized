@@ -47,6 +47,9 @@ NotebookCard("https://bmlip.github.io/colorized/lectures/Regression.html"; link_
 # ╔═╡ 36cecff5-f37c-4967-b153-5394eb4a6056
 @bindname N Slider(1:30; show_value=true)
 
+# ╔═╡ 96200242-14d4-40df-9526-13f2a0121cc0
+@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)
+
 # ╔═╡ 300fe006-24a6-4134-bf91-d5fb6cb72f2e
 const deterministic_randomness = MersenneTwister
 
@@ -131,16 +134,6 @@ Taking a linear combination of these basis functions means:
 - Summing the resulting functions.
 """
 
-# ╔═╡ 8584b1dc-a087-4898-9962-80e40ee9efff
-function f(w, x)
-	sum(enumerate(μ_basis)) do (i, μ)
-		w[i] * ϕ(μ, x)
-	end
-end
-
-# ╔═╡ 3f5244e1-3539-4506-ad67-774cf139c21f
-f([0,0,0,0,0,1,2,0,0,0], 0.3)
-
 # ╔═╡ a5159da7-9951-494a-8112-16647ce1c076
 md"""
 ### Interactive example
@@ -152,6 +145,13 @@ In this example, you can control the $(length(μ_basis)) weights (the entries of
 md"""
 Using these weights, let's what the linear combination looks like:
 """
+
+# ╔═╡ 8584b1dc-a087-4898-9962-80e40ee9efff
+function f(w, x)
+	sum(enumerate(μ_basis)) do (i, μ)
+		w[i] * ϕ(μ, x)
+	end
+end
 
 # ╔═╡ d362d60d-1839-4745-8af3-f57aa2d05de4
 md"""
@@ -279,6 +279,41 @@ md"""
 # Machine learning
 So how do we find these weights _automatically_ to model a set of observations, and how sure are we about the result?
 """
+
+# ╔═╡ 263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
+# design matrix
+Φ = [
+	ϕ(μ, datum[1])
+	for datum in D, μ in μ_basis
+]
+
+# ╔═╡ 9c6313bd-bc78-44eb-889e-a5402cbdc39d
+# Compute posterior parameters
+# Precision matrix (inverse covariance)
+Λ_post = Φ' * Φ / noise_stdev^2 + I / σ_prior²
+
+# ╔═╡ 56067640-2d41-4aed-b532-fded7c5bf934
+# Posterior potential vector
+h_post = Φ' * last.(D) / noise_stdev^2
+
+# ╔═╡ 73d0cff6-614d-4467-b16d-19f6c4667104
+weights_posterior = MvNormalCanon(h_post, Λ_post)
+
+# ╔═╡ 7049ee1c-cdae-473f-a3ef-339bde7f0ee9
+result = let
+	baseplot(; legend=false)
+	for _ in 1:40
+		w = rand(weights_posterior)
+		plot!(x -> f(w, x); opacity=.3, color="black")
+	end
+	plot!(secret_function)
+	scatter!(D)
+
+	plot!()
+end
+
+# ╔═╡ d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
+result
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1531,6 +1566,8 @@ version = "1.8.1+0"
 # ╠═afac91b3-c37a-4a32-8121-efc017f05b86
 # ╟─36cecff5-f37c-4967-b153-5394eb4a6056
 # ╠═b2bd5cd2-4fa8-4604-942f-b3181bc12521
+# ╟─96200242-14d4-40df-9526-13f2a0121cc0
+# ╠═d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
 # ╟─300fe006-24a6-4134-bf91-d5fb6cb72f2e
 # ╠═73830436-9b92-41e3-a3ab-d6b2a2b7a573
 # ╟─84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
@@ -1544,19 +1581,23 @@ version = "1.8.1+0"
 # ╟─12a77bed-2ed3-4e3d-ab1c-b94852a783b4
 # ╟─02409d93-5b09-4395-9086-60de8d7adadd
 # ╟─d4e5acbd-fdc3-4da1-8f1c-d7bca2443c9c
-# ╠═8584b1dc-a087-4898-9962-80e40ee9efff
-# ╠═3f5244e1-3539-4506-ad67-774cf139c21f
 # ╟─a5159da7-9951-494a-8112-16647ce1c076
 # ╟─ccda1169-0b72-44df-a01d-b21890eb798b
 # ╟─a2fd6579-e4b4-4b97-a0c7-4099c73e356c
-# ╟─e3e29570-8a8e-4aad-92c4-6232136c3fc2
+# ╠═e3e29570-8a8e-4aad-92c4-6232136c3fc2
 # ╠═6f200846-e9ed-4f15-85a2-8f4cb39c0329
+# ╠═8584b1dc-a087-4898-9962-80e40ee9efff
 # ╟─d362d60d-1839-4745-8af3-f57aa2d05de4
 # ╟─3301371d-56b1-4919-ac8e-d58698aa3dcc
 # ╟─a511517a-fba8-4dd1-8a21-df965e985ff5
 # ╟─d07b0443-1901-4f15-996e-61ccc9905046
 # ╟─bd43e34b-18f3-42ca-ad73-fb7c47852001
 # ╟─f16d06fe-2e9a-490d-a120-e47a45cae889
+# ╠═263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
+# ╠═9c6313bd-bc78-44eb-889e-a5402cbdc39d
+# ╠═56067640-2d41-4aed-b532-fded7c5bf934
+# ╠═73d0cff6-614d-4467-b16d-19f6c4667104
+# ╠═7049ee1c-cdae-473f-a3ef-339bde7f0ee9
 # ╠═d336abb0-ab62-4596-baed-dc2ae608fe81
 # ╠═e497536d-ab0d-4e9c-be95-9e52777642f9
 # ╟─00000000-0000-0000-0000-000000000001
