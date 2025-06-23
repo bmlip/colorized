@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.11
 
 #> [frontmatter]
 #> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true"
@@ -241,7 +241,7 @@ As an example, let's do Bayesian Linear Regression for a synthetic sinusoidal da
 ```math
 \begin{align*}
 y_n &=\sum_{m=1}^9 w_m \phi_m(x_n) + \epsilon_n \\
-\phi_m(x_n) &= \exp\left( \frac{x_n-\mu_m}{\sigma^2}\right) \\
+\phi_m(x_n) &= \exp\left( - \frac{(x_n-\mu_m)^2}{\sigma^2}\right) \\
 \epsilon_n &\sim \mathcal{N}(0,\beta^{-1})
 \end{align*}
 ```
