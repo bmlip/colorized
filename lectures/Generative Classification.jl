@@ -363,7 +363,7 @@ where we defined ``\beta_{kj} \triangleq \beta_k - \beta_j`` and similarly for `
 
 # ╔═╡ 23c82154-d294-11ef-0945-c9c94fc2a44d
 md"""
-How to classify a new input ``x_\bullet``? The Bayesian answer is a posterior distribution $ p(\mathcal{C}*k|x*\bullet)$. If you must choose, then the class with maximum posterior class probability
+How to classify a new input ``x_\bullet``? The Bayesian answer is a posterior distribution ``p(\mathcal{C}*k|x*\bullet)``. If you must choose, then the class with maximum posterior class probability
 
 ```math
 \begin{align*}
