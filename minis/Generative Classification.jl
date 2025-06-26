@@ -16,6 +16,18 @@ macro bind(def, element)
     #! format: on
 end
 
+# ╔═╡ 70f5028d-4ac4-4ec1-9cea-24c33fc96d9c
+using RxInfer
+
+# ╔═╡ 61116d2e-0a14-499b-837b-74ba66904c8c
+using LinearAlgebra
+
+# ╔═╡ bf15c588-ab9a-4755-bf8d-c270910de96c
+using Random
+
+# ╔═╡ 2bd84680-c035-4753-9f9b-e65aa59eccba
+using Plots, PlutoUI, PlutoTeachingTools, Distributions, HypertextLiteral
+
 # ╔═╡ f5243fd2-510e-11f0-3528-f9689c1f359d
 md"""
 # Mini: Generative Classification
@@ -35,25 +47,6 @@ begin
 	N_bond = @bindname N Slider(1:250; show_value=true, default=50)
 end
 
-# ╔═╡ 09b70069-fbfd-4962-8533-22b579095740
-let
-	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
-	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
-	# 'new' unlabelled data
-	scatter!([x_test[1]], [x_test[2]], label="unknown")
-
-	# let
-	# 	xs = range(-0.5, 2.5; length=20)
-	# 	ys = range(-0.5, 3.5; length=50)
-
-	# 	zs = [
-	# 		predict_class(2, [x,y])
-	# 		for y in ys, x in xs
-	# 	]
-	# 	heatmap!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
-	# end
-end
-
 # ╔═╡ 753a1840-5c54-4bf5-9541-1339089ec03a
 md"""
 ## Step 2: fit a generative model
@@ -61,75 +54,13 @@ md"""
 Blabla
 """
 
-# ╔═╡ 2176a474-c7ce-46cd-8b70-01ca40997369
-let
-	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
-	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
-	# 'new' unlabelled data
-	scatter!([x_test[1]], [x_test[2]], label="unknown")
-
-	let
-		xs = range(-0.5, 2.5; length=20)
-		ys = range(-0.5, 3.5; length=50)
-
-		zs = [
-			pdf(conditionals[2], [x,y])
-			for y in ys, x in xs
-		]
-		contour!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
-	end
-
-	
-	let
-		xs = range(-0.5, 2.5; length=20)
-		ys = range(-0.5, 3.5; length=50)
-
-		zs = [
-			pdf(conditionals[1], [x,y])
-			for y in ys, x in xs
-		]
-		contour!(xs, ys, zs; opacity=.4, color=:blues, label="prob")
-	end
-end
-
 # ╔═╡ 2a40ef0a-9d87-4482-ae25-aef286b14b73
 md"""
 ## Step 3: Classify using Bayes' rule
 """
 
-# ╔═╡ 49403477-b5b9-48a1-b48f-4ccaf5410588
-let
-	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
-	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
-	# 'new' unlabelled data
-	scatter!([x_test[1]], [x_test[2]], label="unknown")
-
-	let
-		xs = range(-0.5, 2.5; length=20)
-		ys = range(-0.5, 3.5; length=50)
-
-		zs = [
-			predict_class(2, [x,y])
-			for y in ys, x in xs
-		]
-		heatmap!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
-	end
-end
-
-# ╔═╡ 635f1847-af95-449a-8b52-0283c9dfd948
-@debug("p(apple|x=x∙) = $(round(predict_class(1,x_test), digits=2))")
-
-# ╔═╡ cd706152-a907-4a01-95a7-dd3bff64412d
-pdf(conditionals[1],x_test)
-
 # ╔═╡ 48fa0163-5161-43a7-ac1a-070d239ff925
 
-
-# ╔═╡ e1da8788-29bc-4669-b30c-2c75723157e8
-@debug("p(peach|x=x∙) = $(round(predict_class(2,x_test), digits=2))")
-
-# ╔═╡ 09f5fe38-36d3-4d49-98d8-bb68db2413ba
-pdf(conditionals[2],x_test)
 
 # ╔═╡ cbf3990b-09e6-433f-9a4d-9d95b805a606
 md"""
@@ -177,6 +108,25 @@ X_peaches = X[:,findall(.!y)]'
 # ╔═╡ 9f7d59f3-2440-456c-8a05-5c42b4ff518b
 x_test = [2.3; 1.5]                                             # Features of 'new' data point
 
+# ╔═╡ 09b70069-fbfd-4962-8533-22b579095740
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown")
+
+	# let
+	# 	xs = range(-0.5, 2.5; length=20)
+	# 	ys = range(-0.5, 3.5; length=50)
+
+	# 	zs = [
+	# 		predict_class(2, [x,y])
+	# 		for y in ys, x in xs
+	# 	]
+	# 	heatmap!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
+	# end
+end
+
 # ╔═╡ 1a32a113-19df-4cfb-8d2f-627fdcf4e88f
 let
 	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
@@ -188,14 +138,8 @@ end
 # ╔═╡ fcd35d0c-5aa7-4c65-922d-d349ec5174bb
 d1 = fit_mle(FullNormal, X_apples')  # MLE density estimation d1 = N(μ₁, Σ₁)
 
-# ╔═╡ 20617960-8847-44f9-9b25-8841a71a3935
-d1b = fit_bayesian(X_apples)
-
 # ╔═╡ 6c728934-2634-4e32-bcc8-4e33910fb64b
 d2 = fit_mle(FullNormal, X_peaches') # MLE density estimation d2 = N(μ₂, Σ₂)
-
-# ╔═╡ e479c3aa-0925-4a6b-844c-a67816d78f9f
-d2b = fit_bayesian(X_peaches)
 
 # ╔═╡ 3432ee28-23e4-4ddb-8277-33a2de7aef53
 p_apple_est = fit_mle(Bernoulli, y)
@@ -212,32 +156,76 @@ conditionals = (
 	MvNormal(mean(d2), Σ_computed),
 ) # p(x|C)
 
+# ╔═╡ 2176a474-c7ce-46cd-8b70-01ca40997369
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown")
+
+	let
+		xs = range(-0.5, 2.5; length=20)
+		ys = range(-0.5, 3.5; length=50)
+
+		zs = [
+			pdf(conditionals[2], [x,y])
+			for y in ys, x in xs
+		]
+		contour!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
+	end
+
+	
+	let
+		xs = range(-0.5, 2.5; length=20)
+		ys = range(-0.5, 3.5; length=50)
+
+		zs = [
+			pdf(conditionals[1], [x,y])
+			for y in ys, x in xs
+		]
+		contour!(xs, ys, zs; opacity=.4, color=:blues, label="prob")
+	end
+end
+
+# ╔═╡ cd706152-a907-4a01-95a7-dd3bff64412d
+pdf(conditionals[1],x_test)
+
+# ╔═╡ 09f5fe38-36d3-4d49-98d8-bb68db2413ba
+pdf(conditionals[2],x_test)
+
 # ╔═╡ cb64aee7-0f3d-4445-acc5-a729a67d587d
 function predict_class(k, X) # calculate p(Ck|X)
     norm = π_hat[1]*pdf(conditionals[1],X) + π_hat[2]*pdf(conditionals[2],X)
     return π_hat[k]*pdf(conditionals[k], X) ./ norm
 end
 
-# ╔═╡ 6b5c8e2e-1b7d-4a3f-b791-9bbe6725a19b
-# predict_class(2, [1.3,2.12])
+# ╔═╡ 49403477-b5b9-48a1-b48f-4ccaf5410588
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown")
 
-# ╔═╡ 7fe5a875-ad3c-476b-ae27-84a9274c202a
-rand(d1b, 20)
+	let
+		xs = range(-0.5, 2.5; length=20)
+		ys = range(-0.5, 3.5; length=50)
 
-# ╔═╡ 567577c5-5879-4372-a070-d249098a48d5
-function sampled_class_prob()
-	samples_d1 = rand(d1b, 40)
-	samples_d2 = rand(d2b, 40)
-	Σ = Σ_secret
-
-	function in_class_one(point)
-		sum(zip(eachcol(samples_d1), eachcol(samples_d2))) do (d1, d2)
-			p1 = pdf(MvNormal(d1, Σ), point)
-			p2 = pdf(MvNormal(d2, Σ), point)
-			p1 > p2
-		end / length(samples_d1)
+		zs = [
+			predict_class(2, [x,y])
+			for y in ys, x in xs
+		]
+		heatmap!(xs, ys, zs; opacity=.4, color=:grays, label="prob")
 	end
 end
+
+# ╔═╡ 635f1847-af95-449a-8b52-0283c9dfd948
+@debug("p(apple|x=x∙) = $(round(predict_class(1,x_test), digits=2))")
+
+# ╔═╡ e1da8788-29bc-4669-b30c-2c75723157e8
+@debug("p(peach|x=x∙) = $(round(predict_class(2,x_test), digits=2))")
+
+# ╔═╡ 6b5c8e2e-1b7d-4a3f-b791-9bbe6725a19b
+# predict_class(2, [1.3,2.12])
 
 # ╔═╡ 12ff93f0-4d05-408e-85b4-8a4236e397cb
 function class_prob(d1b, d2b, point)
@@ -250,14 +238,8 @@ md"""
 # Maybe with RxInfer?
 """
 
-# ╔═╡ 70f5028d-4ac4-4ec1-9cea-24c33fc96d9c
-using RxInfer
-
 # ╔═╡ 0ef58f76-25bd-4a0a-8131-b1cd51a50734
 diag([1,2])
-
-# ╔═╡ 61116d2e-0a14-499b-837b-74ba66904c8c
-using LinearAlgebra
 
 # ╔═╡ 2d1a34dc-c66b-4148-bd70-e6aed1871013
 
@@ -297,6 +279,30 @@ function fit_bayesian(data_matrix)
 	convert(MvNormal, results.posteriors[:μ])
 end
 
+# ╔═╡ 20617960-8847-44f9-9b25-8841a71a3935
+d1b = fit_bayesian(X_apples)
+
+# ╔═╡ 7fe5a875-ad3c-476b-ae27-84a9274c202a
+rand(d1b, 20)
+
+# ╔═╡ e479c3aa-0925-4a6b-844c-a67816d78f9f
+d2b = fit_bayesian(X_peaches)
+
+# ╔═╡ 567577c5-5879-4372-a070-d249098a48d5
+function sampled_class_prob()
+	samples_d1 = rand(d1b, 40)
+	samples_d2 = rand(d2b, 40)
+	Σ = Σ_secret
+
+	function in_class_one(point)
+		sum(zip(eachcol(samples_d1), eachcol(samples_d2))) do (d1, d2)
+			p1 = pdf(MvNormal(d1, Σ), point)
+			p2 = pdf(MvNormal(d2, Σ), point)
+			p1 > p2
+		end / length(samples_d1)
+	end
+end
+
 # ╔═╡ ef76803e-2126-4120-8c0f-a34becb7d18d
 diageye(2)
 
@@ -318,12 +324,6 @@ NotebookCard("https://bmlip.github.io/colorized/lectures/Generative%20Classifica
 md"""
 # Appendix
 """
-
-# ╔═╡ bf15c588-ab9a-4755-bf8d-c270910de96c
-using Random
-
-# ╔═╡ 2bd84680-c035-4753-9f9b-e65aa59eccba
-using Plots, PlutoUI, PlutoTeachingTools, Distributions, HypertextLiteral
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2282,3 +2282,57 @@ uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
 version = "1.8.1+0"
 """
 
+# ╔═╡ Cell order:
+# ╟─f5243fd2-510e-11f0-3528-f9689c1f359d
+# ╟─d13cdb7a-901d-4555-b0ee-a8d9af79a7c0
+# ╟─95fb5694-9ec5-4cdb-9c6d-aae1d501f3ac
+# ╟─09b70069-fbfd-4962-8533-22b579095740
+# ╟─753a1840-5c54-4bf5-9541-1339089ec03a
+# ╟─2176a474-c7ce-46cd-8b70-01ca40997369
+# ╟─2a40ef0a-9d87-4482-ae25-aef286b14b73
+# ╟─49403477-b5b9-48a1-b48f-4ccaf5410588
+# ╟─635f1847-af95-449a-8b52-0283c9dfd948
+# ╟─cd706152-a907-4a01-95a7-dd3bff64412d
+# ╟─48fa0163-5161-43a7-ac1a-070d239ff925
+# ╟─e1da8788-29bc-4669-b30c-2c75723157e8
+# ╟─09f5fe38-36d3-4d49-98d8-bb68db2413ba
+# ╟─cbf3990b-09e6-433f-9a4d-9d95b805a606
+# ╟─26317a8b-e37a-426a-8ef0-b3610cb436b9
+# ╟─8bfd0e18-8af4-448e-8eeb-3c13018ca9d2
+# ╟─79e7d86e-b06a-4937-a4bf-c831be6ccd4c
+# ╟─0467c17d-e0e3-4754-bb18-ddd26e9a9a6d
+# ╟─747b1209-10da-44ab-b171-d7bc97b61d26
+# ╟─4c82ad0b-bc5d-4958-85a8-f170728fcaad
+# ╟─9f7d59f3-2440-456c-8a05-5c42b4ff518b
+# ╟─1a32a113-19df-4cfb-8d2f-627fdcf4e88f
+# ╟─fcd35d0c-5aa7-4c65-922d-d349ec5174bb
+# ╟─20617960-8847-44f9-9b25-8841a71a3935
+# ╟─6c728934-2634-4e32-bcc8-4e33910fb64b
+# ╟─e479c3aa-0925-4a6b-844c-a67816d78f9f
+# ╟─3432ee28-23e4-4ddb-8277-33a2de7aef53
+# ╟─90f1b9f4-f2ba-43e1-a5d7-b367892ae36d
+# ╟─5887cfb5-48be-4e65-a169-972d4dd380bf
+# ╟─1c43498b-d0c7-4cc4-b2e9-97dd899f6bf0
+# ╟─cb64aee7-0f3d-4445-acc5-a729a67d587d
+# ╟─6b5c8e2e-1b7d-4a3f-b791-9bbe6725a19b
+# ╟─7fe5a875-ad3c-476b-ae27-84a9274c202a
+# ╟─567577c5-5879-4372-a070-d249098a48d5
+# ╟─12ff93f0-4d05-408e-85b4-8a4236e397cb
+# ╟─30b18f35-2bbb-43a2-9004-3c5e69acf082
+# ╟─70f5028d-4ac4-4ec1-9cea-24c33fc96d9c
+# ╟─0ef58f76-25bd-4a0a-8131-b1cd51a50734
+# ╟─61116d2e-0a14-499b-837b-74ba66904c8c
+# ╟─2d1a34dc-c66b-4148-bd70-e6aed1871013
+# ╟─265bf700-70e4-432d-bc16-6095e392aea9
+# ╟─48a0534a-c1ea-4d97-bf31-a092420d9a95
+# ╟─7837c5db-3022-4ba9-bded-e5160fe5b3d6
+# ╟─ef76803e-2126-4120-8c0f-a34becb7d18d
+# ╟─723bb23c-c0f8-41cc-abb6-fe8465c3be49
+# ╟─29d5673e-5d98-40f4-94e7-33bce825ba6a
+# ╟─4e468327-a827-4df8-ab19-4a56ebf3bff6
+# ╟─99e16d33-18b1-4fb1-9c10-49e6664cfc75
+# ╟─6b417a4a-eafa-4f2d-91f2-925887d8c20d
+# ╟─bf15c588-ab9a-4755-bf8d-c270910de96c
+# ╟─2bd84680-c035-4753-9f9b-e65aa59eccba
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
