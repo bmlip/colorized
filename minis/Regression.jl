@@ -1,669 +1,369 @@
 ### A Pluto.jl notebook ###
-# v0.20.14
-
-#> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true"
-#> description = "Introduction to discriminative classification models and Bayesian logistic regression."
-#> 
-#>     [[frontmatter.author]]
-#>     name = "BMLIP"
-#>     url = "https://github.com/bmlip"
+# v0.20.11
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-using Random
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
-# ╔═╡ ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-using Plots, LaTeXStrings
+# ╔═╡ d336abb0-ab62-4596-baed-dc2ae608fe81
+using HypertextLiteral
 
-# ╔═╡ 6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
-using Optim # Optimization library
+# ╔═╡ e497536d-ab0d-4e9c-be95-9e52777642f9
+using PlutoTeachingTools
 
-# ╔═╡ ad196ae6-c65e-4aaa-b0cc-bd72daa41952
-using MarkdownLiteral: @mdx
+# ╔═╡ fa6fc38e-5006-11f0-2421-4152864a7aae
+using Plots, Distributions, PlutoUI
 
-# ╔═╡ 616e84d7-063d-4d9d-99e4-56aecf3c7ee4
-using Distributions
+# ╔═╡ 2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
+using LinearAlgebra, Random
 
-# ╔═╡ e379cc2a-43f8-432f-84fc-a88fd4f3ad0a
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 25eefb10-d294-11ef-0734-2daf18636e8e
+# ╔═╡ 6eabe335-2291-4a56-8fe9-d73f65afd495
 md"""
-# Discriminative Classification
+# Mini: Bayesian regression in 1D
 
+This mini demonstrates the core concepts of Bayesian linear regression with one-dimensional data.
+
+The challenge of this Mini is to find the **secret function** of unknown shape, given a small set of noisy observations.
 """
 
-# ╔═╡ e7c45ff8-9fa2-4ea3-a06f-5769d877540e
-PlutoUI.TableOfContents()
+# ╔═╡ 84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
+secret_function(x) = sin(x * 2π);
 
-# ╔═╡ 25ef12bc-d294-11ef-1557-d98ba829a804
+# ╔═╡ afac91b3-c37a-4a32-8121-efc017f05b86
+begin
+	σ_noise_bond = @bindname σ_data_noise Slider(0.0:0.01:0.2; default=0.12, show_value=true)
+end
+
+# ╔═╡ 36cecff5-f37c-4967-b153-5394eb4a6056
+begin
+	N_bond = @bindname N Slider(1:150; show_value=true, default=13)
+end
+
+# ╔═╡ 5c5b86d1-aa16-4161-b75a-1534a7edd05e
 md"""
-## Preliminaries
-
-Goal 
-
-  * Introduction to discriminative classification models
-
-Materials        
-
-  * Mandatory
-
-      * These lecture notes
-  * Optional
-
-      * Bishop pp. 213 - 217 (Laplace approximation)
-      * Bishop pp. 217 - 220 (Bayesian logistic regression)
-      * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
-
+Here is the randomly generated dataset:
 """
 
-# ╔═╡ 25ef2806-d294-11ef-3cb6-0f3e76b9177e
+# ╔═╡ 3a9f60a8-e4b6-4f0a-881e-ec6ce8098720
 md"""
-## Challenge: difficult class-conditional data distributions
+# Basis functions
 
-Our task will be the same as in the preceding class on (generative) classification. But this time, the class-conditional data distributions look very non-Gaussian, yet the linear discriminative boundary looks easy enough:
+We will try to approximate our function use the [radial function] basis. This means that we have a fixed set of basis functions, and we approximate our function as a linear combination of that basis.
 
+Let's look at the individual basis functions first:
 """
 
-# ╔═╡ ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# Generate dataset {(x1,y1),...,(xN,yN)}
-# x is a 2-d feature vector [x_1;x_2]
-# y ∈ {false,true} is a binary class label
-# p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
+# ╔═╡ ca02a3dc-6251-4c6c-80ff-0782ae72a259
+σ_basis² = 0.01
 
-N = 200;
+# ╔═╡ 2ec7d4f8-409d-4c38-9081-be7125afa715
+μ_basis = range(0.0, 1.0; length=10)
 
-# ╔═╡ c5777ae3-e499-46a6-998a-05b97693b3e1
-X_test = [3.75; 1.0] # Features of 'new' data point
+# ╔═╡ 4906d7e7-92c4-48c4-a2a9-fe663f948823
+ϕ(μ, x) = exp(-(x - μ)^2 / σ_basis²)
 
-# ╔═╡ 25ef6ece-d294-11ef-270a-999c8d457b24
+# ╔═╡ 02409d93-5b09-4395-9086-60de8d7adadd
+highlighted_basis_index = length(μ_basis) ÷ 2
+
+# ╔═╡ 7713d556-f056-42f4-8e12-98bcb62b5293
 md"""
-## Main Idea of Discriminative Classification
-
-Again, a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
-
+Here are the $(length(μ_basis)) basic functions in one graph. The $(highlighted_basis_index)th basis is highlighted.
 """
 
-# ╔═╡ 25ef7f54-d294-11ef-3f05-0d85fe6e7a17
+# ╔═╡ d4e5acbd-fdc3-4da1-8f1c-d7bca2443c9c
 md"""
-Sometimes, the precise assumptions of the (Gaussian-Categorical) generative model 
+## Linear combinations
 
-```math
-p(x_n,y_n\in\mathcal{C}_k|\theta) =  \pi_k \cdot \mathcal{N}(x_n|\mu_k,\Sigma)
-```
-
-clearly do not match the data distribution.
-
+Taking a linear combination of these basis functions means:
+- Scaling each basis function ``\phi_m`` by a factor ``w_m \in \mathbb{R}``.
+- Summing the resulting functions.
 """
 
-# ╔═╡ 25efa2fe-d294-11ef-172f-9bb09277f59e
+# ╔═╡ 8584b1dc-a087-4898-9962-80e40ee9efff
+function f(w, x)
+	sum(enumerate(μ_basis)) do (i, μ)
+		w[i] * ϕ(μ, x)
+	end
+end
+
+# ╔═╡ a5159da7-9951-494a-8112-16647ce1c076
 md"""
-Here's an **IDEA**! Let's model the posterior 
+### Interactive example
 
-```math
-p(y_n\in\mathcal{C}_k|x_n)
-```
-
-*directly*, without any assumptions on the class densities.
-
+In this example, you can control the $(length(μ_basis)) weights (the entries of ``w ∈ \mathbb{R}^M``). Watch how this controls the linear combination ``\sum_{m=1}^M w_m \phi_m``.
 """
 
-# ╔═╡ 25efbe42-d294-11ef-3e4e-cfea366757da
+# ╔═╡ a2fd6579-e4b4-4b97-a0c7-4099c73e356c
 md"""
-Similarly to regression, we will assume that the inputs ``x`` are given, so we wil not add a model ``p(x)`` for input uncertainties.
-
+Using these weights, let's see what the linear combination looks like:
 """
 
-# ╔═╡ 25efd6b6-d294-11ef-3b21-6363ef531eb5
+# ╔═╡ d362d60d-1839-4745-8af3-f57aa2d05de4
 md"""
-## Model Specification for Bayesian Logistic Regression
+#### Try making these shapes!
 
-We will work this idea out for a 2-class problem. Assume a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \{0,1\}``.
-
+Can you find linear combinations of the basis functions to approximate these functions?
 """
 
-# ╔═╡ 25f02ac6-d294-11ef-26c4-f142b8ac4b5f
+# ╔═╡ 3301371d-56b1-4919-ac8e-d58698aa3dcc
+let
+	cool_funcs = [
+		x -> sin(x * π)*2 - 1
+		x -> 0.3
+		x -> sign(x - .5)
+		x -> sin(x * 2π)
+	]
+
+	plot(cool_funcs; xlim=(0,1), ylim=(-1.1,1.1), layout=4,  legend=false, lw=5, color="black", axiscolor="transparent", size=(650, 300))
+end
+
+
+# ╔═╡ a511517a-fba8-4dd1-8a21-df965e985ff5
+begin
+	default_w = zeros(length(μ_basis))
+
+	default_w[4] = 0.8
+	default_w[5] = 0.3
+	default_w[end-1] = -.3
+	default_w[end] = -.4
+
+end;	
+
+# ╔═╡ bd43e34b-18f3-42ca-ad73-fb7c47852001
+function vertical_slider_array(element_range::AbstractRange; default)
+	min = minimum(element_range)
+	max = maximum(element_range)
+	ste = step(element_range)
+	PlutoUI.combine() do Child
+		@htl """<div style="display: flex; flex-direction: row;">
+			<div 
+				class="pui-vsa-vertical-axis"
+				style="display: grid;grid-template-columns: auto;align-content: space-between;font-family: system-ui, sans-serif;justify-items: end; margin-right: 5px; cursor: pointer;"
+			>
+			<span>$(max)</span>
+			<span>$((min + max) / 2)</span>
+			<span>$(min)</span>
+			</div>
+		$((
+			Child(@htl """<input 
+				  type="range" 
+				  value=$v 
+				  min=$(min) 
+				  step=$(ste) 
+				  max=$(max) 
+				  style="writing-mode: vertical-lr; direction: rtl;"
+				  >""")
+			for (i,v) in enumerate(default)
+		))
+
+		<script>
+		const wrapper = currentScript.parentElement
+		const axis = wrapper.querySelector(".pui-vsa-vertical-axis")
+
+		const listener = (e) => {
+			const rect = axis.getBoundingClientRect()
+			const frac = ((rect.bottom - 8) - e.clientY) / (rect.height - 16)
+			const val = $min + frac * ($max - $min)
+
+
+		console.log({e, rect, frac, val})
+			;[...wrapper.querySelectorAll("input[type='range']")].forEach((input) => {
+				input.valueAsNumber = val
+		input.dispatchEvent(new CustomEvent("input"))
+			})
+
+		
+			e.preventDefault()
+		}
+
+		axis.addEventListener("pointerdown", (e) => {
+			axis.addEventListener("pointermove", listener)
+			listener(e)
+		})
+		
+		axis.addEventListener("pointerup", (e) => {
+			axis.removeEventListener("pointermove", listener)
+		})
+		axis.addEventListener("pointerleave", (e) => {
+			axis.removeEventListener("pointermove", listener)
+		})
+		
+
+		</script>
+		</div>
+		
+		"""
+	end
+end;
+
+# ╔═╡ ccda1169-0b72-44df-a01d-b21890eb798b
+@bind w_from_bind vertical_slider_array(-1:0.01:1; default=default_w)
+
+# ╔═╡ d07b0443-1901-4f15-996e-61ccc9905046
+w = coalesce.(w_from_bind, default_w);
+
+# ╔═╡ 6f200846-e9ed-4f15-85a2-8f4cb39c0329
+w
+
+# ╔═╡ f16d06fe-2e9a-490d-a120-e47a45cae889
 md"""
-What model should we use for the posterior distribution ``p(y_n \in \mathcal{C}_k|x_n)``?
-
+# Bayesian Inference
+So how do we find these weights _automatically_ to model a set of observations, and how sure are we about the result?
 """
 
-# ╔═╡ 25f0adde-d294-11ef-353e-4b4773df9ff5
+# ╔═╡ c3a28b48-fc19-495a-98d5-1bd3d327eb73
 md"""
-#### Likelihood
-
-We will take inspiration from the [generative classification](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
-
-```math
-p(y_{nk} = 1\,|\,x_n,\beta_k,\gamma_k) = \sigma(\beta_k^T x_n + \gamma_k)
-```
-
-as a **softmax** function of a linear map of the input.  
-
-Here, in logistic regression, we *choose* the 2-class softmax function (which is called the [**logistic** function](https://en.wikipedia.org/wiki/Logistic_function)) with linear discrimination bounderies for the posterior class probability:
-
-```math
-p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n) \,.
-```
-
-where 
-
-```math
-\sigma(a) = \frac{1}{1+e^{-a}}
-```
-
-is the *logistic* function.
-
-Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sigma(w^T x_n)``.
-
+ You can read the full lecture here:
 """
 
-# ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
-md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true)
+# ╔═╡ dcfc2adb-6f11-472f-b291-2099856391e1
+NotebookCard("https://bmlip.github.io/colorized/lectures/Regression.html"; link_text="Read full lecture")
 
-(Bishop fig.4.9). The logistic function ``\sigma(a) = 1/(1+e^{-a})`` (red), together with the $(HTML("<span id='scaled-probit'>scaled probit function</span>")) ``\Phi(\lambda a)``, for ``\lambda^2=\pi/8`` (in blue). We will use this approximation later in the [Laplace approximation](#gaussian-cdf).
-
-"""
-
-# ╔═╡ 25f12528-d294-11ef-0c65-97c61935e9c2
-md"""
-Adding the other class (``y_n=0``) leads to the following posterior class distribution:
-
-```math
-\begin{align*}
-p(y_n \,|\, x_n, w) &= \mathrm{Bernoulli}\left(y_n \,|\, \sigma(w^T x_n) \right) \\
-&= \sigma(w^T x_n)^{y_n} \left(1 - \sigma(w^T x_n)\right)^{(1-y_n)} \tag{B-4.89} \\
-  &= \sigma\left( (2y_n-1) w^T x_n\right)
-\end{align*}
-```
-
-Note that for the 3rd equality, we have made use of the fact that ``\sigma(-a) = 1-\sigma(a)``.
-
-Each of these three models in B-4.89 are **equivalent**. We mention all three notational options since they all appear in the literature.  
-
-"""
-
-# ╔═╡ 25f1390c-d294-11ef-364d-17e4c93b9a57
-md"""
-For the data set ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the **likelihood function** for the parameters ``w`` is then given by
-
-```math
-p(D|w) = \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)
-```
-
-"""
-
-# ╔═╡ 25f14226-d294-11ef-369f-e545d5fe2700
-md"""
-This choice for the class posterior is called **logistic regression**, in analogy to **linear regression**:
-
-```math
-\begin{align*}
-p(y_n|x_n,w) &= \mathcal{N}(y_n|w^T x_n,\beta^{-1}) \quad &&\text{for linear regression} \\
-p(y_n|x_n,w) &= \sigma\left( (2y_n-1) w^T x_n\right) &&\text{for logistic regression}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 25f14f82-d294-11ef-02fb-2dc632b8f118
-md"""
-In the discriminative approach, the parameters ``w`` are **not** structured into ``\{\mu,\Sigma,\pi \}``. In principle they are "free" parameters for which we can choose any value that seems appropriate. This provides discriminative approach with more flexibility than the generative approach. 
-
-"""
-
-# ╔═╡ 25f15e0a-d294-11ef-3737-79a68c9b3c61
-md"""
-#### Prior
-
-In *Bayesian* logistic regression, we often add a **Gaussian prior on the weights**: 
-
-```math
-\begin{align*}
-p(w) = \mathcal{N}(w \,|\, m_0, S_0) \tag{B-4.140}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
-md"""
-## Some Notes on the Model
-
-Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. In principle, we could have used Bayesian parameter estimation for the generative classification model as well (but the math is not suited for a introductory lesson).  
-
-In the optional paper by [T. Minka (2005)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
-
-As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
-
-```math
-\frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
-```
-
-is a straight line, see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Classification.ipynb). 
-
-"""
-
-# ╔═╡ 25f19ed8-d294-11ef-3298-efa16dda1dde
-md"""
-## $(HTML("<span id='logistic-regression-posterior'>Parameter Inference</span>"))
-
-After model specification, the rest follows by application of probability theory.
-
-The posterior for the weights follows by Bayes rule
-
-```math
-\begin{align*}
-\underbrace{p(w \,|\, D)}_{\text{posterior}} &=  \frac{p(w) p(D|w)}{\int p(w) p(D|w) \mathrm{d}w} \\ &= \frac{\overbrace{\mathcal{N}(w \,|\, m_0, S_0)}^{\text{prior}} \cdot \overbrace{\prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)}^{\text{likelihood}}}{\underbrace{\int \mathcal{N}(w \,|\, m_0, S_0) \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right) \mathrm{d}w}_{\text{evidence}}} \tag{B-4.142}
-\end{align*}
-```
-
-In principle, Bayesian inference is done now! 
-
-Unfortunately, the posterior ``p(w \,|\, D)`` is not Gaussian and the evidence ``p(D)`` is also not analytically computable. (We will deal with this later).
-
-"""
-
-# ╔═╡ 25f1ab08-d294-11ef-32ed-493792e121b7
-md"""
-## Application: the predictive distribution
-
-For a new data point ``x_\bullet``, the predictive distribution for ``y_\bullet`` is given by 
-
-```math
-\begin{align*}
-p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \, p(w\,|\, D) \,\mathrm{d}w \\
-  &= \int \sigma(w^T x_\bullet) \, p(w\,|\, D) \,\mathrm{d}w \tag{B-4.145}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 25f1b404-d294-11ef-1c3a-a5a8142bb202
-md"""
-After substitution of ``p(w | D)`` from B-4.142, we have closed-form expressions for both the posterior ``p(w|D)`` and the predictive distribution ``p(y_\bullet = 1 \mid x_\bullet, D)``. Unfortunately, these expressions contain integrals that are not analytically computable. 
-
-"""
-
-# ╔═╡ 25f1c2a0-d294-11ef-009c-69b64e87e5fb
-md"""
-Many methods have been developed to approximate the integrals in order to get analytical or numerical solutions. Here, we present the **Laplace approximation**, which is one of the simplest methods with broad applicability to Bayesian calculations.
-
-"""
-
-# ╔═╡ 33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
-NotebookCard("https://bmlip.github.io/colorized/minis/Laplace%20Approximation.html")
-
-# ╔═╡ 25f356b0-d294-11ef-17b9-8583928f7829
-md"""
-## ML Estimation for Discriminative Classification
-
-Rather than the computationally involved Laplace approximation for Bayesian inference, in practice, discriminative classification is often executed through maximum likelihood estimation. 
-
-"""
-
-# ╔═╡ 25f365e2-d294-11ef-300e-9914333b1233
-md"""
-With the usual 1-of-K encoding scheme for classes (``y_{nk}=1`` if ``x_n \in \mathcal{C}_k``, otherwise ``y_{nk}=0``), the log-likelihood for a ``K``-dimensional discriminative classifier is 
-
-```math
-\begin{align*}
-    \mathrm{L}(\theta) &= \log \prod_n \prod_k {p(\mathcal{C}_k|x_n,\theta)}^{y_{nk}} \\
-    &= \log \prod_n \prod_k \Bigg(\underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{softmax function}}\Bigg)^{y_{nk}} \\
-    &= \sum_n \sum_k y_{kn} \log \big( \frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}} \big)
-     \end{align*}
-```
-
-"""
-
-# ╔═╡ 25f3741a-d294-11ef-1418-f11326406eb6
-md"""
-Computing the gradient ``\nabla_{\theta_k} \mathrm{L}(\theta)`` leads to (for [proof, see optional slide below](#ML-for-LG)) 
-
-```math
-\nabla_{\theta_k} \mathrm{L}(\theta) = \sum_n \underbrace{\big( \underbrace{y_{nk}}_{\text{target}} - \underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{prediction}} \big)}_{\text{prediction error}}\cdot x_n 
-```
-
-"""
-
-# ╔═╡ 25f386e4-d294-11ef-2cec-f56f4a6feb19
-md"""
-Compare this to the [gradient for *linear* regression](https://bmlip.github.io/colorized/lectures/Regression.html#regression-gradient):
-
-```math
-\nabla_\theta \mathrm{L}(\theta) =  \sum_n \left(y_n - \theta^T x_n \right)  x_n
-```
-
-"""
-
-# ╔═╡ 25f3965c-d294-11ef-11b8-af605b86f188
-md"""
-In both cases
-
-```math
-\nabla_\theta \mathrm{L} =  \sum_n \left( \text{target}_n - \text{prediction}_n \right) \cdot \text{input}_n 
-```
-
-"""
-
-# ╔═╡ 25f3a638-d294-11ef-0cd5-c3a46aa780c6
-md"""
-The parameter vector ``\theta`` for logistic regression can be estimated through iterative gradient-based adaptation. E.g. (with iteration index ``i``),
-
-```math
-\hat{\theta}^{(i+1)} =  \hat{\theta}^{(i)} + \eta \cdot \left. \nabla_\theta   \mathrm{L}(\theta)  \right|_{\theta = \hat{\theta}^{(i)}}
-```
-
-Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
-
-"""
-
-# ╔═╡ 25f3bef2-d294-11ef-1438-e9f7e469336f
-md"""
-## Code Example: ML Estimation for Discriminative Classification
-
-Let us perform ML estimation of ``w`` on the data set from the introduction. To allow an offset in the discrimination boundary, we add a constant 1 to the feature vector ``x``. We only have to specify the (negative) log-likelihood and the gradient w.r.t. ``w``. Then, we use an off-the-shelf optimisation library to minimize the negative log-likelihood.
-
-We plot the resulting maximum likelihood discrimination boundary. For comparison we also plot the ML discrimination boundary obtained from the [code example in the generative Gaussian classifier lesson](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#code-generative-classification-example).
-
-"""
-
-# ╔═╡ 25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
-md"""
-The generative model gives a bad result because the feature distribution of one class is clearly non-Gaussian: the model does not fit the data well. 
-
-The discriminative approach does not suffer from this problem because it makes no assumptions about the feature distribution ``p(x)``. Rather, it just estimates the conditional class distribution ``p(y|x)`` directly.
-
-"""
-
-# ╔═╡ 25f3ff84-d294-11ef-0031-63b23d23324d
-md"""
-## Why be Bayesian?
-
-Why should you embrace the Bayesian approach to logistic regression? After all, Maximum Likelihood for logistic regression seems simpler.
-
-Still, consider the following:
-
-  * Bayesian logistic regression with the Laplace approximation ultimately leads to very simple analytic rules. Moreover, modern probabilistic programming languages and packages are able to automate the above inference derivations. (We just do them here to gain insight in difficult inference processes.)
-  * Bayesian logistic regression offers the option to compute model evidence.
-  * Bayesian logistic regression processes uncertainties, e.g., in places where almost no data is observed, the posterior class probability will pull back to the prior class probability rather than predicting some arbitrary probability.
-
-"""
-
-# ╔═╡ 25f41118-d294-11ef-13a8-3fa6587c1bf3
-@mdx """
-## Recap Classification
-
-<table> <tr> <td></td><td style="text-align:center"><b>Generative</b></td> <td style="text-align:center"><b>Discriminative (ML)</b></td> </tr> 
-
-<tr> <td>1</td><td>Like <b>density estimation</b>, model joint prob.
-
-```math
-p(\\mathcal{C}_k) p(x|\\mathcal{C}_k) = \\pi_k \\mathcal{N}(\\mu_k,\\Sigma)
-```
-
-</td> <td>Like (linear) <b>regression</b>, model conditional
-
-```math
-p(\\mathcal{C}_k|x,\\theta)
-```
-
-</td> </tr>
-
-<tr> <td>2</td><td>Leads to <b>softmax</b> posterior class probability
-
-```math
- p(\\mathcal{C}_k|x,\\theta ) = e^{\\theta_k^T x}/Z
-```
-
-with <b>structured</b> ``\\theta``</td> <td> <b>Choose</b> also softmax posterior class probability
-
-```math
- p(\\mathcal{C}_k|x,\\theta ) = e^{\\theta_k^T x}/Z
-```
-
-but now with 'free' ``\\theta``</td> </tr>
-
-<tr> <td>3</td><td>
-
-For Gaussian ``p(x|\\mathcal{C}_k)`` and multinomial priors,
-
-```math
-\\hat \\theta_k  = \\left[ {\\begin{array}{c}
-   { - \\frac{1}{2} \\mu_k^T \\sigma^{-1} \\mu_k  + \\log \\pi_k}  \\\\
-   {\\sigma^{-1} \\mu_k }  \\\\
-\\end{array}} \\right]
-```
-
-<b>in one shot</b>.</td> <td>Find ``\\hat\\theta_k`` through gradient-based adaptation
-
-```math
-\\nabla_{\\theta_k}\\mathrm{L}(\\theta) = \\sum_n \\Big( y_{nk} - \\frac{e^{\\theta_k^T x_n}}{\\sum_{k^\\prime} e^{\\theta_{k^\\prime}^T x_n}} \\Big)\\, x_n
-```
-
-</td> </tr> </table>
-
-"""
-
-# ╔═╡ 6eee35ee-fd55-498f-9441-f18c2508de19
+# ╔═╡ 7049ee1c-cdae-473f-a3ef-339bde7f0ee9
 md"""
 # Appendix
 """
 
-# ╔═╡ 25f42e98-d294-11ef-1f51-8b6b81987cc4
-md"""
-## $(HTML("<span id='gradient-hessian'>Proof of gradient and Hessian for Laplace Approximation of Posterior</span>"))
+# ╔═╡ 35edda00-1dfb-4a7b-9444-eef2f63a1a9d
+TODO(
+	md"""
+	I'm wondering how 'realistic' it is to approximate this function with a Gaussian basis? It works because we have a fixed domain ``[0,1]``, but it's clear to the reader that this is a sinusoidal function (usually on much larger domains), and maybe you would approximate this in the frequency domain instead?
 
-We will start with the posterior
+	Did Bischop pick this example because it is non-linear and not a polynomial?
+	""")
 
-```math
-\begin{align*}
-\underbrace{p(w | D)}_{\text{posterior}} \propto  \underbrace{\mathcal{N}(w \,|\, m_0, S_0)}_{\text{prior}} \cdot \underbrace{\prod_{n=1}^N \sigma\big( \underbrace{(2y_n-1) w^T x_n}_{a_n}\big)}_{\text{likelihood}}  \tag{B-4.142}
-\end{align*}
-```
+# ╔═╡ 4bb83eaf-dafe-4476-aef9-a707f480f1d7
+const Layout = PlutoUI.ExperimentalLayout
 
-from which it follows that
+# ╔═╡ db0bdb31-764c-4f50-820e-5439516550f0
+Layout.vbox([
+	σ_noise_bond, 
+	N_bond,
+	(@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)),
+])
 
-```math
-\begin{align*}
-\log p(w | D) \propto  -\frac{1}{2}\log |S_0| -\frac{1}{2} (w-m_0)^T S_0^{-1} (w-m_0) +\sum_n \log \sigma\left( a_n\right) 
-\end{align*}
-```
+# ╔═╡ 494071d2-5130-4388-b598-f3339d5c89e1
+baseplot(args...; kwargs...) = plot(args...; size=(650,400), xlim=(-0.0, 1.0), ylim=(-1.2,1.2), kwargs...)
 
-and the gradient
-
-```math
-\begin{align*}
-\nabla_{w}\log p(w | D) &\propto   \underbrace{S_0^{-1} (m_0-w)}_{\text{SRM-5b}} +\sum_n \underbrace{\frac{1}{\sigma(a_n)}}_{\frac{\partial \log \sigma(a_n)}{\partial \sigma(a_n)}} \cdot \underbrace{\sigma(a_n) \cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)}{\partial a_n}} \cdot \underbrace{(2y_n-1)x_n}_{\frac{\partial a_n}{\partial w} \text{ (see SRM-5a)}}    \\
-&=   S_0^{-1} (m_0-w) + \sum_n (2y_n-1) (1-\sigma(a_n)) x_n \quad \text{(gradient)}
- \end{align*}
-```
-
-where we used  ``\sigma^\prime(a) = \sigma(a)\cdot (1-\sigma(a))``.
-
-For the Hessian, we continue to differentiate the transpose of the gradient, leading to
-
-```math
-\begin{align*}
-\nabla\nabla_{w}\log p(w | D) &=  \nabla_{w} \left(S_0^{-1} (m_0-w)\right)^T - \sum_n (2y_n-1) x_n \nabla_{w}\sigma(a_n)^T \\ &=  -S_0^{-1} - \sum_n (2y_n-1) x_n \cdot \underbrace{\sigma(a_n)\cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)^T}{\partial a_n^T}}\cdot \underbrace{(2y_n-1) x_n^T}_{\frac{\partial a_n^T}{\partial w}} \\
-&= -S_0^{-1} - \sum_n \sigma(a_n)\cdot (1-\sigma(a_n))\cdot x_n x_n^T \quad \text{(Hessian)}
-\end{align*}
-```
-
-since ``(2y_n-1)^2=1`` for ``y_n \in \{0,1\}``.
-
-"""
-
-# ╔═╡ 25f461c2-d294-11ef-2e85-6f1acc16cf3b
-md"""
-## $(HTML("<span id='ML-for-LG'>Proof of Derivative of Log-likelihood for Logistic Regression</span>"))
-
-The Log-likelihood is ``\mathrm{L}(\theta) = \log \prod*n \prod*k {\underbrace{p(\mathcal{C}*k|x*n,\theta)}*{p*{nk}}}^{y*{nk}} = \sum*{n,k} y*{nk} \log p*{nk}``
-
-Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative:
-
-```math
- \begin{align*}
- \frac{\partial \phi_k}{\partial a_j} &= \frac{(\sum_j e^{a_j})e^{a_k}\delta_{kj}-e^{a_j}e^{a_k}}{(\sum_j e^{a_j})^2} = \frac{e^{a_k}}{\sum_j e^{a_j}}\delta_{kj} - \frac{e^{a_j}}{\sum_j e^{a_j}} \frac{e^{a_k}}{\sum_j e^{a_j}}\\
-     &= \phi_k \cdot(\delta_{kj}-\phi_j)
- \end{align*}
-```
-
-
-
-Take the derivative of ``\mathrm{L}(\theta)`` (or: how to spend a hour ...)
-
-```math
-\begin{align*} 
-\nabla_{\theta_j} \mathrm{L}(\theta) &= \sum_{n,k} \frac{\partial \mathrm{L}_{nk}}{\partial p_{nk}} \cdot\frac{\partial p_{nk}}{\partial a_{nj}}\cdot\frac{\partial a_{nj}}{\partial \theta_j} \\
-  &= \sum_{n,k} \frac{y_{nk}}{p_{nk}} \cdot p_{nk} (\delta_{kj}-p_{nj}) \cdot x_n \\
-  &= \sum_n \Big( y_{nj} (1-p_{nj}) -\sum_{k\neq j} y_{nk} p_{nj} \Big) \cdot x_n \\
-  &= \sum_n \left( y_{nj} - p_{nj} \right)\cdot x_n \\
-  &= \sum_n \Big( \underbrace{y_{nj}}_{\text{target}} - \underbrace{\frac{e^{\theta_j^T x_n}}{\sum_{j^\prime} e^{\theta_{j^\prime}^T x_n}}}_{\text{prediction}} \Big)\cdot x_n 
-\end{align*}
-```
-
-"""
-
-# ╔═╡ 1128cb07-68c8-4b80-8fb4-ee9fcc76c050
-md"""
-## Behind the scenes
-"""
-
-# ╔═╡ fcec3c3a-8b0b-4dfd-b010-66abbf330069
-function generate_dataset(N::Int64)
-	Random.seed!(1234)
-    # Generate dataset {(x1,y1),...,(xN,yN)}
-    # x is a 2d feature vector [x1;x2]
-    # y ∈ {false,true} is a binary class label
-    # p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
-	# srand(123)
-    X = Matrix{Float64}(undef,2,N); y = Vector{Bool}(undef,N)
-    for n=1:N
-        if (y[n]=(rand()>0.6)) # p(y=true) = 0.6
-            # Sample class 1 conditional distribution
-            if rand()<0.5
-                X[:,n] = [6.0; 0.5] .* rand(2) .+ [3.0; 6.0]
-            else
-                X[:,n] = sqrt(0.5) * randn(2) .+ [5.5, 0.0]
-            end
-        else
-            # Sample class 2 conditional distribution
-            X[:,n] = randn(2) .+ [1., 4.]
-        end
-    end
-
-    return (X, y)
-end
-
-# ╔═╡ d908270d-81b4-4c97-8298-2ba66bccc45b
-X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
-
-# ╔═╡ c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
-
-# ╔═╡ 476f1aef-fb9b-42a6-a0cb-f0f3da1385da
-function plot_dataset()
-    result = scatter(X_c1[:,1], X_c1[:,2],markersize=4, label=L"y=0", xlabel=L"x_1", ylabel=L"x_2", xlims=(-1.6, 9), ylims=(-2, 7))
-    scatter!(X_c2[:,1], X_c2[:,2],markersize=4, label=L"y=1")
-    scatter!([X_test[1]], [X_test[2]], markersize=7, marker=:star, label=L"y=?") 
-    return result  
-end
-
-# ╔═╡ cc016a47-5c5f-4361-85b9-f6f4141e58d3
-plot_dataset()
-
-# ╔═╡ 56598859-2824-4242-a894-684bf1ad1f6e
-y_1 = map(y) do val
-	val == true ? 1.0 : 0.0
-end # class 1 indicator vector
-
-# ╔═╡ 6f483978-29f0-4165-bd8f-650c403e3512
-# Extend X with a row of ones to allow an offset in the discrimination boundary
-X_ext = vcat(X, ones(1, length(y)))
-
-# ╔═╡ a89af0df-c39b-406e-a30a-4706ad2ea043
-function negative_log_likelihood(θ::Vector)
-	# P(C1|X,θ)
-    p_1 = 1.0 ./ (1.0 .+ exp.(-X_ext' * θ))
-	
-	# negative log-likelihood
-    return -sum(log.( (y_1 .* p_1) + ((1 .- y_1).*(1 .- p_1))) ) 
-end
-
-# ╔═╡ a75d69e1-c1e9-45b4-9924-4c2fe59413dc
-# Use Optim.jl optimiser to minimize the negative log-likelihood function w.r.t. θ
-θ = let
-	results = optimize(negative_log_likelihood, zeros(3), LBFGS())
-	results.minimizer
-end
-
-# ╔═╡ 00488cbb-75c6-4df9-9924-fada8f79a6f1
-function build_generative_discrimination_boundary(X::Matrix, y::Vector{Bool})
-    # Generate discrimination boundary function x[2] = boundary(x[1]) for a Gaussian generative model:
-    # X = [x_1,...,x_N]
-    # y = [y_1;...;y_N]
-    # x is a 2-d real (feature) vector
-    # y ∈ {false,true}
-    # x|y ~ 𝓝(x|μ_y, Σ_y)
-    # We find the class-conditional Gaussian distributions by MLE
-    # See lesson (generative classification) for more details
-    (size(X,1)==2) || error("The columns of X should have length 2")
-
-    # MLE of p(y)
-    p_1_est = sum(y.==true) / length(y)
-    π_hat = [p_1_est; 1 .- p_1_est]
-
-    # MLE of class-conditional multivariate Gaussian densities
-    X_cls1 = X[:,y.==true]
-    X_cls2 = X[:,y.==false]
-    d1 = fit_mle(FullNormal, X_cls1)  # MLE density estimation d1 = N(μ₁, Σ₁)
-    d2 = fit_mle(FullNormal, X_cls2)  # MLE density estimation d2 = N(μ₂, Σ₂)
-    Σ = π_hat[1] * cov(d1) + π_hat[2] * cov(d2) # Combine Σ₁ and Σ₂ into Σ
-
-    conditionals = [MvNormal(mean(d1), Σ); MvNormal(mean(d2), Σ)] # p(x|C)
-
-    # Discrimination boundary of the posterior (p(apple|x;D) = p(peach|x;D) = 0.5)
-    β(k) = inv(Σ)* mean(conditionals[k])
-    γ(k) = -0.5 * mean(conditionals[k])' * inv(Σ) * mean(conditionals[k]) + log(π_hat[k])
-    function discriminant_x2(x1)
-        # Solve discriminant equation for x2
-        
-        β12 = β(1) .- β(2)
-        γ12 = (γ(1) .- γ(2))[1,1]
-        return -1 ./ β12[2]*(β12[1]*x1 .+ γ12) 
-    end
-
-    return discriminant_x2
-end
-
-# ╔═╡ 7ad2f815-9d19-448c-bb7e-044a955f82e0
+# ╔═╡ 12a77bed-2ed3-4e3d-ab1c-b94852a783b4
 let
-	# Plot the data set and ML discrimination boundary
-	plot_dataset()
-	p_1(x) = 1.0 / (1.0 + exp(-([x;1.]' * θ)))
-	boundary(x1) = -1 / θ[2] * (θ[1]*x1 + θ[3])
-	
-	generative_boundary = build_generative_discrimination_boundary(X, y)
-	
-	x_test = [3.75;1.0]
-	@debug("P(C1|x•,θ) = $(p_1(x_test))")
-	
-	plot!([-2., 10.], boundary; label="Discr. boundary", linewidth=2)
-	plot!([-2.,10.], generative_boundary; label="Gen. boundary", linewidth=2)
+	baseplot(; ylim=(0,1), legend=false)
+
+	for (i,μ) in enumerate(μ_basis)
+		higlight = i == highlighted_basis_index
+		plot!(
+			x -> ϕ(μ, x); 
+			opacity=higlight ? 1.0 : 0.6,
+			lw=higlight ? 3 : 1,
+		)
+	end
+
+	plot!()
+end
+
+# ╔═╡ e3e29570-8a8e-4aad-92c4-6232136c3fc2
+let
+	baseplot(; legend=true)
+
+	for (i,μ) in enumerate(μ_basis)
+		plot!(
+			x -> w[i] * ϕ(μ, x); 
+			label=nothing,
+		)
+	end
+
+	plot!(x -> f(w, x); color="black", lw=3, label="linear combination")
+end
+
+# ╔═╡ d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
+function plot_data!(D)
+	plot!(; legend=:bottomleft)
+	plot!(secret_function;
+		  label="True function",
+		  color=3,
+		  lw=3,
+			linestyle=:dash,
+		 )
+	scatter!(
+		D; 
+		label="Observations",
+		color=1,
+		# markerstrokewidth=0,
+	)
+end
+
+# ╔═╡ 300fe006-24a6-4134-bf91-d5fb6cb72f2e
+const deterministic_randomness = MersenneTwister
+
+# ╔═╡ 2037adc1-0acd-4fed-afcd-deb285792dce
+σ_data_noise² = σ_data_noise^2
+
+# ╔═╡ 73830436-9b92-41e3-a3ab-d6b2a2b7a573
+D = let
+	xs = rand(deterministic_randomness(19), Uniform(0,1), N)
+
+	ys_exact = secret_function.(xs)
+	ys = ys_exact .+ rand(deterministic_randomness(37), MvNormal(zeros(N), σ_data_noise²*I))
+
+	collect(zip(xs, ys))
+end
+
+# ╔═╡ 6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
+let
+	baseplot()
+	plot_data!(D)
+end
+
+# ╔═╡ 263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
+# Design matrix
+Φ = [
+	ϕ(μ, datum[1])
+	for datum in D, μ in μ_basis
+];
+
+# ╔═╡ 73d0cff6-614d-4467-b16d-19f6c4667104
+weights_posterior = MvNormalCanon(
+	# Posterior potential vector
+	Φ' * last.(D) / σ_data_noise²,
+	# Posterior precision matrix (inverse covariance)
+	Φ' * Φ / σ_data_noise² + I / σ_prior²
+)
+
+# ╔═╡ 2f504df9-e594-45ba-8450-d3c4144a8515
+let
+	baseplot()
+	if true
+		for i in 1:40
+			w = rand(weights_posterior)
+			plot!(
+				x -> f(w, x);
+				opacity=.3, 
+				color=2, 
+				label=i==1 ? "Posterior samples" : nothing,
+			)
+		end
+	end
+
+	plot_data!(D)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
-MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
-Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -671,9 +371,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 Distributions = "~0.25.120"
-LaTeXStrings = "~1.4.0"
-MarkdownLiteral = "~0.1.2"
-Optim = "~1.13.2"
+HypertextLiteral = "~0.9.5"
 Plots = "~1.40.14"
 PlutoTeachingTools = "~0.4.1"
 PlutoUI = "~0.7.65"
@@ -685,42 +383,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.9"
 manifest_format = "2.0"
-project_hash = "29067c9016216121b98421356e76a1112a503495"
-
-[[deps.ADTypes]]
-git-tree-sha1 = "be7ae030256b8ef14a441726c4c37766b90b93a3"
-uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "1.15.0"
-
-    [deps.ADTypes.extensions]
-    ADTypesChainRulesCoreExt = "ChainRulesCore"
-    ADTypesConstructionBaseExt = "ConstructionBase"
-    ADTypesEnzymeCoreExt = "EnzymeCore"
-
-    [deps.ADTypes.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-    EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
+project_hash = "40758e3e0dd4dc48e7ed8e18028698943d573cfb"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
 git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.2"
-
-[[deps.Adapt]]
-deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "f7817e2e585aa6d924fd714df1e2a84be7896c60"
-uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "4.3.0"
-
-    [deps.Adapt.extensions]
-    AdaptSparseArraysExt = "SparseArrays"
-    AdaptStaticArraysExt = "StaticArrays"
-
-    [deps.Adapt.weakdeps]
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -731,38 +400,6 @@ version = "1.1.3"
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.1"
-
-[[deps.ArrayInterface]]
-deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "9606d7832795cbef89e06a550475be300364a8aa"
-uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.19.0"
-
-    [deps.ArrayInterface.extensions]
-    ArrayInterfaceBandedMatricesExt = "BandedMatrices"
-    ArrayInterfaceBlockBandedMatricesExt = "BlockBandedMatrices"
-    ArrayInterfaceCUDAExt = "CUDA"
-    ArrayInterfaceCUDSSExt = "CUDSS"
-    ArrayInterfaceChainRulesCoreExt = "ChainRulesCore"
-    ArrayInterfaceChainRulesExt = "ChainRules"
-    ArrayInterfaceGPUArraysCoreExt = "GPUArraysCore"
-    ArrayInterfaceReverseDiffExt = "ReverseDiff"
-    ArrayInterfaceSparseArraysExt = "SparseArrays"
-    ArrayInterfaceStaticArraysCoreExt = "StaticArraysCore"
-    ArrayInterfaceTrackerExt = "Tracker"
-
-    [deps.ArrayInterface.weakdeps]
-    BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-    BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
-    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-    CUDSS = "45b445bb-4962-46a0-9369-b4df9d0f772e"
-    ChainRules = "082447d4-558c-5d27-93f4-14fc19e9eca2"
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -827,18 +464,6 @@ git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
 
-[[deps.CommonMark]]
-deps = ["PrecompileTools"]
-git-tree-sha1 = "351d6f4eaf273b753001b2de4dffb8279b100769"
-uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
-version = "0.9.1"
-
-[[deps.CommonSubexpressions]]
-deps = ["MacroTools"]
-git-tree-sha1 = "cda2cfaebb4be89c9084adaca7dd7333369715c5"
-uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
-version = "0.3.1"
-
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
 git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
@@ -859,21 +484,6 @@ deps = ["Serialization", "Sockets"]
 git-tree-sha1 = "d9d26935a0bcffc87d2613ce14c527c99fc543fd"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
-
-[[deps.ConstructionBase]]
-git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
-uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.6.0"
-
-    [deps.ConstructionBase.extensions]
-    ConstructionBaseIntervalSetsExt = "IntervalSets"
-    ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
-    ConstructionBaseStaticArraysExt = "StaticArrays"
-
-    [deps.ConstructionBase.weakdeps]
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
@@ -907,72 +517,6 @@ git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
 
-[[deps.DiffResults]]
-deps = ["StaticArraysCore"]
-git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
-uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
-version = "1.1.0"
-
-[[deps.DiffRules]]
-deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
-git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
-uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
-version = "1.15.1"
-
-[[deps.DifferentiationInterface]]
-deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "210933c93f39f832d92f9efbbe69a49c453db36d"
-uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.1"
-
-    [deps.DifferentiationInterface.extensions]
-    DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
-    DifferentiationInterfaceDiffractorExt = "Diffractor"
-    DifferentiationInterfaceEnzymeExt = ["EnzymeCore", "Enzyme"]
-    DifferentiationInterfaceFastDifferentiationExt = "FastDifferentiation"
-    DifferentiationInterfaceFiniteDiffExt = "FiniteDiff"
-    DifferentiationInterfaceFiniteDifferencesExt = "FiniteDifferences"
-    DifferentiationInterfaceForwardDiffExt = ["ForwardDiff", "DiffResults"]
-    DifferentiationInterfaceGPUArraysCoreExt = "GPUArraysCore"
-    DifferentiationInterfaceGTPSAExt = "GTPSA"
-    DifferentiationInterfaceMooncakeExt = "Mooncake"
-    DifferentiationInterfacePolyesterForwardDiffExt = ["PolyesterForwardDiff", "ForwardDiff", "DiffResults"]
-    DifferentiationInterfaceReverseDiffExt = ["ReverseDiff", "DiffResults"]
-    DifferentiationInterfaceSparseArraysExt = "SparseArrays"
-    DifferentiationInterfaceSparseConnectivityTracerExt = "SparseConnectivityTracer"
-    DifferentiationInterfaceSparseMatrixColoringsExt = "SparseMatrixColorings"
-    DifferentiationInterfaceStaticArraysExt = "StaticArrays"
-    DifferentiationInterfaceSymbolicsExt = "Symbolics"
-    DifferentiationInterfaceTrackerExt = "Tracker"
-    DifferentiationInterfaceZygoteExt = ["Zygote", "ForwardDiff"]
-
-    [deps.DifferentiationInterface.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    DiffResults = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
-    Diffractor = "9f5e2b26-1114-432f-b630-d3fe2085c51c"
-    Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
-    EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
-    FastDifferentiation = "eb9bf01b-bf85-4b60-bf87-ee5de06c00be"
-    FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
-    FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
-    GTPSA = "b27dd330-f138-47c5-815b-40db9dd9b6e8"
-    Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
-    PolyesterForwardDiff = "98d1487c-24ca-40b6-b7ab-df2af84e126b"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    SparseConnectivityTracer = "9f842d2f-2579-4b1d-911e-f412cf18a3f5"
-    SparseMatrixColorings = "0a514795-09f3-496d-8182-132a7b665d35"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-    Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
-    Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
-
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
 git-tree-sha1 = "3e6d038b77f22791b8e3472b7c633acea1ecac06"
@@ -998,11 +542,6 @@ version = "0.9.5"
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
-
-[[deps.EnumX]]
-git-tree-sha1 = "bddad79635af6aec424f53ed8aad5d7555dc6f00"
-uuid = "4e289a0a-7415-4d19-859d-a7e5c4648b56"
-version = "1.0.5"
 
 [[deps.EpollShim_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1049,24 +588,6 @@ weakdeps = ["PDMats", "SparseArrays", "Statistics"]
     FillArraysSparseArraysExt = "SparseArrays"
     FillArraysStatisticsExt = "Statistics"
 
-[[deps.FiniteDiff]]
-deps = ["ArrayInterface", "LinearAlgebra", "Setfield"]
-git-tree-sha1 = "f089ab1f834470c525562030c8cfde4025d5e915"
-uuid = "6a86dc24-6348-571c-b903-95158fe2bd41"
-version = "2.27.0"
-
-    [deps.FiniteDiff.extensions]
-    FiniteDiffBandedMatricesExt = "BandedMatrices"
-    FiniteDiffBlockBandedMatricesExt = "BlockBandedMatrices"
-    FiniteDiffSparseArraysExt = "SparseArrays"
-    FiniteDiffStaticArraysExt = "StaticArrays"
-
-    [deps.FiniteDiff.weakdeps]
-    BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-    BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
 git-tree-sha1 = "05882d6995ae5c12bb5f36dd2ed3f61c98cbb172"
@@ -1084,18 +605,6 @@ git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
 
-[[deps.ForwardDiff]]
-deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
-git-tree-sha1 = "910febccb28d493032495b7009dce7d7f7aee554"
-uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "1.0.1"
-
-    [deps.ForwardDiff.extensions]
-    ForwardDiffStaticArraysExt = "StaticArrays"
-
-    [deps.ForwardDiff.weakdeps]
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
 git-tree-sha1 = "2c5512e11c791d1baed2049c5652441b28fc6a31"
@@ -1108,10 +617,6 @@ git-tree-sha1 = "7a214fdac5ed5f59a22c2d9a885a16da1c74bbc7"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.17+0"
 
-[[deps.Future]]
-deps = ["Random"]
-uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
-
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
 git-tree-sha1 = "fcb0584ff34e25155876418979d4c8971243bb89"
@@ -1120,27 +625,27 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
+git-tree-sha1 = "4424dca1462cc3f19a0e6f07b809ad948ac1d62b"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.17"
+version = "0.73.16"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "27299071cc29e409488ada41ec7643e0ab19091f"
+git-tree-sha1 = "d7ecfaca1ad1886de4f9053b5b8aef34f36ede7f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.17+0"
+version = "0.73.16+0"
 
-[[deps.GettextRuntime_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
-git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
-uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
-version = "0.22.4+0"
+[[deps.Gettext_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
+git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
+uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
+version = "0.21.0+0"
 
 [[deps.Glib_jll]]
-deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
+deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
+git-tree-sha1 = "fee60557e4f19d0fe5cd169211fdda80e494f4e8"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.84.3+0"
+version = "2.84.0+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1332,12 +837,6 @@ git-tree-sha1 = "321ccef73a96ba828cd51f2ab5b9f917fa73945a"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.41.0+0"
 
-[[deps.LineSearches]]
-deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
-git-tree-sha1 = "4adee99b7262ad2a1a4bbbc59d993d24e55ea96f"
-uuid = "d3d80556-e9d4-5f37-9878-2ab0fcc64255"
-version = "7.4.0"
-
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -1381,12 +880,6 @@ version = "0.5.16"
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
-[[deps.MarkdownLiteral]]
-deps = ["CommonMark", "HypertextLiteral"]
-git-tree-sha1 = "f7d73634acd573bf3489df1ee0d270a5d6d3a7a3"
-uuid = "736d6165-7244-6769-4267-6b50796e6954"
-version = "0.1.2"
-
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
 git-tree-sha1 = "c067a280ddc25f196b5e7df3877c6b226d390aaf"
@@ -1415,12 +908,6 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.1.10"
-
-[[deps.NLSolversBase]]
-deps = ["ADTypes", "DifferentiationInterface", "Distributed", "FiniteDiff", "ForwardDiff"]
-git-tree-sha1 = "25a6638571a902ecfb1ae2a18fc1575f86b1d4df"
-uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.10.0"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1466,18 +953,6 @@ git-tree-sha1 = "1346c9208249809840c91b26703912dff463d335"
 uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
 version = "0.5.6+0"
 
-[[deps.Optim]]
-deps = ["Compat", "EnumX", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "61942645c38dd2b5b78e2082c9b51ab315315d10"
-uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.13.2"
-
-    [deps.Optim.extensions]
-    OptimMOIExt = "MathOptInterface"
-
-    [deps.Optim.weakdeps]
-    MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
-
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
@@ -1505,12 +980,6 @@ deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jl
 git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
 version = "1.56.3+0"
-
-[[deps.Parameters]]
-deps = ["OrderedCollections", "UnPack"]
-git-tree-sha1 = "34c0e9ad262e5f7fc75b10a9952ca7692cfc5fbe"
-uuid = "d96e819e-fc66-5662-9728-84c9c7592b0a"
-version = "0.12.3"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1573,12 +1042,6 @@ git-tree-sha1 = "3151a0c8061cc3f887019beebf359e6c4b3daa08"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 version = "0.7.65"
 
-[[deps.PositiveFactorizations]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "17275485f373e6673f7e7f97051f703ed5b15b20"
-uuid = "85a6dd25-e78a-55b7-8502-1745935b8125"
-version = "0.2.4"
-
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1620,9 +1083,9 @@ version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
+git-tree-sha1 = "2766344a35a1a5ec1147305c4b343055d7c22c90"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.8.2+1"
+version = "6.8.2+0"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -1698,12 +1161,6 @@ version = "1.3.0"
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
-[[deps.Setfield]]
-deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
-git-tree-sha1 = "c5391c6ace3bc430ca630251d02ea9687169ca68"
-uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
-version = "1.1.2"
-
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
@@ -1746,11 +1203,6 @@ deps = ["Random"]
 git-tree-sha1 = "95af145932c2ed859b63329952ce8d633719f091"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
-
-[[deps.StaticArraysCore]]
-git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
-uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.3"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1830,11 +1282,6 @@ version = "1.6.0"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
-
-[[deps.UnPack]]
-git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
-uuid = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
-version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
@@ -2154,61 +1601,49 @@ version = "1.8.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─25eefb10-d294-11ef-0734-2daf18636e8e
-# ╟─e7c45ff8-9fa2-4ea3-a06f-5769d877540e
-# ╟─25ef12bc-d294-11ef-1557-d98ba829a804
-# ╟─25ef2806-d294-11ef-3cb6-0f3e76b9177e
-# ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-# ╠═ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-# ╠═ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# ╠═d908270d-81b4-4c97-8298-2ba66bccc45b
-# ╠═c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-# ╠═c5777ae3-e499-46a6-998a-05b97693b3e1
-# ╠═cc016a47-5c5f-4361-85b9-f6f4141e58d3
-# ╠═476f1aef-fb9b-42a6-a0cb-f0f3da1385da
-# ╟─25ef6ece-d294-11ef-270a-999c8d457b24
-# ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
-# ╟─25efa2fe-d294-11ef-172f-9bb09277f59e
-# ╟─25efbe42-d294-11ef-3e4e-cfea366757da
-# ╟─25efd6b6-d294-11ef-3b21-6363ef531eb5
-# ╟─25f02ac6-d294-11ef-26c4-f142b8ac4b5f
-# ╟─25f0adde-d294-11ef-353e-4b4773df9ff5
-# ╟─25f0f618-d294-11ef-0d94-bf80c8e2957b
-# ╟─25f12528-d294-11ef-0c65-97c61935e9c2
-# ╟─25f1390c-d294-11ef-364d-17e4c93b9a57
-# ╟─25f14226-d294-11ef-369f-e545d5fe2700
-# ╟─25f14f82-d294-11ef-02fb-2dc632b8f118
-# ╟─25f15e0a-d294-11ef-3737-79a68c9b3c61
-# ╟─25f19230-d294-11ef-2dfd-6d4927e86f57
-# ╟─25f19ed8-d294-11ef-3298-efa16dda1dde
-# ╟─25f1ab08-d294-11ef-32ed-493792e121b7
-# ╟─25f1b404-d294-11ef-1c3a-a5a8142bb202
-# ╟─25f1c2a0-d294-11ef-009c-69b64e87e5fb
-# ╠═33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
-# ╟─25f356b0-d294-11ef-17b9-8583928f7829
-# ╟─25f365e2-d294-11ef-300e-9914333b1233
-# ╟─25f3741a-d294-11ef-1418-f11326406eb6
-# ╟─25f386e4-d294-11ef-2cec-f56f4a6feb19
-# ╟─25f3965c-d294-11ef-11b8-af605b86f188
-# ╟─25f3a638-d294-11ef-0cd5-c3a46aa780c6
-# ╟─25f3bef2-d294-11ef-1438-e9f7e469336f
-# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
-# ╠═56598859-2824-4242-a894-684bf1ad1f6e
-# ╠═6f483978-29f0-4165-bd8f-650c403e3512
-# ╠═a89af0df-c39b-406e-a30a-4706ad2ea043
-# ╠═a75d69e1-c1e9-45b4-9924-4c2fe59413dc
-# ╠═7ad2f815-9d19-448c-bb7e-044a955f82e0
-# ╟─25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
-# ╟─25f3ff84-d294-11ef-0031-63b23d23324d
-# ╟─25f41118-d294-11ef-13a8-3fa6587c1bf3
-# ╟─6eee35ee-fd55-498f-9441-f18c2508de19
-# ╟─25f42e98-d294-11ef-1f51-8b6b81987cc4
-# ╟─25f461c2-d294-11ef-2e85-6f1acc16cf3b
-# ╟─1128cb07-68c8-4b80-8fb4-ee9fcc76c050
-# ╠═ad196ae6-c65e-4aaa-b0cc-bd72daa41952
-# ╠═616e84d7-063d-4d9d-99e4-56aecf3c7ee4
-# ╠═fcec3c3a-8b0b-4dfd-b010-66abbf330069
-# ╠═00488cbb-75c6-4df9-9924-fada8f79a6f1
-# ╠═e379cc2a-43f8-432f-84fc-a88fd4f3ad0a
+# ╟─6eabe335-2291-4a56-8fe9-d73f65afd495
+# ╠═84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
+# ╟─afac91b3-c37a-4a32-8121-efc017f05b86
+# ╟─36cecff5-f37c-4967-b153-5394eb4a6056
+# ╟─5c5b86d1-aa16-4161-b75a-1534a7edd05e
+# ╟─73830436-9b92-41e3-a3ab-d6b2a2b7a573
+# ╟─6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
+# ╟─3a9f60a8-e4b6-4f0a-881e-ec6ce8098720
+# ╠═ca02a3dc-6251-4c6c-80ff-0782ae72a259
+# ╠═2ec7d4f8-409d-4c38-9081-be7125afa715
+# ╠═4906d7e7-92c4-48c4-a2a9-fe663f948823
+# ╟─7713d556-f056-42f4-8e12-98bcb62b5293
+# ╟─12a77bed-2ed3-4e3d-ab1c-b94852a783b4
+# ╟─02409d93-5b09-4395-9086-60de8d7adadd
+# ╟─d4e5acbd-fdc3-4da1-8f1c-d7bca2443c9c
+# ╠═8584b1dc-a087-4898-9962-80e40ee9efff
+# ╟─a5159da7-9951-494a-8112-16647ce1c076
+# ╟─ccda1169-0b72-44df-a01d-b21890eb798b
+# ╟─a2fd6579-e4b4-4b97-a0c7-4099c73e356c
+# ╟─e3e29570-8a8e-4aad-92c4-6232136c3fc2
+# ╠═6f200846-e9ed-4f15-85a2-8f4cb39c0329
+# ╟─d362d60d-1839-4745-8af3-f57aa2d05de4
+# ╟─3301371d-56b1-4919-ac8e-d58698aa3dcc
+# ╟─a511517a-fba8-4dd1-8a21-df965e985ff5
+# ╟─d07b0443-1901-4f15-996e-61ccc9905046
+# ╟─bd43e34b-18f3-42ca-ad73-fb7c47852001
+# ╟─f16d06fe-2e9a-490d-a120-e47a45cae889
+# ╟─db0bdb31-764c-4f50-820e-5439516550f0
+# ╟─2f504df9-e594-45ba-8450-d3c4144a8515
+# ╠═263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
+# ╠═73d0cff6-614d-4467-b16d-19f6c4667104
+# ╟─c3a28b48-fc19-495a-98d5-1bd3d327eb73
+# ╟─dcfc2adb-6f11-472f-b291-2099856391e1
+# ╟─7049ee1c-cdae-473f-a3ef-339bde7f0ee9
+# ╟─35edda00-1dfb-4a7b-9444-eef2f63a1a9d
+# ╠═d336abb0-ab62-4596-baed-dc2ae608fe81
+# ╠═e497536d-ab0d-4e9c-be95-9e52777642f9
+# ╠═fa6fc38e-5006-11f0-2421-4152864a7aae
+# ╠═2a1c0dbe-6f7e-43ea-9914-27148e40a9e7
+# ╟─4bb83eaf-dafe-4476-aef9-a707f480f1d7
+# ╟─494071d2-5130-4388-b598-f3339d5c89e1
+# ╟─d72ec1a6-3eb5-4f0e-9d34-e8ab0b728221
+# ╟─300fe006-24a6-4134-bf91-d5fb6cb72f2e
+# ╟─2037adc1-0acd-4fed-afcd-deb285792dce
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
