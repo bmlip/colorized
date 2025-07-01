@@ -40,14 +40,26 @@ The challenge of this Mini is to find the **secret function** of unknown shape, 
 # ╔═╡ 84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
 secret_function(x) = sin(x * 2π);
 
-# ╔═╡ afac91b3-c37a-4a32-8121-efc017f05b86
-begin
-	σ_noise_bond = @bindname σ_data_noise Slider(0.0:0.01:0.2; default=0.12, show_value=true)
-end
+# Or use one of these functions:
+# secret_function(x) = sign(0.4 - x);
+# secret_function(x) = x ^ 2;
+
+# ╔═╡ 7a5f0292-106e-4196-9c98-c7e63ef631bc
+TableOfContents()
+
+# ╔═╡ 166d4436-4b97-491f-9c03-6ded1adb302e
+md"""
+Let's generate some random observations from this function. You can change the **number of observations** and the **measurement noise**.
+"""
 
 # ╔═╡ 36cecff5-f37c-4967-b153-5394eb4a6056
 begin
 	N_bond = @bindname N Slider(1:150; show_value=true, default=13)
+end
+
+# ╔═╡ afac91b3-c37a-4a32-8121-efc017f05b86
+begin
+	σ_noise_bond = @bindname σ_data_noise Slider(0.0:0.01:0.2; default=0.12, show_value=true)
 end
 
 # ╔═╡ 5c5b86d1-aa16-4161-b75a-1534a7edd05e
@@ -59,7 +71,7 @@ Here is the randomly generated dataset:
 md"""
 # Basis functions
 
-We will try to approximate our function use the [radial function] basis. This means that we have a fixed set of basis functions, and we approximate our function as a linear combination of that basis.
+We will try to approximate our function use the [radial function](https://en.wikipedia.org/wiki/Radial_basis_function) basis. This means that we have a fixed set of basis functions, and we approximate our function as a linear combination of that basis.
 
 Let's look at the individual basis functions first:
 """
@@ -222,6 +234,18 @@ md"""
 So how do we find these weights _automatically_ to model a set of observations, and how sure are we about the result?
 """
 
+# ╔═╡ d3caaa98-aca0-4199-9f4f-6a435ec52649
+md"""
+We also have a _prior_ for the weights: ``\mathcal{N}(0,σ_{prior}^2)``. You can control this parameter:
+"""
+
+# ╔═╡ f894f9b3-ba9d-487b-8596-1b8c4826f1d1
+	@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)
+
+
+# ╔═╡ ca6acc39-af25-4de8-b19f-4302d574e8b4
+
+
 # ╔═╡ c3a28b48-fc19-495a-98d5-1bd3d327eb73
 md"""
 
@@ -238,22 +262,13 @@ md"""
 # Appendix
 """
 
-# ╔═╡ 35edda00-1dfb-4a7b-9444-eef2f63a1a9d
-TODO(
-	md"""
-	I'm wondering how 'realistic' it is to approximate this function with a Gaussian basis? It works because we have a fixed domain ``[0,1]``, but it's clear to the reader that this is a sinusoidal function (usually on much larger domains), and maybe you would approximate this in the frequency domain instead?
-
-	Did Bischop pick this example because it is non-linear and not a polynomial?
-	""")
-
 # ╔═╡ 4bb83eaf-dafe-4476-aef9-a707f480f1d7
 const Layout = PlutoUI.ExperimentalLayout
 
 # ╔═╡ db0bdb31-764c-4f50-820e-5439516550f0
 Layout.vbox([
-	σ_noise_bond, 
 	N_bond,
-	(@bindname σ_prior² Slider([(2.0 .^ (-14:2))..., 1e10]; show_value=true, default=0.5)),
+	σ_noise_bond, 
 ])
 
 # ╔═╡ 494071d2-5130-4388-b598-f3339d5c89e1
@@ -1606,11 +1621,13 @@ version = "1.8.1+0"
 # ╔═╡ Cell order:
 # ╟─6eabe335-2291-4a56-8fe9-d73f65afd495
 # ╠═84a26e26-0ac2-4d87-a216-30ef2b8f2ddc
-# ╟─afac91b3-c37a-4a32-8121-efc017f05b86
+# ╟─7a5f0292-106e-4196-9c98-c7e63ef631bc
+# ╟─166d4436-4b97-491f-9c03-6ded1adb302e
 # ╟─36cecff5-f37c-4967-b153-5394eb4a6056
+# ╟─afac91b3-c37a-4a32-8121-efc017f05b86
 # ╟─5c5b86d1-aa16-4161-b75a-1534a7edd05e
 # ╟─73830436-9b92-41e3-a3ab-d6b2a2b7a573
-# ╟─6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
+# ╠═6e0d58fa-6f05-4e14-8f98-c3c5a2e06b32
 # ╟─3a9f60a8-e4b6-4f0a-881e-ec6ce8098720
 # ╠═ca02a3dc-6251-4c6c-80ff-0782ae72a259
 # ╠═2ec7d4f8-409d-4c38-9081-be7125afa715
@@ -1633,12 +1650,14 @@ version = "1.8.1+0"
 # ╟─f16d06fe-2e9a-490d-a120-e47a45cae889
 # ╟─db0bdb31-764c-4f50-820e-5439516550f0
 # ╟─2f504df9-e594-45ba-8450-d3c4144a8515
+# ╟─d3caaa98-aca0-4199-9f4f-6a435ec52649
+# ╟─f894f9b3-ba9d-487b-8596-1b8c4826f1d1
+# ╟─ca6acc39-af25-4de8-b19f-4302d574e8b4
 # ╠═263a5ef6-0819-4a9f-b9e1-73371c4bfaeb
 # ╠═73d0cff6-614d-4467-b16d-19f6c4667104
 # ╟─c3a28b48-fc19-495a-98d5-1bd3d327eb73
 # ╟─dcfc2adb-6f11-472f-b291-2099856391e1
 # ╟─7049ee1c-cdae-473f-a3ef-339bde7f0ee9
-# ╟─35edda00-1dfb-4a7b-9444-eef2f63a1a9d
 # ╠═d336abb0-ab62-4596-baed-dc2ae608fe81
 # ╠═e497536d-ab0d-4e9c-be95-9e52777642f9
 # ╠═fa6fc38e-5006-11f0-2421-4152864a7aae
