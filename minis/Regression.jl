@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.11
+# v0.20.14
 
 using Markdown
 using InteractiveUtils
@@ -224,7 +224,10 @@ So how do we find these weights _automatically_ to model a set of observations, 
 
 # ╔═╡ c3a28b48-fc19-495a-98d5-1bd3d327eb73
 md"""
- You can read the full lecture here:
+
+# Further reading
+
+You can read the full lecture here:
 """
 
 # ╔═╡ dcfc2adb-6f11-472f-b291-2099856391e1
