@@ -67,14 +67,14 @@ md"In Julia, you import libraries and software packages using the `using` comman
 md"Shape parameter α = "
 
 # ╔═╡ 31427b48-f0be-11ea-3493-39d0617e6c14
-@bind α html"<input type=range min=0.0 max=100. step=1e-1>"
+@bind α Slider(0:.1:100; default=50)
 
 # ╔═╡ f51c794d-9753-4431-bf5a-ccf0a7a0641c
 md"Rate parameter β = "
 
 # ╔═╡ 3e8a79b8-f0be-11ea-314c-333d84cea659
 # Define rate parameter
-@bind β html"<input type=range min=0.0 max=100. step=1e-1>"
+@bind β Slider(0:.1:100; default=50)
 
 # ╔═╡ 87373db4-f0bd-11ea-0b4b-0fbf22e8098d
 begin	
@@ -188,7 +188,9 @@ md"""### 3. Posterior
 
 One we have specified the prior and the likelihood, we can compute the posterior. Remember Bayes' rule:
 
-\$$ p(\theta \mid X) = \frac{p(X \mid \theta) p(\theta)}{p(X)} \, .\$$
+```math
+p(\theta \mid X) = \frac{p(X \mid \theta) p(\theta)}{p(X)} \, .
+```
 
 The posterior \$p(\theta \mid X)\$ equals the likelihood \$p(X \mid \theta)\$ times the prior $p(\theta)$ divided by the evidence \$p(X)\$. In our tasting experiment, we have a special thing going on: [conjugacy](https://en.wikipedia.org/wiki/Conjugate_prior). The Beta distribution is "conjugate" to the Bernoulli likelihood, meaning that the posterior distribution is also going to be a Beta distribution. Specifically with the Beta-Bernoulli combination, it is easy to see what conjugacy actually means. We haven't looked at the formula for the Beta distribution yet, which is:
 
@@ -210,11 +212,11 @@ Let's now visualise the posterior after observing the data from Amsterdam."""
 
 # ╔═╡ cc76d034-f0ee-11ea-11f2-4f1a8b8cfa47
 # Shape parameter of prior distribution
-@bind α0 html"<input type=range min=0.0 max=100. step=1e-1>"
+@bind α0 Slider(0:.1:100; default=50)
 
 # ╔═╡ d8899b9a-f0ee-11ea-3396-c51ae5beb62b
 # Rate parameter of prior distribution
-@bind β0 html"<input type=range min=0.0 max=100. step=1e-1>"
+@bind β0 Slider(0:.1:100; default=50)
 
 # ╔═╡ c9f295b4-f0ee-11ea-2505-b1705a92ebd1
 begin
@@ -250,7 +252,9 @@ This kind of statement, involving relative probabilities, can be tackled by _hyp
 
 Proper hypothesis testing can be quite complicated and there could be factors / terms that are difficult, if not impossible, to compute (see [Wagemakers et al., 2010](https://www.sciencedirect.com/science/article/pii/S0010028509000826?casa_token=oOWuhv4FdwcAAAAA:HdpoBRU0adxKmCDPZF0gADbzbkPoiejfc0ZMJlTKq0DwhVVcnvM0OxS4IJV1GGKbSvb6yLCOvA)). Fortunately, in our current test we can perform some simplifications. The following quantity tells us something about the relative probability of detecting the alcoholic beverage at chance level versus better than chance level:
 
-\$$ \text{BF}_{10} = \frac{p(\theta = 0.5)}{p(\theta = 0.5 \mid X)}\$$
+```math
+\text{BF}_{10} = \frac{p(\theta = 0.5)}{p(\theta = 0.5 \mid X)}
+```
 
 BF stands for Bayes Factor and the subscript $10$ indicates how much more likely $H_1$ is than $H_0$."""
 
