@@ -227,7 +227,6 @@ In *Bayesian* logistic regression, we often add a **Gaussian prior on the weight
 p(w) = \mathcal{N}(w \,|\, m_0, S_0) \tag{B-4.140}
 \end{align*}
 ```
-
 """
 
 # ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
