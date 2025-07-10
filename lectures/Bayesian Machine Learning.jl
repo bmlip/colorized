@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.4
+# v0.20.8
 
 using Markdown
 using InteractiveUtils
@@ -20,15 +20,16 @@ md"""
 md"""
 ## Preliminaries
 
-Goals
+##### Goals
 
   * Introduction to Bayesian (i.e., probabilistic) modeling
 
-Materials
+##### Materials
 
   * Mandatory
 
       * These lecture notes
+
   * Optional
 
       * Bishop pp. 68-74 (on the coin toss example)
@@ -42,20 +43,18 @@ Materials
 md"""
 ## Challenge: Predicting a Coin Toss
 
-**Problem**: We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly 
+##### Problem
+  * We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly: 
 
 ```math
 D=\{1011001\}\,.
 ```
 
-What is the probability that heads comes up next?
+  * What is the probability that heads comes up next?
 
-"""
+##### Solution
 
-# ╔═╡ 6a24ae24-d294-11ef-3825-b7d13df50212
-md"""
-**Solution**: later in this lecture. 
-
+  * Later in this lecture
 """
 
 # ╔═╡ 6a24b9e4-d294-11ef-3ead-9d272fbf89be
@@ -74,9 +73,14 @@ The $(HTML("<span id='Bayesian-design'>Bayesian design</span>")) approach to sol
 
 """
 
-# ╔═╡ 133ae6b0-ae1d-4004-a30d-2cd352d9a1db
-html"""
-<div style="background-color:rgba(0, 0, 0, 0.0470588); padding:10px 0;font-family:monospace;"> <font color = "red">&nbsp;&nbsp;REPEAT</font></br> &nbsp;&nbsp;&nbsp; 1- Model specification</br> &nbsp;&nbsp;&nbsp; 2- Parameter estimation</br> &nbsp;&nbsp;&nbsp; 3- Model evaluation</br> <font color = "red">&nbsp;&nbsp;UNTIL model performance is satisfactory</font></br> &nbsp;&nbsp;&nbsp; 4- Apply model </div>
+# ╔═╡ 87d9af53-6782-40cc-a5da-fae2458c2f23
+md"""
+>  REPEAT    
+>    1. Model specification     
+>    2. Parameter estimation
+>    3. Model evaluation
+>  UNTIL model performance is satisfactory
+>    4. Apply model
 """
 
 # ╔═╡ 6a24c9f4-d294-11ef-20cc-172ea50da901
@@ -1204,7 +1208,7 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "c8437be39b3fa76e47b8caeeada703f61768dd3a"
 
@@ -1900,7 +1904,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2671,10 +2675,9 @@ version = "1.4.1+2"
 # ╟─6a23b828-d294-11ef-371a-05d061144a43
 # ╟─6a23df9e-d294-11ef-3ddf-a51d4cea00fc
 # ╟─6a24376c-d294-11ef-348a-e9027bd0ec29
-# ╟─6a24ae24-d294-11ef-3825-b7d13df50212
 # ╟─6a24b9e4-d294-11ef-3ead-9d272fbf89be
 # ╟─6a24c3e6-d294-11ef-3581-2755a9ba15ba
-# ╟─133ae6b0-ae1d-4004-a30d-2cd352d9a1db
+# ╟─87d9af53-6782-40cc-a5da-fae2458c2f23
 # ╟─6a24c9f4-d294-11ef-20cc-172ea50da901
 # ╟─6a24cee0-d294-11ef-35cb-71ab9ef935e5
 # ╟─6a24d478-d294-11ef-2a75-9d03a5ba7ff8
