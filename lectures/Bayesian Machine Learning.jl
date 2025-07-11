@@ -21,6 +21,9 @@ using Plots, LaTeXStrings, Plots.PlotMeasures
 # ╔═╡ caba8eee-dfea-45bc-a8a7-1dd20a1fa994
 using PlutoUI, PlutoTeachingTools
 
+# ╔═╡ 2ce902bd-0f45-4129-8844-88175c5c3611
+using HypertextLiteral
+
 # ╔═╡ 6a23b828-d294-11ef-371a-05d061144a43
 md"""
 # Bayesian Machine Learning
@@ -51,25 +54,6 @@ md"""
 
     
 
-"""
-
-# ╔═╡ 6a24376c-d294-11ef-348a-e9027bd0ec29
-md"""
-$(challenge_header("Predicting a Coin Toss"))
-
-##### Problem 
-
-  * We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly: 
-
-```math
-D=\{1011001\}\,.
-```
-
-  * What is the probability that heads comes up next?
-
-##### Solution
-
-  * Later in this lecture. 
 """
 
 # ╔═╡ 6a24b9e4-d294-11ef-3ead-9d272fbf89be
@@ -146,13 +130,13 @@ md"""
 md"""
 ## 2. Parameter Estimation
 
-Note that, for a given (i.e., *observed*) data set ``D=\{x_1,x_2,\dots,x_N\}`` with *independent* observations ``x_n``, the likelihood factorizes as 
+You must now specify a likelihood function for the parameters from the data-generating distribution. Note that, for a given (i.e., *observed*) data set ``D=\{x_1,x_2,\dots,x_N\}`` with *independent* observations ``x_n``, the likelihood factorizes as 
 
 ```math
  p(D|\theta) = \prod_{n=1}^N p(x_n|\theta)\,.
 ```
 
-So, usually you select a model for generating one observation ``x_n`` and then use (in-)dependence assumptions to combine these models into a likelihood function for the model parameters.
+So, usually you select the data-generating distribution for one observation ``x_n`` and then use (in-)dependence assumptions to combine these models into a likelihood function for the model parameters.
 
 """
 
@@ -162,8 +146,7 @@ The likelihood and prior both contain information about the model parameters. Ne
 
 ```math
 \begin{align*}
-\underbrace{p(\theta|D) }_{\text{posterior}} &= \frac{p(D|\theta) p(\theta)}{p(D)} \\
-&= \frac{p(D|\theta) p(\theta)}{\int p(D|\theta) p(\theta) \mathrm{d}\theta}
+\underbrace{p(\theta|D) }_{\text{posterior}}  =\frac{\overbrace{p(D|\theta)}^{\text{likelihood}} \,\overbrace{p(\theta)}^{\text{prior}}}{\underbrace{\int p(D|\theta) p(\theta) \mathrm{d}\theta}_{p(D)\text{ (evidence)}}}
 \end{align*}
 ```
 
@@ -171,7 +154,7 @@ The likelihood and prior both contain information about the model parameters. Ne
 
 # ╔═╡ 6a254460-d294-11ef-1890-230b75b6b9ee
 md"""
-Note that there's **no need for you to design some clever parameter estimation algorithm**. Bayes rule *is* the parameter estimation algorithm, which can be entirely expressed in terms of the likelihood and prior. The only complexity lies in the computational issues! 
+Note that there's **no need for you to design some clever parameter estimation algorithm**. Bayes rule *is* the parameter estimation algorithm, which can be entirely expressed in terms of the likelihood and prior. The only complexity lies in the computational issues (in particular, the computational load of computing the evidence)! 
 
 """
 
@@ -201,7 +184,7 @@ In the framework above, parameter estimation was executed by "perfect" Bayesian 
 
 # ╔═╡ 6a257020-d294-11ef-0490-e151934b2f42
 md"""
-No, there appears to be one remaining problem: how good really were our model assumptions ``p(x|\theta)`` and ``p(\theta)``? We want to "score" the model performance.
+No, there appears to be one remaining problem: how good really were our assumptions ``p(x|\theta)`` and ``p(\theta)`` in the model specification phase? We want to "score" the model performance.
 
 """
 
@@ -213,7 +196,7 @@ Note that this question is only interesting in practice if we have alternative m
 
 # ╔═╡ 6a25a11e-d294-11ef-1c51-09482dad86f2
 md"""
-Let's assume that we have more candidate models, say ``\mathcal{M} = \{m_1,\ldots,m_K\}`` where each model relates to specific prior ``p(\theta|m_k)`` and likelihood ``p(D|\theta,m_k)``? Can we evaluate the relative performance of a model against another model from the set?
+Let's assume that we have more candidate models, say ``\mathcal{M} = \{m_1,\ldots,m_K\}`` where each model relates to a specific prior ``p(\theta|m_k)`` and likelihood ``p(D|\theta,m_k)``? Can we evaluate the relative performance of a model against another model from the set?
 
 """
 
@@ -294,7 +277,7 @@ p(m_k|D) &\propto p(D|m_k) p(m_k) \; &&\text{(model evaluation)}
 
 # ╔═╡ 6a26a31e-d294-11ef-2c2f-b349d0859a27
 md"""
-With the (relative) performance evaluation scores of your model in hand, you could now re-specify your model (hopefully an improved model) and *repeat* the design process until the model performance score is acceptable (see the [Bayesian modeling process](#Bayesian-modeling-recipe)). 
+With the (relative) performance evaluation scores of your model in hand, you could now re-specify your model (hopefully an improved model) and *repeat* the design process until the model performance score is acceptable (see the 4-step [Bayesian modeling process](#Bayesian-modeling-recipe) above). 
 
 """
 
@@ -353,7 +336,7 @@ Once we are satisfied with the evidence for a (trained) model, we can apply the 
 
 # ╔═╡ 6a271a56-d294-11ef-0046-add807cc0b4f
 md"""
-Given the data ``D``, our knowledge about the yet unobserved datum ``x`` is captured by the following inference problem (where everything is conditioned on the selected model):
+Given the data ``D``, our knowledge about a yet unobserved datum ``x`` is captured by the following inference problem (where everything is conditioned on the selected model):
 
 ```math
 \begin{align*}
@@ -367,7 +350,7 @@ p(x|D) &\stackrel{s}{=} \int p(x,\theta|D) \,\mathrm{d}\theta\\
 
 # ╔═╡ 6a272cc6-d294-11ef-2844-0fa9091f97de
 md"""
-In the last equation, the simplification ``p(x|\theta,D) = p(x|\theta)`` follows from our model specification. In particular, we assumed a *parametric* data generating distribution ``p(x|\theta)`` with no explicit dependency on the data set ``D``. The information from the data set ``D`` has been absorded in the posterior ``p(\theta|D)``, so all information from ``D`` is passed to ``x`` through the (posterior distribution over the) parameters ``\theta``. Technically, in our model specification, we assumed that ``x`` is conditionally independent from ``D``, given the parameters ``\theta``, i.e., we assumed ``p(x|\theta,D) = p(x|\theta)``.
+In the last equation, the simplification ``p(x|\theta,D) = p(x|\theta)`` follows from our model specification. In particular, we assumed a *parametric* data generating distribution ``p(x|\theta)`` with no explicit dependency on the data set ``D``. Technically, in our model specification, we assumed that ``x`` is conditionally independent from ``D``, given the parameters ``\theta``, i.e., we assumed ``p(x|\theta,D) = p(x|\theta)``. The information from the data set ``D`` has been absorbed in the posterior ``p(\theta|D)``, so all information from ``D`` is passed to a new observation ``x`` through the (posterior distribution over the) parameters ``\theta``. 
 
 """
 
@@ -419,12 +402,12 @@ p(\text{what-I-am-interested-in} \,|\, \text{all available information})\,.
 md"""
 ## We're Done!
 
-In principle, you now have the recipe in your hands now to solve all your prediction/classification/regression etc problems by the same method:
+In principle, you now have the recipe in your hands now to solve all your prediction/classification/regression/etc. problems by the same Bayesian modeling method:
 
-1. specify a model
-2. train the model (by PT)
-3. evaluate the model (by PT); if not satisfied, goto 1
-4. apply the model (by PT)
+	1. specify a model
+	2. train the model (by PT)
+	3. evaluate the model (by PT); if not satisfied, goto 1
+	4. apply the model (by PT)
 
 """
 
@@ -444,7 +427,7 @@ Your problems are only of computational nature. Perhaps the integral to compute 
 md"""
 ## Bayesian Evidence as a Model Performance Criterion
 
-I'd like to convince you that $(HTML("<span id='Bayesian-model-evidence'>Bayesian model evidence</span>")) is an excellent criterion for assessing your model's performance. To do so, let us consider a decomposition that relates model evidence to other highly-valued criteria such as **accuracy** and **model complexity**.
+I'd like to convince you that $(HTML("<span id='Bayesian-model-evidence'>Bayesian model evidence</span>")) ``p(D|m)`` is an excellent criterion for assessing your model's performance. To do so, let us consider a decomposition that relates model evidence to other highly-valued criteria such as **accuracy** and **model complexity**.
 
 """
 
@@ -477,7 +460,7 @@ The "accuracy" term (also known as data fit) measures how well the model predict
 
 # ╔═╡ 6a280132-d294-11ef-10ac-f3890cb3f78b
 md"""
-The second term (complexity) is technically a [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) (KLD) between the posterior and prior distributions, see [OPTIONAL SLIDE](#KLD). The KLD is an information-theoretic quantity that can be interpreted as a "distance" measure between two distributions. In other words, the complexity term measures how much the beliefs about ``\theta`` changed, due to learning from the data ``D``. Generally, we like the complexity term to be low, because moving away means forgetting previously acquired information represented by the prior. Indeed, lower complexity leads to higher model evidence.
+The second term ("complexity", also known as "information gain") is technically a [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) (KLD) between the posterior and prior distributions, see [OPTIONAL SLIDE](#KLD) below. The KLD is an information-theoretic quantity that can be interpreted as a "distance" measure between two distributions. In other words, the complexity term measures how much the beliefs about ``\theta`` changed, due to learning from the data ``D``. Generally, we like the complexity term to be low, because moving away means forgetting previously acquired information represented by the prior. Indeed, lower complexity leads to higher model evidence.
 
 """
 
@@ -489,7 +472,7 @@ Models with high evidence ``p(D|m)`` prefer both high accuracy and low complexit
 
 # ╔═╡ 6a282892-d294-11ef-2c12-4b1c7374617c
 md"""
-Focussing only on accuracy maximization could lead to *overfitting*. Focussing only on complexity minimization could lead to *underfitting* of the model. Bayesian ML attends to both terms and avoids both underfitting and overfitting.  
+Focussing only on accuracy maximization could lead to *overfitting* of the data set ``D``. Focussing only on complexity minimization could lead to *underfitting* of the data. Bayesian ML attends to both terms and avoids both underfitting and overfitting.  
 
 """
 
@@ -545,7 +528,7 @@ What is the probability that heads comes up next? We solve this in the next slid
 
 # ╔═╡ 6a28a704-d294-11ef-1bf2-efbdb0cb4cbc
 md"""
-## Coin toss example (1): Model Specification
+## 1. Model Specification for Coin Toss
 
 We observe a sequence of ``N`` coin tosses ``D=\{x_1,\ldots,x_N\}`` with ``n`` heads. 
 
@@ -614,11 +597,8 @@ so we get a closed-form posterior.
 
 # ╔═╡ 6a28f466-d294-11ef-3af9-e34de9736c71
 md"""
-```math
-\alpha
-```
 
-and ``\beta`` are called **hyperparameters**, since they parameterize the distribution for another parameter (``\mu``). E.g., ``\alpha=\beta=1`` leads to a uniform prior for ``\mu``. We use Julia below to visualize some priors ``\mathrm{Beta}(\mu|\alpha,\beta)`` for different values for ``\alpha, \beta``.
+``\alpha`` and ``\beta`` are called **hyperparameters**, since they parameterize the distribution for another parameter (``\mu``). E.g., ``\alpha=\beta=1`` leads to a uniform prior for ``\mu``. We use Julia below to visualize some priors ``\mathrm{Beta}(\mu|\alpha,\beta)`` for different values of ``\alpha, \beta``.
 
 """
 
@@ -646,7 +626,7 @@ let
 	
 	plot(plots...;
 		layout=(2, 2),
-		suptitle="PDFs of Beta Distributions",
+		suptitle="PDFs of some Beta distributions",
 		legend=:topleft,
 		link=:both, 
 		padding=10,
@@ -661,9 +641,9 @@ Before observing any data, you can express your state-of-knowledge about the coi
 
 # ╔═╡ 6a29bfcc-d294-11ef-30d9-59b2f7c49f0b
 md"""
-## Coin toss example (2): Parameter estimation
+## 2. Parameter Estimation for Coin Toss
 
-Infer posterior PDF over ``\mu`` (and evidence) through Bayes rule
+Next, infer the posterior PDF over ``\mu`` (and evidence) through Bayes rule
 
 ```math
 \begin{align*}
@@ -684,7 +664,7 @@ p(\mu|D) = \mathrm{Beta}(\mu|\,n+\alpha, N-n+\beta)
 
 # ╔═╡ 6a29d548-d294-11ef-1361-ad2230cad02b
 md"""
-## Coin toss example (3): Model Evaluation
+## 3. Model Evaluation for Coin Toss
 
 It follow from the above calculation that the evidence for model ``m`` can be analytically expressed as
 
@@ -698,7 +678,7 @@ The model evidence is a scalar. The absolute value is not important. However, yo
 
 # ╔═╡ 6a29e25e-d294-11ef-15ce-5bf3d8cdb64c
 md"""
-## Coin Toss Example (4): Prediction
+## 4. Prediction (Application) for Coin Toss
 
 Once we have accepted a model, let's apply it to the application, in this case, predicting future observations. 
 
@@ -803,12 +783,6 @@ For large ``N``, the gain goes to ``1`` and ``\left. p(x_\bullet=1|D)\right|_{N\
 
 """
 
-# ╔═╡ 6a2abb16-d294-11ef-0243-d376e8a39bb0
-md"""
-## Code Example: Bayesian evolution for the coin toss
-
-"""
-
 # ╔═╡ 6a2acb7e-d294-11ef-185c-9d49ce79c31b
 md"""
 Next, we code an example for a sequence of coin tosses, where we assume that the true coin generates data ``x_n \in \{0,1\}`` by a Bernoulli distribution:
@@ -819,12 +793,12 @@ p(x_n|\mu=0.4)=0.4^{x_n} \cdot 0.6^{1-x_n}
 
 So, this coin is biased!
 
-In order predict the outcomes of future coin tosses, we'll compare two models.
+To predict the outcomes of future coin tosses, we'll compare two models.
 
-All models have the same data generating distribution (also Bernoulli)
+Both models have the same data-generating distribution (also Bernoulli)
 
 ```math
-p(x_n|\mu,m_k) = \mu^{x_n} (1-\mu)^{1-x_n} \quad \text{for }k=1,2
+p(x_n|\mu,m_k) = \mu^{x_n} (1-\mu)^{1-x_n} \quad \text{for }k=1,2 \,,
 ```
 
 but they have different priors:
@@ -845,7 +819,7 @@ p(x_n=1|m_2) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_2} = 8/21 \approx 0.
 \end{align*}
 ```
 
-(But you are not supposed to know that the real coin has probability for heads ``p(x_n=1|\mu) = 0.4``.) 
+(but you are not supposed to know that the real coin has a probability ``0.4`` for heads.) 
 
 Let's run ``500`` tosses:
 
@@ -865,7 +839,7 @@ end
 n_tosses = 500                   # specify number of coin tosses
 
 # ╔═╡ 9c751f8e-f7ed-464f-b63c-41e318bbff2d
-samples = rand(n_tosses) .<= μ   # Flip 200 coins
+samples = rand(n_tosses) .<= μ   # Flip 500 coins
 
 # ╔═╡ e99e7650-bb72-4576-8f2a-c3994533b644
 function handle_coin_toss(prior::Beta, observation::Bool)
@@ -973,7 +947,7 @@ end
 
 # ╔═╡ 6a2b9676-d294-11ef-241a-89ff7aa676f9
 md"""
-Over time, the relative evidence of model ``m_1`` converges to 0. Can you explain this behavior?
+Over time, the relative evidence of model ``m_1`` converges to ``0``. Can you explain this behavior?
 
 """
 
@@ -986,7 +960,7 @@ md"""
 md"""
 ## From Posterior to Point-Estimate
 
-In the example above, Bayesian parameter estimation and prediction were tractable in closed-form. This is often not the case. We will need to approximate some of the computations. 
+In the example above, Bayesian parameter estimation and prediction were tractable in closed form. This is often not the case. In that case, we will need to approximate some of the computations. 
 
 """
 
@@ -1002,7 +976,7 @@ p(x|D) = \int p(x|\theta)p(\theta|D)\,\mathrm{d}{\theta}
 
 # ╔═╡ 6a2bf332-d294-11ef-1ff1-cdbfb7732cf1
 md"""
-If we approximate posterior ``p(\theta|D)`` by a delta function for one 'best' value ``\hat\theta``, then the predictive distribution collapses to
+If we approximate the posterior by a delta function, i.e., ``p(\theta|D) = \delta(\theta-\hat\theta)`` for one "best" value ``\hat\theta``, then the predictive distribution collapses to
 
 ```math
 p(x|D)= \int p(x|\theta)\,\delta(\theta-\hat\theta)\,\mathrm{d}{\theta} = p(x|\hat\theta)
@@ -1012,7 +986,7 @@ p(x|D)= \int p(x|\theta)\,\delta(\theta-\hat\theta)\,\mathrm{d}{\theta} = p(x|\h
 
 # ╔═╡ 6a2c008e-d294-11ef-2f07-11cdfb2bddca
 md"""
-This is just the data generating distribution ``p(x|\theta)`` evaluated at ``\theta=\hat\theta``, which is easy to evaluate.
+This is just the data-generating distribution ``p(x|\theta)`` evaluated at ``\theta=\hat\theta``, which is easy to evaluate.
 
 """
 
@@ -1026,10 +1000,10 @@ The next question is how to get the parameter estimate ``\hat{\theta}``? (See ne
 md"""
 ## Some Well-known Point-Estimates
 
-**Bayes estimate** (the mean of the posterior)
+- **Bayes estimate** (the mean of the posterior)
 
 ```math
-\hat \theta_{bayes}  = \int \theta \, p\left( \theta |D \right)
+\hat \theta_{\text{Bayes}}  = \int \theta \, p\left( \theta |D \right)
 \,\mathrm{d}{\theta}
 ```
 
@@ -1037,7 +1011,7 @@ md"""
 
 # ╔═╡ 6a2c3036-d294-11ef-23cb-c3b36c475e8f
 md"""
-**Maximum A Posteriori** (MAP) estimate 
+- **Maximum A Posteriori** (MAP) estimate 
 
 ```math
 \hat \theta_{\text{map}}=  \arg\max _{\theta} p\left( \theta |D \right) =
@@ -1048,13 +1022,19 @@ md"""
 
 # ╔═╡ 6a2c4058-d294-11ef-2312-d9c672d49701
 md"""
-**Maximum Likelihood** (ML) estimate
+- **Maximum Likelihood** (ML) estimate
 
 ```math
 \hat \theta_{ml}  = \arg \max_{\theta}  p\left(D |\theta\right)
 ```
 
-Note that Maximum Likelihood is MAP with uniform prior
+Note that Maximum Likelihood (ML) is MAP with a uniform prior. MAP is sometimes called a 'penalized' ML procedure:
+
+```math
+\hat \theta_{map}  = \arg \max _\theta  \{ \underbrace{\log
+p\left( D|\theta  \right)}_{\text{log-likelihood}} + \underbrace{\log
+p\left( \theta \right)}_{\text{penalty}} \}
+```
 
 ML is the most common approximation to the full Bayesian posterior.
 
@@ -1064,8 +1044,7 @@ ML is the most common approximation to the full Bayesian posterior.
 md"""
 ## Bayesian vs Maximum Likelihood Learning
 
-Consider the task: predict a datum ``x`` from an observed data set ``D``.
-
+Consider the task: predict a future observation ``x`` from an observed data set ``D``. Let us compare full Bayesian modeling with the maximum likelihood approach. 
 
 """
 
@@ -1074,7 +1053,7 @@ md"""
 
 |        | **Bayesian**             | **Maximum Likelihood**             |
 |:----|:---------|:-----|
-| 1. **Model Specification** | Choose a model ``m`` with data generating distribution ``p(x\|\theta, m)`` and parameter prior ``p(\theta\|m)``       | Choose a model ``m`` with same data generating distribution ``p(x\|\theta, m)``. No need for priors. |
+| 1. **Model Specification** | Choose a model ``m`` with data-generating distribution ``p(x\|\theta, m)`` and parameter prior ``p(\theta\|m)``.       | Choose a model ``m`` with same data generating distribution ``p(x\|\theta, m)``. No need for priors. |
 | 2. **Learning**             | Use Bayes rule to find the parameter posterior: $(HTML("<br>"))``p(\theta\|D) \propto p(D\|\theta) p(\theta)``                   | By Maximum Likelihood (ML) optimization: $(HTML("<br>")) ``\hat \theta = \arg \max_{\theta} p(D\|\theta)``         |
 | 3. **Prediction**           | ``p(x\|D) = \int p(x\|\theta) p(\theta\|D) \,\mathrm{d}\theta``                                                         | ``p(x\|D) = p(x\|\hat\theta)``                                                                   |
 
@@ -1085,13 +1064,7 @@ md"""
 md"""
 ## Report Card on Maximum Likelihood Estimation
 
-Maximum Likelihood (ML) is MAP with uniform prior. MAP is sometimes called a 'penalized' ML procedure:
 
-```math
-\hat \theta_{map}  = \arg \max _\theta  \{ \underbrace{\log
-p\left( D|\theta  \right)}_{\text{log-likelihood}} + \underbrace{\log
-p\left( \theta \right)}_{\text{penalty}} \}
-```
 
 """
 
@@ -1113,7 +1086,7 @@ md"""
 
 # ╔═╡ 6a2c8f4a-d294-11ef-213c-dfa929a403bc
 md"""
-(bad). Cannot be used for model comparison! When doing ML estimation, the Bayesian model evidence always evaluates to zero because the prior probability mass under the likelihood function goes to zero. Therefore, when doing ML estimation, Bayesian model evidence cannot be used to evaluate model performance: 
+(bad). Cannot be used for model comparison! When doing ML estimation, the Bayesian model evidence collapses because a uniform prior on the full real axis is not a "proper" probability distribution, in the sense that its integral does not evaluate to ``1``. As a result, when doing ML estimation, Bayesian model evidence cannot be used to evaluate model performance: 
 
 ```math
 \begin{align*}
@@ -1124,19 +1097,18 @@ md"""
 \end{align*}
 ```
 
-In fact, this is a serious problem because Bayesian evidence is fundamentally the correct performance assessment criterion that follows from straighforward PT. In practice, when estimating parameters by maximum likelihood, we often evaluate model performance by an *ad hoc* performance measure such as mean-squared-error on a testing data set.
+In fact, this is a serious disadvantage because Bayesian evidence is a principled performance assessment criterion that follows from straightforward PT. In practice, when estimating parameters by maximum likelihood, we often evaluate model performance by an *ad hoc* performance measure such as mean-squared-error on a testing data set.
 
 """
 
 # ╔═╡ 6a2ca496-d294-11ef-0043-1f350b36773e
-md"""
-```math
-\Rightarrow
-```
+keyconcept(" ", 
+	md"""
+	
+	**Maximum Likelihood estimation is at best an approximation to Bayesian learning**, but for good reason, a very popular learning method when faced with lots of available data.
+	"""
+)
 
-**Maximum Likelihood estimation is at best an approximation to Bayesian learning**, but for good reason a very popular learning method when faced with lots of available data.
-
-"""
 
 # ╔═╡ 6a2cb25e-d294-11ef-1d88-1fc784b33df0
 md"""
@@ -1239,10 +1211,96 @@ md"""
 # Appendix
 """
 
+# ╔═╡ 21e2c354-0578-417a-9338-2d3a174e2e7b
+challenge_header(
+	title; 
+	color="green",
+	big::Bool=false,
+	header_level::Int=2,
+	challenge_text="Challenge:",
+) = HypertextLiteral.@htl """
+<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
+	
+<style>
+.ptt-section::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: -25px;
+	right: -6px;
+	top: -4px;
+	height: 200px;
+	border: 4px solid salmon;
+	border-bottom: none;
+	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
+	border-image-slice: 1;
+	opacity: .7;
+	pointer-events: none;
+}
+
+.big.ptt-section::before {
+	height: 500px;
+}
+	
+
+.ptt-section > span {
+	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
+	@media (prefers-color-scheme: dark) {
+		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
+	}
+	font-style: italic;
+}
+
+	
+</style>
+"""
+
+# ╔═╡ 6a24376c-d294-11ef-348a-e9027bd0ec29
+md"""
+$(challenge_header("Predicting a Coin Toss"))
+
+##### Problem 
+
+  * We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly: 
+
+```math
+D=\{1011001\}\,.
+```
+
+  * What is the probability that heads comes up next?
+
+##### Solution
+
+  * Later in this lecture. 
+"""
+
+# ╔═╡ 6a2abb16-d294-11ef-0243-d376e8a39bb0
+md"""
+$(challenge_header("Bayesian Evolution for the Coin Toss", challenge_text="Code Example:"))
+
+"""
+
+# ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
+md"""
+$(challenge_header("Causality?"; challenge_text="Inference Exercise:"))
+
+##### Problem 
+
+A dark bag contains five red balls and seven green ones. 
+
+- (a) What is the probability of drawing a red ball on the first draw? 
+
+Balls are not returned to the bag after each draw. 
+
+- (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
+
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
@@ -1252,6 +1310,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 Distributions = "~0.25.119"
+HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
 PlutoTeachingTools = "~0.3.1"
@@ -1266,7 +1325,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "a8aa3c3f36fc00b548ff6926273f24a22c260f2b"
+project_hash = "2092d1dbc0b8961ad781c6b9ec3e89b7ace86a1e"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -2816,14 +2875,14 @@ version = "1.8.1+0"
 # ╟─6a26b7bc-d294-11ef-03e7-2715b6f8dcc7
 # ╟─6a26f244-d294-11ef-0488-c1e4ec6e739d
 # ╟─6a2707e6-d294-11ef-02ad-31bf84662c70
-# ╠═6a271a56-d294-11ef-0046-add807cc0b4f
+# ╟─6a271a56-d294-11ef-0046-add807cc0b4f
 # ╟─6a272cc6-d294-11ef-2844-0fa9091f97de
 # ╟─6a273ae0-d294-11ef-2c00-9b3eaed93f6d
 # ╟─6a274948-d294-11ef-0563-1796b8883306
-# ╠═6a275a52-d294-11ef-1323-9d83972f611a
+# ╟─6a275a52-d294-11ef-1323-9d83972f611a
 # ╟─6a27684e-d294-11ef-040e-c302cdad714a
 # ╟─6a2777d0-d294-11ef-1ac3-add102c097d6
-# ╠═6a278784-d294-11ef-11ae-65bd398910d5
+# ╟─6a278784-d294-11ef-11ae-65bd398910d5
 # ╟─6a27951c-d294-11ef-2e1a-b5a4ce84aceb
 # ╟─6a27a28a-d294-11ef-1f33-41b444761429
 # ╟─6a27b114-d294-11ef-099d-1d55968934a6
@@ -2837,17 +2896,17 @@ version = "1.8.1+0"
 # ╟─6a2879e6-d294-11ef-37db-df7babe24d25
 # ╟─6a2889ae-d294-11ef-2439-e1a541a5ccd7
 # ╟─c050f468-7eec-403f-9304-552bd0d9b222
-# ╠═6a2898ea-d294-11ef-39ec-31e4bac1e048
+# ╟─6a2898ea-d294-11ef-39ec-31e4bac1e048
 # ╟─6a28a704-d294-11ef-1bf2-efbdb0cb4cbc
 # ╟─6a28b44c-d294-11ef-15da-81be8753d311
-# ╠═6a28c9b4-d294-11ef-222b-97bf0912efe7
+# ╟─6a28c9b4-d294-11ef-222b-97bf0912efe7
 # ╟─6a28d81e-d294-11ef-2a9f-d32daa5556ae
 # ╟─6a28e674-d294-11ef-391b-0d33fd609fb8
 # ╟─6a28f466-d294-11ef-3af9-e34de9736c71
 # ╠═df312e6a-503f-486f-b7ec-15404070960c
-# ╠═3987d441-b9c8-4bb1-8b2d-0cc78d78819e
-# ╠═51bed1cc-c960-46fe-bc09-2b684df3b0cc
-# ╠═513414c7-0a54-4767-a583-7d779f8fbc55
+# ╟─3987d441-b9c8-4bb1-8b2d-0cc78d78819e
+# ╟─51bed1cc-c960-46fe-bc09-2b684df3b0cc
+# ╟─513414c7-0a54-4767-a583-7d779f8fbc55
 # ╟─6a294790-d294-11ef-270b-5b2152431426
 # ╟─6a29bfcc-d294-11ef-30d9-59b2f7c49f0b
 # ╟─6a29d548-d294-11ef-1361-ad2230cad02b
@@ -2856,7 +2915,7 @@ version = "1.8.1+0"
 # ╟─6a2a000e-d294-11ef-17d6-bdcddeedc65d
 # ╟─6a2a0f18-d294-11ef-02c2-ef117377ca66
 # ╟─6a2a1daa-d294-11ef-2a67-9f2ac60a14c5
-# ╠═6a2a2af2-d294-11ef-0072-bdc3c6f95bb3
+# ╟─6a2a2af2-d294-11ef-0072-bdc3c6f95bb3
 # ╟─6a2a389e-d294-11ef-1b8c-b55de794b65c
 # ╟─6a2a465e-d294-11ef-2aa0-43c954a6439e
 # ╟─6a2a5496-d294-11ef-0f1a-e9a70c44288a
@@ -2864,13 +2923,13 @@ version = "1.8.1+0"
 # ╟─6a2aad42-d294-11ef-3129-3be5be8c82d6
 # ╟─6a2abb16-d294-11ef-0243-d376e8a39bb0
 # ╟─6a2acb7e-d294-11ef-185c-9d49ce79c31b
-# ╠═51829800-1781-49ae-8ee7-ac15c0bfcb88
-# ╠═de7a1b82-f1c4-4eff-b372-ac76cf11c015
-# ╠═d1d2bb84-7083-435a-9c19-4c02074143e3
-# ╠═9c751f8e-f7ed-464f-b63c-41e318bbff2d
-# ╠═e99e7650-bb72-4576-8f2a-c3994533b644
-# ╠═7a624d2f-812a-47a0-a609-9fe299de94f5
-# ╠═3a903a4d-1fb0-4566-8151-9c86dfc40ceb
+# ╟─51829800-1781-49ae-8ee7-ac15c0bfcb88
+# ╟─de7a1b82-f1c4-4eff-b372-ac76cf11c015
+# ╟─d1d2bb84-7083-435a-9c19-4c02074143e3
+# ╟─9c751f8e-f7ed-464f-b63c-41e318bbff2d
+# ╟─e99e7650-bb72-4576-8f2a-c3994533b644
+# ╟─7a624d2f-812a-47a0-a609-9fe299de94f5
+# ╟─3a903a4d-1fb0-4566-8151-9c86dfc40ceb
 # ╟─6a2af90a-d294-11ef-07bd-018326577791
 # ╠═6a2b1106-d294-11ef-0d64-dbc26ba3eb44
 # ╟─6a2b1f5a-d294-11ef-25d0-e996c07958b9
@@ -2878,7 +2937,7 @@ version = "1.8.1+0"
 # ╟─6a2b3ba4-d294-11ef-3c28-176be260cb15
 # ╠═c69c591f-1947-4b07-badb-3882fd097785
 # ╠═188b5bea-6765-4dcf-9369-3b1fdbe94494
-# ╟─6a2b9676-d294-11ef-241a-89ff7aa676f9
+# ╠═6a2b9676-d294-11ef-241a-89ff7aa676f9
 # ╟─9c5d7c89-f65c-4f52-9e49-14692bed2452
 # ╟─6a2bb18a-d294-11ef-23bb-99082caf6e01
 # ╟─6a2bd3ac-d294-11ef-0543-6fe202ca35b6
@@ -2903,7 +2962,10 @@ version = "1.8.1+0"
 # ╠═b47a2e71-48bb-4cc7-9a14-c0e654c5d2f8
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
 # ╠═7bf0fde7-b201-4646-9934-ec93e661cf22
+# ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
+# ╟─2ce902bd-0f45-4129-8844-88175c5c3611
+# ╠═21e2c354-0578-417a-9338-2d3a174e2e7b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
