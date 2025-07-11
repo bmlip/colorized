@@ -48,31 +48,32 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
-  * Review of Probability Theory as a theory for rational/logical reasoning with uncertainties (i.e., a Bayesian interpretation)
+- Review of Probability Theory as a theory for rational/logical reasoning with uncertainties (i.e., a Bayesian interpretation)
 
-Materials        
+##### Materials        
 
-  * Mandatory
+- Mandatory
 
-      * These lecture notes
-  * Optional
+  - These lecture notes
 
-      * Bishop pp. 12-24
-      * [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
+- Optional
 
-          * Great introduction to probability theory, in particular w.r.t. its correct interpretation as a state-of-knowledge.
-          * Absolutely worth your time to read the whole chapter, even if you skip section 2.2.4 (pp.15-18) on Cox's proof.
-      * [Edwin Jaynes, Probability Theory–The Logic of Science (2003)](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf). 
+  - Bishop pp. 12-24
+      
+  - [Edwin Jaynes, Probability Theory–The Logic of Science (2003)](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf). 
+    - Brilliant book on the Bayesian view of probability theory. Just for fun, scan the annotated bibliography and references.
 
-          * Brilliant book on Bayesian view on probability theory. Just for fun, scan the annotated bibliography and references.
-      * [Aubrey Clayton, Bernoulli's Fallacy–Statistical Illogic and the Crisis of Modern Science (2021)](https://aubreyclayton.com/bernoulli)
+  - [Aubrey Clayton, Bernoulli's Fallacy–Statistical Illogic and the Crisis of Modern Science (2021)](https://aubreyclayton.com/bernoulli)
+    - A very readable account of the history of statistics and probability theory. Discusses why most popular statistics recipes are very poor scientific analysis tools. Use probability theory instead!
 
-          * A very readable account on the history of statistics and probability theory. Discusses why most popular statistics recipes are very poor scientific analysis tools. Use probability theory instead!
-      * [Joram Soch et al ., The Book of Statistical Proofs (2023 - )](https://statproofbook.github.io/)
+  - [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
+    - Great introduction to probability theory, in particular w.r.t. its correct interpretation as a state-of-knowledge.
+    - Absolutely worth your time to read the whole chapter, even if you skip section 2.2.4 (pp.15-18) on Cox's proof.
 
-          * On-line resource for proofs in probability theory and statistical inference.
+  - [Joram Soch et al ., The Book of Statistical Proofs (2023 - )](https://statproofbook.github.io/)
+    - Online resource for proofs in probability theory and statistical inference.
 
 """
 
@@ -94,15 +95,14 @@ In this lesson we introduce *Probability Theory* (PT) again. As we will see in t
 
 """
 
-# ╔═╡ 3e1876f8-d294-11ef-22bf-7904df3c1182
+# ╔═╡ 840ab4dc-0d2e-4bf8-acc7-5f1ee2b0dcaf
 md"""
-**Solution**: Use probabilistic inference, to be discussed in this lecture. 
-
+# Probability Theory as Rational Reasoning
 """
 
-# ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
+# ╔═╡ 41bee964-a0a9-4a7f-8505-54a9ee12ef0d
 md"""
-# The Design of Probability Theory
+## Propositional (Boolean) Logic 
 
 Define an **event** (or "proposition") ``A`` as a statement that can be considered for its truth by a person. For instance, 
 
@@ -110,25 +110,47 @@ Define an **event** (or "proposition") ``A`` as a statement that can be consider
 𝐴= \texttt{``there is life on Mars''}
 ```
 
-If we assume the fact 
+Boolean logic (or propositional logic) is a formal system of logic based on binary truth values: every proposition is either true (with assigned value ``1``) or false (with assigned value ``0``). It is named after George Boole, who developed the algebraic formulation of logic in the mid-19th century.
+
+With Boolean operators (``\lor``, ``\land``, ``\implies``, etc.), we can create and evaluate compound propositions, e.g.,
+
+- Given two events ``A`` and ``B``, the **conjunction** (logical-and) ``A \land B`` is true only if both ``A`` and ``B`` are true. We write ``A \land B`` also shortly as ``A,B`` or ``AB``. 
+
+- The **disjunction** (logical-or) ``A \lor B``, is true if either ``A`` or ``B`` is true or both ``A`` and ``B`` are true. We write ``A \lor B`` also as ``A + B`` (Note that the plus-sign is here not an arithmetic operator, but rather a logical operator to process truth values.)
+
+- The denial of ``A``, i.e., the event **not**-A, is written as ``\bar{A}``. 
+
+Boolean logic provides the rules of inference for **deductive reasoning** and underpins all formal reasoning systems in mathematics and philosophy. 
+"""
+
+# ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
+md"""
+## The Design of Probability Theory
+
+Consider the truth value of the proposition 
+```math
+𝐴= \texttt{``there is life on Mars''}
+```
+
+with 
 
 ```math
 I = \texttt{``All known life forms require water''}
 ```
 
-as background information, and a new piece of information 
+as background information. Now assume that a new piece of information 
 
 ```math
 x = \texttt{``There is water on Mars''}
 ```
 
-becomes available, how *should* our degree of belief in event ``A`` be affected *if we were rational*? 
+becomes available, how **should** our degree of belief in event ``A`` be affected *if we were rational*? 
 
 """
 
 # ╔═╡ 3e18b2fa-d294-11ef-1255-df048f0dcec2
 md"""
-[Richard T. Cox (1946)](https://aapt.scitation.org/doi/10.1119/1.1990764) developed a **calculus for rational reasoning** about how to represent and update the degree of *beliefs* about the truth value of events when faced with new information.  
+[Richard T. Cox (1946)](https://aapt.scitation.org/doi/10.1119/1.1990764) developed a **calculus for rational reasoning** about how to represent and update the **degree-of-belief** about the truth value of an event when faced with new information.  
 
 """
 
@@ -136,15 +158,39 @@ md"""
 md"""
 In developing this calculus, only some very agreeable assumptions were made, including:
 
-  * (Representation). Degrees of rational belief (or, as we shall later call them, probabilities) about the truth value of propositions are represented by real numbers.
-  * (Transitivity). If the belief in ``A`` is greater than the belief in ``B``, and the belief in ``B`` is greater than the belief in ``C``, then the belief in ``A`` must be greater than the belief in ``C``.
-  * (Consistency). If the belief in an event can be inferred in two different ways, then the two ways must agree on the resulting belief.
+- Degrees of plausibility are represented by real numbers.
+
+- Plausibility assessments are consistent, e.g.,
+  - if ``A`` becomes more plausible under new information ``B``, the assigned plausibility should increase accordingly.
+  - If the belief in ``A`` is greater than the belief in ``B``, and the belief in ``B`` is greater than the belief in ``C``, then the belief in ``A`` must be greater than the belief in ``C``.
+
+- Logical equivalences are preserved, e.g., 
+  - If the belief in an event can be inferred in two different ways, then the two ways must agree on the resulting belief.
 
 """
 
 # ╔═╡ 3e18d2ea-d294-11ef-35e9-2332dd31dbf0
 md"""
-This effort resulted in confirming that the **sum and product rules of Probability Theory** [(to be discussed below)](#PT-calculus) are the **only** proper rational way to process belief intensities. 
+Under these assumptions, Cox showed that any consistent system of reasoning about uncertainty must obey the **rules of probability theory** (see [Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26). These rules are the sum and product rules:
+
+##### The sum rule
+
+- The degree of belief in the disjunction of two events ``A`` and ``B``, with given background information ``I``, is evaluated as
+
+```math
+ p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
+```
+
+##### The product rule: 
+
+- The degree of belief in the conjunction of two events ``A`` and ``B``, with given background information ``I``, is evaluated as
+
+```math
+ p(A,B|I) = p(A|B,I)\,p(B|I)
+```
+
+Cox’s Theorem derives the rules of probability theory from first principles, not as arbitrary postulates but as consequences of rational reasoning. 
+In other words: **Probability = extended logic**.
 
 """
 
@@ -152,7 +198,7 @@ This effort resulted in confirming that the **sum and product rules of Probabili
 keyconcept(" ", 
 	md"""
 	
-	Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
+	If you want to assign real numbers to **degrees of belief**, and you want those assignments to be logically consistent, then you are **forced to follow the sum and product rules of probability theory** (PT). PT is therefore the **optimal calculus for information processing under uncertainty**.  
 	
 	"""
 )
@@ -179,7 +225,7 @@ where ``p(a|b)`` means the probability that ``a`` is true, given that ``b`` is t
 
 # ╔═╡ 3e191b6c-d294-11ef-3174-d1b4b36e252b
 md"""
-#### Examples
+##### Examples
 
   * Predictions
 
@@ -253,41 +299,9 @@ In this class, we aim to turn on the headlights and illuminate the elegance and 
 
 """
 
-# ╔═╡ 3e19a2a0-d294-11ef-18b4-7987534916d2
-md"""
-## Events
-
-Technically, a probability expresses a degree-of-belief in the truth value of an event. Let's first define an event. 
-
-We define an **event** ``A`` as a statement, whose truth can be contemplated by a person, e.g.,
-
-```math
-A = \text{`it will rain tomorrow'}
-```
-
-"""
-
-# ╔═╡ 3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
-md"""
-We write the denial of ``A``, i.e., the event **not**-A, as ``\bar{A}``. 
-
-"""
-
-# ╔═╡ 3e19c06c-d294-11ef-197a-f549e8107a57
-md"""
-Events can be logically combined to create new events. Given two events ``A`` and ``B``, we will shortly write the **conjunction** (logical-and) ``A \wedge B`` as ``A,B`` or ``AB``. The conjunction ``AB`` is true only if both ``A`` and ``B`` are true. 
-
-"""
-
-# ╔═╡ 3e19d39a-d294-11ef-1a50-7fe8a24777dc
-md"""
-We will write the **disjunction** (logical-or) ``A \lor B`` also as ``A + B``, which is true if either ``A`` or ``B`` is true or both ``A`` and ``B`` are true. (Note that the plus-sign is not an arithmetic here but rather a logical operator to process truth values). 
-
-"""
-
 # ╔═╡ 3e19e95a-d294-11ef-3da4-6d23922a5150
 md"""
-## Probability
+## Properties and Notational Conventions in Probability Theory 
 
 For any event ``A``, with background knowledge ``I``, the **conditional probability of ``A`` given ``I``**, is written as 
 
@@ -306,19 +320,19 @@ In principle, all probabilities are conditional probabilities of the type ``p(A|
 
 # ╔═╡ 3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 md"""
-The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that 
+The expression ``p(A,B)`` for the probability of the conjuction ``A \land B`` is also called the **joint probability** of events ``A`` and ``B``. Note that 
 
 ```math
 p(A,B) = p(B,A)\,,
 ```
 
-since ``AB = BA``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
+since ``A\land B = B \land A``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
 
 """
 
 # ╔═╡ 3e1a69f4-d294-11ef-103e-efc47025fb8f
 md"""
-Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
+If ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
 
 """
 
@@ -333,12 +347,6 @@ md"""
 If ``X`` is *continuously* valued, then ``p(X=x)`` is a probability *density* function (PDF) with ``p(X=x)\ge 0``  and normalization ``\int_x p(x)\mathrm{d}x=1``. 
 
   * Note that if ``X`` is continuously valued, then the value of ``p(x)`` is not necessarily ``\le 1``. E.g., a uniform distribution on the continuous domain ``[0,.5]`` has value ``p(x) = 2`` over its domain.
-
-"""
-
-# ╔═╡ 3e1a9fdc-d294-11ef-288f-37fd1b7ee281
-md"""
-The notational conventions in PT are unfortunately a bit sloppy:( For instance, in the context of a variable ``X``, we often write ``p(x)`` rather than ``p(X=x)``, assuming that the reader understands the context.  
 
 """
 
@@ -1220,8 +1228,11 @@ challenge_header(
 md"""
 $(challenge_header("Disease Diagnosis"))
 
-**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
+##### Problem
+  - Given is a disease with a prevalence of 1%  and a test procedure with sensitivity ('true positive' rate) of 95%, and specificity ('true negative' rate) of 85%. What is the chance that somebody who tests positive actually has the disease?
 
+##### Solution
+  - Use probabilistic inference, to be discussed in this lecture. 
 """
 
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
@@ -2591,7 +2602,8 @@ version = "1.8.1+0"
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
 # ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
-# ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
+# ╟─840ab4dc-0d2e-4bf8-acc7-5f1ee2b0dcaf
+# ╟─41bee964-a0a9-4a7f-8505-54a9ee12ef0d
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
 # ╟─3e18b2fa-d294-11ef-1255-df048f0dcec2
 # ╟─3e18c25c-d294-11ef-11bc-a93c2572b107
@@ -2607,21 +2619,16 @@ version = "1.8.1+0"
 # ╟─3e196d6a-d294-11ef-0795-41c045079251
 # ╟─3e198336-d294-11ef-26fd-03cd15876486
 # ╟─3e198ba6-d294-11ef-3fe7-d70bf4833fa6
-# ╟─3e19a2a0-d294-11ef-18b4-7987534916d2
-# ╟─3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
-# ╟─3e19c06c-d294-11ef-197a-f549e8107a57
-# ╟─3e19d39a-d294-11ef-1a50-7fe8a24777dc
 # ╟─3e19e95a-d294-11ef-3da4-6d23922a5150
 # ╟─3e1a36b4-d294-11ef-2242-f36061b0b754
 # ╟─3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 # ╟─3e1a69f4-d294-11ef-103e-efc47025fb8f
 # ╟─3e1a7c8e-d294-11ef-1f97-55e608d49141
 # ╟─3e1a8eca-d294-11ef-1ef0-c15b24d05990
-# ╟─3e1a9fdc-d294-11ef-288f-37fd1b7ee281
 # ╟─3e1ab104-d294-11ef-1a98-412946949fba
-# ╟─3e1ac32c-d294-11ef-13be-558397a6cc2a
-# ╟─3e1ad2ea-d294-11ef-02c4-3f06e14ea4d8
-# ╟─3e1ae30a-d294-11ef-3a5d-d91b7d7723d3
+# ╠═3e1ac32c-d294-11ef-13be-558397a6cc2a
+# ╠═3e1ad2ea-d294-11ef-02c4-3f06e14ea4d8
+# ╠═3e1ae30a-d294-11ef-3a5d-d91b7d7723d3
 # ╟─3e1af354-d294-11ef-1971-dfb39016cfcd
 # ╟─3e1b05ee-d294-11ef-33de-efed64d01c0d
 # ╟─3e1b4b1c-d294-11ef-0423-9152887cc403
