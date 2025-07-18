@@ -1,8 +1,11 @@
 ### A Pluto.jl notebook ###
-# v0.20.6
+# v0.20.8
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
+using PlutoUI, PlutoTeachingTools
 
 # ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
 using Distributions, Plots, LaTeXStrings
@@ -18,6 +21,9 @@ md"""
 # Continuous Data and the Gaussian Distribution
 
 """
+
+# ╔═╡ 5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
+PlutoUI.TableOfContents()
 
 # ╔═╡ b9a46c3e-d294-11ef-116f-9b97e0118e5b
 md"""
@@ -69,25 +75,34 @@ end
 # ╔═╡ 02853a5c-f6aa-4af8-8a25-bfffd4b96afc
 md"""
 
-**Problem**: Consider a set of observations ``D=\{x_1,…,x_N\}`` in the 2-dimensional plane (see Figure). All observations were generated using the same process. We now draw an extra observation ``x_\bullet = (a,b)`` from the same data-generating process. What is the probability that ``x_\bullet`` lies within the shaded rectangle ``S``?
+##### Problem 
+
+- Consider a set of observations ``D=\{x_1,…,x_N\}`` in the 2-dimensional plane (see Figure). All observations were generated using the same process. We now draw an extra observation ``x_\bullet = (a,b)`` from the same data-generating process. What is the probability that ``x_\bullet`` lies within the shaded rectangle ``S = \{ (x,y) \in \mathbb{R}^2 | 0 \leq x \leq 2, 1 \leq y \leq 2 \} ``?
 
 
-**Solution**: See later in this lecture. 
+##### Solution 
+
+- See later in this lecture. 
+"""
+
+# ╔═╡ 71f1c8ee-3b65-4ef8-b36f-3822837de410
+md"""
+# The Gaussian Distribution
 """
 
 # ╔═╡ b9a4eb62-d294-11ef-06fa-af1f586cbc15
 md"""
-## The Gaussian Distribution
+## The Moment and Canonical (Natural) Parameterizations
 
-Consider a random (vector) variable ``x \in \mathbb{R}^M`` that is "normally" (i.e., Gaussian) distributed. The *moment* parameterization of the Gaussian distribution is completely specified by its *mean* ``\mu`` and *variance* ``\Sigma`` and given by
+Consider a random (vector) variable ``x \in \mathbb{R}^M`` that is "normally" (i.e., Gaussian) distributed. The *moment* parameterization of the Gaussian distribution is completely specified by its *mean* ``\mu`` and *variance* ``\Sigma`` parameters, and given by
 
 ```math
-p(x | \mu, \Sigma) = \mathcal{N}(x|\mu,\Sigma) \triangleq \frac{1}{\sqrt{(2\pi)^M |\Sigma|}} \,\exp\left(-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu) \right)\,.
+p(x | \mu, \Sigma) = \mathcal{N}(x|\mu,\Sigma) \triangleq \frac{1}{\sqrt{(2\pi)^M |\Sigma|}} \,\exp\left(-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu) \right)\,,
 ```
 
 where ``|\Sigma| \triangleq \mathrm{det}(\Sigma)`` is the determinant of ``\Sigma``.  
 
-For the scalar real variable ``x \in \mathbb{R}``, this works out to 
+For a scalar real variable ``x \in \mathbb{R}``, this works out to 
 
 ```math
 p(x | \mu, \sigma^2) =  \frac{1}{\sqrt{2\pi\sigma^2 }} \,\exp\left(-\frac{(x-\mu)^2}{2 \sigma^2} \right)\,.
@@ -103,7 +118,7 @@ Alternatively, the $(HTML("<span id='natural-parameterization'></span>"))*canoni
 
 ```math
 \begin{equation*}
-p(x | \eta, \Lambda) = \mathcal{N}_c(x|\eta,\Lambda)  = \exp\left( a + \eta^T x - \frac{1}{2}x^T \Lambda x \right) \,.
+p(x | \eta, \Lambda) = \mathcal{N}_c(x|\eta,\Lambda)  = \exp\left( a + \eta^T x - \frac{1}{2}x^T \Lambda x \right) \,,
 \end{equation*}
 ```
 where
@@ -111,13 +126,13 @@ where
 a = -\frac{1}{2} \left( M \log(2 \pi) - \log |\Lambda| + \eta^T \Lambda \eta\right)
 ```
 
-is the normalizing constant that ensures that ``\int p(x)\mathrm{d}x = 1``, and
+is the *normalizing* constant that ensures that ``\int p(x)\mathrm{d}x = 1``, and
 
 ```math
 \Lambda = \Sigma^{-1}
 ```
 
-is called the *precision matrix*. The parameter
+is called the *precision* matrix. The parameter
 
 ```math
 \eta = \Sigma^{-1} \mu
@@ -152,6 +167,11 @@ md"""
     * The product of two Gaussian functions is another Gaussian function (useful in Bayes rule).
     * The Fourier transform of a Gaussian function is another Gaussian function.
 
+"""
+
+# ╔═╡ 9501922f-b928-46e2-8f23-8eb9c64f6198
+md"""
+# Computing with Gaussians
 """
 
 # ╔═╡ b9a5889c-d294-11ef-266e-d90225222e10
@@ -1116,6 +1136,8 @@ HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
@@ -1123,6 +1145,8 @@ Distributions = "~0.25.119"
 HCubature = "~1.7.0"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.12"
+PlutoTeachingTools = "~0.4.1"
+PlutoUI = "~0.7.68"
 SpecialFunctions = "~2.5.0"
 """
 
@@ -1130,9 +1154,15 @@ SpecialFunctions = "~2.5.0"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "76ad9d6f2c47171f582d2fba60e98339da2f2540"
+project_hash = "f95dbb0e55646854480e4216393a9e5b5becaf1e"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -1433,6 +1463,24 @@ git-tree-sha1 = "68c173f4f449de5b438ee67ed0c9c748dc31a2ec"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.28"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.5"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -1608,6 +1656,11 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "1.1.0"
+
 [[deps.MacroTools]]
 git-tree-sha1 = "72aebe0b5051e5143a079a4685a46da330a40472"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
@@ -1672,7 +1725,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1772,6 +1825,18 @@ version = "1.40.12"
     IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[[deps.PlutoTeachingTools]]
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "537c439831c0f8d37265efe850ee5c0d9c7efbe4"
+uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
+version = "0.4.1"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.68"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2033,6 +2098,11 @@ version = "1.11.0"
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
+
+[[deps.Tricks]]
+git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.10"
 
 [[deps.URIs]]
 git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
@@ -2366,15 +2436,19 @@ version = "1.4.1+2"
 
 # ╔═╡ Cell order:
 # ╟─b9a38e20-d294-11ef-166b-b5597125ed6d
+# ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
+# ╠═5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
 # ╟─b9a46c3e-d294-11ef-116f-9b97e0118e5b
 # ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
 # ╟─b9a48c60-d294-11ef-3b90-03053fcd82fb
 # ╠═ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
 # ╟─02853a5c-f6aa-4af8-8a25-bfffd4b96afc
+# ╟─71f1c8ee-3b65-4ef8-b36f-3822837de410
 # ╟─b9a4eb62-d294-11ef-06fa-af1f586cbc15
 # ╟─b9a50d0c-d294-11ef-0e60-2386cf289478
 # ╟─b9a52b18-d294-11ef-2d42-19c5e3ef3549
 # ╟─b9a5589a-d294-11ef-3fc3-0552a69df7b2
+# ╟─9501922f-b928-46e2-8f23-8eb9c64f6198
 # ╟─b9a5889c-d294-11ef-266e-d90225222e10
 # ╟─b9a59e06-d294-11ef-3f2e-4b2664ad6e7d
 # ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
