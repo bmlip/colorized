@@ -7,14 +7,29 @@ using InteractiveUtils
 # ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
 using PlutoUI, PlutoTeachingTools
 
+# ╔═╡ 69d951b6-58b3-4ce2-af44-4cb799e453ff
+using HypertextLiteral
+
 # ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
 using Distributions, Plots, LaTeXStrings
 
-# ╔═╡ cb1df581-c42b-4afd-b090-37f5228dc75d
-using SpecialFunctions
-
 # ╔═╡ 5638c1d0-db95-49e4-bd80-528f79f2947e
 using HCubature, LinearAlgebra# Numerical integration package
+
+# ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
+begin
+  using SpecialFunctions
+  let
+	X = Normal(0, 1)
+	Y = Normal(0, 1)
+	pdf_product_std_normals(z::Real) = besselk(0, abs(z))/π
+	
+	range1 = range(-4,stop=4,length=100)
+	plot(range1, t -> pdf(X, t); label=L"p(X)=p(Y)=\mathcal{N}(0,1)", fill=(0, 0.1))
+	plot!(range1, t -> pdf(X,t)*pdf(Y,t); label=L"p(X)*p(Y)", fill=(0, 0.1))
+	plot!(range1, pdf_product_std_normals; label=L"p(Z=X*Y)", fill=(0, 0.1))
+  end
+end
 
 # ╔═╡ b9a38e20-d294-11ef-166b-b5597125ed6d
 md"""
@@ -51,9 +66,9 @@ Materials
 
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
-## Challenge
+## Challenge: Classify a Gaussian Sample Point
 
-Consider a data set as shown in the below figure
+Consider a data set as shown in the figure below
 
 """
 
@@ -92,7 +107,7 @@ md"""
 
 # ╔═╡ b9a4eb62-d294-11ef-06fa-af1f586cbc15
 md"""
-## The Moment and Canonical (Natural) Parameterizations
+## The Moment Parameterization 
 
 Consider a random (vector) variable ``x \in \mathbb{R}^M`` that is "normally" (i.e., Gaussian) distributed. The *moment* parameterization of the Gaussian distribution is completely specified by its *mean* ``\mu`` and *variance* ``\Sigma`` parameters, and given by
 
@@ -114,6 +129,9 @@ It is common to write the (scalar) variance parameter as `` \sigma^2 `` to empha
 
 # ╔═╡ b9a50d0c-d294-11ef-0e60-2386cf289478
 md"""
+
+## The Canonical (Natural) Parameterization 
+
 Alternatively, the $(HTML("<span id='natural-parameterization'></span>"))*canonical* (a.k.a. *natural*  or *information* ) parameterization of the Gaussian distribution is given by
 
 ```math
@@ -140,18 +158,20 @@ is called the *precision* matrix. The parameter
 
 is the *natural* mean, or for clarity, often called the *precision-weighted* mean.
 
+The Gaussian distribution can be expressed in both moment and natural parameterizations, which are mathematically equivalent but differ in how the parameters are defined.
+
 """
 
 # ╔═╡ b9a52b18-d294-11ef-2d42-19c5e3ef3549
 md"""
 ## Why the Gaussian?
-
-Why is the Gaussian distribution so ubiquitously used in science and engineering? (see also [Jaynes, section 7.14](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf#page=250), and the whole chapter 7 in his book).
-
 """
 
 # ╔═╡ b9a5589a-d294-11ef-3fc3-0552a69df7b2
 md"""
+
+Why is the Gaussian distribution so ubiquitously used in science and engineering? 
+
 1. Operations on probability distributions tend to lead to Gaussian distributions:
 
     * Any smooth function with a single rounded maximum goes into a Gaussian function, if raised to higher and higher powers. (useful in sequential Bayesian inference).
@@ -167,6 +187,8 @@ md"""
     * The product of two Gaussian functions is another Gaussian function (useful in Bayes rule).
     * The Fourier transform of a Gaussian function is another Gaussian function.
 
+See also [Jaynes, section 7.14](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf#page=250), and the whole chapter 7 in his book for more details on why the Gaussian distribution is so useful.
+
 """
 
 # ╔═╡ 9501922f-b928-46e2-8f23-8eb9c64f6198
@@ -176,9 +198,9 @@ md"""
 
 # ╔═╡ b9a5889c-d294-11ef-266e-d90225222e10
 md"""
-## Transformations and Sums of Gaussian Variables
-
-A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{N}(\mu_x,\Sigma_x)`` is Gaussian distributed as
+## Linear Transformations of Gaussian Variables
+  
+A linear transformation ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{N}(\mu_x,\Sigma_x)`` is Gaussian distributed as
 
 ```math
 p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
@@ -186,20 +208,42 @@ p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
 
 In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://bmlip.github.io/colorized/lectures/Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
 
+
 """
 
-# ╔═╡ b9a59e06-d294-11ef-3f2e-4b2664ad6e7d
+# ╔═╡ a82378ae-d1be-43f9-b63a-2f897767d1fb
 md"""
-The **sum of two independent Gaussian variables** is also Gaussian distributed. Specifically, if ``x \sim \mathcal{N} \left(\mu_x, \Sigma_x \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \Sigma_y \right)``, then the PDF for ``z=x+y`` is given by
+## Example: The Sum of Gaussian Variables 
+
+A commonly occuring example of a linear transformation is the *sum of two independent Gaussian variables*:
+
+
+##### Problem
+
+Let ``x \sim \mathcal{N} \left(\mu_x, \Sigma_x \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \Sigma_y \right)``. What is the PDF for ``z=x+y\, ``?
+
+##### Solution
+
+First, recognize that ``z=x+y`` can be written as a linear transformation ``z = A w``, where
 
 ```math
+A = \begin{bmatrix} 1 & 1 \end{bmatrix} \text{ ,  and } w = \begin{bmatrix} x \\ y \end{bmatrix} \,.
+```
+
+Using the above formula for linear transformations, it follows that
+```math
 \begin{align*}
-p(z) &= \mathcal{N}(x\,|\,\mu_x,\Sigma_x) \ast \mathcal{N}(y\,|\,\mu_y,\Sigma_y) \\
+p(z) &= \mathcal{N}\big(z\,\big|\,A \mu_w, A \Sigma_w A^T \big) \\
+  &= \mathcal{N}\bigg(z\, \bigg|\,\begin{bmatrix} 1 & 1 \end{bmatrix}  \begin{bmatrix} \mu_x \\ \mu_y \end{bmatrix}, \begin{bmatrix} 1 & 1 \end{bmatrix}  \begin{bmatrix} \sigma_x^2 & 0 \\ 0 & \sigma_y^2 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \end{bmatrix} \bigg) \\
   &= \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \Sigma_x +\Sigma_y \right) \tag{SRG-8}
 \end{align*}
 ```
 
-The sum of two Gaussian *distributions* is NOT a Gaussian distribution. Why not?
+Consequently, the sum of two independent Gaussian random variables remains Gaussian, with its mean given by the sum of the means and its variance given by the sum of the variances.
+
+Home exercise: Following the example above, can you compute the PDF for ``z`` if ``x`` and ``y`` were *dependent* Gaussian variables?
+
+It is crucial to distinguish between adding two Gaussian-distributed variables, which yields another Gaussian-distributed variable, and summing two Gaussian distributions, which generally results in a non-Gaussian distribution.
 
 """
 
@@ -223,7 +267,9 @@ Think about the role of the Gaussian distribution for stochastic linear systems 
 md"""
 ## Bayesian Inference for the Gaussian
 
-Let's estimate a constant ``\theta`` from one 'noisy' measurement ``x`` about that constant. 
+##### Problem
+
+Let's estimate a constant ``\theta`` from one ''noisy'' measurement ``x`` about that constant. 
 
 We assume the following measurement equations (the tilde ``\sim`` means: 'is distributed as'):
 
@@ -242,6 +288,9 @@ Also, let's assume a Gaussian prior for ``\theta``
 \end{align*}
 ```
 
+For simplicity, we will assume that ``\sigma^2``, ``\mu_0`` and ``\sigma_0^2`` are given. 
+
+What is the PDF for the posterior ``p(\theta|x)`` ?
 """
 
 # ╔═╡ b9a5dcc0-d294-11ef-2c85-657a460db5cd
@@ -259,18 +308,9 @@ Note that you can rewrite these specifications in probabilistic notation as foll
 
 """
 
-# ╔═╡ b9a632ba-d294-11ef-19ae-61309fe3e094
-md"""
-(**Notational convention**). Note that we write ``\epsilon \sim \mathcal{N}(0,\sigma^2)`` but not ``\epsilon \sim \mathcal{N}(\epsilon | 0,\sigma^2)``, and we write  ``p(\theta) =\mathcal{N}(\theta|\mu_0,\sigma_0^2)`` but not ``p(\theta) =\mathcal{N}(\mu_0,\sigma_0^2)``. 
-
-"""
-
 # ╔═╡ b9a6557e-d294-11ef-0a90-d74c337ade25
 md"""
 #### Inference
-
-For simplicity, we assume that the variance ``\sigma^2`` is given and will proceed to derive a Bayesian posterior for the mean ``\theta``. The case for Bayesian inference of ``\sigma^2`` with a given mean is [discussed in the optional slides](#inference-for-precision).
-
 """
 
 # ╔═╡ b9a67d06-d294-11ef-297b-eb9039786ea7
@@ -320,22 +360,20 @@ where
 \end{align*}
 ```
 
-"""
-
-# ╔═╡ b9a6ae70-d294-11ef-151e-a19cce1c06a5
-md"""
-## (Multivariate) Gaussian Multiplication
-
 So, multiplication of two Gaussian distributions yields another (unnormalized) Gaussian with
 
   * posterior precision equals **sum of prior precisions**
   * posterior precision-weighted mean equals **sum of prior precision-weighted means**
 
+
 """
 
 # ╔═╡ b9a6b7b2-d294-11ef-06dc-4de5ef25c1fd
 md"""
-As we just saw, a Gaussian prior, combined with a Gaussian likelihood, make Bayesian inference analytically solvable (!):
+
+## Conjugate Distributions
+
+As we just saw, a Gaussian prior, combined with a Gaussian likelihood, makes Bayesian inference analytically solvable (!), since 
 
 ```math
 \begin{equation*}
@@ -344,15 +382,25 @@ As we just saw, a Gaussian prior, combined with a Gaussian likelihood, make Baye
 \end{equation*}
 ```
 
+
 """
+
+# ╔═╡ 51d81901-213f-42ce-b77e-10f7ca4a4145
+
+keyconcept("", md"In Bayesian inference, a Gaussian prior distribution is **conjugate** to a Gaussian likelihood (when the variance is known), which ensures that the posterior distribution remains Gaussian. This conjugacy greatly simplifies calculation of Bayes rule.")
+
 
 # ╔═╡ b9a6c7b6-d294-11ef-0446-c372aa610df8
 md"""
-$(HTML("<span id='Gaussian-multiplication'></span>"))In general, the multiplication of two multi-variate Gaussians over ``x`` yields an (unnormalized) Gaussian over ``x``:
+
+## (Multivariate) Gaussian Multiplication
+
+
+$(HTML("<span id='Gaussian-multiplication'></span>")) In general, the multiplication of two multi-variate Gaussians over ``x`` yields an (unnormalized) Gaussian over ``x``:
 
 ```math
 \begin{equation*}
-\boxed{\mathcal{N}(x|\mu_a,\Sigma_a) \cdot \mathcal{N}(x|\mu_b,\Sigma_b) = \underbrace{\mathcal{N}(\mu_a|\, \mu_b, \Sigma_a + \Sigma_b)}_{\text{normalization constant}} \cdot \mathcal{N}(x|\mu_c,\Sigma_c)} \tag{SRG-6}
+\mathcal{N}(x|\mu_a,\Sigma_a) \cdot \mathcal{N}(x|\mu_b,\Sigma_b) = \underbrace{\mathcal{N}(\mu_a|\, \mu_b, \Sigma_a + \Sigma_b)}_{\text{normalization constant}} \cdot \mathcal{N}(x|\mu_c,\Sigma_c) \tag{SRG-6}
 \end{equation*}
 ```
 
@@ -376,7 +424,7 @@ Check out that normalization constant ``\mathcal{N}(\mu_a|\, \mu_b, \Sigma_a + \
 # ╔═╡ b9a6f916-d294-11ef-38cb-b78c0c448550
 md"""
 
-``\Rightarrow`` Note that Bayesian inference is trivial in the [*canonical* parameterization of the Gaussian](#natural-parameterization), where we would get
+Also note that Bayesian inference is trivial in the [*canonical* parameterization of the Gaussian](#natural-parameterization), where we would get
 
 ```math
 \begin{align*}
@@ -389,19 +437,14 @@ This property is an important reason why the canonical parameterization of the G
 
 """
 
-# ╔═╡ b9a7073a-d294-11ef-2330-49ffa7faff21
-md"""
-## Code Example: Product of Two Gaussian PDFs
-
-Let's plot the exact product of two Gaussian PDFs as well as the normalized product according to the above derivation.
-
-"""
-
 # ╔═╡ 45c2fb37-a078-4284-9e04-176156cffb1e
 d1 = Normal(0, 1); # μ=0, σ^2=1
 
 # ╔═╡ d81483db-3826-4ff4-9d52-e23418da07d0
 d2 = Normal(3, 2); # μ=3, σ^2=4
+
+# ╔═╡ e6a2d2ed-0100-4570-85c1-fc9d8f84e32e
+TODO("Can we play with these parameter values so that the plot below moves.")
 
 # ╔═╡ 14fd14db-26da-4f0b-81d0-59ee4ab1a35c
 md"""
@@ -413,6 +456,10 @@ s2_prod = (d1.σ^-2 + d2.σ^-2)^-1
 
 # ╔═╡ 9f939dd4-18e8-464c-a12e-eb320d5fd88b
 m_prod = s2_prod * ((d1.σ^-2)*d1.μ + (d2.σ^-2)*d2.μ)
+
+# ╔═╡ fa03d8c8-bead-456f-833e-cc0690e1b528
+TODO("Fons: I don't like 16 decimals for m_prod =
+0.600 000 000 000 0001. Can you just round to 2 decimals?")
 
 # ╔═╡ 6cbf7a96-9e73-4289-9970-88e30cea28a5
 d_prod = Normal(m_prod, sqrt(s2_prod)) # (Note that we neglect the normalization constant.)
@@ -435,124 +482,6 @@ let
 	plot!(x, pdf.(d_prod,x); label=L"Z^{-1} \mathcal{N}(0,1) \mathcal{N}(3,4)", fill)
 end
 
-# ╔═╡ b9a80522-d294-11ef-39d8-53a536d66bf9
-md"""
-## Bayesian Inference with multiple Observations
-
-Now consider that we measure a data set ``D = \{x_1, x_2, \ldots, x_N\}``, with measurements
-
-```math
-\begin{aligned}
-x_n &= \theta + \epsilon_n \\
-\epsilon_n &\sim \mathcal{N}(0,\sigma^2)
-\end{aligned}
-```
-
-and the same prior for ``\theta``:
-
-```math
-\theta \sim \mathcal{N}(\mu_0,\sigma_0^2) \\
-```
-
-Let's derive the distribution ``p(x_{N+1}|D)`` for the next sample . 
-
-"""
-
-# ╔═╡ b9a81508-d294-11ef-3810-2737de62f933
-md"""
-#### inference
-
-First, we derive the posterior for ``\theta``:
-
-```math
-\begin{align*}
-p(\theta|D) \propto  \underbrace{\mathcal{N}(\theta|\mu_0,\sigma_0^2)}_{\text{prior}} \cdot \underbrace{\prod_{n=1}^N \mathcal{N}(x_n|\theta,\sigma^2)}_{\text{likelihood}}
-\end{align*}
-```
-
-which is a multiplication of ``N+1`` Gaussians and is therefore also Gaussian-distributed.
-
-"""
-
-# ╔═╡ b9a82674-d294-11ef-30e2-d12cb45921f6
-md"""
-Using the property that precisions and precision-weighted means add when Gaussians are multiplied, we can immediately write the posterior 
-
-```math
-p(\theta|D) = \mathcal{N} (\theta |\, \mu_N, \sigma_N^2)
-```
-
-as 
-
-```math
-\begin{align*}
-  \frac{1}{\sigma_N^2}  &= \frac{1}{\sigma_0^2} + \sum_n  \frac{1}{\sigma^2} \qquad &\text{(B-2.142)} \\
-  \mu_N   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \qquad &\text{(B-2.141)}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ b9a835a8-d294-11ef-3f01-670bcdc7a887
-md"""
-#### application: prediction of future sample
-
-We now have a posterior for the model parameters. Let's write down what we know about the next sample ``x_{N+1}``.
-
-```math
-\begin{align*}
-p(x_{N+1}|D) &= \int p(x_{N+1}|\theta) p(\theta|D)\mathrm{d}\theta \\
-  &= \int \mathcal{N}(x_{N+1}|\theta,\sigma^2) \mathcal{N}(\theta|\mu_N,\sigma^2_N) \mathrm{d}\theta \\
-  &= \int \mathcal{N}(\theta|x_{N+1},\sigma^2) \mathcal{N}(\theta|\mu_N,\sigma^2_N) \mathrm{d}\theta \\
-  &= \int  \mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 ) \mathcal{N}(\theta|\cdot,\cdot)\mathrm{d}\theta \tag{use SRG-6} \\
-  &= \mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 ) \underbrace{\int \mathcal{N}(\theta|\cdot,\cdot)\mathrm{d}\theta}_{=1} \\
-  &=\mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 )
-\end{align*}
-```
-
-"""
-
-# ╔═╡ b9a84500-d294-11ef-3baa-ff8f01474f1c
-md"""
-Uncertainty about ``x_{N+1}`` involved both uncertainty about the parameter (``\sigma_N^2``) and observation noise ``\sigma^2``.
-
-"""
-
-# ╔═╡ b9a85716-d294-11ef-10e0-a7b08b800a98
-md"""
-## Maximum Likelihood Estimation for the Gaussian
-
-In order to determine the *maximum likelihood* estimate of ``\theta``, we let ``\sigma_0^2 \rightarrow \infty`` (leads to uniform prior for ``\theta``), yielding $ \frac{1}{\sigma_N^2} = \frac{N}{\sigma^2}$ and consequently
-
-```math
-\begin{align*}
-  \mu_{\text{ML}}  = \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \sigma_N^2 \, \left(   \frac{1}{\sigma^2}\sum_n  x_n  \right) = \frac{1}{N} \sum_{n=1}^N x_n 
-  \end{align*}
-```
-
-"""
-
-# ╔═╡ b9a8671c-d294-11ef-38f6-f36f0d81d802
-md"""
-As expected, having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\theta`` as 
-
-```math
-\begin{align*}
-  \underbrace{\mu_N}_{\text{posterior}}   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
-  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
-  &= \frac{ \sigma^2}{N\sigma_0^2 + \sigma^2}   \mu_0 + \frac{N \sigma_0^2}{N\sigma_0^2 + \sigma^2} \mu_{\text{ML}}   \\
-  &= \underbrace{\mu_0}_{\text{prior}} + \underbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}_{\text{correction}}\tag{B-2.141}
-\end{align*}
-```
-
-"""
-
-# ╔═╡ b9a876b0-d294-11ef-1c40-15704d20b7c2
-md"""
-Hence, the posterior mean always lies somewhere between the prior mean ``\mu_0`` and the maximum likelihood estimate (the "data" mean) ``\mu_{\text{ML}}``.
-
-"""
-
 # ╔═╡ b9a885a8-d294-11ef-079e-411d3f1cda03
 md"""
 ## Conditioning and Marginalization of a Gaussian
@@ -567,69 +496,31 @@ p(z) &= \mathcal{N}(z | \mu, \Sigma)
 \end{align*}
 ```
 
-"""
-
-# ╔═╡ b9a89398-d294-11ef-18b4-a7ef525ea8a7
-md"""
 Since covariance matrices are by definition symmetric, it follows that ``\Sigma_x`` and ``\Sigma_y`` are symmetric and ``\Sigma_{xy} = \Sigma_{yx}^T``.
 
-"""
-
-# ╔═╡ b9a8a324-d294-11ef-0079-ff2fa3be14ca
-md"""
 Let's factorize ``p(z) = p(x,y)`` as ``p(x,y) = p(y|x) p(x)`` through conditioning and marginalization.
 
-"""
-
-# ╔═╡ b9a8b56c-d294-11ef-311e-3b9d2e9bd7fd
-md"""
+##### conditioning
 ```math
 \begin{equation*}
-\text{conditioning: }\boxed{ p(y|x) = \mathcal{N}\left(y\,|\,\mu_y + \Sigma_{yx}\Sigma_x^{-1}(x-\mu_x),\, \Sigma_y - \Sigma_{yx}\Sigma_x^{-1}\Sigma_{xy} \right)}
+\boxed{ p(y|x) = \mathcal{N}\left(y\,|\,\mu_y + \Sigma_{yx}\Sigma_x^{-1}(x-\mu_x),\, \Sigma_y - \Sigma_{yx}\Sigma_x^{-1}\Sigma_{xy} \right)}
 \end{equation*}
 ```
 
-"""
-
-# ╔═╡ b9a8c3d6-d294-11ef-1f0f-09cbbcb8941c
-md"""
+##### marginalization
 ```math
 \begin{equation*}
-\text{marginalization: } \boxed{ p(x) = \mathcal{N}\left( x|\mu_x, \Sigma_x \right)}
+ \boxed{ p(x) = \mathcal{N}\left( x|\mu_x, \Sigma_x \right)}
 \end{equation*}
 ```
 
-"""
-
-# ╔═╡ b9a8da74-d294-11ef-058b-896e75cd0c8e
-md"""
 **proof**: in Bishop pp.87-89
 
-"""
+Hence, conditioning and marginalization in Gaussians lead to Gaussians again. This is very useful for applications in Bayesian inference in jointly Gaussian systems.
 
-# ╔═╡ b9a8f0ea-d294-11ef-1e43-bfce1faa6d33
-md"""
-Hence, conditioning and marginalization in Gaussians leads to Gaussians again. This is very useful for applications to Bayesian inference in jointly Gaussian systems.
-
-"""
-
-# ╔═╡ b9a90544-d294-11ef-3230-5d2a67bc88ce
-md"""
 With a natural parameterization of the Gaussian ``p(z) = \mathcal{N}_c(z|\eta,\Lambda)`` with precision matrix ``\Lambda = \Sigma^{-1} = \begin{bmatrix} \Lambda_x & \Lambda_{xy} \\ \Lambda_{yx} & \Lambda_y \end{bmatrix}``,  the conditioning operation results in a simpler result, see Bishop pg.90, eqs. 2.96 and 2.97. 
 
-"""
-
-# ╔═╡ b9a93d0c-d294-11ef-25a5-133ff5af02ce
-md"""
 As an exercise, interpret the formula for the conditional mean (``\mathbb{E}[y|x]=\mu_y + \Sigma_{yx}\Sigma_x^{-1}(x-\mu_x)``) as a prediction-correction operation.
-
-"""
-
-# ╔═╡ b9a9565c-d294-11ef-1b67-83d1ab18035b
-md"""
-## Code Example: Joint, Marginal, and Conditional Gaussian Distributions
-
-Let's plot of the joint, marginal, and conditional distributions.
 
 """
 
@@ -661,6 +552,9 @@ let
 	plot(plot_1, plot_2, plot_3, layout=(1,3), size=(1200,300))
 end
 
+# ╔═╡ f4ce24c7-7d03-4574-81e0-d4cbb818a897
+TODO("Fons can you let the student play with some parameter values?")
+
 # ╔═╡ b9a9b8e0-d294-11ef-348d-c197c4ce2b8c
 md"""
 As is clear from the plots, the conditional distribution is a renormalized slice from the joint distribution.
@@ -669,7 +563,7 @@ As is clear from the plots, the conditional distribution is a renormalized slice
 
 # ╔═╡ b9a9dca8-d294-11ef-04ec-a9202c319f89
 md"""
-## Example: Conditioning of Gaussian
+## Gaussian Conditioning Revisited
 
 Consider (again) the system 
 
@@ -722,22 +616,137 @@ K &= \frac{\sigma_0^2}{\sigma_0^2+\sigma^2} \qquad \text{($K$ is called: Kalman 
 """
 
 # ╔═╡ b9aa3950-d294-11ef-373f-d5d330694bfd
+
+keyconcept("", md"For jointly Gaussian systems, inference can be performed in a single step using closed-form expressions for conditioning and marginalization of (multivariate) Gaussian distributions.")
+
+
+# ╔═╡ 0072e73e-1569-4ce4-bffb-280823499f0d
 md"""
+# Bayesian Inference
+"""
+
+# ╔═╡ b9a80522-d294-11ef-39d8-53a536d66bf9
+md"""
+## Bayesian Inference with Multiple Observations
+
+
+#### model specification
+
+Now consider that we measure a data set ``D = \{x_1, x_2, \ldots, x_N\}``, with measurements
+
 ```math
-\Rightarrow
+\begin{aligned}
+x_n &= \theta + \epsilon_n \\
+\epsilon_n &\sim \mathcal{N}(0,\sigma^2) \,,
+\end{aligned}
 ```
 
-Moral: For jointly Gaussian systems, we can do inference simply in one step by using the formulas for conditioning and marginalization.
+and the same prior for ``\theta``:
 
+```math
+\theta \sim \mathcal{N}(\mu_0,\sigma_0^2) \\
+```
+
+Let's derive the predictive distribution ``p(x_{N+1}|D)`` for the next sample. 
+
+
+#### inference
+
+First, we derive the posterior for ``\theta``:
+
+```math
+\begin{align*}
+p(\theta|D) \propto  \underbrace{\mathcal{N}(\theta|\mu_0,\sigma_0^2)}_{\text{prior}} \cdot \underbrace{\prod_{n=1}^N \mathcal{N}(x_n|\theta,\sigma^2)}_{\text{likelihood}} \,,
+\end{align*}
+```
+
+which is a multiplication of ``N+1`` Gaussians and is therefore also Gaussian-distributed.
+
+Using the property that precisions and precision-weighted means add when Gaussians are multiplied, we can immediately write the posterior 
+
+```math
+p(\theta|D) = \mathcal{N} (\theta |\, \mu_N, \sigma_N^2)
+```
+
+as 
+
+```math
+\begin{align*}
+  \frac{1}{\sigma_N^2}  &= \frac{1}{\sigma_0^2} + \sum_n  \frac{1}{\sigma^2}  \tag{B-2.142} \\
+  \mu_N   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \tag{B-2.141}
+\end{align*}
+```
+
+#### application: prediction of future sample
+
+We now have a posterior for the model parameters. Let's write down what we know about the next sample ``x_{N+1}``.
+
+```math
+\begin{align*}
+ &= \int p(x_{N+1}|\theta) p(\theta|D)\mathrm{d}\theta \\
+  &= \int \mathcal{N}(x_{N+1}|\theta,\sigma^2) \mathcal{N}(\theta|\mu_N,\sigma^2_N) \mathrm{d}\theta \\
+  &\stackrel{1}{=} \int \mathcal{N}(\theta|x_{N+1},\sigma^2) \mathcal{N}(\theta|\mu_N,\sigma^2_N) \mathrm{d}\theta \\
+  &\stackrel{2}{=} \int  \mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 ) \mathcal{N}(\theta|\cdot,\cdot)\mathrm{d}\theta \tag{use SRG-6} \\
+  &= \mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 ) \underbrace{\int \mathcal{N}(\theta|\cdot,\cdot)\mathrm{d}\theta}_{=1} \\
+  &=\mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 )
+\end{align*}
+```
+
+Note that uncertainty about ``x_{N+1}`` involves both uncertainty about the parameter (``\sigma_N^2``) and observation noise ``\sigma^2``.
+
+To follow the above derivation of ``p(x_{N+1}|D)``, note that transition ``1`` relies on the identity
+```math
+\mathcal{N}(x|\mu,\Sigma) = \mathcal{N}(\mu|x,\Sigma)
+```
+and transition ``2`` derives from using the multiplication rule for Gaussians.
+"""
+
+# ╔═╡ b9a85716-d294-11ef-10e0-a7b08b800a98
+md"""
+## Maximum Likelihood Estimation for the Gaussian
+
+In order to determine the *maximum likelihood* estimate of ``\theta``, we let ``\sigma_0^2 \rightarrow \infty`` (leads to uniform prior for ``\theta``), yielding ``\frac{1}{\sigma_N^2} = \frac{N}{\sigma^2}`` and consequently
+
+```math
+\begin{align*}
+  \mu_{\text{ML}}  = \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \sigma_N^2 \, \left(   \frac{1}{\sigma^2}\sum_n  x_n  \right) = \frac{1}{N} \sum_{n=1}^N x_n 
+  \end{align*}
+```
+
+As expected, having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\theta`` as the combination of a prior-based prediction and likelihood-based correction:
+
+```math
+\begin{align*}
+  \underbrace{\mu_N}_{\text{posterior}}   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
+  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
+  &= \frac{ \sigma^2}{N\sigma_0^2 + \sigma^2}   \mu_0 + \frac{N \sigma_0^2}{N\sigma_0^2 + \sigma^2} \mu_{\text{ML}}   \\
+  &= \underbrace{\mu_0}_{\text{prior}} + \underbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}_{\text{correction}}\tag{B-2.141}
+\end{align*}
+```
+Hence, the posterior mean always lies somewhere between the prior mean ``\mu_0`` and the maximum likelihood estimate (the "data" mean) ``\mu_{\text{ML}}``.
+
+(Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.)
 """
 
 # ╔═╡ b9aa930a-d294-11ef-37ec-8d17be226c74
 md"""
 ## Recursive Bayesian Estimation for Adaptive Signal Processing
 
-Consider the signal ``x_t=\theta+\epsilon_t``, where ``D_t= \left\{x_1,\ldots,x_t\right\}`` is observed *sequentially* (over time).
 
-**Problem**: Derive a recursive algorithm for ``p(\theta|D_t)``, i.e., an update rule for (posterior) ``p(\theta|D_t)`` based on (prior) ``p(\theta|D_{t-1})`` and (new observation) ``x_t``.
+
+
+##### Problem
+
+Consider a signal 
+
+```math
+x_t=\theta+\epsilon_t \,,
+```
+where ``D_t= \left\{x_1,\ldots,x_t\right\}`` is observed *sequentially* (over time). Derive a **recursive** algorithm for 
+```math
+p(\theta|D_t) \,,
+```
+i.e., an update rule for (posterior) ``p(\theta|D_t)``, based on (prior) ``p(\theta|D_{t-1})`` and (new observation) ``x_t``.
 
 """
 
@@ -796,9 +805,13 @@ This linear *sequential* estimator of mean and variance in Gaussian observations
 
 # ╔═╡ b9aafc6e-d294-11ef-1b1a-df718c1f1a58
 md"""
-The so-called Kalman gain ``K_t`` serves as a "learning rate" (step size) in the parameter update equation ``\mu_t = \mu_{t-1} + K_t \cdot (x_t-\mu_{t-1})``. Note that *you* don't need to choose the learning rate. Bayesian inference computes its own (optimal) learning rates.  
+Note that the so-called Kalman gain ``K_t`` serves as a "learning rate" (step size) in the update equation for the posterior mean ``\mu_t``.
 
 """
+
+# ╔═╡ e2fc4945-4f88-4520-b56c-c7208b62c29d
+keyconcept("", md"Unlike many optimization-based methods, Bayesian inference does not require manual tuning of a learning rate; instead, it adapts its own effective learning rate via balancing prior beliefs with incoming evidence.")
+ 
 
 # ╔═╡ b9ab0b46-d294-11ef-13c5-8314655f7867
 md"""
@@ -808,15 +821,7 @@ Note that the uncertainty about ``\theta`` decreases over time (since ``0<(1-K_t
 
 # ╔═╡ b9ab1dd4-d294-11ef-2e86-31c4a4389475
 md"""
-Recursive Bayesian estimation as discussed here is the basis for **adaptive signal processing** algorithms such as Least Mean Squares (LMS) and Recursive Least Squares (RLS). Both RLS and LMS are special cases of Recursive Bayesian estimation.
-
-"""
-
-# ╔═╡ b9ab2e32-d294-11ef-2ccc-9760ead59972
-md"""
-## Code Example: Kalman Filter
-
-Let's implement the Kalman filter described above. We'll use it to recursively estimate the value of ``\theta`` based on noisy observations.
+Recursive Bayesian estimation as discussed here is the basis for **adaptive signal processing** algorithms such as the [Least Mean Squares](https://en.wikipedia.org/wiki/Least_mean_squares_filter) (LMS) filter and the [Recursive Least Squares](https://en.wikipedia.org/wiki/Recursive_least_squares_filter) (RLS) filter. Both RLS and LMS are special cases of Recursive Bayesian estimation.
 
 """
 
@@ -878,74 +883,12 @@ let
 	plot!(post_scale, θ*ones(n + 1), linewidth=2, label=L"θ")
 end
 
+# ╔═╡ 7cd105c4-362b-4fa2-904a-d0bdc26b323b
+TODO("Fons, can you do something with the number of points and a slider?")
+
 # ╔═╡ b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
 md"""
 The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. The variance of the posterior is guaranteed to decrease monotonically for the standard Kalman filter.
-
-"""
-
-# ╔═╡ b9abadce-d294-11ef-14a6-9131c5b1b802
-md"""
-## $(HTML("<span id='product-of-gaussians'>Product of Normally Distributed Variables</span>"))
-
-(We've seen that) the sum of two Gausssian distributed variables is also Gaussian distributed.
-
-"""
-
-# ╔═╡ b9abbdfc-d294-11ef-1c58-39507ff2696c
-md"""
-Has the *product* of two Gaussian distributed variables also a Gaussian distribution?
-
-"""
-
-# ╔═╡ b9abce02-d294-11ef-0ee5-15af9141a571
-md"""
-**No**! In general this is a difficult computation. As an example, let's compute ``p(z)`` for ``Z=XY`` for the special case that ``X\sim \mathcal{N}(0,1)`` and ``Y\sim \mathcal{N}(0,1)``.
-
-```math
-\begin{align*}
-p(z) &= \int_{X,Y} p(z|x,y)\,p(x,y)\,\mathrm{d}x\mathrm{d}y \\
-  &= \frac{1}{2 \pi}\int  \delta(z-xy) \, e^{-(x^2+y^2)/2} \, \mathrm{d}x\mathrm{d}y \\
-  &=  \frac{1}{\pi} \int_0^\infty \frac{1}{x} e^{-(x^2+z^2/x^2)/2} \, \mathrm{d}x \\
-  &= \frac{1}{\pi} \mathrm{K}_0( \lvert z\rvert )\,.
-\end{align*}
-```
-
-where  ``\mathrm{K}_n(z)`` is a [modified Bessel function of the second kind](http://mathworld.wolfram.com/ModifiedBesselFunctionoftheSecondKind.html).
-
-"""
-
-# ╔═╡ b9abdc7e-d294-11ef-394a-a708c96c86fc
-md"""
-## Code Example: Product of Gaussian Distributions
-
-We plot ``p(Z=XY)`` and ``p(X)p(Y)`` for ``X\sim\mathcal{N}(0,1)`` and ``Y \sim \mathcal{N}(0,1)`` to give an idea of how these distributions differ.
-
-"""
-
-# ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
-let
-	X = Normal(0, 1)
-	Y = Normal(0, 1)
-	pdf_product_std_normals(z::Real) = besselk(0, abs(z))/π
-	
-	range1 = range(-4,stop=4,length=100)
-	plot(range1, t -> pdf(X, t); label=L"p(X)=p(Y)=\mathcal{N}(0,1)", fill=(0, 0.1))
-	plot!(range1, t -> pdf(X,t)*pdf(Y,t); label=L"p(X)*p(Y)", fill=(0, 0.1))
-	plot!(range1, pdf_product_std_normals; label=L"p(Z=X*Y)", fill=(0, 0.1))
-end
-
-# ╔═╡ b9ac09c4-d294-11ef-2cb8-270289d01f25
-md"""
-In short, Gaussian-distributed variables remain Gaussian in linear systems, but this is not the case in non-linear systems. 
-
-"""
-
-# ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
-md"""
-## Solution to Example Problem
-
-We apply maximum likelihood estimation to fit a 2-dimensional Gaussian model (``m``) to data set ``D``. Next, we evaluate ``p(x_\bullet \in S | m)`` by (numerical) integration of the Gaussian pdf over ``S``: ``p(x_\bullet \in S | m) = \int_S p(x|m) \mathrm{d}x``.
 
 """
 
@@ -969,9 +912,12 @@ let
 	plot!(range(0, 2), [1., 1., 1.]; fillrange=2, alpha=0.4, color=:gray, label=L"S")
 end
 
+# ╔═╡ 7a57afce-f325-4e14-815d-ec74eeee7d08
+TODO("in general, I dont like 16 decimals, in particular when the answer is approximate. Let's make it 2 decimals.")
+
 # ╔═╡ b9ac7486-d294-11ef-13e5-29b7ffb440bc
 md"""
-## Summary
+# Summary
 
 A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{N}(\mu_x,\Sigma_x)`` is Gaussian distributed as
 
@@ -1026,13 +972,34 @@ md"""
 md"""
 ## $(HTML("<span id='inference-for-precision'>Inference for the Precision Parameter of the Gaussian</span>"))
 
-Again, we consider an observed data set ``D = \{x_1, x_2, \ldots, x_N\}`` and try to explain these data by a Gaussian distribution.
+
 
 """
 
+
+
+# ╔═╡ 72e9420c-80da-48ef-8849-71988a4f8dda
+TODO("Bert to update this")
+
 # ╔═╡ b9acf7a8-d294-11ef-13d9-81758355cb1e
 md"""
-We discussed earlier Bayesian inference for the mean with a given variance. Now we will derive a posterior for the variance if the mean is given. (Technically, we will do the derivation for a precision parameter ``\lambda = \sigma^{-2}``, since the discussion is a bit more straightforward for the precision parameter).
+
+##### Problem
+
+For simplicity,  and will proceed to derive a Bayesian posterior for the mean ``\theta``. The case for Bayesian inference of ``\sigma^2`` with a given mean is [discussed in the optional slides](#inference-for-precision).
+
+Consider again a Gaussian data-generating (measurement) model
+
+```math
+\mathcal{N}\left(x_n \,|\, \mu, \lambda^{-1} \right) \,.
+```
+
+(For clarity, we express the variance as the inverse of a precision parameter ``\lambda``, rather than using ``\sigma^2``, since this simplifies the Bayesian computations.)
+
+Earlier in this lecture, we discussed Bayesian inference from a data set for the mean ``\mu``, when the variance ``\lambda^{-1}`` was given. 
+
+We now derive the posterior distribution over the precision parameter ``\lambda``, assuming that the mean ``\mu`` is known. We omit the more general case in which both ``\mu`` and ``\lambda`` are treated as unknowns, as the resulting calculations are considerably more involved.
+
 
 """
 
@@ -1071,13 +1038,18 @@ where ``a>0`` and ``b>0`` are known as the *shape* and *rate* parameters, respec
 md"""
 The mean and variance of the Gamma distribution evaluate to ``\mathrm{E}\left( \lambda\right) = \frac{a}{b}`` and ``\mathrm{var}\left[\lambda\right] = \frac{a}{b^2}``. 
 
+For this example, we consider a prior 
+```math
+p(\lambda) = \mathrm{Gam}\left( \lambda\,|\,a_0, b_0\right) \,. 
+```
+
 """
 
 # ╔═╡ b9ad5100-d294-11ef-0e8b-3f67ddb2d86d
 md"""
 #### inference
 
-We will consider a prior ``p(\lambda) = \mathrm{Gam}\left( \lambda\,|\,a_0, b_0\right)``, which leads by Bayes rule to the posterior
+The posterior is given by Bayes rule, 
 
 ```math
 \begin{align*}
@@ -1128,11 +1100,130 @@ These estimates are also known as the *sample mean* and *sample variance* respec
 
 """
 
+# ╔═╡ b9abadce-d294-11ef-14a6-9131c5b1b802
+md"""
+## $(HTML("<span id='product-of-gaussians'>Product of Normally Distributed Variables</span>"))
+
+(We've seen that) the sum of two Gausssian-distributed variables is also Gaussian distributed.
+
+Has the *product* of two Gaussian distributed variables also a Gaussian distribution?
+
+**No**! In general, this is a difficult computation. As an example, let's compute ``p(z)`` for ``Z=XY`` for the special case that ``X\sim \mathcal{N}(0,1)`` and ``Y\sim \mathcal{N}(0,1)``.
+
+```math
+\begin{align*}
+p(z) &= \int_{X,Y} p(z|x,y)\,p(x,y)\,\mathrm{d}x\mathrm{d}y \\
+  &= \frac{1}{2 \pi}\int  \delta(z-xy) \, e^{-(x^2+y^2)/2} \, \mathrm{d}x\mathrm{d}y \\
+  &=  \frac{1}{\pi} \int_0^\infty \frac{1}{x} e^{-(x^2+z^2/x^2)/2} \, \mathrm{d}x \\
+  &= \frac{1}{\pi} \mathrm{K}_0( \lvert z\rvert )\,.
+\end{align*}
+```
+
+where  ``\mathrm{K}_n(z)`` is a [modified Bessel function of the second kind](http://mathworld.wolfram.com/ModifiedBesselFunctionoftheSecondKind.html).
+
+"""
+
+# ╔═╡ b9ac09c4-d294-11ef-2cb8-270289d01f25
+md"""
+In short, Gaussian-distributed variables remain Gaussian in linear systems, but this is not the case in non-linear systems. 
+
+"""
+
+# ╔═╡ d5f74bd7-cc31-4efc-bb9b-a289f26b0121
+challenge_header(
+	title; 
+	color="green",
+	big::Bool=false,
+	header_level::Int=2,
+	challenge_text="Challenge:",
+) = HypertextLiteral.@htl """
+	
+<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
+	
+<style>
+.ptt-section::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: -25px;
+	right: -6px;
+	top: -4px;
+	height: 200px;
+	border: 4px solid salmon;
+	border-bottom: none;
+	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
+	border-image-slice: 1;
+	opacity: .7;
+	pointer-events: none;
+}
+
+.big.ptt-section::before {
+	height: 500px;
+}
+	
+
+.ptt-section > span {
+	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
+	@media (prefers-color-scheme: dark) {
+		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
+	}
+	font-style: italic;
+}
+	
+</style>
+"""
+
+# ╔═╡ b9a7073a-d294-11ef-2330-49ffa7faff21
+md"""
+
+$(challenge_header("Product of Two Gaussian PDFs"; challenge_text="Code Example:"))
+
+
+Let's plot the exact product of two Gaussian PDFs as well as the normalized product according to the above derivation.
+
+"""
+
+# ╔═╡ b9a9565c-d294-11ef-1b67-83d1ab18035b
+md"""
+##  
+
+$(challenge_header("Joint, Marginal, and Conditional Gaussian Distributions"; challenge_text="Code Example:"))
+
+Let's plot the joint, marginal, and conditional distributions for some Gaussians.
+
+"""
+
+# ╔═╡ b9ab2e32-d294-11ef-2ccc-9760ead59972
+md"""
+$(challenge_header("Kalman Filtering"; challenge_text="Code Example:"))
+
+Let's implement the Kalman filter described above. We'll use it to recursively estimate the value of ``\theta`` based on noisy observations.
+
+"""
+
+# ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
+md"""
+$(challenge_header("Classify a Gaussian Sample"; challenge_text="Challenge Revisited:", header_level=1))
+
+Let's solve the challenge from the beginning of the lecture. We apply maximum likelihood estimation to fit a 2-dimensional Gaussian model (``m``) to data set ``D``. Next, we evaluate ``p(x_\bullet \in S | m)`` by (numerical) integration of the Gaussian pdf over ``S``: ``p(x_\bullet \in S | m) = \int_S p(x|m) \mathrm{d}x``.
+
+"""
+
+# ╔═╡ b9abdc7e-d294-11ef-394a-a708c96c86fc
+md"""
+$(challenge_header("Product of Gaussian Distributions"; challenge_text="Code Example:"))
+
+
+We plot ``p(Z=XY)`` and ``p(X)p(Y)`` for ``X\sim\mathcal{N}(0,1)`` and ``Y \sim \mathcal{N}(0,1)`` to give an idea of how these distributions differ.
+
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
@@ -1143,11 +1234,12 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 [compat]
 Distributions = "~0.25.119"
 HCubature = "~1.7.0"
+HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.12"
 PlutoTeachingTools = "~0.4.1"
 PlutoUI = "~0.7.68"
-SpecialFunctions = "~2.5.0"
+SpecialFunctions = "~2.5.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1156,7 +1248,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "f95dbb0e55646854480e4216393a9e5b5becaf1e"
+project_hash = "5d05a1619f2c02be6008c160a0124cbfb6ec146e"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1989,9 +2081,9 @@ version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "64cca0c26b4f31ba18f13f6c12af7c85f478cfde"
+git-tree-sha1 = "41852b8679f78c8d8961eeadc8f62cef861a52e3"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.5.0"
+version = "2.5.1"
 
     [deps.SpecialFunctions.extensions]
     SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
@@ -2437,6 +2529,7 @@ version = "1.4.1+2"
 # ╔═╡ Cell order:
 # ╟─b9a38e20-d294-11ef-166b-b5597125ed6d
 # ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
+# ╠═69d951b6-58b3-4ce2-af44-4cb799e453ff
 # ╠═5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
 # ╟─b9a46c3e-d294-11ef-116f-9b97e0118e5b
 # ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
@@ -2450,58 +2543,48 @@ version = "1.4.1+2"
 # ╟─b9a5589a-d294-11ef-3fc3-0552a69df7b2
 # ╟─9501922f-b928-46e2-8f23-8eb9c64f6198
 # ╟─b9a5889c-d294-11ef-266e-d90225222e10
-# ╟─b9a59e06-d294-11ef-3f2e-4b2664ad6e7d
+# ╟─a82378ae-d1be-43f9-b63a-2f897767d1fb
 # ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
 # ╟─b9a5b7e0-d294-11ef-213e-4b72b8c88db7
 # ╟─b9a5cbc2-d294-11ef-214a-c71fb1272326
 # ╟─b9a5dcc0-d294-11ef-2c85-657a460db5cd
-# ╟─b9a632ba-d294-11ef-19ae-61309fe3e094
 # ╟─b9a6557e-d294-11ef-0a90-d74c337ade25
 # ╟─b9a67d06-d294-11ef-297b-eb9039786ea7
 # ╟─b9a68d3a-d294-11ef-2335-093a39648007
 # ╟─b9a697fa-d294-11ef-3a57-7b7ba1f4fd70
-# ╟─b9a6ae70-d294-11ef-151e-a19cce1c06a5
 # ╟─b9a6b7b2-d294-11ef-06dc-4de5ef25c1fd
+# ╟─51d81901-213f-42ce-b77e-10f7ca4a4145
 # ╟─b9a6c7b6-d294-11ef-0446-c372aa610df8
 # ╟─b9a6ecd2-d294-11ef-02af-37c977f2814b
 # ╟─b9a6f916-d294-11ef-38cb-b78c0c448550
 # ╟─b9a7073a-d294-11ef-2330-49ffa7faff21
 # ╠═45c2fb37-a078-4284-9e04-176156cffb1e
 # ╠═d81483db-3826-4ff4-9d52-e23418da07d0
+# ╠═e6a2d2ed-0100-4570-85c1-fc9d8f84e32e
 # ╟─14fd14db-26da-4f0b-81d0-59ee4ab1a35c
 # ╠═f9cf453a-6369-4d38-9dad-fb3412497635
 # ╠═9f939dd4-18e8-464c-a12e-eb320d5fd88b
+# ╠═fa03d8c8-bead-456f-833e-cc0690e1b528
 # ╠═6cbf7a96-9e73-4289-9970-88e30cea28a5
 # ╟─df8867ed-0eff-4a52-8f5e-2472467e1aa2
-# ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
-# ╟─b9a81508-d294-11ef-3810-2737de62f933
-# ╟─b9a82674-d294-11ef-30e2-d12cb45921f6
-# ╟─b9a835a8-d294-11ef-3f01-670bcdc7a887
-# ╟─b9a84500-d294-11ef-3baa-ff8f01474f1c
-# ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
-# ╟─b9a8671c-d294-11ef-38f6-f36f0d81d802
-# ╟─b9a876b0-d294-11ef-1c40-15704d20b7c2
 # ╟─b9a885a8-d294-11ef-079e-411d3f1cda03
-# ╟─b9a89398-d294-11ef-18b4-a7ef525ea8a7
-# ╟─b9a8a324-d294-11ef-0079-ff2fa3be14ca
-# ╟─b9a8b56c-d294-11ef-311e-3b9d2e9bd7fd
-# ╟─b9a8c3d6-d294-11ef-1f0f-09cbbcb8941c
-# ╟─b9a8da74-d294-11ef-058b-896e75cd0c8e
-# ╟─b9a8f0ea-d294-11ef-1e43-bfce1faa6d33
-# ╟─b9a90544-d294-11ef-3230-5d2a67bc88ce
-# ╟─b9a93d0c-d294-11ef-25a5-133ff5af02ce
 # ╟─b9a9565c-d294-11ef-1b67-83d1ab18035b
 # ╠═b9a99fcc-d294-11ef-3de4-5369d9796de7
+# ╟─f4ce24c7-7d03-4574-81e0-d4cbb818a897
 # ╟─b9a9b8e0-d294-11ef-348d-c197c4ce2b8c
 # ╟─b9a9dca8-d294-11ef-04ec-a9202c319f89
 # ╟─b9a9f98e-d294-11ef-193a-0dbdbfffa86f
 # ╟─b9aa27da-d294-11ef-0780-af9d89f9f599
 # ╟─b9aa3950-d294-11ef-373f-d5d330694bfd
+# ╟─0072e73e-1569-4ce4-bffb-280823499f0d
+# ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
+# ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
 # ╟─b9aa930a-d294-11ef-37ec-8d17be226c74
 # ╟─b9aabe9a-d294-11ef-2489-e9fc0dbb760a
 # ╟─b9aad50e-d294-11ef-23d2-8d2bb3b47574
 # ╟─b9aaee4a-d294-11ef-2ed7-0dcb360d8bb7
 # ╟─b9aafc6e-d294-11ef-1b1a-df718c1f1a58
+# ╟─e2fc4945-4f88-4520-b56c-c7208b62c29d
 # ╟─b9ab0b46-d294-11ef-13c5-8314655f7867
 # ╟─b9ab1dd4-d294-11ef-2e86-31c4a4389475
 # ╟─b9ab2e32-d294-11ef-2ccc-9760ead59972
@@ -2512,20 +2595,16 @@ version = "1.4.1+2"
 # ╠═115eabf2-c476-40f8-8d7b-868a7359c1b6
 # ╠═d37f14bb-8f88-4635-90d6-c6ca17669b33
 # ╠═661082eb-f0c9-49a9-b046-8705f4342b37
+# ╠═7cd105c4-362b-4fa2-904a-d0bdc26b323b
 # ╟─b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
-# ╟─b9abadce-d294-11ef-14a6-9131c5b1b802
-# ╟─b9abbdfc-d294-11ef-1c58-39507ff2696c
-# ╟─b9abce02-d294-11ef-0ee5-15af9141a571
-# ╟─b9abdc7e-d294-11ef-394a-a708c96c86fc
-# ╠═cb1df581-c42b-4afd-b090-37f5228dc75d
-# ╟─b9abf984-d294-11ef-1eaa-3358379f8b44
-# ╟─b9ac09c4-d294-11ef-2cb8-270289d01f25
 # ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
 # ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
 # ╠═b9ac5190-d294-11ef-0a99-a9d369b34045
-# ╟─b9ac7486-d294-11ef-13e5-29b7ffb440bc
+# ╠═7a57afce-f325-4e14-815d-ec74eeee7d08
+# ╠═b9ac7486-d294-11ef-13e5-29b7ffb440bc
 # ╟─b9aca5b6-d294-11ef-2178-456126c0a874
 # ╟─b9acd5d4-d294-11ef-1ae5-ed4e13d238ef
+# ╠═72e9420c-80da-48ef-8849-71988a4f8dda
 # ╟─b9acf7a8-d294-11ef-13d9-81758355cb1e
 # ╟─b9ad0842-d294-11ef-2035-31bceab4ace1
 # ╟─b9ad1b70-d294-11ef-3931-d1dcd2343ac9
@@ -2534,5 +2613,10 @@ version = "1.4.1+2"
 # ╟─b9ad6238-d294-11ef-3fed-bbcc7d7443ee
 # ╟─b9ad71a6-d294-11ef-185f-f1f6e6ac4464
 # ╟─b9ad85a4-d294-11ef-2af2-953ac0ab8927
+# ╟─b9abadce-d294-11ef-14a6-9131c5b1b802
+# ╟─b9abdc7e-d294-11ef-394a-a708c96c86fc
+# ╟─b9abf984-d294-11ef-1eaa-3358379f8b44
+# ╟─b9ac09c4-d294-11ef-2cb8-270289d01f25
+# ╠═d5f74bd7-cc31-4efc-bb9b-a289f26b0121
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
