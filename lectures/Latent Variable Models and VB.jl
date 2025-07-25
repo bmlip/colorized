@@ -48,7 +48,7 @@ md"""
       * These lecture notes
   * Optional 
 
-      * Bishop (2016), pp. 461-486 (sections 10.1, 10.2 and 10.3)
+      * Bishop (2016), [PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), pp. 461-486 (sections 10.1, 10.2 and 10.3)
       * Ariel Caticha (2010), [Entropic Inference](https://arxiv.org/abs/1011.0723)
 
           * tutorial on entropic inference, which is a generalization to Bayes rule and provides a foundation for variational inference.
@@ -100,9 +100,8 @@ The spread of the data in the Old Faithful data set looks like it could be model
 
 # ╔═╡ 26c5b896-d294-11ef-1d8e-0feb99d2d45b
 md"""
-Let ``D=\{x_1, x_2, \ldots, x_N\}`` be a set of observations. 
 
-We associate a one-hot coded hidden class label ``z_n`` with each observation:
+We associate a one-hot coded hidden class label ``z_n`` with each observation ``x_n``:
 
 ```math
 \begin{equation*}
@@ -151,7 +150,7 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 \end{align*}
 ```
 
-Full proof as an [exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
+**Proof**: see [exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
 
 Eq. B-9.12 reveals the link to the name Gaussian *mixture model*. The priors ``\pi_k`` for the ``k``-th class are also called **mixture coefficients**. 
 
@@ -161,7 +160,7 @@ Be aware that Eq. B-9.12 is not the generative model for the GMM! The generative
 
 # ╔═╡ 26c5d734-d294-11ef-20a3-afd2c3324323
 md"""
-## GMM is a very flexible model
+## GMM is a Flexible Model
 
 GMMs are very popular models. They have decent computational properties and are **universal approximators of densities** (as long as there are enough Gaussians, of course).
 
@@ -175,15 +174,17 @@ GMMs are very popular models. They have decent computational properties and are 
 md"""
 ## Latent Variable Models
 
-The GMM contains both **observed** variables ``\{x_n\}``, and **unobserved** variables, namely unobserved (synonym: latent, hidden) parameters ``\theta= \{\pi_k,\mu_k, \Sigma_k\}`` and unobserved  class labels ``\{z_{nk}\}``.
+A GMM contains both **observed** variables ``\{x_n\}``, and **unobserved** variables, namely unobserved (synonym: latent, hidden) parameters ``\theta= \{\pi_k,\mu_k, \Sigma_k\}`` and unobserved  class labels ``\{z_{nk}\}``.
 
 From a Bayesian viewpoint, both the class labels ``\{z_{nk}\}`` and the parameters ``\theta`` are just unobserved variables for which we can set a prior and compute a posterior by Bayes rule. 
 
-Note that ``z_{nk}`` has a subscript ``n``, hence its value depends not only on the class (``k``) but also on the ``n``-th observation (in contrast to parameters). These observation-dependent latent variables are generally a useful mechanism for encoding additional structure in the model about the causes of your observations. Here (in the GMM), the latent variables ``\{z_{nk}\}`` encode (unobserved) class membership. 
+Note that ``z_{nk}`` carries a subscript ``n``, indicating that its value depends not only on the class index ``k``, but also on the specific observation ``n``. This contrasts with global model parameters ``\theta``, which are shared across all data points. 
 
-Models with observation-dependent latent variables are generally referred to as **Latent Variable Models**. 
+Observation-specific latent variables can be a powerful modeling tool for capturing additional structure in the data, particularly information about the hidden causes of individual observations. In the case of the Gaussian Mixture Model (GMM), the latent variables ``z_{nk}`` represent unobserved class memberships, specifying which component generated each data point.
 
-By adding model structure through (equations among) observation-dependent latent variables, we can often build more accurate models for very complex processes. Unfortunately, adding structure through observation-dependent latent variables in models is often accompanied by a more complex inference task.
+Models that incorporate unobserved variables, often specific to each observation, are broadly known as **Latent Variable Models** (LVMs). These latent variables help explain the hidden structure or generative process underlying the observed data.
+
+By adding model structure through (equations among) observation-dependent latent variables, we can often build more accurate models for very complex processes. Unfortunately, adding structure through observation-dependent latent variables in models is also often accompanied by a more complex inference task.
 
 """
 
@@ -215,7 +216,7 @@ However, for the Gaussian mixture model (same log-likelihood function with ``z_{
 
 # ╔═╡ 26c64174-d294-11ef-2bbc-ab1a84532311
 md"""
-There is no known conjugate prior for the latent variables for the GMM likelihood function and, therefore, we cannot compute Bayes rule to get a closed-form expression for the posterior over the latent variables:
+There is no known conjugate prior for the latent variables in the GMM likelihood. Therefore, Bayes rule does not yield a closed-form expression for the posterior over the latent variables:
 
 ```math
  \underbrace{p(\{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\} | D)}_{\text{posterior (no analytical solution)}} \propto \underbrace{p(D\,|\,\{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\})}_{\text{likelihood}} \cdot \underbrace{p( \{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\} )}_{\text{prior (no known conjugate)}} 
@@ -238,7 +239,7 @@ md"""
 md"""
 ## The Variational Free Energy Functional
 
-We'll start from scratch. Consider a model ``p(x,z) = p(x|z) p(z)``, where ``x`` and ``z`` are observed and latent variables respectively. ``z`` may include parameters but also observation-dependent latent variables. 
+We'll start from scratch. Consider a model ``p(x,z) = p(x|z) p(z)``, where ``x`` and ``z`` are observed and latent variables, respectively. ``z`` may include parameters but also observation-dependent latent variables. 
 
 The goal of Bayesian inference is to transform the (known) *likelihood-times-prior* factorization of the full model to a *posterior-times-evidence* decomposition: 
 
@@ -255,7 +256,7 @@ Remember from the [Bayesian machine learning lesson](https://bmlip.github.io/col
 
 The CA decomposition cannot be evaluated because it depends on the posterior ``p(z|x)``, which cannot be evaluated since it is the objective of the inference process. 
 
-Let's now introduce a distribution ``q(z)`` that we use to approximate the posterior ``p(z|x)``, and assume that ``q(z)`` can be evaluated! 
+Let's now introduce a distribution ``q(z)`` (called the "variational" or "approximate" posterior distribution) that we will use to *approximate* the posterior ``p(z|x)``. Since we propose the distribution ``q(z)`` ourselves, we will assume that ``q(z)`` can be evaluated. 
 
 If will substitute ``q(z)`` for ``p(z|x)`` in the CA decomposition, then we obtain 
 
@@ -266,17 +267,17 @@ If will substitute ``q(z)`` for ``p(z|x)`` in the CA decomposition, then we obta
 
 This expression is called the **Variational Free Energy** (VFE), represented by the symbol ``F``. We treat ``F`` as a function of the posterior ``q(z)``. Technically, a function of a function is called a functional, and we write square brackets (e.g., ``F[q]``) to differentiate functionals from functions (e.g., ``q(z)``). 
 
-Note that all factors in the CA decomposition of FE (i.e., ``q(z)``, ``p(z)``, and ``p(x|z)``) can be evaluated as a function of ``z`` (and ``x`` is observed), and therefore the VFE can be evaluated. This is important: log-evidence ``\log p(x)`` cannot be evaluated, but ``F[q]`` *can* be evaluated! 
+Note that all factors in the CA decomposition of VFE (i.e., ``q(z)``, ``p(z)``, and ``p(x|z)``) can be evaluated as a function of ``z`` (and ``x`` is observed), and therefore the VFE can be evaluated. This is important: log-evidence ``\log p(x)`` cannot be evaluated, but ``F[q]`` *can* be evaluated! 
 
 """
 
 # ╔═╡ 26c6e002-d294-11ef-15a4-33e30d0d76ec
 md"""
-## Inference by VFE Minimization
+## The Global VFE Minimum Recovers Bayes Rule
 
-It turns out that we can do (approximate) Bayesian inference through VFE Minimization (VFEM) with respect to ``q``. 
+It turns out that we can perform (approximate) Bayesian inference by minimizing the Variational Free Energy (VFE) with respect to the variational distribution ``q``.
 
-To explain inference by VFEM, we first rewrite the VFE in terms of "inference bound" minus "log-evidence" terms (the bound-evidence (BE) decomposition):
+To explain inference by VFE minimization (abbreviated as VFEM), we first rewrite the VFE in terms of "inference bound" minus "log-evidence" terms (the bound-evidence (BE) decomposition):
 
 ```math
 \begin{align*}
@@ -297,7 +298,7 @@ Since ``D_{\text{KL}}[q(z),p(z|x)]\geq 0`` for any ``q(z)``, and ``D_{\text{KL}}
 F[q] \geq -\log p(x) \,.
 ```
 
-As a result, **global VFEM recovers Bayes rule**, i.e., global optimization of FE w.r.t. ``q`` leads to
+As a result, global minimization of VFE leads to
 
 ```math
 q^*(z) = \arg\min_q F[q]
@@ -306,13 +307,22 @@ q^*(z) = \arg\min_q F[q]
 where
 
 ```math
-\begin{align*}
-   \text{posterior: } q^*(z) &= p(z|x) \\
-   \text{evidence: } F[q^*] &= -\log p(x) 
-\end{align*}
+\begin{align}
+   q^*(z) &= p(z|x) \tag{posterior}\\
+   F[q^*] &= -\log p(x) \tag{evidence}
+\end{align}
 ```
 
-In practice, even if we cannot attain the global minimum of FE, we can still use a local minimum, 
+"""
+
+# ╔═╡ e6aeee80-9e63-4937-9edf-428d5e3e38d3
+keyconcept("", md"Global VFE minimization recovers Bayes rule!")
+
+# ╔═╡ baec0494-9557-49d1-b4d8-a8030d3281b7
+md"""
+## Approximate Bayesian Inference by VFE Minimization
+
+In practice, even if we cannot attain the global minimum of VFE, we can still use a local minimum, 
 
 ```math
 \hat{q}(z) \approx \arg\min_q F[q]
@@ -322,16 +332,15 @@ to accomplish **approximate Bayesian inference** by:
 
 ```math
 \begin{align*}
-   \text{posterior: } \hat{q}(z) &\approx p(z|x) \\
-   \text{evidence: } F[\hat{q}] &\approx -\log p(x)
+\hat{q}(z) &\approx p(z|x) \\
+F[\hat{q}] &\approx -\log p(x)
     \end{align*}
 ```
 
-Executing inference by minimizing the variational FE functional is called **Variational Bayes** (VB) or variational inference. 
+Executing inference by minimizing the VFE functional is called **Variational Bayes** (VB) or **Variational Inference** (VI). 
 
 
 (As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* VFE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing VFE rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
-
 """
 
 # ╔═╡ 40ce0abb-a086-4977-9131-10f60ab44152
@@ -341,20 +350,20 @@ keyconcept("", md"VFE minimization transforms a Bayesian inference problem (that
 md"""
 ## Constrained VFE Minimization
 
-It is common to add simplifying constraints to an optimization problem to make a difficult optimization task tractible. This is also common practice when approximating Bayesian inference by FE minimization.
+It is common to add simplifying constraints to an optimization problem to make a difficult optimization task tractible. This is also standard practice when approximating Bayesian inference by FE minimization.
 
-There are three important cases of adding constraints to ``q(z)`` that often alleviate the VFE minimization task:
-  - form constraints
-  - factorization constraints
+There are three important cases of adding constraints to the VFE functional that often alleviate the VFE minimization task:
+  - form constraints on ``q(z)``
+  - factorization constraints on ``q(z)``
   - other (ad hoc) constraints
 
-We shortly discuss these simplifications below.
+We will shortly discuss these simplifications below.
 
 """
 
 # ╔═╡ aea77d69-9ecd-4be0-b6fd-c944d27d68df
 md"""
-##### Form constraints
+##### 1. Form constraints
 
 For almost every practical setting, we constrain the posterior ``q(z)`` to belong to a **specific parameterized family** of probability distributions, e.g.,
 
@@ -371,17 +380,7 @@ F(\mu,\Sigma) = \int \mathcal{N}\left( z | \mu, \Sigma \right) \log \frac{\mathc
 with respect to the parameters ``\mu`` and ``\Sigma``. 
 
 
-We can often use standard gradient-based optimization methods to minimize the function ``F(\mu,\Sigma)``.
-
-
-$(#= 
-
-In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian posterior](https://bmlip.github.io/colorized/lectures/Discriminative%20Classification.html#Laplace-example) (yellow) for a binary classification problem has been approximated by a Laplace approximation (red) and a variational posterior ``q(z) \sim \mathcal{N}(\mu,\sigma^2)`` (green). 
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure10.1a.png?raw=true) 
-
-=#)
-
+We can often use standard gradient-based optimization methods to minimize the function ``F(\mu,\Sigma)\,.``
 
 
 
@@ -389,9 +388,9 @@ In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian pos
 
 # ╔═╡ 3654551d-5d08-4bb0-8a0d-c7d42225bc69
 md"""
-##### Factorization constraints
+##### 2. Factorization constraints
 
-In addition to form constraints, it is also common to constrain the posterior ``q(z)`` by a specific factorization. For instance, in _mean-field factorization_, we constrain the posterior to factorize into a set of independent factors, i.e.,
+In addition to form constraints, it is also common to constrain the posterior ``q(z)`` by a specific factorization. For instance, in the *mean-field factorization* constraints, we constrain the variational posterior to factorize fully into a set of independent factors, i.e.,
 
 ```math
 q(z) = \prod_{j=1}^m q_j(z_j)\,, \tag{B-10.5}
@@ -408,9 +407,9 @@ Mean-field factorization is just an example of various _factorization constraint
 # ╔═╡ edb179df-5cff-4e7b-8645-6da4818dceee
 md"""
 
-##### Other constraints, e.g., the Expectation-Minimization (EM) algorithm
+##### 3. Other constraints, e.g., the Expectation-Minimization (EM) algorithm
 
-Aside from form and factorization constraints, several ad hoc algorithms have been developed that ease the process of VFE minimization for particular models. 
+Aside from form and factorization constraints on ``q(z)``, several ad hoc algorithms have been developed that ease the process of VFE minimization for particular models. 
 
 In particular, the [Expectation-Maximization (EM) algorithm](https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm) is a famous special case of constrained VFE minimization. The EM algorithm places some constraints on both the posterior ``q(z)`` and the prior ``p(z)`` (see the [OPTIONAL SLIDE](#EM-Algorithm) for more info) that essentially reduce VFE minimization to maximum likelihood estimation.
 """
@@ -431,22 +430,27 @@ The following image by [David Blei](https://www.cs.columbia.edu/~blei/) illustra
 
 # ╔═╡ 26c728f0-d294-11ef-0c01-6143abe8c3f0
 md"""
-The Bayesian posterior ``p(z|x)`` (upper-right) is the posterior that would be obtained through executing Bayes rule, but unfortunately Bayes rule is not tractable here. Instead, we propose a variational posterior ``q(z;\nu)`` that is parameterized by ``\nu``. The inside area of the ellipsis represents the area that is reachable by choosing values for the parameter ``\nu``. Note that ``p(z|x)`` is not reachable. We start the FE minimization process by choosing an initial value ``\nu^{\text{init}}``, which corresponds to posterior ``q(z;\nu^{\text{init}})``, as indicated in the figure. FE minimization leads to a final value ``\nu^{*}`` that minimizes the KL-divergence between ``q(z;\nu)`` and ``p(z|x)``. 
+The Bayesian posterior ``p(z|x)`` (upper-right) is the posterior that would be obtained through executing Bayes rule, but unfortunately, Bayes rule is not tractable here. Instead, we propose a variational posterior ``q(z;\nu)`` that is parameterized by ``\nu``. The inside area of the ellipsis represents the area that is reachable by choosing values for the parameter ``\nu``. Note that ``p(z|x)`` is not reachable. We start the FE minimization process by choosing an initial value ``\nu^{\text{init}}``, which corresponds to posterior ``q(z;\nu^{\text{init}})``, as indicated in the figure. VFE minimization leads to a final value ``\nu^{*}`` that minimizes the KL-divergence between ``q(z;\nu)`` and ``p(z|x)``. 
 
 """
 
 # ╔═╡ 06512595-bdb7-4adf-88ae-62af20210891
 md"""
-# Examples
+# Challenge Revisited: Modeling of the Old Faithful Data Set
 """
 
 # ╔═╡ 26c73cf0-d294-11ef-297b-354eb9c71f57
 md"""
-## Challenge Revisited: Density Modeling for the Old Faithful Data Set
+
+## Derivation of VFEM Update Equations
 
 Let's get back to the illustrative challenge at the beginning of this lesson: we want to do [density modeling for the Old Faithful data set](#illustrative-example).
 
-### model specification
+"""
+
+# ╔═╡ 3e897a59-e7b5-492c-8a8a-724248513a72
+md"""
+##### model specification
 
 We consider a Gaussian Mixture Model, specified by 
 
@@ -458,7 +462,7 @@ p(x,z|\theta) &= p(x|z,\mu,\Lambda)p(z|\pi) \\
 \end{align*}
 ```
 
-Let us introduce some priors for the parameters ``\pi``, ``\mu`` and ``\Lambda``. We factorize the prior and choose conjugate distributions by
+Let us introduce some priors for the parameters ``\pi``, ``\mu``, and ``\Lambda``. We factorize the prior and choose conjugate distributions by
 
 ```math
 p(\pi,\mu,\Lambda) = p(\pi) p(\mu|\Lambda) p(\Lambda)
@@ -467,11 +471,11 @@ p(\pi,\mu,\Lambda) = p(\pi) p(\mu|\Lambda) p(\Lambda)
 with 
 
 ```math
-\begin{align*}
-p(\pi) &= \mathrm{Dir}(\pi|\alpha_0) = C(\alpha_0) \prod_k \pi_k^{\alpha_0-1} \qquad &&\text{(B-10.39)}\\
-p(\mu|\Lambda) &= \prod_k \mathcal{N}\left(\mu_k | m_0, \left( \beta_0 \Lambda_k\right)^{-1} \right) \qquad &&\text{(B-10.40)}\\
-p(\Lambda) &= \prod_k \mathcal{W}\left( \Lambda_k | W_0, \nu_0 \right) \qquad &&\text{(B-10.40)}
-\end{align*}
+\begin{align}
+p(\pi) &= \mathrm{Dir}(\pi|\alpha_0) = C(\alpha_0) \prod_k \pi_k^{\alpha_0-1} \tag{B-10.39} \\
+p(\mu|\Lambda) &= \prod_k \mathcal{N}\left(\mu_k | m_0, \left( \beta_0 \Lambda_k\right)^{-1} \right) \tag{B-10.40} \\
+p(\Lambda) &= \prod_k \mathcal{W}\left( \Lambda_k | W_0, \nu_0 \right) \tag{B-10.40}
+\end{align}
 ```
 
 where ``\mathcal{W}\left( \cdot \right)`` is a [Wishart distribution](https://en.wikipedia.org/wiki/Wishart_distribution) (i.e., a multi-dimensional Gamma distribution).
@@ -479,28 +483,28 @@ where ``\mathcal{W}\left( \cdot \right)`` is a [Wishart distribution](https://en
 The full generative model is now specified by
 
 ```math
-p(x,z,\pi,\mu,\Lambda) = p(x|z,\mu,\Lambda) p(z|\pi) p(\pi) p(\mu|\Lambda) p(\Lambda) \tag{B-10.41}
+p(x,z,\pi,\mu,\Lambda) = \underbrace{p(x|z,\mu,\Lambda) p(z|\pi)}_{\text{B-10.37-38}} \underbrace{p(\pi) p(\mu|\Lambda) p(\Lambda)}_{\text{B-10.39-40}} \tag{B-10.41}
 ```
 
 with hyperparameters ``\{ \alpha_0, m_0, \beta_0, W_0, \nu_0\}``.
 
-### inference
+"""
+
+# ╔═╡ 93e7c7d5-a940-4764-8784-07af2f056e49
+md"""
+##### inference by constrained VFEM
 
 Assume that we have observed ``D = \left\{x_1, x_2, \ldots, x_N\right\}`` and are interested to infer a posterior distribution for the parameters ``\pi``, ``\mu`` and ``\Lambda``.  
 
-We will approximate Bayesian inference by FE minimization. For the specified model, this leads to FE minimization w.r.t. the hyperparameters, i.e., we need to minimize the function 
+We will approximate Bayesian inference by VFE minimization. For the specified model, this leads to VFE minimization with respect to the hyperparameters, i.e., we need to minimize the function 
 
 ```math
 F(\alpha_0, m_0, \beta_0, W_0, \nu_0) \,.
 ```
 
-In general, this function can be optimized in various ways, e.g. by a gradient-descent procedure. 
+In general, this function can be optimized in various ways, e.g., by a gradient-descent procedure. 
 
-"""
-
-# ╔═╡ 26c74c9a-d294-11ef-2d31-67bd57d56d7c
-md"""
-It turns out that adding the following **factorization constraints** on the posterior makes the FEM task analytically tractible:
+It turns out that adding the following **factorization constraints** on the variational posterior makes the VFEM task analytically tractible:
 
 ```math
 \begin{equation}
@@ -508,7 +512,14 @@ q(z,\pi,\mu,\Lambda) = q(z) \cdot q(\pi,\mu,\Lambda) \,. \tag{B-10.42}
 \end{equation}
 ```
 
-For this specific case (GMM model with assumed factorization and parameterization constraints), Bishop shows that the equations for the [optimal solutions (Eq. B-10.9)](#optimal-solutions) are analytically solvable, leading to the following variational update equations (for ``k=1,\ldots,K``): 
+"""
+
+# ╔═╡ 26c74c9a-d294-11ef-2d31-67bd57d56d7c
+md"""
+
+##### update equations
+
+For this specific case (GMM model with factorization constraints), Bishop shows that the equations for the [optimal solutions (Eq. B-10.9)](#optimal-solutions) are analytically solvable, leading to the following variational update equations (for ``k=1,\ldots, K`` ): 
 
 ```math
 \begin{align*}
@@ -537,15 +548,7 @@ S_k &= \frac{1}{N_k} \sum_{n=1}^N r_{nk} \left( x_n - \bar{x}_k\right) \left( x_
 
 # ╔═╡ 26c75b5e-d294-11ef-173e-b3f46a1df536
 md"""
-Exam guide: Working out FE minimization for the GMM to these update equations (eqs B-10.58 through B-10.63) is not something that you need to reproduce without assistance at the exam. Rather, the essence is that *it is possible* to arrive at closed-form variational update equations for the GMM. You should understand though how FEM works conceptually and in principle be able to derive variational update equations for very simple models that do not involve clever mathematical tricks.
-
-"""
-
-# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
-md"""
-## Code Example: FEM for GMM on Old Faithfull data set
-
-Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by Free Energy Minimization, using the constraints as specified above. 
+Exam guide: Working out VFE minimization for the GMM to these update equations (eqs B-10.58 through B-10.63) is not something that you need to reproduce without assistance at the exam. Rather, the essence is that *it is possible* to arrive at closed-form variational update equations for the GMM. You should understand though how FEM works conceptually and in principle be able to derive variational update equations for very simple models that do not involve clever mathematical tricks.
 
 """
 
@@ -882,36 +885,54 @@ end
 
 # ╔═╡ 26c796c8-d294-11ef-25be-17dcd4a9d315
 md"""
-The generated figure looks much like Figure 10.6 in Bishop. The plots show FEM results for a GMM of ``K = 6`` Gaussians applied to the Old Faithful data set. The ellipses denote the one standard-deviation density contours for each of the components, and the color coding of the data points reflects the "soft" class label assignments. Components whose expected mixing coefficient are numerically indistinguishable from zero are not plotted.
+The generated figure resembles Figure 10.6 in Bishop. The plots show VFEM results for a GMM of ``K = 6`` Gaussians applied to the Old Faithful data set. The ellipses denote the one standard-deviation density contours for each of the components, and the color coding of the data points reflects the "soft" class label assignments. Components whose expected mixing coefficients are numerically indistinguishable from zero are not plotted.
 
 """
 
-# ╔═╡ d4e239be-5ff1-4f96-9c65-8a5a0dda8b1b
+# ╔═╡ 0090be18-2453-4ad3-8e2c-6953649b171e
+TODO("Fons: can you make this into a cool code example where user gets to run through the iterations?")
+
+# ╔═╡ f42a1a65-20ce-452f-9974-bc8146943574
 md"""
-# TODO: the result is different from the notebooks online
+# Theoretical Underpinning of VFE Minimization
 """
 
 # ╔═╡ 26c7b428-d294-11ef-150a-bb37e37f4b5d
 md"""
-## Variational Inference and The Method of Maximum Entropy
+## Observations as Variational Constraints
 
-We derived variational inference by substituting a variational posterior ``q(z)`` for the Bayesian posterior ``p(z|x)`` in the CA decomposition of (negative log) Bayesian evidence for a model. This is clever, but reveals nothing about the foundations of variational inference. Is variational inference any good?
+We derived variational inference by substituting a variational posterior ``q(z)`` for the Bayesian posterior ``p(z|x)`` in the CA decomposition of (negative log) Bayesian evidence for a model. This led to a straightforward derivation of the VFE functional, but revealed nothing about the foundations of variational inference. Is variational inference any good?
 
-In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the **Method of Maximum (Relative) Entropy** is developed for rational updating of priors to posteriors when faced with new information in the form of constraints. Caticha's argumentation is as follows:
+To approach this question, let us first recognize that, in the context of a given model ``p(x,z)``, new observations ``x`` can generally be formulated as a constraint on a posterior distribution ``q``. For instance, observing a new data point ``x_1 = 5`` can be formalized as a constraint ``q(x_1) = \delta(x_1 - 5)``, where ``\delta(\cdot)`` is the Dirac delta function. 
 
-  * Consider prior beliefs (ie, a generative model) ``p(x,z)`` about observed and latent variables ``x`` and ``z``. Assume that new information in the form of (data, factorization or form) constraints is obtained and we are interested in the "best update" to a posterior ``q(x,z)``.
-  * We first establish that new observations of ``x`` can be phrased as constraints on the variational posterior ``q``. For instance, a new observation ``x_1=5`` can be formulated as a posterior constraint ``q(x_1)=\delta(x_1-5)``.
+Viewing observations as delta-function constraints enables us to interpret them as a specific instance of variational constraints, on par with form and factorization (and other) constraints, all of which shape the variational posterior in constrained VFE minimization.
+
+
+"""
+
+# ╔═╡ b3bb7349-1965-4734-83ed-ba6fef0ccc41
+md"""
+
+## Variational Inference and The Maximum Entropy Principle
+
+In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the [Principle of Maximum (Relative) Entropy](https://en.wikipedia.org/wiki/Principle_of_maximum_entropy) is developed as a method for rational updating of priors to posteriors when faced with new information in the form of constraints.
+
+
+Caticha's argumentation is as follows:
+
+  * Consider prior beliefs (i.e., a generative model) ``p(x,z)`` about observed and latent variables ``x`` and ``z``. Assume that new information in the form of constraints is obtained, and we are interested in the "best update" to posterior beliefs ``q(x,z)``.
+
   * In order to define what "best update" means, Caticha assumed a ranking function ``S[q]`` that generates a preference score for each candidate posterior ``q`` for a given prior ``p``. The best update from ``p`` to ``q`` is then identified as
 
 ```math
-q^* = \arg\max_q S[q]\,, \quad \text{subject to constraints.} 
+q^* = \arg\max_q S[q]\,, \quad \text{subject to all constraints.} 
 ```
 
-Similarly to [Cox' method](https://en.wikipedia.org/wiki/Cox%27s_theorem) for deriving Probability Theory from a set of sensical assumptions, Caticha then introduced the following axioms, based on a rational principle (the **principle of minimal updating**, see [Caticha 2010](https://arxiv.org/abs/1011.0723)), that the ranking function needs to adhere to: 
+Similarly to [Cox' method](https://en.wikipedia.org/wiki/Cox%27s_theorem) for deriving Probability Theory from a set of sensical axioms, Caticha then introduced the following axioms, based on a rational principle (the **principle of minimal updating**, see [Caticha 2010](https://arxiv.org/abs/1011.0723)), that the ranking function needs to adhere to: 
 
-1. *Locality*: local information has local effects.
-2. *Coordinate invariance*: the system of coordinates carries no information.
-3. *Independence*: When systems are known to be independent, it should not matter whether they are treated separately or jointly.
+  1. *Locality*: local information has local effects.
+  2. *Coordinate invariance*: the system of coordinates carries no information.
+  3. *Independence*: When systems are known to be independent, it should not matter whether they are treated separately or jointly.
 
 It turns out that these three criteria **uniquely identify the Relative Entropy** as the proper ranking function: 
 
@@ -921,44 +942,48 @@ S[q] = - \sum_z q(x,z) \log \frac{q(x,z)}{p(x,z)}
 \end{align*}
 ```
 
-This procedure to find the variational posterior ``q`` is called the Method of Maximum (Relative) Entropy (MRE). Note that, since ``S[q]=-F[q]``, constrained Relative Entropy maximization is equivalent to constrained Free Energy minimization! 
+This procedure for finding the variational posterior ``q`` is called the **Principle of  Maximum (Relative) Entropy** (PME). Note that, since ``S[q]=-F[q]``, constrained Relative Entropy maximization is equivalent to constrained VFE minimization! 
 
-```math
-\Rightarrow
-```
+Therefore, when information is supplied in the form of constraints on the posterior (such as form/factorization constraints and new observations as data constraints), we *should* select the posterior that minimizes the constrained Variational Free Energy. **Constrained FE minimization is the proper method for inference!**
 
-When information is supplied in the form of constraints on the posterior (such as form/factorization constraints and new observations as data constraints), we *should* select the posterior that minimizes the constrained Free Energy. **Constrained FE minimization is the proper method for inference!**
-
-Bayes rule is the global solution of constrained FEM when all constraints are data constraints, ie, delta distributions on ``q(x)``. Hence, Bayes rule is a special case of constrained FEM. Bayes rule only applies to updating belief on the basis of new observations. FE minimization is the best inference method you can do under the given constraints.  
-
+Bayes rule is the global solution of constrained VFEM when all constraints are data constraints, ie, delta distributions on ``q(x)``. Hence, Bayes rule is a special case of constrained VFEM. Bayes rule only applies to updating beliefs on the basis of new observations. 
+ 
 """
 
-# ╔═╡ 26c7f514-d294-11ef-123d-91ccca2b0460
-md"""
-## Interesting Decompositions of the Free Energy Functional
+# ╔═╡ 06170e31-e865-4178-8af0-41d82df95d71
+keyconcept("","Constrained VFE minimization is consistent with the Maximum Entropy Principle, which prescribes how to rationally update beliefs when new information becomes available. In this framework, the updated posterior is the distribution that minimizes VFE (or equivalently, KL divergence to the prior) subject to the imposed constraints. ")
 
-$(HTML("<span id='fe-decompositions'></span>")) In rounding up this lession, we summarize a few interesting decompositions of the FE functional, making use of ``p(x,z) = p(z|x)p(x) = p(x|z)p(z)`` 
+# ╔═╡ bbdca8c2-022f-42be-bcf7-80d86f7f269c
+md"""
+
+## Model Performance Evaluation, Revisited
+
+Let us reconsider the Bound-Evidence decomposition of the VFE for a model ``p(x,z)`` with variational posterior ``q(z)``,
 
 ```math
-\begin{align*}
-\mathrm{F}[q] &\triangleq \sum_z q(z) \log \frac{q(z)}{p(x,z)} \\
-&= \underbrace{\sum_z q(z) \log \frac{1}{p(x,z)}}_{\text{energy}} - \underbrace{\sum_z q(z) \log \frac{1}{q(z)}}_{\text{entropy}} \qquad &&\text{(EE)} \\
-&= \underbrace{\sum_z q(z) \log \frac{q(z)}{p(z|x)}}_{\text{inference bound}\geq 0} - \underbrace{\log p(x)}_{\text{log-evidence}} \qquad &&\text{(BE)} \\
-&= \underbrace{\sum_z q(z)\log\frac{q(z)}{p(z)}}_{\text{complexity}} - \underbrace{\sum_z q(z) \log p(x|z)}_{\text{accuracy}}  \qquad &&\text{(CA)}
-\end{align*}
+\begin{align}
+\mathrm{F}[q] = \underbrace{\sum_z q(z) \log \frac{q(z)}{p(z|x)}}_{\text{inference bound}\geq 0} \underbrace{- \log p(x)}_{\text{surprise}} \tag{BE} 
+\end{align}
 ```
 
-These decompositions are very insightful and we will label them respectively as *energy-entropy* (EE), *bound-evidence* (BE), and *complexity-accuracy* (CA) decompositions. 
+The VFE comprises two cost terms:
 
-In the [Bayesian Machine Learning](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html) lecture, we discussed the CA decomposition of Bayesian model evidence to support the interpretation of evidence as a model performance criterion. Here, we recognize that FE allows a similar CA decomposition: minimizing FE increases data fit and decreases model complexity. Hence, FE is a good model performance criterion.
+  - The **surprise** (or negative log-evidence), ``-\log p(x)``, reflects the cost of predicting the data ``x`` using a model ``p(x, z)``, assuming that (ideal) Bayesian inference can be performed. Specifically, the evidence ``p(x)`` is obtained from the joint model ``p(x, z)`` by marginalizing over the latent variables:
+```math
+p(x) = \sum_z p(x,z)  \,.
+```
 
-The CA decomposition makes use of the prior ``p(z)`` and likelihood ``p(x|z)``, both of which are selected by the engineer, so the FE can be evaluated with this decomposition!
+  - The **inference bound**, given by the Kullback–Leibler divergence
+```math
+\sum_z q(z) \log \frac{q(z)}{p(z |x)} \geq 0 \,,
+``` 
+quantifies the cost of imperfect inference, i.e., the discrepancy between the variational posterior ``q(z)`` and the true Bayesian posterior ``p(z | x)``.
 
-The BE decomposition restates what we derived earlier, namely that the FE is an upperbound on the (negative) log-evidence. The bound is the KL-divergence between the variational posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. Global minimization of FE with only data constraints drives the KL-divergence to zero and results to perfect Bayesian inference.
+In any practical setting, using a model *implies* performing inference within that model. Therefore, the effective cost of applying a model is not merely the surprise but also must include the cost of inference. 
 
-The BE decomposition can also be interpreted as problem representation costs (negative log-evidence) plus solution proposal costs (the KL-divergence bound), see the [Intelligent Agent and Active Inference lesson (slide on Problem and Solution costs)](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html#PS-decomposition) for more details.
+Put more bluntly: a model with very high Bayesian evidence ``p(x)`` may still be practically unusable due to exorbitant inference costs.
 
-The EE decomposition provides a link to the [second law of thermodynamics](https://en.wikipedia.org/wiki/Second_law_of_thermodynamics): Minimizing FE leads to entropy maximization, subject to constraints, where in this case the constraints are imposed by the postulated generative model. 
+In the literature, the VFE is typically interpreted as an approximation (more precisely, an upper-bound) to the surprise, ``-\log p(x)``, which is often regarded as the “true” measure of model performance. However, we argue that this perspective should be reversed: the VFE should be considered the true performance metric in practice, as it accounts for both model fit and the tractability of inference. The surprise can be viewed as a special case of the VFE, corresponding to a zero inference bound, that only applies when ideal Bayesian inference is computationally feasible. 
 
 """
 
@@ -966,17 +991,11 @@ The EE decomposition provides a link to the [second law of thermodynamics](https
 md"""
 ## Variational Inference in Practice
 
-For most interesting models of real-world problems, Bayes rule is not tractible. Therefore, the usage of approximate variational Bayesian inference in real-world settings is rising rapidly.
+For most realistic models of complex real-world problems, Bayes rule is not tractable in closed form. As a result, the use of approximate variational Bayesian inference has seen rapid growth in practical applications.
 
-A toolbox such as [RxInfer](http://rxinfer.com) makes it possible to specify a complex model and automate the inference process by constrained Free Energy minimization. 
+Toolboxes such as [RxInfer](http://rxinfer.com) enable users to define sophisticated probabilistic models and automate the inference process via constrained VFE minimization. Remarkably, specifying even complex models typically requires no more than a single page of code. 
 
-Note that model specification, even for complex models, usually does not take more than 1 page of code. As a result, you can, in principle, solve very complex problems by automated inference in a complex model with less than 1 page of code. 
-
-```math
-\Rightarrow
-```
-
-Compared to writing an application algorithm of, say 40 pages of code, solving problems by automated variational inference is potentially a big deal for the future design of information processing systems. 
+In contrast to traditional algorithm design, where solving a problem might require implementing a custom solution in, say, ``40`` pages of code, automated inference in a probabilistic model offers a radically more efficient and modular approach. This shift has the potential to fundamentally change how we design and deploy information processing systems in the future.
 
 """
 
@@ -988,20 +1007,24 @@ md"""
 
 # ╔═╡ 26c82f16-d294-11ef-0fe1-07326b56282f
 md"""
-## FE Minimization with Mean-field Factorization Constraints: $(HTML("<span id='CAVI'>the CAVI Approach</span>"))
+## VFE Minimization with Mean-field Factorization Constraints: $(HTML("<span id='CAVI'>the CAVI Approach</span>"))
 
-Let's work out FE minimization with additional mean-field constraints (=full factorization) constraints:  
+Let's work out VFE minimization with additional mean-field constraints (=full factorization) constraints:  
 
 ```math
 q(z) = \prod_{j=1}^m q_j(z_j)\,.
 ```
 
-In other words, the posteriors for ``z_j`` are all considered independent. This is a strong constraint but leads often to good solutions.
+In other words, the posteriors for ``z_j`` are all considered independent. This is a strong constraint but often leads to good solutions.
 
 Given the mean-field constraints, it is possible to derive the following expression for the $(HTML("<span id='optimal-solutions'>optimal solutions</span>")) ``q_j^*(z_j)``, for ``j=1,\ldots,m``: 
 
-\begin{equation*} \tag{B-10.9} \boxed{ \begin{aligned} \log q_j^*(z*j) &\propto \mathrm{E}*{q*{-j}^*}\left[ \log p(x,z) \right]  \
-  &= \underbrace{\sum*{z*{-j}} q*{-j}^*(z*{-j}) \underbrace{\log p(x,z)}*{\text{"field"}}}_{\text{"mean field"}}  \end{aligned}} \end{equation*}
+```math
+\begin{align} 
+\log q_j^*(z_j) &\propto \mathrm{E}_{q_{-j}^*}\left[ \log p(x,z) \right]  \\
+  &= \underbrace{\sum_{z_{-j}} q_{-j}^*(z_{-j}) \underbrace{\log p(x,z)}_{\text{"field"}}}_{\text{"mean field"}} 
+\end{align} 
+```
 
 where we defined ``q_{-j}^*(z_{-j}) \triangleq q_1^*(z_1)q_2^*(z_2)\cdots q_{j-1}^*(z_{j-1})q_{j+1}^*(z_{j+1})\cdots q_m^*(z_m)``.
 
@@ -1031,7 +1054,7 @@ This algorithm for approximating Bayesian inference is known **Coordinate Ascent
 md"""
 ## $(HTML("<span id='EM-Algorithm'>FE Minimization by the Expectation-Maximization (EM) Algorithm</span>"))
 
-The EM algorithm is a special case of FE minimization that focusses on Maximum-Likelihood estimation for models with latent variables. 
+The EM algorithm is a special case of VFE minimization that focuses on Maximum-Likelihood estimation for models with latent variables. 
 
 Consider a model 
 
@@ -1041,7 +1064,7 @@ p(x,z,\theta)
 
 with observations ``x = \{x_n\}``, latent variables ``z=\{z_n\}`` and parameters ``\theta``.
 
-We can write the following FE functional for this model:
+We can write the following VFE functional for this model:
 
 ```math
 \begin{align*}
@@ -1057,19 +1080,19 @@ The EM algorithm makes the following simplifying assumptions:
 p(x,z,\theta) = p(x,z|\theta) p(\theta) \propto p(x,z|\theta)
 ```
 
-A factorization constraint 
+2. A factorization constraint 
 
 ```math
 q(z,\theta) = q(z) q(\theta)
 ```
 
-The posterior for the parameters is a delta function:
+3. The posterior for the parameters is a delta function:
 
 ```math
 q(\theta) = \delta(\theta - \hat{\theta})
 ```
 
-Basically, these three assumptions turn FE minimization into maximum likelihood estimation for the parameters ``\theta`` and the FE simplifies to 
+Basically, these three assumptions turn VFE minimization into maximum likelihood estimation for the parameters ``\theta`` and the VFE simplifies to 
 
 ```math
 \begin{align*}
@@ -1080,10 +1103,9 @@ F[q,\theta] =  \sum_z q(z) \log \frac{q(z)}{p(x,z|\theta)}
 The EM algorithm minimizes this FE by iterating (iteration counter: ``i``) over 
 
 ```math
-\begin{equation*}
-\boxed{ \begin{aligned} \mathcal{L}^{(i)}(\theta) &= \sum*z \overbrace{p(z|x,\theta^{(i-1)})}^{q^{(i)}(z)}  \log p(x,z|\theta) \quad &&\text{the E-step} \
-\theta^{(i)} &= \arg\max*\theta \mathcal{L}^{(i)}(\theta) &&\text{the M-step} \end{aligned}}
-\end{equation*}
+\begin{align} \mathcal{L}^{(i)}(\theta) &= \sum_z \overbrace{p(z|x,\theta^{(i-1)})}^{q^{(i)}(z)}  \log p(x,z|\theta) \tag{the E-step} \\
+\theta^{(i)} &= \arg\max_\theta \mathcal{L}^{(i)}(\theta) \tag{the M-step} \end{align}
+
 ```
 
 These choices are optimal for the given FE functional. In order to see this, consider the two decompositions
@@ -1537,6 +1559,16 @@ $(challenge_header("Density Modeling for the Old Faithful Data Set"; challenge_t
 You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
 
 ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
+
+"""
+
+# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
+md"""
+
+$(challenge_header("VFEM for GMM on Old Faithfull data set"; challenge_text="Code Example:"))
+
+
+Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by VFE minimization, with the constraints as specified above. 
 
 """
 
@@ -3085,8 +3117,8 @@ version = "1.9.2+0"
 # ╟─26c56fd8-d294-11ef-236d-81deef63f37c
 # ╟─ce7d086b-ff20-4da1-a4e8-52b5b7dc9e2b
 # ╟─26c58298-d294-11ef-2a53-2b42b48e0725
-# ╠═26c591fc-d294-11ef-0423-b7a854d09bad
-# ╠═e0d0f3a1-5e00-44f0-9c2b-4308cbd673ce
+# ╟─26c591fc-d294-11ef-0423-b7a854d09bad
+# ╟─e0d0f3a1-5e00-44f0-9c2b-4308cbd673ce
 # ╟─f8c8013a-3e87-4d01-a3ae-86b39cf1f002
 # ╟─26c59b52-d294-11ef-1eba-d3f235f85eee
 # ╟─26c5a1f6-d294-11ef-3565-39d027843fbb
@@ -3104,16 +3136,20 @@ version = "1.9.2+0"
 # ╟─f1f7407d-86a1-4f24-b78a-61a411d1f371
 # ╟─26c67f04-d294-11ef-03a4-838ae255689d
 # ╟─26c6e002-d294-11ef-15a4-33e30d0d76ec
+# ╟─e6aeee80-9e63-4937-9edf-428d5e3e38d3
+# ╟─baec0494-9557-49d1-b4d8-a8030d3281b7
 # ╟─40ce0abb-a086-4977-9131-10f60ab44152
 # ╟─26c6f63c-d294-11ef-1090-e9238dd6ad3f
-# ╠═aea77d69-9ecd-4be0-b6fd-c944d27d68df
+# ╟─aea77d69-9ecd-4be0-b6fd-c944d27d68df
 # ╟─3654551d-5d08-4bb0-8a0d-c7d42225bc69
 # ╟─edb179df-5cff-4e7b-8645-6da4818dceee
-# ╠═757465a4-6a7f-4c8e-98de-6df5ca995b03
+# ╟─757465a4-6a7f-4c8e-98de-6df5ca995b03
 # ╟─26c704f6-d294-11ef-1b3d-d52f0fb1c81d
 # ╟─26c728f0-d294-11ef-0c01-6143abe8c3f0
 # ╟─06512595-bdb7-4adf-88ae-62af20210891
 # ╟─26c73cf0-d294-11ef-297b-354eb9c71f57
+# ╟─3e897a59-e7b5-492c-8a8a-724248513a72
+# ╟─93e7c7d5-a940-4764-8784-07af2f056e49
 # ╟─26c74c9a-d294-11ef-2d31-67bd57d56d7c
 # ╟─26c75b5e-d294-11ef-173e-b3f46a1df536
 # ╟─26c7696e-d294-11ef-25f2-dbc0946c0858
@@ -3127,9 +3163,12 @@ version = "1.9.2+0"
 # ╠═55a1c42b-20d8-47a3-aa00-7af905db537c
 # ╠═4ee377c2-a126-4c40-8053-517d40c5ef9d
 # ╟─26c796c8-d294-11ef-25be-17dcd4a9d315
-# ╟─d4e239be-5ff1-4f96-9c65-8a5a0dda8b1b
+# ╠═0090be18-2453-4ad3-8e2c-6953649b171e
+# ╟─f42a1a65-20ce-452f-9974-bc8146943574
 # ╟─26c7b428-d294-11ef-150a-bb37e37f4b5d
-# ╟─26c7f514-d294-11ef-123d-91ccca2b0460
+# ╟─b3bb7349-1965-4734-83ed-ba6fef0ccc41
+# ╟─06170e31-e865-4178-8af0-41d82df95d71
+# ╟─bbdca8c2-022f-42be-bcf7-80d86f7f269c
 # ╟─26c8068a-d294-11ef-3983-a1be55128b3f
 # ╟─26c8160c-d294-11ef-2a74-6f7009a7c51e
 # ╟─26c82f16-d294-11ef-0fe1-07326b56282f
