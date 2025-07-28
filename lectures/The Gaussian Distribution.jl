@@ -484,19 +484,39 @@ $(section_outline("Code Example:", "Product of Two Gaussian PDFs"))
 Let's plot the exact product of two Gaussian PDFs as well as the normalized product according to the above derivation.
 """
 
-# ╔═╡ 45c2fb37-a078-4284-9e04-176156cffb1e
-d1 = Normal(0.0, 1); # μ=0, σ^2=1
-
-# ╔═╡ d81483db-3826-4ff4-9d52-e23418da07d0
-d2 = Normal(2.5, 2); # μ=2.5, σ^2=4
-
-# ╔═╡ e6a2d2ed-0100-4570-85c1-fc9d8f84e32e
-TODO("Can we play with these parameter values so that the plot below moves.")
+# ╔═╡ 73e64014-ceb3-4d18-a0f6-816064df2bcf
+begin
+	d1d2_input = @htl """
+	<p>
+	<code><strong>d1</strong> = Normal(μ=$(@bind(d1μ, Scrubbable(0.0))), σ=$(@bind(d1σ, Scrubbable(1.0))))</code>
+	
+	<p>
+	<code><strong>d2</strong> = Normal(μ=$(@bind(d2μ, Scrubbable(2.5))), σ=$(@bind(d2σ, Scrubbable(2.0))))</code>
+	
+	"""
+end
 
 # ╔═╡ 14fd14db-26da-4f0b-81d0-59ee4ab1a35c
 md"""
 We can calculate the parameters of the product `d1*d2`.
 """
+
+# ╔═╡ e9b6f917-8fc6-40dc-bf76-969ecb489402
+d1d2_input
+
+# ╔═╡ c0ebebde-d509-49c7-a93f-f7350b3264d2
+md"""
+Check out this mini lecture to learn more about this topic!
+"""
+
+# ╔═╡ d2b44bb9-9652-47ee-b388-a4ea428ff77a
+NotebookCard("https://bmlip.github.io/course/minis/Sum%20and%20product%20of%20Gaussians.html")
+
+# ╔═╡ a51c9d87-8e4c-4a3c-a6ca-36668d804679
+begin
+	d1 = Normal(d1μ, d1σ)
+	d2 = Normal(d2μ, d2σ)
+end;
 
 # ╔═╡ f9cf453a-6369-4d38-9dad-fb3412497635
 s2_prod = (d1.σ^-2 + d2.σ^-2)^-1
@@ -2508,14 +2528,16 @@ version = "1.9.2+0"
 # ╟─b9a6f916-d294-11ef-38cb-b78c0c448550
 # ╟─d2bedf5f-a0ea-4604-b5da-adf9f11e80be
 # ╟─b9a7073a-d294-11ef-2330-49ffa7faff21
-# ╠═45c2fb37-a078-4284-9e04-176156cffb1e
-# ╠═d81483db-3826-4ff4-9d52-e23418da07d0
-# ╠═e6a2d2ed-0100-4570-85c1-fc9d8f84e32e
+# ╟─73e64014-ceb3-4d18-a0f6-816064df2bcf
 # ╟─14fd14db-26da-4f0b-81d0-59ee4ab1a35c
 # ╠═f9cf453a-6369-4d38-9dad-fb3412497635
 # ╠═9f939dd4-18e8-464c-a12e-eb320d5fd88b
 # ╠═6cbf7a96-9e73-4289-9970-88e30cea28a5
 # ╟─df8867ed-0eff-4a52-8f5e-2472467e1aa2
+# ╟─e9b6f917-8fc6-40dc-bf76-969ecb489402
+# ╟─a51c9d87-8e4c-4a3c-a6ca-36668d804679
+# ╟─c0ebebde-d509-49c7-a93f-f7350b3264d2
+# ╟─d2b44bb9-9652-47ee-b388-a4ea428ff77a
 # ╟─b9a885a8-d294-11ef-079e-411d3f1cda03
 # ╟─b9a9565c-d294-11ef-1b67-83d1ab18035b
 # ╠═b9a99fcc-d294-11ef-3de4-5369d9796de7
