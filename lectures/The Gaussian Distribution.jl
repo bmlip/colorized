@@ -224,7 +224,7 @@ md"""
 md"""
 ## Linear Transformations of Gaussian Variables
 
-As shown in the [probability theory lecture](https://bmlip.github.io/colorized/lectures/Probability%20Theory%20Review.html#linear-transformation), under the linear transformation 
+As shown in the [probability theory lecture](https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html#linear-transformation), under the linear transformation 
 
 ```math
 z = Ax + b \,,

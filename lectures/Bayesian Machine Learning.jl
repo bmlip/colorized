@@ -512,7 +512,7 @@ Put somewhat provocatively, this point underscores that the common machine learn
 md"""
 ## Bayesian Modeling and the Scientific Method Revisited
 
-The Bayesian modeling approach provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
+The Bayesian modeling approach provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
 
 ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
 

@@ -153,7 +153,7 @@ md"""
 
 Next, we need a prior for the parameters ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)``. 
 
-In the [binary coin toss example](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#beta-prior), we used a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) that was conjugate with the binomial and forced us to choose prior pseudo-counts. 
+In the [binary coin toss example](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#beta-prior), we used a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) that was conjugate with the binomial and forced us to choose prior pseudo-counts. 
 
 The generalization of the beta prior to ``K`` parameters ``\{\mu_k\}`` is the [Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution):
 

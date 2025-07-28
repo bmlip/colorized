@@ -132,7 +132,7 @@ md"""
 """
 
 # ╔═╡ 99e16d33-18b1-4fb1-9c10-49e6664cfc75
-NotebookCard("https://bmlip.github.io/colorized/lectures/Generative%20Classification.html"; link_text="Read full lecture")
+NotebookCard("https://bmlip.github.io/course/lectures/Generative%20Classification.html"; link_text="Read full lecture")
 
 # ╔═╡ 6b417a4a-eafa-4f2d-91f2-925887d8c20d
 md"""

@@ -195,7 +195,7 @@ Hence, using the one-hot coding formulation for ``y_{nk}``, the generative model
 md"""
 We will refer to this model as the **Gaussian-Categorical Model** ($(HTML("<span id='GCM'>GCM</span>"))). 
 
-  * N.B. In the literature, this model (with possibly unequal ``\Sigma_k`` across classes) is often called the Gaussian Discriminant Analysis  model and the special case with equal covariance matrices ``\Sigma_k=\Sigma`` is also called Linear Discriminant Analysis. We think these names are a bit unfortunate as it may lead to confusion with the [discriminative method for classification](https://bmlip.github.io/colorized/lectures/Discriminative%20Classification.html).
+  * N.B. In the literature, this model (with possibly unequal ``\Sigma_k`` across classes) is often called the Gaussian Discriminant Analysis  model and the special case with equal covariance matrices ``\Sigma_k=\Sigma`` is also called Linear Discriminant Analysis. We think these names are a bit unfortunate as it may lead to confusion with the [discriminative method for classification](https://bmlip.github.io/course/lectures/Discriminative%20Classification.html).
 
 """
 
@@ -247,8 +247,8 @@ Recall (from the previous slide) the log-likelihood (LLH)
 md"""
 Maximization of the LLH for the GDA model breaks down into
 
-  * **Gaussian density estimation** for parameters ``\mu_k, \Sigma``, since the first term contains exactly the log-likelihood for MVG density estimation. We've already done this, see the [Gaussian distribution lesson](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#ML-for-Gaussian).
-  * **Multinomial density estimation** for class priors ``\pi_k``, since the second term holds exactly the log-likelihood for multinomial density estimation, see the [Multinomial distribution lesson](https://bmlip.github.io/colorized/lectures/The%20Multinomial%20Distribution.html#ML-for-multinomial).
+  * **Gaussian density estimation** for parameters ``\mu_k, \Sigma``, since the first term contains exactly the log-likelihood for MVG density estimation. We've already done this, see the [Gaussian distribution lesson](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#ML-for-Gaussian).
+  * **Multinomial density estimation** for class priors ``\pi_k``, since the second term holds exactly the log-likelihood for multinomial density estimation, see the [Multinomial distribution lesson](https://bmlip.github.io/course/lectures/The%20Multinomial%20Distribution.html#ML-for-multinomial).
 
 """
 
@@ -480,7 +480,7 @@ The following answer was provided:
 > 1. Bayesian evidence for model performance assessment. This means you can use the whole data set for training without an ad-hoc split into testing and training data sets.
 
 
-> 2. Uncertainty about parameters in the model is a measure that allows you to do *active learning*, ie, choose data that is most informative (see also the [lesson on intelligent agents](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). This will allow you to train on small data sets, whereas the deterministic DNNs generally require much larger data sets.
+> 2. Uncertainty about parameters in the model is a measure that allows you to do *active learning*, ie, choose data that is most informative (see also the [lesson on intelligent agents](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). This will allow you to train on small data sets, whereas the deterministic DNNs generally require much larger data sets.
 
 
 > 3. Prediction with uncertainty/confidence bounds.
