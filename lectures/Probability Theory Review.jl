@@ -987,6 +987,16 @@ md"""
 
 """
 
+# ╔═╡ e5902178-6df2-4eb4-ac13-7370b3d00c9c
+md"""
+## Working with Distributions in code
+
+Take a look at this mini lecture to see some simple examples of using distributions in Julia:
+"""
+
+# ╔═╡ 6bc443b4-1a07-4f56-99fb-c30a4370da92
+NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.html")
+
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
 $(section_outline("Code Example:", "Sum of Two Gaussian-distributed Variables"; big=true, header_level=2))  
@@ -2520,6 +2530,8 @@ version = "1.9.2+0"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
+# ╟─e5902178-6df2-4eb4-ac13-7370b3d00c9c
+# ╟─6bc443b4-1a07-4f56-99fb-c30a4370da92
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
 # ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4

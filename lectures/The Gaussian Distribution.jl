@@ -217,6 +217,7 @@ See also [Jaynes, section 7.14](http://www.med.mcgill.ca/epidemiology/hanley/bio
 # ╔═╡ 9501922f-b928-46e2-8f23-8eb9c64f6198
 md"""
 # Computing with Gaussians
+
 """
 
 # ╔═╡ b9a5889c-d294-11ef-266e-d90225222e10
@@ -477,6 +478,15 @@ md"""
 It is important to distinguish between two concepts: the *product of Gaussian distributions*, which results in a (possibly unnormalized) Gaussian distribution, and the *product of Gaussian-distributed variables*, which generally does not yield a Gaussian-distributed variable. See the [optional slides below](#OPTIONAL-SLIDES) for further discussion.
 """
 
+# ╔═╡ 5a642cf4-ccd8-4881-a191-224859a50a7b
+md"""
+## Gaussian Distributions in Julia
+Take a look at this mini lecture to see some simple examples of using distributions in Julia:
+"""
+
+# ╔═╡ d8c2e4b6-d78a-4870-ad32-08c818daef2d
+NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.html")
+
 # ╔═╡ b9a7073a-d294-11ef-2330-49ffa7faff21
 md"""
 $(section_outline("Code Example:", "Product of Two Gaussian PDFs"))
@@ -503,14 +513,6 @@ We can calculate the parameters of the product `d1*d2`.
 
 # ╔═╡ e9b6f917-8fc6-40dc-bf76-969ecb489402
 d1d2_input
-
-# ╔═╡ c0ebebde-d509-49c7-a93f-f7350b3264d2
-md"""
-Check out this mini lecture to learn more about this topic!
-"""
-
-# ╔═╡ d2b44bb9-9652-47ee-b388-a4ea428ff77a
-NotebookCard("https://bmlip.github.io/course/minis/Sum%20and%20product%20of%20Gaussians.html")
 
 # ╔═╡ a51c9d87-8e4c-4a3c-a6ca-36668d804679
 begin
@@ -544,6 +546,14 @@ let
 	# Plot the normalized Gaussian product
 	plot!(x, pdf.(d_prod,x); label=L"Z^{-1} \mathcal{N}(0,1) \mathcal{N}(3,4)", fill)
 end
+
+# ╔═╡ c0ebebde-d509-49c7-a93f-f7350b3264d2
+md"""
+Check out this mini lecture to learn more about this topic!
+"""
+
+# ╔═╡ d2b44bb9-9652-47ee-b388-a4ea428ff77a
+NotebookCard("https://bmlip.github.io/course/minis/Sum%20and%20product%20of%20Gaussians.html")
 
 # ╔═╡ b9a885a8-d294-11ef-079e-411d3f1cda03
 md"""
@@ -2527,6 +2537,8 @@ version = "1.9.2+0"
 # ╟─b9a6ecd2-d294-11ef-02af-37c977f2814b
 # ╟─b9a6f916-d294-11ef-38cb-b78c0c448550
 # ╟─d2bedf5f-a0ea-4604-b5da-adf9f11e80be
+# ╟─5a642cf4-ccd8-4881-a191-224859a50a7b
+# ╟─d8c2e4b6-d78a-4870-ad32-08c818daef2d
 # ╟─b9a7073a-d294-11ef-2330-49ffa7faff21
 # ╟─73e64014-ceb3-4d18-a0f6-816064df2bcf
 # ╟─14fd14db-26da-4f0b-81d0-59ee4ab1a35c
