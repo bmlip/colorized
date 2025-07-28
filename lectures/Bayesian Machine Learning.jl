@@ -12,6 +12,18 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
+
 # ╔═╡ df312e6a-503f-486f-b7ec-15404070960c
 using Distributions, StatsPlots, SpecialFunctions
 
@@ -884,23 +896,21 @@ p(\mu|D_n,m_\bullet)
 
 """
 
+# ╔═╡ d484c41d-9834-4528-bf47-93ab4e35ebaa
+md"""
+Select iteration: $(@bind toss_index_1 Slider(1:n_tosses; show_value=true))
+"""
+
 # ╔═╡ 6a2b1106-d294-11ef-0d64-dbc26ba3eb44
 # Animate posterior distributions over time in a gif
 
-@gif for i in 1:n_tosses
+let i = toss_index_1
     p = plot(title=string("n = ", i))
     for j in 1:n_models
         plot!(posterior_distributions[j][i+1], xlims = (0, 1), fill=(0, .2,), label=string("Posterior m", j), linewidth=2, ylims=(0,28), xlabel="μ")
     end
+	p
 end
-
-# gif(anim, "figures/anim_bay_ct.gif", show_msg = false)
-
-# ╔═╡ 6a2b1f5a-d294-11ef-25d0-e996c07958b9
-md"""
-(If the GIF animation is not rendered, you can try to [view it here](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html)).
-
-"""
 
 # ╔═╡ 6a2b2d44-d294-11ef-33ba-15db357708b1
 md"""
@@ -923,12 +933,20 @@ We have an intuition that ``m_2`` is superior over ``m_1``. Let's check this by 
 # ╔═╡ c69c591f-1947-4b07-badb-3882fd097785
 evidences = map(model -> exp.(model), log_evidences)
 
+# ╔═╡ ebcfcd1b-7fc8-42b7-a35e-4530f798cfdf
+md"""
+Select iteration: $(@bind toss_index_2 Slider(1:n_tosses; show_value=true))
+"""
+
 # ╔═╡ 188b5bea-6765-4dcf-9369-3b1fdbe94494
-@gif for i in 1:n_tosses
-    p = plot(title=string(L"\frac{p_i(\mathbf{x}_{1:n})}{\sum_i p_i(\mathbf{x}_{1:n})}","   n = ", i), ylims=(0, 1), legend=:topleft)
+let i = toss_index_2
+	p = plot(title=string(L"\frac{p_i(\mathbf{x}_{1:n})}{\sum_i p_i(\mathbf{x}_{1:n})}","   n = ", i), ylims=(0, 1), legend=:topleft)
     total = sum([evidences[j][i] for j in 1:n_models])
     bar!([(evidences[j][i] / total) for j in 1:n_models], group=["Model $i" for i in 1:n_models])
 end
+
+# ╔═╡ 84e7ff22-e232-4ab7-a206-ccdd943043dd
+
 
 # ╔═╡ 6a2b9676-d294-11ef-241a-89ff7aa676f9
 md"""
@@ -1148,8 +1166,11 @@ end
 # ╔═╡ 9a58bf5d-f072-4572-bb90-9b860133dce8
 p = Normal(μ_p, σ_p)
 
+# ╔═╡ 635e4f4c-5274-4bd4-a940-b2f3819426ec
+@bind KL_animation_step Slider(1:100)
+
 # ╔═╡ 7bf0fde7-b201-4646-9934-ec93e661cf22
-@gif for i in 1:100
+let i = KL_animation_step
 	# sequence of means tested so far (to compute sequence of KL divergences)
     μ_seq = [(j / 10.) - 5. + μ_p for j in 1:i]
 	# KL divergence data
@@ -2813,12 +2834,14 @@ version = "1.9.2+0"
 # ╟─7a624d2f-812a-47a0-a609-9fe299de94f5
 # ╟─3a903a4d-1fb0-4566-8151-9c86dfc40ceb
 # ╟─6a2af90a-d294-11ef-07bd-018326577791
-# ╠═6a2b1106-d294-11ef-0d64-dbc26ba3eb44
-# ╟─6a2b1f5a-d294-11ef-25d0-e996c07958b9
+# ╟─6a2b1106-d294-11ef-0d64-dbc26ba3eb44
+# ╟─d484c41d-9834-4528-bf47-93ab4e35ebaa
 # ╟─6a2b2d44-d294-11ef-33ba-15db357708b1
 # ╟─6a2b3ba4-d294-11ef-3c28-176be260cb15
 # ╠═c69c591f-1947-4b07-badb-3882fd097785
-# ╠═188b5bea-6765-4dcf-9369-3b1fdbe94494
+# ╟─188b5bea-6765-4dcf-9369-3b1fdbe94494
+# ╟─ebcfcd1b-7fc8-42b7-a35e-4530f798cfdf
+# ╟─84e7ff22-e232-4ab7-a206-ccdd943043dd
 # ╟─6a2b9676-d294-11ef-241a-89ff7aa676f9
 # ╟─9c5d7c89-f65c-4f52-9e49-14692bed2452
 # ╟─6a2bb18a-d294-11ef-23bb-99082caf6e01
@@ -2843,7 +2866,8 @@ version = "1.9.2+0"
 # ╠═ff20449d-1489-430a-aeee-a3a66bece706
 # ╠═b47a2e71-48bb-4cc7-9a14-c0e654c5d2f8
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
-# ╠═7bf0fde7-b201-4646-9934-ec93e661cf22
+# ╟─7bf0fde7-b201-4646-9934-ec93e661cf22
+# ╟─635e4f4c-5274-4bd4-a940-b2f3819426ec
 # ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
