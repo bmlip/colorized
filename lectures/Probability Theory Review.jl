@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.13
 
 #> [frontmatter]
 #> description = "Review of probability theory as a foundation for rational reasoning and Bayesian inference."
@@ -48,61 +48,81 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
-  * Review of Probability Theory as a theory for rational/logical reasoning with uncertainties (i.e., a Bayesian interpretation)
+- Review of Probability Theory as a theory for rational/logical reasoning with uncertainties (i.e., a Bayesian interpretation)
 
-Materials        
+##### Materials        
 
-  * Mandatory
+- Mandatory
 
-      * These lecture notes
-  * Optional
+  - These lecture notes
 
-      * Bishop pp. 12-24
-      * [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
+- Optional
 
-          * Great introduction to probability theory, in particular w.r.t. its correct interpretation as a state-of-knowledge.
-          * Absolutely worth your time to read the whole chapter, even if you skip section 2.2.4 (pp.15-18) on Cox's proof.
-      * [Edwin Jaynes, Probability Theory–The Logic of Science (2003)](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf). 
+  - Bishop pp. 12-24
+      
+  - [Edwin Jaynes, Probability Theory–The Logic of Science (2003)](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf). 
+    - Brilliant book on the Bayesian view of probability theory. Just for fun, scan the annotated bibliography and references.
 
-          * Brilliant book on Bayesian view on probability theory. Just for fun, scan the annotated bibliography and references.
-      * [Aubrey Clayton, Bernoulli's Fallacy–Statistical Illogic and the Crisis of Modern Science (2021)](https://aubreyclayton.com/bernoulli)
+  - [Aubrey Clayton, Bernoulli's Fallacy–Statistical Illogic and the Crisis of Modern Science (2021)](https://aubreyclayton.com/bernoulli)
+    - A very readable account of the history of statistics and probability theory. Discusses why most popular statistics recipes are very poor scientific analysis tools. Use probability theory instead!
 
-          * A very readable account on the history of statistics and probability theory. Discusses why most popular statistics recipes are very poor scientific analysis tools. Use probability theory instead!
-      * [Joram Soch et al ., The Book of Statistical Proofs (2023 - )](https://statproofbook.github.io/)
+  - [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
+    - Great introduction to probability theory, in particular w.r.t. its correct interpretation as a state-of-knowledge.
+    - Absolutely worth your time to read the whole chapter, even if you skip section 2.2.4 (pp.15-18) on Cox's proof.
 
-          * On-line resource for proofs in probability theory and statistical inference.
+  - [Joram Soch et al ., The Book of Statistical Proofs (2023 - )](https://statproofbook.github.io/)
+    - Online resource for proofs in probability theory and statistical inference.
 
 """
 
-# ╔═╡ 3e1823b0-d294-11ef-3dba-9997a7230cdf
+# ╔═╡ 9b9be452-9681-43e8-bb09-cc8728df384f
 md"""
 ## 📕 Data Analysis: A Bayesian Tutorial
 
 The following is an excerpt from the book [Data Analysis: A Bayesian Tutorial](https://global.oup.com/academic/product/data-analysis-9780198568322) (2006), by D.S. Sivia with J.S. Skilling:
+"""
 
-> #### Preface
-> "As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
-> 
-> The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use."
+# ╔═╡ 9f4125a2-d5d2-4acf-8bad-82f94af230e8
+blockquote(
+	md"""
+	
+#### Preface
+"As an undergraduate, I always found the subject of statistics to be rather mysterious. This topic wasn’t entirely new to me, as we had been taught a little bit about probability earlier at high school; for example, I was already familiar with the binomial, Poisson and normal distributions. Most of this made sense, but only seemed to relate to things like rolling dice, flipping coins, shuffling cards and so on. However, having aspirations of becoming a scientist, what I really wanted to know was how to analyse experimental data. Thus, I eagerly looked forward to the lectures on statistics. Sadly, they were a great disappointment. Although many of the tests and procedures expounded were intuitively reasonable, there was something deeply unsatisfactory about the whole affair: there didn’t seem to be any underlying basic principles! Hence, the course on ‘probability and statistics’ had led to an unfortunate dichotomy: probability made sense, but was just a game; statistics was important, but it was a bewildering collection of tests with little obvious rhyme or reason. While not happy with this situation, I decided to put aside the subject and concentrate on real science. After all, the predicament was just a reflection of my own inadequacies and I’d just have to work at it when the time came to really analyse my data.
 
+The story above is not just my own, but is the all too common experience of many scientists. Fortunately, it doesn’t have to be like this. What we were not told in our undergraduate lectures is that there is an alternative approach to the whole subject of data analysis which uses only probability theory. In one sense, it makes the topic of statistics entirely superfluous. In another, it provides the logical justification for many of the prevalent statistical tests and procedures, making explicit the conditions and approximations implicitly assumed in their use."
+""",
+	# "D.S. Sivia"
+)
 
+# ╔═╡ f8c8ba53-df36-48a6-afde-2952cbcfbe48
+md"""
 Does this fragment resonate with your own experience? 
 
 In this lesson we introduce *Probability Theory* (PT) again. As we will see in the next lessons, PT is all you need to make sense of machine learning, artificial intelligence, statistics, etc. 
 
 """
 
-# ╔═╡ 3e1876f8-d294-11ef-22bf-7904df3c1182
+# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
 md"""
-**Solution**: Use probabilistic inference, to be discussed in this lecture. 
+$(section_outline("Challenge:", "Disease Diagnosis"))
 
+##### Problem
+  - Given is a disease with a prevalence of 1%  and a test procedure with sensitivity ('true positive' rate) of 95%, and specificity ('true negative' rate) of 85%. What is the chance that somebody who tests positive actually has the disease?
+
+##### Solution
+  - Use probabilistic inference, to be discussed in this lecture. 
 """
 
-# ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
+# ╔═╡ 840ab4dc-0d2e-4bf8-acc7-5f1ee2b0dcaf
 md"""
-# The Design of Probability Theory
+# Probability Theory as Rational Reasoning
+"""
+
+# ╔═╡ 41bee964-a0a9-4a7f-8505-54a9ee12ef0d
+md"""
+## Propositional (Boolean) Logic 
 
 Define an **event** (or "proposition") ``A`` as a statement that can be considered for its truth by a person. For instance, 
 
@@ -110,25 +130,47 @@ Define an **event** (or "proposition") ``A`` as a statement that can be consider
 𝐴= \texttt{``there is life on Mars''}
 ```
 
-If we assume the fact 
+Boolean logic (or propositional logic) is a formal system of logic based on binary truth values: every proposition is either true (with assigned value ``1``) or false (with assigned value ``0``). It is named after George Boole, who developed the algebraic formulation of logic in the mid-19th century.
+
+With Boolean operators (``\lor``, ``\land``, ``\implies``, etc.), we can create and evaluate compound propositions, e.g.,
+
+- Given two events ``A`` and ``B``, the **conjunction** (logical-and) ``A \land B`` is true only if both ``A`` and ``B`` are true. We write ``A \land B`` also shortly as ``A,B`` or ``AB``. 
+
+- The **disjunction** (logical-or) ``A \lor B``, is true if either ``A`` or ``B`` is true or both ``A`` and ``B`` are true. We write ``A \lor B`` also as ``A + B`` (Note that the plus-sign is here not an arithmetic operator, but rather a logical operator to process truth values.)
+
+- The denial of ``A``, i.e., the event **not**-A, is written as ``\bar{A}``. 
+
+Boolean logic provides the rules of inference for **deductive reasoning** and underpins all formal reasoning systems in mathematics and philosophy. 
+"""
+
+# ╔═╡ 3e1889b8-d294-11ef-17bb-496655fbd618
+md"""
+## The Design of Probability Theory
+
+Consider the truth value of the proposition 
+```math
+𝐴= \texttt{``there is life on Mars''}
+```
+
+with 
 
 ```math
 I = \texttt{``All known life forms require water''}
 ```
 
-as background information, and a new piece of information 
+as background information. Now assume that a new piece of information 
 
 ```math
 x = \texttt{``There is water on Mars''}
 ```
 
-becomes available, how *should* our degree of belief in event ``A`` be affected *if we were rational*? 
+becomes available, how **should** our degree of belief in event ``A`` be affected *if we were rational*? 
 
 """
 
 # ╔═╡ 3e18b2fa-d294-11ef-1255-df048f0dcec2
 md"""
-[Richard T. Cox (1946)](https://aapt.scitation.org/doi/10.1119/1.1990764) developed a **calculus for rational reasoning** about how to represent and update the degree of *beliefs* about the truth value of events when faced with new information.  
+[Richard T. Cox (1946)](https://aapt.scitation.org/doi/10.1119/1.1990764) developed a **calculus for rational reasoning** about how to represent and update the **degree-of-belief** about the truth value of an event when faced with new information.  
 
 """
 
@@ -136,23 +178,61 @@ md"""
 md"""
 In developing this calculus, only some very agreeable assumptions were made, including:
 
-  * (Representation). Degrees of rational belief (or, as we shall later call them, probabilities) about the truth value of propositions are represented by real numbers.
-  * (Transitivity). If the belief in ``A`` is greater than the belief in ``B``, and the belief in ``B`` is greater than the belief in ``C``, then the belief in ``A`` must be greater than the belief in ``C``.
-  * (Consistency). If the belief in an event can be inferred in two different ways, then the two ways must agree on the resulting belief.
+- Degrees of belief are represented by real numbers.
+
+- Plausibility assessments are consistent, e.g.,
+  - if ``A`` becomes more plausible under new information ``B``, the assigned degree-of-belief should increase accordingly.
+  - If the belief in ``A`` is greater than the belief in ``B``, and the belief in ``B`` is greater than the belief in ``C``, then the belief in ``A`` must be greater than the belief in ``C``.
+
+- Logical equivalences are preserved, e.g., 
+  - If the belief in an event can be inferred in two different ways, then the two ways must agree on the resulting belief.
 
 """
 
 # ╔═╡ 3e18d2ea-d294-11ef-35e9-2332dd31dbf0
 md"""
-This effort resulted in confirming that the **sum and product rules of Probability Theory** [(to be discussed below)](#PT-calculus) are the **only** proper rational way to process belief intensities. 
+Under these assumptions, Cox showed that any consistent system of reasoning about uncertainty must obey the **rules of probability theory** (see [Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26). These rules are the sum and product rules:
 
+##### The sum rule
+
+- The degree of belief in the disjunction of two events ``A`` and ``B``, with given background information ``I``, is evaluated as
+
+```math
+ p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
+```
+
+##### The product rule: 
+
+- The degree of belief in the conjunction of two events ``A`` and ``B``, with given background information ``I``, is evaluated as
+
+```math
+ p(A,B|I) = p(A|B,I)\,p(B|I)
+```
+
+Cox’s Theorem derives the rules of probability theory from first principles, not as arbitrary postulates but as consequences of rational reasoning. 
+In other words: **Probability = extended logic**.
+
+"""
+
+# ╔═╡ dd11e93a-3dad-4e97-8642-fb70edfa6aae
+md"""
+In the above sum and product rules, the **conditional probability** of ``A`` given ``I``, denoted by ``p(A|I)``, indicates the degree of belief in event ``A``, given that ``I`` is true. 
 """
 
 # ╔═╡ 3e18e4bc-d294-11ef-38bc-cb97cb4e0963
 keyconcept(" ", 
 	md"""
 	
-	Probability theory (PT) provides the **theory of optimal processing of incomplete information** (see [Cox theorem](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-24).
+	If you want to assign real numbers to **degrees of belief**, and you want those assignments to be logically consistent, then you are **forced to follow the sum and product rules of probability theory** (PT). PT is therefore the **optimal calculus for information processing under uncertainty**.  
+	
+	"""
+)
+
+# ╔═╡ 3e1b05ee-d294-11ef-33de-efed64d01c0d
+keyconcept(
+	"",
+	md"""
+	All legitimate probabilistic relations can be **derived from the sum and product rules**!
 	
 	"""
 )
@@ -179,7 +259,7 @@ where ``p(a|b)`` means the probability that ``a`` is true, given that ``b`` is t
 
 # ╔═╡ 3e191b6c-d294-11ef-3174-d1b4b36e252b
 md"""
-#### Examples
+##### Examples
 
   * Predictions
 
@@ -218,6 +298,12 @@ In the **Bayesian** interpretation, the probability is associated with a **state
 
 """
 
+# ╔═╡ 4edf38ab-a940-4ab0-be22-fa95cf571146
+md"""
+In the Bayesian interpretation, all probabilities are, in principle, conditional probabilities of the type ``p(A|I)``, since there is always some background knowledge. However, we often write ``p(A)`` rather than ``p(A|I)`` if the background knowledge ``I`` is assumed to be obviously present. E.g., we usually write ``p(A)`` rather than ``p(\,A\,|\,\text{the-sun-comes-up-tomorrow}\,)``.
+
+"""
+
 # ╔═╡ 3e194ef2-d294-11ef-3b38-1ddc3063ff35
 md"""
 The Bayesian interpretation contrasts with the **frequentist** interpretation of a probability as the relative frequency that an event would occur under repeated execution of an experiment.
@@ -253,72 +339,16 @@ In this class, we aim to turn on the headlights and illuminate the elegance and 
 
 """
 
-# ╔═╡ 3e19a2a0-d294-11ef-18b4-7987534916d2
-md"""
-## Events
-
-Technically, a probability expresses a degree-of-belief in the truth value of an event. Let's first define an event. 
-
-We define an **event** ``A`` as a statement, whose truth can be contemplated by a person, e.g.,
-
-```math
-A = \text{`it will rain tomorrow'}
-```
-
-"""
-
-# ╔═╡ 3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
-md"""
-We write the denial of ``A``, i.e., the event **not**-A, as ``\bar{A}``. 
-
-"""
-
-# ╔═╡ 3e19c06c-d294-11ef-197a-f549e8107a57
-md"""
-Events can be logically combined to create new events. Given two events ``A`` and ``B``, we will shortly write the **conjunction** (logical-and) ``A \wedge B`` as ``A,B`` or ``AB``. The conjunction ``AB`` is true only if both ``A`` and ``B`` are true. 
-
-"""
-
-# ╔═╡ 3e19d39a-d294-11ef-1a50-7fe8a24777dc
-md"""
-We will write the **disjunction** (logical-or) ``A \lor B`` also as ``A + B``, which is true if either ``A`` or ``B`` is true or both ``A`` and ``B`` are true. (Note that the plus-sign is not an arithmetic here but rather a logical operator to process truth values). 
-
-"""
-
 # ╔═╡ 3e19e95a-d294-11ef-3da4-6d23922a5150
 md"""
-## Probability
+## Variable Assignments as Propositions 
 
-For any event ``A``, with background knowledge ``I``, the **conditional probability of ``A`` given ``I``**, is written as 
-
-```math
-p(A|I)\,,
-```
-
-which indicates the degree-of-belief in event ``A``, given that ``I`` is true. 
-"""
-
-# ╔═╡ 3e1a36b4-d294-11ef-2242-f36061b0b754
-md"""
-In principle, all probabilities are conditional probabilities of the type ``p(A|I)``, since there is always some background knowledge. However, we often write ``p(A)`` rather than ``p(A|I)`` if the background knowledge ``I`` is assumed to be obviously present. E.g., we usually write ``p(A)`` rather than ``p(\,A\,|\,\text{the-sun-comes-up-tomorrow}\,)``.
-
-"""
-
-# ╔═╡ 3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
-md"""
-The expression ``p(A,B)`` is called the **joint probability** of events ``A`` and ``B``. Note that 
-
-```math
-p(A,B) = p(B,A)\,,
-```
-
-since ``AB = BA``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
 
 """
 
 # ╔═╡ 3e1a69f4-d294-11ef-103e-efc47025fb8f
 md"""
-Note that, if ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
+If ``X`` is a variable, then an *assignment* ``X=x`` (where ``x`` is a value, e.g., ``X=5``) can be interpreted as an event. Hence, the expression ``p(X=5)`` should be interpreted as the *degree-of-belief of the event* that variable ``X`` takes on the value ``5``. 
 
 """
 
@@ -336,9 +366,26 @@ If ``X`` is *continuously* valued, then ``p(X=x)`` is a probability *density* fu
 
 """
 
-# ╔═╡ 3e1a9fdc-d294-11ef-288f-37fd1b7ee281
+# ╔═╡ 3e1fc4da-d294-11ef-12f5-d51f9728fcc0
 md"""
-The notational conventions in PT are unfortunately a bit sloppy:( For instance, in the context of a variable ``X``, we often write ``p(x)`` rather than ``p(X=x)``, assuming that the reader understands the context.  
+## Notational Conventions
+
+Here is a notational convention that you should be precise about (but many authors are not).
+
+If you want to write that a variable ``x`` is distributed as a Gaussian with mean ``\mu`` and covariance matrix ``\Sigma``, you can write this in either of two ways:
+
+```math
+\begin{align*} 
+p(x) &= \mathcal{N}(x|\mu,\Sigma) \\
+x &\sim \mathcal{N}(\mu,\Sigma)
+\end{align*}
+```
+
+In the second version, the symbol ``\sim`` can be interpreted as "is distributed as" (a Gaussian with parameters ``\mu`` and ``\Sigma``).
+
+Don't write ``p(x) = \mathcal{N}(\mu,\Sigma)`` because ``p(x)`` is a function of ``x`` but ``\mathcal{N}(\mu,\Sigma)`` is not. 
+
+Also, ``x \sim \mathcal{N}(x|\mu,\Sigma)`` is not entirely proper because you already named the argument on the right-hand-site. On the other hand, ``x \sim \mathcal{N}(\cdot|\mu,\Sigma)`` is fine, as is the shorter ``x \sim \mathcal{N}(\mu,\Sigma)``.
 
 """
 
@@ -348,49 +395,28 @@ md"""
 
 """
 
-# ╔═╡ 3e1ac32c-d294-11ef-13be-558397a6cc2a
+# ╔═╡ fea8ae4c-8ef9-4b74-ad13-1314afef97de
 md"""
+## True and False Events
 
-## The Sum and Product Rules
+In probability theory, events that are certainly true or certainly false are treated as special cases of general events, and they correspond to probabilities of ``1`` and ``0``, respectively.
 
-The following product and sum rules are also known as the **axioms of probability theory**, but as discussed above, under some mild assumptions, they can be derived as the unique rules for *rational reasoning under uncertainty* ([Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26).
-
-"""
-
-# ╔═╡ 3e1ad2ea-d294-11ef-02c4-3f06e14ea4d8
-md"""
-**Sum rule**. The disjunction of two events ``A`` and ``B`` with given background ``I`` is 
-
+Let ``\Omega`` be the sample space, i.e., the set of all possible outcomes of an experiment. Then:
+  - The true event corresponds to the entire sample space ``\Omega``.
+  - It always happens, regardless of the outcome.
+  - Its probability is
 ```math
- p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
+p(\Omega) = 1\,.
+```
+
+The false event corresponds to the empty set ``\emptyset``.
+  - It never happens (no possible outcomes).
+  - Its probability is
+```math
+p(\emptyset) = 0 \,.
 ```
 
 """
-
-# ╔═╡ 3e1ae30a-d294-11ef-3a5d-d91b7d7723d3
-md"""
-**Product rule**. The conjuction of two events ``A`` and ``B`` with given background ``I`` is
-
-```math
- p(A,B|I) = p(A|B,I)\,p(B|I)
-```
-
-"""
-
-# ╔═╡ 3e1af354-d294-11ef-1971-dfb39016cfcd
-md"""
-PT extends (propositional) logic in reasoning about the truth value of events. Logic reasons about the truth value of events on the binary domain {0,1} (FALSE and TRUE), whereas PT extends the range to degrees-of-belief, represented by real numbers in [0,1].
-
-"""
-
-# ╔═╡ 3e1b05ee-d294-11ef-33de-efed64d01c0d
-keyconcept(
-	"",
-	md"""
-	All legitimate probabilistic relations can be **derived from the sum and product rules**!
-	
-	"""
-)
 
 # ╔═╡ 3e1b4b1c-d294-11ef-0423-9152887cc403
 md"""
@@ -398,7 +424,17 @@ md"""
 
 It will be helpful to introduce some terms concerning special relationships between events.  
 
-#### Independent events
+##### Joint events
+
+The expression ``p(A,B)`` for the probability of the conjuction ``A \land B`` is also called the **joint probability** of events ``A`` and ``B``. Note that 
+
+```math
+p(A,B) = p(B,A)\,,
+```
+
+since ``A\land B = B \land A``. Therefore, the order of arguments in a joint probability distribution does not matter: ``p(A,B,C,D) = p(C,A,D,B)``, etc.
+
+##### Independent events
 
 Two events ``A`` and ``B`` are said to be **independent** if the probability of one event is not altered by information about the truth of the other event, i.e., 
 
@@ -412,7 +448,7 @@ It follows that, if ``A`` and ``B`` are independent, then the product rule simpl
 p(A,B) = p(A) p(B)\,.
 ```
 
-``A`` and ``B`` with given background ``I`` are said to be **conditionally independent** if 
+``A`` and ``B`` with given background ``I`` are said to be **conditionally independent** for given ``I``, if 
 
 ```math
 p(A|B,I) = p(A|I)\,.
@@ -420,7 +456,7 @@ p(A|B,I) = p(A|I)\,.
 
 In that case, the product rule simplifies to ``p(A,B|I) = p(A|I) p(B|I)``.
 
-#### Mutually exclusive events
+##### Mutually exclusive events
 
 Two events ``A_1`` and ``A_2`` are said to be **mutually exclusive** ('disjoint') if they cannot be true simultaneously, i.e., if
 
@@ -434,7 +470,7 @@ For mutually exclusive events, probabilities add (this follows from the sum rule
 p(A_1 + A_2) = p(A_1) + p(A_2)
 ```
 
-#### Collectively exhaustive events
+##### Collectively exhaustive events
 
 A set of events ``A_1, A_2, \ldots, A_N`` is said to be **collectively exhaustive** if one of the statements is necessarily true, i.e., ``A_1+A_2+\cdots +A_N=\mathrm{TRUE}``, or equivalently 
 
@@ -442,7 +478,7 @@ A set of events ``A_1, A_2, \ldots, A_N`` is said to be **collectively exhaustiv
 p(A_1+A_2+\cdots +A_N) = 1 \,.
 ```
 
-#### Partitioning the universe
+##### Partitioning the universe
 
 If a set of events ``A_1, A_2, \ldots, A_n`` is both **mutually exclusive** and **collectively exhaustive**, then we say that they **partition the universe**. Technically, this means that 
 
@@ -476,7 +512,7 @@ This rule is called the [law of total probability](https://en.wikipedia.org/wiki
 \begin{align*}
   \sum_i p(A,B_i) &= p(\sum_i AB_i)  &&\quad \text{(since all $AB_i$ are disjoint)}\\
   &= p(A,\sum_i B_i) \\
-  &= p(A,\text{TRUE}) &&\quad \text{(since $B_i$ are exhaustive)} \\
+  &= p(A,\Omega) &&\quad \text{($\Omega$ is true event, since $B_i$ are exhaustive)} \\
   &= p(A)
   \end{align*}
 ```
@@ -643,12 +679,50 @@ Note that ``L(\theta)`` is not a probability distribution for ``\theta`` since i
 
 """
 
-# ╔═╡ dc4665b8-f803-4c18-845c-4901553eaa99
-TODO("Can you make a box for ''Code Example''?")
+# ╔═╡ 3e1d33c8-d294-11ef-0a08-bdc419949925
+md"""
+## Probabilistic Inference
+
+**Probabilistic inference** refers to computing
+
+```math
+p(\,\text{whatever-we-want-to-know}\, | \,\text{whatever-we-already-know}\,)
+```
+
+For example: 
+
+```math
+\begin{align*}
+ p(\,\text{Mr.S.-killed-Mrs.S.} \;&|\; \text{he-has-her-blood-on-his-shirt}\,) \\
+ p(\,\text{transmitted-codeword} \;&|\;\text{received-codeword}\,) 
+  \end{align*}
+```
+
+This can be accomplished by repeatedly applying the sum and product rules.
+
+In particular, consider a joint distribution ``p(X,Y,Z)``. Assume we are interested in ``p(X|Z)``:
+
+```math
+\begin{align*}
+p(X|Z) \stackrel{p}{=} \frac{p(X,Z)}{p(Z)} \stackrel{s}{=} \frac{\sum_Y p(X,Y,Z)}{\sum_{X,Y} p(X,Y,Z)} \,,
+\end{align*}
+```
+
+where the ``s`` and ``p`` above the equality sign indicate whether the sum or product rule was used. 
+
+In the rest of this course, we'll encounter many lengthy probabilistic derivations. For each manipulation, you should be able to associate an 's' (for sum rule), a 'p' (for product or Bayes rule) or an 'm' (for a simplifying model assumption like conditional independency) above any equality sign.
+"""
+
+# ╔═╡ b176ceae-884e-4460-9f66-020c1ac447f1
+md"""
+# Examples
+"""
 
 # ╔═╡ 3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
 md"""
-### Code Example: Sampling Distribution and Likelihood Function for the Coin Toss
+
+$(section_outline("Code Example:", "Sampling Distribution and Likelihood Function for the Coin Toss"))
+
 
 Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
 
@@ -706,78 +780,63 @@ However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L
 
 """
 
-# ╔═╡ 3e1d33c8-d294-11ef-0a08-bdc419949925
+# ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
 md"""
-## Probabilistic Inference
+$(section_outline("Inference Exercise:", "Bag Counter"))
 
-**Probabilistic inference** refers to computing
+##### Problem  
 
-```math
-p(\,\text{whatever-we-want-to-know}\, | \,\text{whatever-we-already-know}\,)
-```
+- A bag contains one ball, known to be either white or black. A white ball is put in, the bag is shaken. Next, a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball?
 
-For example: 
+##### Solution 
 
-```math
-\begin{align*}
- p(\,\text{Mr.S.-killed-Mrs.S.} \;&|\; \text{he-has-her-blood-on-his-shirt}\,) \\
- p(\,\text{transmitted-codeword} \;&|\;\text{received-codeword}\,) 
-  \end{align*}
-```
-
-"""
-
-# ╔═╡ 3e1d4160-d294-11ef-0dc6-d7aa9bce56a1
-md"""
-This can be accomplished by repeated application of sum and product rules.
-
-"""
-
-# ╔═╡ 3e1d51a0-d294-11ef-228e-294b503d2e3d
-md"""
-In particular, consider a joint distribution ``p(X,Y,Z)``. Assume we are interested in ``p(X|Z)``:
-
-```math
-\begin{align*}
-p(X|Z) \stackrel{p}{=} \frac{p(X,Z)}{p(Z)} \stackrel{s}{=} \frac{\sum_Y p(X,Y,Z)}{\sum_{X,Y} p(X,Y,Z)} \,,
-\end{align*}
-```
-
-where the ``s`` and ``p`` above the equality sign indicate whether the sum or product rule was used. 
-
-"""
-
-# ╔═╡ 3e1d5efc-d294-11ef-0627-cfa86f1447ca
-md"""
-In the rest of this course, we'll encounter many long probabilistic derivations. For each manipulation, you should be able to associate an 's' (for sum rule), a 'p' (for product or Bayes rule) or an 'm' (for a simplifying model assumption) above any equality sign.
-
-"""
-
-# ╔═╡ 3e1e134c-d294-11ef-18c0-21742fe74fa6
-md"""
-**Solution**: Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 ``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
 
 """
 
-# ╔═╡ 3e1e3a34-d294-11ef-0053-393751b94f2c
+# ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
 md"""
-**Solution**: (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+$(section_outline("Inference Exercise:", "Causality?"))
+
+##### Problem 
+
+- A dark bag contains five red balls and seven green ones. 
+  - (a) What is the probability of drawing a red ball on the first draw? 
+- Balls are not returned to the bag after each draw. 
+  - (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
+
+##### Solution 
+
+- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 
 ``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
+
 
 """
 
 # ╔═╡ 178721d2-624c-4ac4-8fa1-ded23da7feef
 keyconcept("", md"Probabilities describe beliefs (a ''state of knowledge''), rather than actual properties of nature.")
 
+# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
+## Revisiting the Challenge: Disease Diagnosis
+md"""
+$(section_outline("Revisiting the Challenge:", "Disease Diagnosis"; big=true, header_level=2))
+
+##### Problem 
+
+- Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
+
+"""
+
 # ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
 md"""
 
+##### Solution 
 
-**Solution**: The given information is ``p(D=1)=0.01``, ``p(T=1|D=1)=0.95`` and ``p(T=0|D=0)=0.85``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
+- The given information is ``p(D=1)=0.01``, ``p(T=1|D=1)=0.95`` and ``p(T=0|D=0)=0.85``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
 
 ```math
 \begin{align*}
@@ -792,9 +851,12 @@ p( D=1 &| T=1) \\
 
 Note that ``p(\text{sick}|\text{positive test}) = 0.06`` while ``p(\text{positive test} | \text{sick}) = 0.95``. This is a huge difference that is sometimes called the "medical test paradox" or the [base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy). 
 
-Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and even lots of unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
+Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and numerous unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
 
 """
+
+# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
+prevalence, sensitivity, specificity
 
 # ╔═╡ c593cb52-0538-4180-b9d5-479bdaeb3fc1
 TODO("tell students that they can scorll. And make this interactive")
@@ -840,7 +902,7 @@ The **covariance** matrix between *vectors* ``x`` and ``y`` is a mixed central m
 
 Clearly, if ``x`` and ``y`` are independent, then ``\Sigma_{xy} = 0``, since in that case ``\mathbb{E}[x y^T] = \mathbb{E}[x] \mathbb{E}[y^T] = \mu_x \mu_y^T``.
 
-Exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T = B^TA^T``).
+Home exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T = B^TA^T``).
 
 """
 
@@ -848,7 +910,7 @@ Exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T =
 md"""
 ## $(HTML("<span id='linear-transformation'>Linear Transformations</span>"))
 
-If we have two variables ``X`` and ``Y``, what can we say about transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
+If we have two variables ``X`` and ``Y``, what can we say about arithmetic transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
 
 Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\Sigma_x`` and the linear transformation 
 
@@ -925,12 +987,9 @@ md"""
 
 """
 
-# ╔═╡ a83f164b-c66a-4e56-9151-5969302179d5
-TODO("Use Code Example box for next cell")
-
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
-### Code Example: Sum of Two Gaussian-distributed Variables
+$(section_outline("Code Example:", "Sum of Two Gaussian-distributed Variables"; big=true, header_level=2))  
 
 Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wikipedia normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
 
@@ -1073,13 +1132,17 @@ If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not e
 
 # ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
 md"""
-### Example: Transformation of a Gaussian Variable
+$(section_outline("Example:", "Transformation of a Gaussian Variable"; big=true, header_level=2))  
 
 Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
 
-**Problem**: What is ``p_y(y)``? 
+##### Problem
 
-**Solution**: Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
+- What is ``p_y(y)``? 
+
+##### Solution
+
+- Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
 
 ```math
 \begin{align*}
@@ -1092,29 +1155,6 @@ p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
 ```
 
 In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
-
-"""
-
-# ╔═╡ 3e1fc4da-d294-11ef-12f5-d51f9728fcc0
-md"""
-# Notational Conventions
-
-Finally, here is a notational convention that you should be precise about (but many authors are not).
-
-If you want to write that a variable ``x`` is distributed as a Gaussian with mean ``\mu`` and covariance matrix ``\Sigma``, you can write this properly in either of two ways:
-
-```math
-\begin{align*} 
-p(x) &= \mathcal{N}(x|\mu,\Sigma) \\
-x &\sim \mathcal{N}(\mu,\Sigma)
-\end{align*}
-```
-
-In the second version, the symbol ``\sim`` can be interpreted as "is distributed as" (a Gaussian with parameters ``\mu`` and ``\Sigma``).
-
-Don't write ``p(x) = \mathcal{N}(\mu,\Sigma)`` because ``p(x)`` is a function of ``x`` but ``\mathcal{N}(\mu,\Sigma)`` is not. 
-
-Also, ``x \sim \mathcal{N}(x|\mu,\Sigma)`` is not proper because you already named the argument at the right-hand-site. On the other hand, ``x \sim \mathcal{N}(\cdot|\mu,\Sigma)`` is fine, as is the shorter ``x \sim \mathcal{N}(\mu,\Sigma)``.
 
 """
 
@@ -1172,109 +1212,6 @@ md"""
 # Appendix
 """
 
-# ╔═╡ 9ba42512-0a9b-4a37-95ee-510aae5ec0be
-challenge_header(
-	title; 
-	color="green",
-	big::Bool=false,
-	header_level::Int=2,
-	challenge_text="Challenge:",
-) = HypertextLiteral.@htl """
-<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
-	
-<style>
-.ptt-section::before {
-	content: "";
-	display: block;
-	position: absolute;
-	left: -25px;
-	right: -6px;
-	top: -4px;
-	height: 200px;
-	border: 4px solid salmon;
-	border-bottom: none;
-	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
-	border-image-slice: 1;
-	opacity: .7;
-	pointer-events: none;
-}
-
-.big.ptt-section::before {
-	height: 500px;
-}
-	
-
-.ptt-section > span {
-	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
-	@media (prefers-color-scheme: dark) {
-		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
-	}
-	font-style: italic;
-}
-
-	
-</style>
-"""
-
-# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
-md"""
-$(challenge_header("Disease Diagnosis"))
-
-**Problem**: Given a disease with prevalence of 1%  and a test procedure  with sensitivity ('true positive' rate) of  95%  and specificity ('true negative' rate) of  85%, what is the chance that somebody who tests positive actually has the disease?
-
-"""
-
-# ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
-md"""
-$(challenge_header("Bag Counter"; challenge_text="Inference Exercise:"))
-
-**Problem**:  A bag contains one ball, known to be either white or black. A white ball is put in, the bag is shaken,
-
-and a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball?
-
-"""
-
-# ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
-md"""
-$(challenge_header("Causality?"; challenge_text="Inference Exercise:"))
-
-**Problem**: A dark bag contains five red balls and seven green ones. (a) What is the probability of drawing a red ball on the first draw? Balls are not returned to the bag after each draw. (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
-
-"""
-
-# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
-## Revisiting the Challenge: Disease Diagnosis
-md"""
-$(challenge_header("Disease Diagnosis"; big=true, challenge_text="Revisiting the Challenge:", header_level=2))
-
-**Problem**: Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:0.1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
-
-
-"""
-
-# ╔═╡ 444f1e2b-6a2a-47d3-b101-53994087b3a9
-prevalence, sensitivity, specificity
-
-# ╔═╡ 0fb6912c-d705-4a59-a922-ecd68bf650f1
-@htl """
-$(challenge_header("test test tesT"; big=false, ))
-<p>
-Consider two variables 
- and 
-. It follows from symmetry arguments that
-
-
-and hence that
-
-
-or equivalently,
-
-
-
-<p>
-This last formula is called Bayes rule, named after its inventor Thomas Bayes (1701-1761). While Bayes rule is always true, a particularly useful application
-"""
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1286,21 +1223,21 @@ PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-Distributions = "~0.25.117"
+Distributions = "~0.25.120"
 HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
-Plots = "~1.40.9"
-PlutoTeachingTools = "~0.3.1"
-PlutoUI = "~0.7.62"
+Plots = "~1.40.17"
+PlutoTeachingTools = "~0.4.2"
+PlutoUI = "~0.7.68"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.10.9"
 manifest_format = "2.0"
-project_hash = "3afc239179c519e4ba30516488624731ba1e1c5f"
+project_hash = "27c6add76aa17575a875334f1922df0d3360412d"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1316,15 +1253,13 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.2"
+version = "1.1.1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
-version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1339,15 +1274,9 @@ version = "1.0.9+0"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
+git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.4+0"
-
-[[deps.CodeTracking]]
-deps = ["InteractiveUtils", "UUIDs"]
-git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
-uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
-version = "1.3.9"
+version = "1.18.5+0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1357,21 +1286,27 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
+git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.29.0"
+version = "3.30.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.5"
+version = "0.12.1"
+
+    [deps.ColorTypes.extensions]
+    StyledStringsExt = "StyledStrings"
+
+    [deps.ColorTypes.weakdeps]
+    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
-git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
+git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.10.0"
+version = "0.11.0"
 weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
@@ -1379,15 +1314,15 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
+git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
+git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.16.0"
+version = "4.17.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1423,7 +1358,6 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
-version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1454,9 +1388,9 @@ version = "0.25.120"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
+git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -1483,19 +1417,18 @@ version = "2.6.5+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
-git-tree-sha1 = "53ebe7511fa11d33bec688a9178fac4e49eeee00"
+git-tree-sha1 = "83dc665d0312b41367b7263e8a4d172eac1897f4"
 uuid = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.FFMPEG_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "PCRE2_jll", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
-git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
+git-tree-sha1 = "3a948313e7a41eb1db7a1e733e6335f17b4ab3c4"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
-version = "4.4.4+1"
+version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
-version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1546,27 +1479,27 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "7ffa4049937aeba2e5e1242274dc052b0362157a"
+git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.14"
+version = "0.73.17"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "98fc192b4e4b938775ecd276ce88f539bcec358e"
+git-tree-sha1 = "27299071cc29e409488ada41ec7643e0ab19091f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.14+0"
+version = "0.73.17+0"
 
-[[deps.Gettext_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
-uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
-version = "0.21.0+0"
+[[deps.GettextRuntime_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
+git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
+uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
+version = "0.22.4+0"
 
 [[deps.Glib_jll]]
-deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "b0036b392358c80d2d2124746c2bf3d48d457938"
+deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
+git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.82.4+0"
+version = "2.84.3+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1581,15 +1514,15 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
+git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.16"
+version = "1.10.17"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
-git-tree-sha1 = "55c53be97790242c29031e5cd45e8ac296dadda3"
+git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "8.5.0+0"
+version = "8.5.1+0"
 
 [[deps.HypergeometricFunctions]]
 deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
@@ -1618,7 +1551,6 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
-version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1633,9 +1565,9 @@ version = "0.1.11"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
-git-tree-sha1 = "a007feb38b422fbdab534406aeca1b86823cb4d6"
+git-tree-sha1 = "0533e564aae234aff59ab625543145446d8b6ec2"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -1649,17 +1581,11 @@ git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
 
-[[deps.JuliaInterpreter]]
-deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
-git-tree-sha1 = "6ac9e4acc417a5b534ace12690bc6973c25b862f"
-uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
-version = "0.10.3"
-
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
+git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.2+0"
+version = "3.100.3+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1686,19 +1612,21 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
+git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.7"
+version = "0.16.8"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
     SparseArraysExt = "SparseArrays"
     SymEngineExt = "SymEngine"
+    TectonicExt = "tectonic_jll"
 
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+    tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -1708,17 +1636,16 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.6.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
-version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.7.2+0"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1727,13 +1654,12 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
-version = "1.11.0"
 
 [[deps.Libffi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c8da7e6a91781c41a863611c7e966098d783c57a"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+2"
+version = "3.4.7+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -1768,7 +1694,6 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1788,19 +1713,12 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
-version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
 git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
-
-[[deps.LoweredCodeUtils]]
-deps = ["JuliaInterpreter"]
-git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
-uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
-version = "3.3.0"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
@@ -1815,7 +1733,6 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
-version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1826,7 +1743,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.6+0"
+version = "2.28.2+1"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1841,11 +1758,10 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
-version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.12.12"
+version = "2023.1.10"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1858,15 +1774,15 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
 [[deps.Ogg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b6aa4566bb7ae78498a5e68943863fa8b5231b59"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+1"
+version = "1.3.6+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.27+1"
+version = "0.3.23+4"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1881,9 +1797,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "9216a80ff3682833ac4b733caa8c00390620ba5d"
+git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.0+0"
+version = "3.5.1+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1893,9 +1809,9 @@ version = "0.5.6+0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
+git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
 uuid = "91d4177d-7536-5919-b921-800302f37372"
-version = "1.3.3+0"
+version = "1.5.2+0"
 
 [[deps.OrderedCollections]]
 git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
@@ -1915,9 +1831,9 @@ version = "0.11.35"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
+git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.1+0"
+version = "1.56.3+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1932,13 +1848,9 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.11.0"
-weakdeps = ["REPL"]
-
-    [deps.Pkg.extensions]
-    REPLExt = "REPL"
+version = "1.10.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1954,9 +1866,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "809ba625a00c605f8d00cd2a9ae19ce34fc24d68"
+git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.13"
+version = "1.40.17"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1972,29 +1884,17 @@ version = "1.40.13"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PlutoHooks]]
-deps = ["InteractiveUtils", "Markdown", "UUIDs"]
-git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
-version = "0.0.5"
-
-[[deps.PlutoLinks]]
-deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
-git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
-version = "0.1.6"
-
 [[deps.PlutoTeachingTools]]
-deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
-git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "ce33e4fd343e43905a8416e6148de8c630101909"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.3.1"
+version = "0.4.2"
 
 [[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.62"
+version = "0.7.68"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2011,7 +1911,6 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2020,27 +1919,27 @@ version = "1.3.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "492601870742dcd38f233b23c3ec629628c1d724"
+git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
-git-tree-sha1 = "e5dd466bf2569fe08c91a2cc29c1003f4797ac3b"
+git-tree-sha1 = "da7adf145cce0d44e892626e647f9dcbe9cb3e10"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.7.1+2"
+version = "6.8.2+1"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
-git-tree-sha1 = "1a180aeced866700d4bebc3120ea1451201f16bc"
+git-tree-sha1 = "9eca9fc3fe515d619ce004c83c31ffd3f85c7ccf"
 uuid = "ce943373-25bb-56aa-8eca-768745ed7b5a"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
+git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -2055,14 +1954,12 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
-version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2093,18 +1990,6 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
-[[deps.Revise]]
-deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
-git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
-uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "3.7.6"
-
-    [deps.Revise.extensions]
-    DistributedExt = "Distributed"
-
-    [deps.Revise.weakdeps]
-    Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
@@ -2123,13 +2008,12 @@ version = "0.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
+git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.1"
+version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
-version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2144,7 +2028,6 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
-version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2155,7 +2038,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.11.0"
+version = "1.10.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2176,20 +2059,15 @@ uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
+deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.11.1"
-weakdeps = ["SparseArrays"]
-
-    [deps.Statistics.extensions]
-    SparseArraysExt = ["SparseArrays"]
+version = "1.10.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "1ff449ad350c9c4cbc756624d6f8a8c3ef56d3ed"
+git-tree-sha1 = "9d72a13a3f4dd3795a195ac5a44d7d6ff5f552ff"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -2211,10 +2089,6 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
-[[deps.StyledStrings]]
-uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
-version = "1.11.0"
-
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2222,7 +2096,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.7.0+0"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2243,7 +2117,6 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2256,18 +2129,16 @@ uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 version = "0.1.10"
 
 [[deps.URIs]]
-git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
+git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.2"
+version = "1.6.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
-version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
-version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2277,23 +2148,27 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d62610ec45e4efeabf7032d67de2ffdea8344bed"
+git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.22.1"
+version = "1.23.1"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
+    ForwardDiffExt = "ForwardDiff"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+    PrintfExt = "Printf"
 
     [deps.Unitful.weakdeps]
     ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
-git-tree-sha1 = "975c354fcd5f7e1ddcc1f1a23e6e091d99e99bc8"
+git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
-version = "1.6.4"
+version = "1.7.0"
 
 [[deps.Unzip]]
 git-tree-sha1 = "ca0969166a028236229f63514992fc073799bb78"
@@ -2307,22 +2182,10 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "85c7811eddec9e7f22615371c3cc81a504c508ee"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
+git-tree-sha1 = "96478df35bbc2f3e1e791bc7a3d0eeee559e60e9"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.21.0+2"
-
-[[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
-uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.36.0+0"
-
-[[deps.XML2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
-uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.6+1"
+version = "1.24.0+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2416,39 +2279,39 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "04341cb870f29dcd5e39055f895c39d016e18ccd"
+git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.4+0"
+version = "0.1.5+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "0fab0a40349ba1cba2c1da699243396ff8e94b97"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f4fc02e384b74418679983a97385644b67e1263b"
 uuid = "12413925-8142-5f55-bb0e-6d7ca50bb09b"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxcb_jll"]
-git-tree-sha1 = "e7fd7b2881fa2eaa72717420894d3938177862d1"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll"]
+git-tree-sha1 = "68da27247e7d8d8dafd1fcf0c3654ad6506f5f97"
 uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_keysyms_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "d1151e2c45a544f32441a567d1690e701ec89b00"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "44ec54b0e2acd408b0fb361e1e9244c60c9c3dd4"
 uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_renderutil_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "dfd7a8f38d4613b6a575253b3174dd991ca6183e"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "5b0263b6d080716a02544c55fdff2c8d7f9a16a0"
 uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
-version = "0.3.9+1"
+version = "0.3.10+0"
 
 [[deps.Xorg_xcb_util_wm_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f233c83cad1fa0e70b7771e0e21b061a116f2763"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
-version = "0.4.1+1"
+version = "0.4.2+0"
 
 [[deps.Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
@@ -2480,10 +2343,10 @@ uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
 [[deps.eudev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
-git-tree-sha1 = "431b678a28ebb559d224c0b6b6d01afce87c51ba"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
 uuid = "35ca27e7-8b34-5b7f-bca9-bdc33f59eb06"
-version = "3.2.9+0"
+version = "3.2.14+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2491,23 +2354,17 @@ git-tree-sha1 = "b6a34e0e0960190ac2a4363a1bd003504772d631"
 uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
 
-[[deps.gperf_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3cad2cf2c8d80f1d17320652b3ea7778b30f473f"
-uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.3.0+0"
-
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "522c1df09d05a71785765d19c9524661234738e9"
+git-tree-sha1 = "4bba74fa59ab0755167ad24f98800fe5d727175b"
 uuid = "a4ae2306-e953-59d6-aa16-d00cac43593b"
-version = "3.11.0+0"
+version = "3.12.1+0"
 
 [[deps.libass_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "e17c115d55c5fbb7e52ebedb427a0dca79d4484e"
+git-tree-sha1 = "125eedcb0a4a0bba65b657251ce1d27c8714e9d6"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
-version = "0.15.2+0"
+version = "0.17.4+0"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2521,45 +2378,45 @@ uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
 version = "0.2.2+0"
 
 [[deps.libevdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "141fe65dc3efabb0b1d5ba74e91f6ad26f84cc22"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "56d643b57b188d30cccc25e331d416d3d358e557"
 uuid = "2db6ffa8-e38f-5e21-84af-90c45d0032cc"
-version = "1.11.0+0"
+version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a22cf860a7d27e4f3498a0fe0811a7957badb38"
+git-tree-sha1 = "646634dd19587a56ee2f1199563ec056c5f228df"
 uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
-version = "2.0.3+0"
+version = "2.0.4+0"
 
 [[deps.libinput_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "eudev_jll", "libevdev_jll", "mtdev_jll"]
-git-tree-sha1 = "ad50e5b90f222cfe78aa3d5183a20a12de1322ce"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
+git-tree-sha1 = "91d05d7f4a9f67205bd6cf395e488009fe85b499"
 uuid = "36db933b-70db-51c0-b978-0f229ee0e533"
-version = "1.18.0+0"
+version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "002748401f7b520273e2b506f61cab95d4701ccf"
+git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.48+0"
+version = "1.6.50+0"
 
 [[deps.libvorbis_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
+git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+2"
+version = "1.3.8+0"
 
 [[deps.mtdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "814e154bdb7be91d78b6802843f76b6ece642f11"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
 uuid = "009596ad-96f7-51b1-9f1b-5ce2d5e8a71e"
-version = "1.1.6+0"
+version = "1.1.7+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.59.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2567,63 +2424,59 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 version = "17.4.0+2"
 
 [[deps.x264_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "4fea590b89e6ec504593146bf8b988b2c00922b2"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "14cc7083fc6dff3cc44f2bc435ee96d06ed79aa7"
 uuid = "1270edf5-f2f9-52d2-97e9-ab00b5d0237a"
-version = "2021.5.5+0"
+version = "10164.0.1+0"
 
 [[deps.x265_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "ee567a171cce03570d77ad3a43e90218e38937a9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "e7b67590c14d487e734dcb925924c5dc43ec85f3"
 uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
-version = "3.5.0+0"
+version = "4.1.0+0"
 
 [[deps.xkbcommon_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
-git-tree-sha1 = "c950ae0a3577aec97bfccf3381f66666bc416729"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "fbf139bce07a534df0e699dbb5f5cc9346f95cc1"
 uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
-version = "1.8.1+0"
+version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
 # ╟─3e17df5e-d294-11ef-38c7-f573724871d8
 # ╟─bcb4be20-0439-4809-a166-8c50b6b9206b
 # ╟─3e1803d0-d294-11ef-0304-df2b9b698cd1
-# ╟─3e1823b0-d294-11ef-3dba-9997a7230cdf
+# ╟─9b9be452-9681-43e8-bb09-cc8728df384f
+# ╟─9f4125a2-d5d2-4acf-8bad-82f94af230e8
+# ╟─f8c8ba53-df36-48a6-afde-2952cbcfbe48
 # ╟─3e185ab0-d294-11ef-3f7d-9bd465518274
-# ╟─3e1876f8-d294-11ef-22bf-7904df3c1182
+# ╟─840ab4dc-0d2e-4bf8-acc7-5f1ee2b0dcaf
+# ╟─41bee964-a0a9-4a7f-8505-54a9ee12ef0d
 # ╟─3e1889b8-d294-11ef-17bb-496655fbd618
 # ╟─3e18b2fa-d294-11ef-1255-df048f0dcec2
 # ╟─3e18c25c-d294-11ef-11bc-a93c2572b107
 # ╟─3e18d2ea-d294-11ef-35e9-2332dd31dbf0
+# ╟─dd11e93a-3dad-4e97-8642-fb70edfa6aae
 # ╟─3e18e4bc-d294-11ef-38bc-cb97cb4e0963
+# ╟─3e1b05ee-d294-11ef-33de-efed64d01c0d
 # ╟─3e18f18c-d294-11ef-33e4-b7f9495e0508
 # ╟─3e1906ea-d294-11ef-236e-c966a9474170
 # ╟─3e191b6c-d294-11ef-3174-d1b4b36e252b
 # ╟─3e192ef4-d294-11ef-1fc4-87175eeec5eb
 # ╟─3e19436c-d294-11ef-11c5-f9914f7a3a57
+# ╟─4edf38ab-a940-4ab0-be22-fa95cf571146
 # ╟─3e194ef2-d294-11ef-3b38-1ddc3063ff35
 # ╟─3e1964b4-d294-11ef-373d-712257fc130f
 # ╟─3e196d6a-d294-11ef-0795-41c045079251
 # ╟─3e198336-d294-11ef-26fd-03cd15876486
 # ╟─3e198ba6-d294-11ef-3fe7-d70bf4833fa6
-# ╟─3e19a2a0-d294-11ef-18b4-7987534916d2
-# ╟─3e19ac30-d294-11ef-10b7-fbba9ae2a2c3
-# ╟─3e19c06c-d294-11ef-197a-f549e8107a57
-# ╟─3e19d39a-d294-11ef-1a50-7fe8a24777dc
 # ╟─3e19e95a-d294-11ef-3da4-6d23922a5150
-# ╟─3e1a36b4-d294-11ef-2242-f36061b0b754
-# ╟─3e1a522a-d294-11ef-1a7a-bdcfbd5dae09
 # ╟─3e1a69f4-d294-11ef-103e-efc47025fb8f
 # ╟─3e1a7c8e-d294-11ef-1f97-55e608d49141
 # ╟─3e1a8eca-d294-11ef-1ef0-c15b24d05990
-# ╟─3e1a9fdc-d294-11ef-288f-37fd1b7ee281
+# ╟─3e1fc4da-d294-11ef-12f5-d51f9728fcc0
 # ╟─3e1ab104-d294-11ef-1a98-412946949fba
-# ╟─3e1ac32c-d294-11ef-13be-558397a6cc2a
-# ╟─3e1ad2ea-d294-11ef-02c4-3f06e14ea4d8
-# ╟─3e1ae30a-d294-11ef-3a5d-d91b7d7723d3
-# ╟─3e1af354-d294-11ef-1971-dfb39016cfcd
-# ╟─3e1b05ee-d294-11ef-33de-efed64d01c0d
+# ╟─fea8ae4c-8ef9-4b74-ad13-1314afef97de
 # ╟─3e1b4b1c-d294-11ef-0423-9152887cc403
 # ╟─3e1b5c9c-d294-11ef-137f-d75b3731eae4
 # ╟─3e1b7d14-d294-11ef-0d10-1148a928dd57
@@ -2644,20 +2497,15 @@ version = "1.8.1+0"
 # ╟─3e1c70be-d294-11ef-14ed-0d46515541c5
 # ╟─3e1c806a-d294-11ef-1fad-17e5625279f7
 # ╟─3e1c9184-d294-11ef-3e35-5393d97fbc44
-# ╠═dc4665b8-f803-4c18-845c-4901553eaa99
-# ╠═3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
+# ╟─3e1d33c8-d294-11ef-0a08-bdc419949925
+# ╟─b176ceae-884e-4460-9f66-020c1ac447f1
+# ╟─3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
 # ╠═eeb9a1f5-b857-4843-920b-2e4a9656f66b
 # ╠═fc733d61-fd0f-4a13-9afc-4505ac0253df
-# ╠═8a7dd8b7-5faf-4091-8451-9769f842accb
+# ╟─8a7dd8b7-5faf-4091-8451-9769f842accb
 # ╟─3e1d20e0-d294-11ef-2044-e1fe6590a600
-# ╠═3e1d33c8-d294-11ef-0a08-bdc419949925
-# ╟─3e1d4160-d294-11ef-0dc6-d7aa9bce56a1
-# ╟─3e1d51a0-d294-11ef-228e-294b503d2e3d
-# ╟─3e1d5efc-d294-11ef-0627-cfa86f1447ca
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
-# ╟─3e1e134c-d294-11ef-18c0-21742fe74fa6
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
-# ╟─3e1e3a34-d294-11ef-0053-393751b94f2c
 # ╟─178721d2-624c-4ac4-8fa1-ded23da7feef
 # ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
 # ╟─2156f96e-eebe-4190-8ce9-c76825c6da71
@@ -2672,7 +2520,6 @@ version = "1.8.1+0"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
-# ╠═a83f164b-c66a-4e56-9151-5969302179d5
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
 # ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4
@@ -2691,8 +2538,7 @@ version = "1.8.1+0"
 # ╟─3e1f7d5e-d294-11ef-2878-05744036f32c
 # ╟─3e1f8e48-d294-11ef-0f8a-b58294a8543d
 # ╟─3e1fa04a-d294-11ef-00c3-a51d1aaa5553
-# ╠═3e1fb370-d294-11ef-1fb6-63a41a024691
-# ╟─3e1fc4da-d294-11ef-12f5-d51f9728fcc0
+# ╟─3e1fb370-d294-11ef-1fb6-63a41a024691
 # ╟─3e1fd38a-d294-11ef-05d3-ad467328be96
 # ╟─3e1fe0de-d294-11ef-0d8c-35187e394292
 # ╟─3e1fedfc-d294-11ef-30ee-a396bb877037
@@ -2700,8 +2546,6 @@ version = "1.8.1+0"
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
-# ╟─0fb6912c-d705-4a59-a922-ecd68bf650f1
-# ╟─9ba42512-0a9b-4a37-95ee-510aae5ec0be
 # ╠═7910a84c-18b3-4081-9f01-e59258a01adb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
