@@ -453,19 +453,9 @@ Consider a model ``p(x,\theta|m)`` and a data set ``D = \{x_1,x_2, \ldots,x_N\}`
 
 """
 
-# ╔═╡ 6a27cc80-d294-11ef-244a-01307ec86188
+# ╔═╡ cc8af69e-6d00-4327-aaa2-0b1023052b8a
 md"""
 Given the data set ``D``, the log-evidence for model ``m`` decomposes as follows (please check the derivation):
-
-```math
-\begin{align*}
-\underbrace{\log p(D|m)}_{\text{log-evidence}} &= \log p(D|m) \cdot   \underbrace{\int p(\theta|D,m)\mathrm{d}\theta}_{\text{evaluates to }1} \\
- &= \int p(\theta|D,m) \log p(D|m) \mathrm{d}\theta  \qquad \text{(move $\log p(D|m)$ into the integral)} \\
- &= \int p(\theta|D,m) \log \underbrace{\frac{p(D|\theta,m) p(\theta|m)}{p(\theta|D,m)}}_{\text{by Bayes rule}} \mathrm{d}\theta \\
-  &= \underbrace{\int p(\theta|D,m) \log p(D|\theta,m) \mathrm{d}\theta}_{\text{accuracy (a.k.a. data fit)}} - \underbrace{\int p(\theta|D,m) \log  \frac{p(\theta|D,m)}{p(\theta|m)} \mathrm{d}\theta}_{\text{complexity}}
-\end{align*}
-```
-
 """
 
 # ╔═╡ 6a27efc6-d294-11ef-2dc2-3b2ef95e72f5
@@ -655,20 +645,15 @@ Before observing any data, you can express your state-of-knowledge about the coi
 
 """
 
-# ╔═╡ 6a29bfcc-d294-11ef-30d9-59b2f7c49f0b
+# ╔═╡ b872cd69-d534-4b04-bb76-d85bb7ef0ea9
 md"""
 ## 2. Parameter Estimation for Coin Toss
 
 Next, infer the posterior PDF over ``\mu`` (and evidence) through Bayes rule
+"""
 
-```math
-\begin{align*}
-p(\mu&|D) \cdot p(D) = p(D|\mu)\cdot p(\mu)  \\
-  &=  \underbrace{\biggl( \mu^n (1-\mu)^{N-n}\biggr)}_{\text{likelihood}} \cdot \underbrace{\biggl( \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{\alpha-1}(1-\mu)^{\beta-1} \biggr)}_{\text{prior}} \\
-  &= \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1} \\
-        &= \underbrace{\biggl(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{\Gamma(N+\alpha+\beta)}{\Gamma(n+\alpha)\Gamma(N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
-\end{align*}
-```
+# ╔═╡ 181ade96-8e1e-4186-9227-c1561352529d
+md"""
 
 hence the posterior is also beta-distributed as
 
@@ -764,23 +749,6 @@ If we were to assume zero pseudo-counts, i.e. ``\alpha=\beta \rightarrow 0``, th
 
 ```math
 \left. p(x_\bullet=1|D) \right|_{\alpha=\beta \rightarrow 0} = \left.\frac{n+\alpha}{N+\alpha+\beta}\right|_{\alpha=\beta \rightarrow 0} = \frac{n}{N}\,.
-```
-
-"""
-
-# ╔═╡ 6a2a5496-d294-11ef-0f1a-e9a70c44288a
-md"""
-Note the following decomposition
-
-```math
-\begin{align*}
-    p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
-    &= \frac{\alpha}{N+\alpha+\beta} + \frac{n}{N+\alpha+\beta}  \\
-    &= \frac{\alpha}{N+\alpha+\beta}\cdot \frac{\alpha+\beta}{\alpha+\beta} + \frac{n}{N+\alpha+\beta}\cdot \frac{N}{N}  \\
-    &= \frac{\alpha}{\alpha+\beta}\cdot \frac{\alpha+\beta}{N+\alpha+\beta} + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
-    &= \frac{\alpha}{\alpha+\beta}\cdot \biggl(1-\frac{N}{N+\alpha+\beta} \biggr) + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
-        &= \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} + \underbrace{\underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}}\cdot \underbrace{\biggl( \underbrace{\frac{n}{N}}_{\substack{\text{data-based}\\\text{prediction}}} - \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} \biggr)}_{\text{prediction error}}}_{\text{correction}}
-\end{align*}
 ```
 
 """
@@ -1243,6 +1211,52 @@ Balls are not returned to the bag after each draw.
 md"""
 # Appendix
 """
+
+# ╔═╡ 7a764a14-a5df-4f76-8836-f0a571fc3519
+wideq(x) = PlutoUI.ExperimentalLayout.Div([x]; style="min-width: max-content;") |> WideCell
+
+# ╔═╡ c454be00-05e7-42f6-a243-bf559ed6eff7
+md"""
+```math
+\begin{align*}
+\underbrace{\log p(D|m)}_{\text{log-evidence}} &= \log p(D|m) \cdot   \underbrace{\int p(\theta|D,m)\mathrm{d}\theta}_{\text{evaluates to }1} \\
+ &= \int p(\theta|D,m) \log p(D|m) \mathrm{d}\theta  \qquad \text{(move $\log p(D|m)$ into the integral)} \\
+ &= \int p(\theta|D,m) \log \underbrace{\frac{p(D|\theta,m) p(\theta|m)}{p(\theta|D,m)}}_{\text{by Bayes rule}} \mathrm{d}\theta \\
+  &= \underbrace{\int p(\theta|D,m) \log p(D|\theta,m) \mathrm{d}\theta}_{\text{accuracy (a.k.a. data fit)}} - \underbrace{\int p(\theta|D,m) \log  \frac{p(\theta|D,m)}{p(\theta|m)} \mathrm{d}\theta}_{\text{complexity}}
+\end{align*}
+```
+
+""" |> wideq
+
+# ╔═╡ 1ba1939d-9986-4b97-9273-4f2434f1d385
+md"""
+```math
+\begin{align*}
+p(\mu&|D) \cdot p(D) = p(D|\mu)\cdot p(\mu)  \\
+  &=  \underbrace{\biggl( \mu^n (1-\mu)^{N-n}\biggr)}_{\text{likelihood}} \cdot \underbrace{\biggl( \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{\alpha-1}(1-\mu)^{\beta-1} \biggr)}_{\text{prior}} \\
+  &= \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1} \\
+        &= \underbrace{\biggl(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{\Gamma(N+\alpha+\beta)}{\Gamma(n+\alpha)\Gamma(N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
+\end{align*}
+```
+
+""" |> wideq
+
+# ╔═╡ 6a2a5496-d294-11ef-0f1a-e9a70c44288a
+md"""
+Note the following decomposition
+
+```math
+\begin{align*}
+    p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
+    &= \frac{\alpha}{N+\alpha+\beta} + \frac{n}{N+\alpha+\beta}  \\
+    &= \frac{\alpha}{N+\alpha+\beta}\cdot \frac{\alpha+\beta}{\alpha+\beta} + \frac{n}{N+\alpha+\beta}\cdot \frac{N}{N}  \\
+    &= \frac{\alpha}{\alpha+\beta}\cdot \frac{\alpha+\beta}{N+\alpha+\beta} + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
+    &= \frac{\alpha}{\alpha+\beta}\cdot \biggl(1-\frac{N}{N+\alpha+\beta} \biggr) + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
+        &= \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} + \underbrace{\underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}}\cdot \underbrace{\biggl( \underbrace{\frac{n}{N}}_{\substack{\text{data-based}\\\text{prediction}}} - \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} \biggr)}_{\text{prediction error}}}_{\text{correction}}
+\end{align*}
+```
+
+""" |> wideq
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2752,7 +2766,8 @@ version = "1.9.2+0"
 # ╟─6a27a28a-d294-11ef-1f33-41b444761429
 # ╟─6a27b114-d294-11ef-099d-1d55968934a6
 # ╟─6a27beca-d294-11ef-1895-d57b11b827c1
-# ╟─6a27cc80-d294-11ef-244a-01307ec86188
+# ╟─cc8af69e-6d00-4327-aaa2-0b1023052b8a
+# ╟─c454be00-05e7-42f6-a243-bf559ed6eff7
 # ╟─6a27efc6-d294-11ef-2dc2-3b2ef95e72f5
 # ╟─6a280132-d294-11ef-10ac-f3890cb3f78b
 # ╟─6a2814b0-d294-11ef-3a76-9b93c1fcd4d5
@@ -2773,7 +2788,9 @@ version = "1.9.2+0"
 # ╟─51bed1cc-c960-46fe-bc09-2b684df3b0cc
 # ╟─513414c7-0a54-4767-a583-7d779f8fbc55
 # ╟─6a294790-d294-11ef-270b-5b2152431426
-# ╟─6a29bfcc-d294-11ef-30d9-59b2f7c49f0b
+# ╟─b872cd69-d534-4b04-bb76-d85bb7ef0ea9
+# ╟─1ba1939d-9986-4b97-9273-4f2434f1d385
+# ╟─181ade96-8e1e-4186-9227-c1561352529d
 # ╟─6a29d548-d294-11ef-1361-ad2230cad02b
 # ╟─6a29e25e-d294-11ef-15ce-5bf3d8cdb64c
 # ╟─6a29f1c2-d294-11ef-147f-877f99e5b57c
@@ -2830,5 +2847,6 @@ version = "1.9.2+0"
 # ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
+# ╟─7a764a14-a5df-4f76-8836-f0a571fc3519
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
