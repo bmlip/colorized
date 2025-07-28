@@ -7,7 +7,7 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     #! format: off
-    return quote
+    quote
         local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
@@ -16,103 +16,278 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ 8c2ce4d5-858a-4f13-91ab-92f32c0f2b20
-using Distributions, Plots
-
-# ╔═╡ 94b7282f-6bb2-4a5c-a630-a4028030afb8
-using PlutoUI
-
-# ╔═╡ 17faca3a-dd8d-11ef-380f-e74ec3aa4468
-md"""
-# Sum and product of Gaussian variables
-
-When two variables are both Gaussian distributed and independent, their **sum** is Gaussian distributed (yay!), and their **product is not**.
-
-
-"""
-
-# ╔═╡ 7104aab1-cc95-4839-bbfd-ec651319df3f
-b = rand(Normal(3.0, 2.0), 51000)
-
-# ╔═╡ 90b9d091-dca2-4cf2-aba2-c377dc53788a
-@bindname a_mean Slider(-20:.01:20; default=4.3)
-
-# ╔═╡ 1b374e1a-8c31-4bbc-a216-2716e5fc101b
-a = rand(Normal(a_mean, 2), 51000)
-
-# ╔═╡ 014dbc9d-b6a4-46a6-983d-c457317aab02
-md"""
-The **sum** ``a + b`` of two independent Gaussian distributed variables is Gaussian distributed.
-"""
-
-# ╔═╡ d91940c3-ebc2-487e-8e35-10bc31b08feb
-md"""
-The **product** ``ab`` of two independent Guassian distributed variables is **not** Gaussian distributed!
-"""
-
-# ╔═╡ 84e60eb7-0d6f-46ed-8720-d323092b8a54
-hist(data; kwargs...) = histogram(data; bins=-30.5:30, xlim=(-30,30), size=(650,90), legend=nothing, kwargs...)
-
-# ╔═╡ 471dedd9-5362-4abf-836e-758e65816cdc
-hist(a; color="blue", ylim=(0,10_000))
-
-# ╔═╡ 1801ae3e-3d07-4c84-a685-497b468f7b16
-hist(b; color="red")
-
-# ╔═╡ 44703df0-6c66-4090-87f6-77e9fcbde4bb
-let
-	sum = a .+ b
-
-	hist(sum; color="purple", normalize=:pdf)
-	plot!(x -> pdf(Normal(mean(sum),std(sum)),x))
+# ╔═╡ 7654497e-f0bd-11ea-2520-cf6617405b48
+begin
+	using Distributions
+	using Plots
+	using PlutoUI
 end
 
-# ╔═╡ fe117a43-ef57-42e0-bd18-f57821b07422
-let
-	prod = a .* b
-
-	hist(prod; color="purple", normalize=:pdf)
-	plot!(x -> pdf(Normal(mean(prod),std(prod)),x))
+# ╔═╡ 7bba65e4-f0c0-11ea-231c-290c9a4e290a
+begin
+	using DataFrames
+	using CSV
 end
 
-# ╔═╡ ec4d2258-1fa6-41d2-8f11-cf8169dcd403
-md"""
-f^k(x) met f netjes en k groter gaat naar normaal
+# ╔═╡ 7e474146-f044-11ea-2c0c-cbda0c574da5
+md"
+# Probabilistic Programming 0
+### Introduction to Bayesian Machine Learning
 
--> meerdere observaties
+#### Goal:
+  - Familiarize yourself with basic concepts from Bayesian inference such as priors and posteriors.
+  - Familiarize yourself with working with the Julia programming language in notebooks.
 
+#### Materials:
+  - [Intro to programming in Julia](https://youtu.be/8h8rQyEpiZA?t=233).
+  - [Cheatsheets: how does Julia differ from Matlab / Python](https://docs.julialang.org/en/v1/manual/noteworthy-differences/index.html).
+"
 
-L(x)p(x)
+# ╔═╡ 59abbfe8-f0bb-11ea-267b-2126df2b62c9
+md"In 1937, one of the founders of the field of statistics, [Ronald Fisher](https://en.wikipedia.org/wiki/Ronald_Fisher), published a story of how he explained _statistical inference_ to a friend. This story, called the \"Lady Tasting Tea\", has been re-told many times in different forms. In this notebook, we will re-tell one of its modern variants and introduce you to some important concepts along the way."
 
-L(x)(...)
- etc
+# ╔═╡ 0e55ea72-f0bc-11ea-16dc-4d9ccba649e0
+md"### Tasting Experiment
 
--> James s
+In the summer of 2017, students of the University of Amsterdam participated in a \"Beer Tasting Experiment\" ([Doorn et al., 2019](https://journals.sagepub.com/doi/pdf/10.1177/1475725719848574)). Each participant was given two cups and were told that the cups contained [Hefeweissbier](https://www.bierenco.nl/product/weihenstephaner-hefeweissbier/), one with alcohol and one without. The participants had to taste each beer and guess which of the two contained alcohol.
 
+We are going to do a statistical analysis of the tasting experiment. We want to know to what degree participants are able to discriminate between the alcoholic and alcohol-free beers. The participants make a choice between two cups. We can model this choice with what's known as a [Bernoulli distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution). The Bernoulli distribution is a formula to compute the probability of a binary event. In this case, the event variable $X$ indicates either a \"correct\" choice of cup, which we will assign the number $1$, or an \"incorrect\" choice of cup, which we will assign the number $0$. The Bernoulli distribution has a \"rate parameter\" $\theta$, a number between $0$ and $1$, which governs the probability of the two events. If $\theta = 1$, then the participant will always choose the right cup (\"always\" = \"with probability $1$\") and if $\theta = 0$, then the participant will never choose the right cup (\"never\" = \"with probability $0$\"). Choosing at random, i.e. getting as many correct choices as incorrect choices, corresponds to $\theta = 0.5$.
 
+Bayesian inference is about 3 core steps: specifying a prior distribution, specifying a likelihood and computing a posterior distribution. We are going to walk through these three steps in detail below."
 
-"""
+# ╔═╡ 01c3378c-f0bd-11ea-1983-3bb57d137076
+md"### 1. Prior distributions
+
+In Bayesian inference, it is important to think about what kind of _prior knowledge_ you have about your problem. In our tasting experiment, this corresponds to what you think the probability is that a participant will correctly choose the cup. In other words, you have some thoughts about what value $\theta$ is in this scenario. You might think that the participants' choices are all going to be roughly random. Or, given that you have tasted other types of alcohol-free beers before, you might think that the participants are going to choose the right cup most of the time. This intuition, this \"prior knowledge\", needs to be quantified. We do that by specifying another probability distribution for it, in this case the [Beta distribution](https://en.wikipedia.org/wiki/Beta_distribution). The Beta distribution computes the probability of an outcome in the interval $[0,1]$. Like any other other distribution, it has parameters: $\alpha$ and $\beta$. Both are \"shape parameters\", meaning the distribution has a different shape for each value of the parameters. Let's visualise this!"
+
+# ╔═╡ 25cd0414-f0bd-11ea-3eae-f787a36a3798
+md"In Julia, you import libraries and software packages using the `using` command. Here we are importing a library of probability distributions called [Distributions.jl](https://github.com/JuliaStats/Distributions.jl) and a library of plotting utilities called [Plots.jl](https://github.com/JuliaPlots/Plots.jl)."
+
+# ╔═╡ b48f2b86-2281-4804-b4ac-614457eab859
+md"Shape parameter α = "
+
+# ╔═╡ 31427b48-f0be-11ea-3493-39d0617e6c14
+@bind α Slider(0:.1:100; default=50)
+
+# ╔═╡ f51c794d-9753-4431-bf5a-ccf0a7a0641c
+md"Rate parameter β = "
+
+# ╔═╡ 3e8a79b8-f0be-11ea-314c-333d84cea659
+# Define rate parameter
+@bind β Slider(0:.1:100; default=50)
+
+# ╔═╡ 87373db4-f0bd-11ea-0b4b-0fbf22e8098d
+begin	
+	# Define random variable
+	θ = range(0.0, step=0.001, stop=1.0)
+	
+	# Define probability distribution
+	pθ = Beta(α, β)
+	
+	# Visualize probability distribution function
+	plot(θ, pdf.(pθ, θ), linewidth=3, color="red", label="α = "*string(α)*", β = "*string(β), xlabel="θ", ylabel="p(θ)")
+end
+
+# ╔═╡ 8553e0b4-f0be-11ea-2487-07aacadc4508
+md"""A couple of things to note about the code block: 
+- You can use greek letters as variables (write them like in latex, e.g. \alpha, and press `tab`)
+- To get sliders, you can wrap html code. The "@" in front of 'bind' is called a ["macro" operator](https://docs.julialang.org/en/v1/base/base/#macro). It essentially groups a set of commands into one to get a clean function call.
+- Ranges of numbers work just like they do in Matlab (e.g. `0.0:0.1:1.0`) and Python (e.g. `range(0.0, stop=100., length=100)`). Note that Julia is strict about types, i.e. it will generate integers if you don't use a decimal point.
+- There is a `.` after the command `pdf`. This refers to ["broadcasting"](https://julia.guide/broadcasting): the function is applied to each element of a list or array. Here we use the `pdf` command to compute the probability for each value of $\theta$ in the array.
+- Many of the keyword arguments in the `plot` command should be familiar to you if you've worked with [Matplotlib](https://matplotlib.org/) (Python's plotting library).
+- In the `label=` argument to plots, we have performed \"string concatenation\". In Julia, you write a string with double-quote characters and concatenate two strings by "multiplying", i.e. using `*`.
+
+I encourage you to play around with the parameters and see how they alter the distribution."""
+
+# ╔═╡ 02c1ebd0-f0c0-11ea-1f7d-a33e7bb4c88f
+md"""As you can see, the Beta distribution is quite flexible and can capture your belief about how often participants will correctly detect the alcoholic beverage. For example, the purple line indicates that you believe that it is very probable that participants will always get it right (peak lies on $\theta=1.0$), but you still think there is some probability that the participants will guess at random ($p(\theta = 1/2) \approx 0.3$). The yellow-brown line indicates you believe that it is nearly impossible that the participants will always get it right ($p(\theta = 1) \approx 0.0$), but you still believe that they will get it right most often (peak lies around $\theta \approx 0.8$).
+
+#### Summary
+
+A prior distribution is a probability distribution function of an unknown parameter $p(\theta)$, that signifies how probable each value of the parameter is **before** you observe data in your experiment. It is up to you to define what that prior distribution looks like. """
+
+# ╔═╡ 23fa4662-f0c0-11ea-2df0-d9dd86ebf137
+md"""#### **Assignment**: 
+
+I want you to pick values for the prior parameters $\alpha$ and $\beta$ that reflect how often you think the participants will get it right."""
+
+# ╔═╡ 2fc7ef3a-f0c0-11ea-3eca-ab02d7f3fcfe
+md"""## 2. Likelihood
+
+The next step is the [likelihood function](https://en.wikipedia.org/wiki/Likelihood_function). A likelihood is a conditional probability distribution of events $X$ given parameters $\theta$. In our tasting experiment, we are using the Bernoulli distribution: the higher value $\theta$ has, the more probable the event $X=1$, i.e. the participant correctly guesses the alcoholic beverage. The formula for the Bernoulli distribution is:
+
+$$\begin{align}
+p(X = x \mid \theta) =&\ \text{Bernoulli}(X \mid \theta) \\
+=&\ \theta^x (1-\theta)^{1-x}
+\end{align}$$
+
+So, if $X=1$, then the formula simplifies to $p(X = 1 \mid \theta) = \theta^1 (1-\theta)^{1-1} = \theta$ and if $X=0$, it simplifies to $p(X = 0 \mid \theta) = \theta^0 (1-\theta)^{1-0} = 1-\theta$. If you have multiple observations for $X$, you can get the probability of all observations by taking the product of individual probabilities:
+
+$$p(\{x_1, \dots, x_N\} \mid \theta) = \prod_{i=1}^{N} p(X = x_i \mid \theta)$$
+
+The reason we call this the "likelihood" is a subtle but important point: when $X$ is observed the distribution indirectly tells us something about $\theta$. For example, suppose the first three participants have correctly guessed the beverage. Then, the probability under $\theta = 0.8$ is $p(\{1,1,1\} \mid \theta = 0.8) = 0.8 \cdot 0.8 \cdot 0.8 = 0.512$. That is larger than the probability under $\theta = 0.4$, which is $p(\{1,1,1\} \mid \theta = 0.4) = 0.4^3 = 0.064$. We say that the likelihood function tells us how "likely" each value for the parameter is, given the observations. 
+
+#### Summary
+
+A likelihood function is a conditional probability distribution of observed data given an unobserved parameter."""
+
+# ╔═╡ 63ef008c-f0c0-11ea-3d12-070c342c851b
+md"""#### Data
+
+Now we're going to start looking at some data. The data of the participants in Amsterdam is available online at the [Open Science Foundation](https://osf.io/428pb/?view_only=e3dc67dab9c54d23a92fb2e88465f428). We'll reading it in by importing some data libraries."""
+
+# ╔═╡ 993aaf52-f0c0-11ea-3a6a-9141a6706f7e
+md"""[CSV.jl](https://github.com/JuliaData/CSV.jl) is a library for reading in data stored in tables and [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl) manipulates table data."""
+
+# ╔═╡ e617816a-f0c0-11ea-1a5d-81f5db895c05
+# Read data from CSV file
+data = DataFrame(CSV.File("data/TastingBeerResults.csv"))
+
+# ╔═╡ ee206a84-f0c0-11ea-041d-97696dd759d6
+md"""We are going to specifically look at the "CorrectIdentify" column."""
+
+# ╔═╡ 096fb72c-f0c1-11ea-3323-fdb949953348
+# Extract variable indicating correctness of guess
+X = data[!, :CorrectIdentify]
+
+# ╔═╡ 1302fd1c-f0c1-11ea-1da6-7fd6f5e43ad0
+md"""That's a bit hard to parse, so we'll plot this using a histogram."""
+
+# ╔═╡ 905abc24-f0c0-11ea-3891-85947dc03075
+begin
+	# Number of successes and failures
+	S = sum(X .== 1)
+	F = sum(X .== 0)
+	
+	# Visualize frequencies
+	histogram(X, bins=[0,1,2], label="Incorrect = "*string(F)*", Correct = "*string(S), xlabel="X", xticks=[0,1], ylabel="Number", legend=:topleft)
+end
+
+# ╔═╡ ea7364f4-f0ed-11ea-06e1-e1022a7d47d9
+md"""Code notes:
+- The `!` in `data[!, ..]` is specific to the DataFrames syntax.
+- The `.==` checks for each element of the array X whether it is equal."""
+
+# ╔═╡ 564cff50-f0ee-11ea-3908-afe9a2164805
+md"Let's visualize the likelihood of these observations."
+
+# ╔═╡ 5e3b806a-f0ee-11ea-245e-77cb9d224ff3
+begin
+	# Define the Bernoulli likelihood function
+	Bernoulli(S, F, θ) = θ^S * (1-θ)^F
+
+	# Plot likelihood
+	plot(θ, Bernoulli.(S, F, θ), linewidth=3, color="black", label="", xlabel="θ", ylabel="p(X|θ)")
+end
+
+# ╔═╡ 6dbf5778-f0ee-11ea-36fb-214682733716
+md"""The likelihood is has quite a clear shape: there is a sharp peak just below $\theta = 0.75$. Note that the likelihood is a conditional distribution which means it is not properly normalized."""
+
+# ╔═╡ 76cc8e12-f0ee-11ea-3aa5-27934c3a44b9
+md"""### 3. Posterior
+
+One we have specified the prior and the likelihood, we can compute the posterior. Remember Bayes' rule:
+
+```math
+p(\theta \mid X) = \frac{p(X \mid \theta) p(\theta)}{p(X)} \, .
+```
+
+The posterior \$p(\theta \mid X)\$ equals the likelihood \$p(X \mid \theta)\$ times the prior $p(\theta)$ divided by the evidence \$p(X)\$. In our tasting experiment, we have a special thing going on: [conjugacy](https://en.wikipedia.org/wiki/Conjugate_prior). The Beta distribution is "conjugate" to the Bernoulli likelihood, meaning that the posterior distribution is also going to be a Beta distribution. Specifically with the Beta-Bernoulli combination, it is easy to see what conjugacy actually means. We haven't looked at the formula for the Beta distribution yet, which is:
+
+$$\begin{align} 
+p(\theta) =&\ \text{Beta}(\theta \mid \alpha, \beta) \\
+=&\ \frac{1}{B(\alpha, \beta)} \theta^{\alpha-1} (1-\theta)^{\beta-1} \, .
+\end{align}$$
+
+The \$B(\alpha, \beta)\$ is a function used to normalise this distribution. If you now take the product of the likelihood and the prior (ignoring the normalizing function $B$), you get something that can be simplified beautifully:
+
+$$\begin{align} 
+p(X \mid \theta) p(\theta) \ \propto&\ \ \theta^x (1-\theta)^{1-x} \cdot \theta^{\alpha-1} (1-\theta)^{\beta-1} \\
+=&\ \ \theta^{x+\alpha-1} (1-\theta)^{1-x+\beta-1} \quad . 
+\end{align}$$
+
+This last line is again the formula for the Beta distribution (except for a proper normalisation) but with different parameters (\$x+\alpha\$ instead of \$\alpha\$ and \$x+\beta\$ instead of \$\beta\$). This is what we mean by conjugacy: the product of the likelihood and the prior simplifies elegantly to produce a convenient form.
+
+Let's now visualise the posterior after observing the data from Amsterdam."""
+
+# ╔═╡ cc76d034-f0ee-11ea-11f2-4f1a8b8cfa47
+# Shape parameter of prior distribution
+@bind α0 Slider(0:.1:100; default=50)
+
+# ╔═╡ d8899b9a-f0ee-11ea-3396-c51ae5beb62b
+# Rate parameter of prior distribution
+@bind β0 Slider(0:.1:100; default=50)
+
+# ╔═╡ c9f295b4-f0ee-11ea-2505-b1705a92ebd1
+begin
+	# Define prior distribution
+	pθ0 = Beta(α0, β0)
+
+	# Update parameters for the posterior
+	αN = α0 + sum(X .== 1)
+	βN = β0 + sum(X .== 0)
+
+	# Define posterior distribution
+	pθX = Beta(αN, βN)
+
+	# Visualize probability distribution function
+	plot(θ, pdf.(pθ0, θ), linewidth=3, color="red", label="prior", xlabel="θ", ylabel="p(θ)")
+	plot!(θ, pdf.(pθX, θ), linewidth=3, color="blue", label="posterior")
+end
+
+# ╔═╡ 543b0024-f0ef-11ea-2775-6f0c0b586865
+md"""That looks great! We have updated our belief from thinking that roughly $0.8$ of participants would correctly guess the alcoholic beverage to being quite sure that $0.75$ of participants can correctly guess."""
+
+# ╔═╡ 5e3b0846-f0ef-11ea-2c4a-15c55ba5cd43
+md"""#### **Assignment**: 
+
+Plug the shape parameters of your prior into the code block above and see how your posterior differs (if you had a different prior than I had). Play around with different parameters to get a feeling for how the posterior depends on the prior."""
+
+# ╔═╡ 85d9fc20-f0ef-11ea-2b0a-e9f51d73d562
+md"""### Hypothesis testing
+
+Now that we have a posterior distribution, we can do some further analysis. For instance, how sure are we that participants are actually better than chance level at detecting the alcoholic beer? 
+
+This kind of statement, involving relative probabilities, can be tackled by _hypothesis testing_. In hypothesis testing, you start with a null hypothesis $H_0$, which is a particular choice for the detection parameter $\theta$. For example, in the question above, we are interested in "better than chance level". Chance level corresponds to $\theta = 0.5$. We then have an alternative hypothesis $H_1$, namely that we are interested in whether the participants can detect it better than chance, i.e. $\theta > 0.5$. 
+
+Proper hypothesis testing can be quite complicated and there could be factors / terms that are difficult, if not impossible, to compute (see [Wagemakers et al., 2010](https://www.sciencedirect.com/science/article/pii/S0010028509000826?casa_token=oOWuhv4FdwcAAAAA:HdpoBRU0adxKmCDPZF0gADbzbkPoiejfc0ZMJlTKq0DwhVVcnvM0OxS4IJV1GGKbSvb6yLCOvA)). Fortunately, in our current test we can perform some simplifications. The following quantity tells us something about the relative probability of detecting the alcoholic beverage at chance level versus better than chance level:
+
+```math
+\text{BF}_{10} = \frac{p(\theta = 0.5)}{p(\theta = 0.5 \mid X)}
+```
+
+BF stands for Bayes Factor and the subscript $10$ indicates how much more likely $H_1$ is than $H_0$."""
+
+# ╔═╡ 4a58cc90-f0f0-11ea-1afc-152c4acac936
+BF10 = pdf(pθ0, 0.5) / pdf(pθX, 0.5)
+
+# ╔═╡ 53d29d28-f0f0-11ea-3e2d-4bb7363f37cb
+md"""So, the alternative hypothesis _"people can correctly detect the alcoholic versus non-alcoholic Hefeweissbier better than chance level"_ is almost 200 times more likely than the null hypothesis _"people cannot distinguish between the alcoholic versus non-alcoholic Hefeweissbier"_, according to our data."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-Distributions = "~0.25.117"
-Plots = "~1.40.9"
-PlutoUI = "~0.7.61"
+CSV = "~0.10.15"
+DataFrames = "~1.7.0"
+Distributions = "~0.25.118"
+Plots = "~1.40.12"
+PlutoUI = "~0.7.23"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.2"
+julia_version = "1.11.3"
 manifest_format = "2.0"
-project_hash = "3367618c9795b4a00f274fbee8e257a0935cb8ab"
+project_hash = "b73c8c7bf4ae3a4771ef7a0a39193ee00b4605db"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -144,40 +319,50 @@ uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
 
 [[deps.Bzip2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "8873e196c2eb87962a2048b3b8e08946535864a1"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "1b96ea4a01afe0ea4090c5c8039690672dd13f2e"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
-version = "1.0.8+4"
+version = "1.0.9+0"
+
+[[deps.CSV]]
+deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "PrecompileTools", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
+git-tree-sha1 = "deddd8725e5e1cc49ee205a1964256043720a6c3"
+uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+version = "0.10.15"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "009060c9a6168704143100f36ab08f06c2af4642"
+git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.2+1"
+version = "1.18.4+0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
-git-tree-sha1 = "bce6804e5e6044c6daab27bb533d1295e4a2e759"
+git-tree-sha1 = "962834c22b66e32aa10f7611c08c8ca4e20749a9"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
-version = "0.7.6"
+version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "26ec26c98ae1453c692efded2b17e15125a5bea1"
+git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.28.0"
+version = "3.29.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+git-tree-sha1 = "c7acce7a7e1078a20a285211dd73cd3941a871d6"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.5"
+version = "0.12.0"
+weakdeps = ["StyledStrings"]
+
+    [deps.ColorTypes.extensions]
+    StyledStringsExt = "StyledStrings"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
-git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
+git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.10.0"
+version = "0.11.0"
 weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
@@ -206,25 +391,41 @@ version = "1.1.1+0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
-git-tree-sha1 = "f36e5e8fdffcb5646ea5da81495a5a7566005127"
+git-tree-sha1 = "d9d26935a0bcffc87d2613ce14c527c99fc543fd"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
-version = "2.4.3"
+version = "2.5.0"
 
 [[deps.Contour]]
 git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.6.3"
 
+[[deps.Crayons]]
+git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.1"
+
 [[deps.DataAPI]]
 git-tree-sha1 = "abe83f3a2f1b857aac70ef8b269080af17764bbe"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
+[[deps.DataFrames]]
+deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "fb61b4812c49343d7ef0b533ba982c46021938a6"
+uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+version = "1.7.0"
+
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "1d0a14036acb104d9e89698bd408f63ab58cdc82"
+git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.20"
+version = "0.18.22"
+
+[[deps.DataValueInterfaces]]
+git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
+uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
+version = "1.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -233,9 +434,9 @@ version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "fc173b380865f70627d7dd1190dc2fce6cc105af"
+git-tree-sha1 = "473e9afc9cf30814eb67ffa5f2db7df82c3ad9fd"
 uuid = "ee1fde0b-3d02-5ea6-8484-8dfef6360eab"
-version = "1.14.10+0"
+version = "1.16.2+0"
 
 [[deps.DelimitedFiles]]
 deps = ["Mmap"]
@@ -245,9 +446,9 @@ version = "1.9.1"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "03aa5d44647eaec98e1920635cdfed5d5560a8b9"
+git-tree-sha1 = "0b4190661e8a4e51a842070e7dd4fae440ddb7f4"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.117"
+version = "0.25.118"
 
     [deps.Distributions.extensions]
     DistributionsChainRulesCoreExt = "ChainRulesCore"
@@ -260,10 +461,9 @@ version = "0.25.117"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-deps = ["LibGit2"]
-git-tree-sha1 = "2fb1e02f2b635d0845df5d7c167fec4dd739b00d"
+git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.3"
+version = "0.9.4"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -284,9 +484,9 @@ version = "0.1.11"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e51db81749b0777b2147fbe7b783ee79045b8e99"
+git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.6.4+3"
+version = "2.6.5+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -299,6 +499,17 @@ deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers",
 git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.4+1"
+
+[[deps.FilePathsBase]]
+deps = ["Compat", "Dates"]
+git-tree-sha1 = "3bab2c5aa25e7840a4b065805c0cdfc01f3068d2"
+uuid = "48062228-2e41-5def-b9a4-89aafe57970f"
+version = "0.9.24"
+weakdeps = ["Mmap", "Test"]
+
+    [deps.FilePathsBase.extensions]
+    FilePathsBaseMmapExt = "Mmap"
+    FilePathsBaseTestExt = "Test"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -324,9 +535,9 @@ version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
-git-tree-sha1 = "21fac3c77d7b5a9fc03b0ec503aa1a6392c34d2b"
+git-tree-sha1 = "301b5d5d731a0654825f1f2e906990f7141a106b"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.15.0+0"
+version = "2.16.0+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
@@ -335,15 +546,20 @@ version = "1.3.7"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "786e968a8d2fb167f2e4880baba62e0e26bd8e4e"
+git-tree-sha1 = "2c5512e11c791d1baed2049c5652441b28fc6a31"
 uuid = "d7e528f0-a631-5988-bf34-fe36492bcfd7"
-version = "2.13.3+1"
+version = "2.13.4+0"
 
 [[deps.FriBidi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "846f7026a9decf3679419122b49f8a1fdb48d2d5"
+git-tree-sha1 = "7a214fdac5ed5f59a22c2d9a885a16da1c74bbc7"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
-version = "1.0.16+0"
+version = "1.0.17+0"
+
+[[deps.Future]]
+deps = ["Random"]
+uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+version = "1.11.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
@@ -353,15 +569,15 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "9bf00ba4c45867c86251a7fd4cb646dcbeb41bf0"
+git-tree-sha1 = "0ff136326605f8e06e9bcf085a356ab312eef18a"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.12"
+version = "0.73.13"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "36d5430819123553bf31dfdceb3653ca7d9e62d7"
+git-tree-sha1 = "9cb62849057df859575fc1dda1e91b82f8609709"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.12+0"
+version = "0.73.13+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -376,10 +592,10 @@ uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
 version = "2.82.4+0"
 
 [[deps.Graphite2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "01979f9b37367603e2848ea225918a3b3861b606"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "8a6dbda1fd736d60cc477d99f2e7a042acfa46e8"
 uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
-version = "1.3.14+1"
+version = "1.3.15+0"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -388,9 +604,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "c67b33b085f6e2faf8bf79a61962e7339a81129c"
+git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.15"
+version = "1.10.16"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
@@ -406,9 +622,9 @@ version = "0.3.27"
 
 [[deps.Hyperscript]]
 deps = ["Test"]
-git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
 uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
-version = "0.0.5"
+version = "0.0.4"
 
 [[deps.HypertextLiteral]]
 deps = ["Tricks"]
@@ -422,21 +638,44 @@ git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.5"
 
+[[deps.InlineStrings]]
+git-tree-sha1 = "6a9fde685a7ac1eb3495f8e812c5a7c3711c2d5e"
+uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+version = "1.4.3"
+
+    [deps.InlineStrings.extensions]
+    ArrowTypesExt = "ArrowTypes"
+    ParsersExt = "Parsers"
+
+    [deps.InlineStrings.weakdeps]
+    ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+    Parsers = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 version = "1.11.0"
 
+[[deps.InvertedIndices]]
+git-tree-sha1 = "6da3c4316095de0f5ee2ebd875df8721e7e0bdbe"
+uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
+version = "1.3.1"
+
 [[deps.IrrationalConstants]]
-git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
+git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
-version = "0.2.2"
+version = "0.2.4"
+
+[[deps.IteratorInterfaceExtensions]]
+git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
+uuid = "82899510-4779-5014-852e-03e436cf321d"
+version = "1.0.0"
 
 [[deps.JLFzf]]
-deps = ["Pipe", "REPL", "Random", "fzf_jll"]
-git-tree-sha1 = "71b48d857e86bf7a1838c4736545699974ce79a2"
+deps = ["REPL", "Random", "fzf_jll"]
+git-tree-sha1 = "1d4015b1eb6dc3be7e6c400fbd8042fe825a6bac"
 uuid = "1019f520-868f-41f5-a6de-eb00f4b6a39c"
-version = "0.1.9"
+version = "0.1.10"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
@@ -487,9 +726,9 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "ce5f5621cac23a86011836badfedf664a612cee4"
+git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.5"
+version = "0.16.7"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -536,23 +775,11 @@ git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
 version = "3.2.2+2"
 
-[[deps.Libgcrypt_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll"]
-git-tree-sha1 = "8be878062e0ffa2c3f67bb58a595375eda5de80b"
-uuid = "d4300ac3-e22c-5743-9152-c294e39db1e4"
-version = "1.11.0+0"
-
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
 git-tree-sha1 = "ff3b4b9d35de638936a525ecd36e86a8bb919d11"
 uuid = "7e76a0d4-f3c7-5321-8279-8d96eeed0f29"
 version = "1.7.0+0"
-
-[[deps.Libgpg_error_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "df37206100d39f79b3376afb6b9cee4970041c61"
-uuid = "7add5ba3-2f88-524e-9cd5-f83b8a55f7b8"
-version = "1.51.1+0"
 
 [[deps.Libiconv_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -562,9 +789,9 @@ version = "1.18.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "89211ea35d9df5831fca5d33552c02bd33878419"
+git-tree-sha1 = "a31572773ac1b745e0343fe5e2c8ddda7a37e997"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.40.3+0"
+version = "2.41.0+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -574,9 +801,9 @@ version = "4.7.1+0"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e888ad02ce716b319e6bdb985d2ef300e7089889"
+git-tree-sha1 = "321ccef73a96ba828cd51f2ab5b9f917fa73945a"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.40.3+0"
+version = "2.41.0+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -608,11 +835,6 @@ deps = ["Dates", "Logging"]
 git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
-
-[[deps.MIMEs]]
-git-tree-sha1 = "1833212fd6f580c20d4291da9c1b4e8a655b128e"
-uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
-version = "1.0.0"
 
 [[deps.MacroTools]]
 git-tree-sha1 = "72aebe0b5051e5143a079a4685a46da330a40472"
@@ -656,9 +878,9 @@ version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
-git-tree-sha1 = "fe891aea7ccd23897520db7f16931212454e277e"
+git-tree-sha1 = "9b8215b1ee9e78a293f99797cd31375471b2bcae"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
-version = "1.1.1"
+version = "1.1.3"
 
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
@@ -688,9 +910,9 @@ version = "1.4.3"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "7493f61f55a6cce7325f197443aa80d32554ba10"
+git-tree-sha1 = "a9697f1d06cc3eb3fb3ad49cc67f2cfabaac31ea"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.0.15+3"
+version = "3.0.16+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -705,9 +927,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.3+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "12f1439c4f986bb868acda6ea33ebc78e19b95ad"
+git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.7.0"
+version = "1.8.0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -716,15 +938,15 @@ version = "10.42.0+1"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "966b85253e959ea89c53a9abebbf2e964fbf593b"
+git-tree-sha1 = "0e1340b5d98971513bddaa6bbed470670cebbbfe"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.32"
+version = "0.11.34"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "ed6834e95bd326c52d5675b4181386dfbe885afb"
+git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.55.5+0"
+version = "1.56.1+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -732,16 +954,11 @@ git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.1"
 
-[[deps.Pipe]]
-git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
-uuid = "b98c9c47-44ae-5843-9183-064241ee97a0"
-version = "1.3.0"
-
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
-git-tree-sha1 = "35621f10a7531bc8fa58f74610b1bfb70a3cfc6b"
+git-tree-sha1 = "db76b1ecd5e9715f3d043cec13b2ec93ce015d53"
 uuid = "30392449-352a-5448-841d-b1acce4e97dc"
-version = "0.43.4+0"
+version = "0.44.2+0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
@@ -766,9 +983,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "dae01f8c2e069a683d3a6e17bbae5070ab94786f"
+git-tree-sha1 = "41c9a70abc1ff7296873adc5d768bff33a481652"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.9"
+version = "1.40.12"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -785,10 +1002,16 @@ version = "1.40.9"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "7e71a55b87222942f0f9337be62e26b1f103d3e4"
+deps = ["AbstractPlutoDingetjes", "Base64", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
+git-tree-sha1 = "5152abbdab6488d5eec6a01029ca6697dff4ec8f"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.61"
+version = "0.7.23"
+
+[[deps.PooledArrays]]
+deps = ["DataAPI", "Future"]
+git-tree-sha1 = "36d8b4b899628fb92c2749eb488d884a926614d3"
+uuid = "2dfb63ee-cc39-5dd5-95bd-886bf059d720"
+version = "1.4.3"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -801,6 +1024,12 @@ deps = ["TOML"]
 git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.4.3"
+
+[[deps.PrettyTables]]
+deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "Reexport", "StringManipulation", "Tables"]
+git-tree-sha1 = "1101cd475833706e4d0e7b122218257178f48f34"
+uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
+version = "2.4.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -838,9 +1067,9 @@ version = "6.7.1+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "cda3b045cf9ef07a08ad46731f5a3165e56cf3da"
+git-tree-sha1 = "9da16da70037ba9d701192e27befedefb91ec284"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.11.1"
+version = "2.11.2"
 
     [deps.QuadGK.extensions]
     QuadGKEnzymeExt = "Enzyme"
@@ -883,9 +1112,9 @@ version = "1.0.1"
 
 [[deps.Requires]]
 deps = ["UUIDs"]
-git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
+git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
-version = "1.3.0"
+version = "1.3.1"
 
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
@@ -908,6 +1137,12 @@ deps = ["Dates"]
 git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.2.1"
+
+[[deps.SentinelArrays]]
+deps = ["Dates", "Random"]
+git-tree-sha1 = "712fb0231ee6f9120e005ccd56297abbc053e7e0"
+uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
+version = "1.4.8"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -993,6 +1228,12 @@ version = "1.3.2"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StringManipulation]]
+deps = ["PrecompileTools"]
+git-tree-sha1 = "725421ae8e530ec29bcbdddbe91ff8053421d023"
+uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
+version = "0.4.1"
+
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 version = "1.11.0"
@@ -1010,6 +1251,18 @@ version = "7.7.0+0"
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
+
+[[deps.TableTraits]]
+deps = ["IteratorInterfaceExtensions"]
+git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
+uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
+version = "1.0.1"
+
+[[deps.Tables]]
+deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
+git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
+uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+version = "1.12.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -1038,9 +1291,9 @@ uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 version = "0.1.10"
 
 [[deps.URIs]]
-git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
+git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.1"
+version = "1.5.2"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -1100,35 +1353,40 @@ git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
 version = "1.36.0+0"
 
+[[deps.WeakRefStrings]]
+deps = ["DataAPI", "InlineStrings", "Parsers"]
+git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
+uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
+version = "1.4.2"
+
+[[deps.WorkerUtilities]]
+git-tree-sha1 = "cd1659ba0d57b71a464a29e64dbc67cfe83d54e7"
+uuid = "76eceee3-57b5-4d4a-8e66-0e911cebbf60"
+version = "1.6.1"
+
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "a2fccc6559132927d4c5dc183e3e01048c6dcbd6"
+git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.5+0"
-
-[[deps.XSLT_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgcrypt_jll", "Libgpg_error_jll", "Libiconv_jll", "XML2_jll", "Zlib_jll"]
-git-tree-sha1 = "7d1671acbe47ac88e981868a078bd6b4e27c5191"
-uuid = "aed1982a-8fda-507f-9586-7b0439959a61"
-version = "1.1.42+0"
+version = "2.13.6+1"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "56c6604ec8b2d82cc4cfe01aa03b00426aac7e1f"
+git-tree-sha1 = "fee71455b0aaa3440dfdd54a9a36ccef829be7d4"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.6.4+1"
+version = "5.8.1+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "326b4fea307b0b39892b3e85fa451692eda8d46c"
+git-tree-sha1 = "a3ea76ee3f4facd7a64684f9af25310825ee3668"
 uuid = "f67eecfb-183a-506d-b269-f58e52b52d7c"
-version = "1.1.1+0"
+version = "1.1.2+0"
 
 [[deps.Xorg_libSM_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libICE_jll"]
-git-tree-sha1 = "3796722887072218eabafb494a13c963209754ce"
+git-tree-sha1 = "9c7ad99c629a44f81e7799eb05ec2746abb5d588"
 uuid = "c834827a-8449-5923-a945-d239c165b7dd"
-version = "1.2.4+0"
+version = "1.2.6+0"
 
 [[deps.Xorg_libX11_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xtrans_jll"]
@@ -1138,9 +1396,9 @@ version = "1.8.6+3"
 
 [[deps.Xorg_libXau_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e9216fdcd8514b7072b43653874fd688e4c6c003"
+git-tree-sha1 = "aa1261ebbac3ccc8d16558ae6799524c450ed16b"
 uuid = "0c0b7dd1-d40b-584c-a123-a41640f87eec"
-version = "1.0.12+0"
+version = "1.0.13+0"
 
 [[deps.Xorg_libXcursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libXfixes_jll", "Xorg_libXrender_jll"]
@@ -1150,9 +1408,9 @@ version = "1.2.3+0"
 
 [[deps.Xorg_libXdmcp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "89799ae67c17caa5b3b5a19b8469eeee474377db"
+git-tree-sha1 = "52858d64353db33a56e13c341d7bf44cd0d7b309"
 uuid = "a3789734-cfe1-5b06-b2d0-1dd0d9d62d05"
-version = "1.1.5+0"
+version = "1.1.6+0"
 
 [[deps.Xorg_libXext_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
@@ -1190,17 +1448,11 @@ git-tree-sha1 = "a490c6212a0e90d2d55111ac956f7c4fa9c277a6"
 uuid = "ea2f1a96-1ddc-540d-b46f-429655e07cfa"
 version = "0.9.11+1"
 
-[[deps.Xorg_libpthread_stubs_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "c57201109a9e4c0585b208bb408bc41d205ac4e9"
-uuid = "14d82f49-176c-5ed1-bb49-ad3f5cbd8c74"
-version = "0.1.2+0"
-
 [[deps.Xorg_libxcb_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "XSLT_jll", "Xorg_libXau_jll", "Xorg_libXdmcp_jll", "Xorg_libpthread_stubs_jll"]
-git-tree-sha1 = "1a74296303b6524a0472a8cb12d3d87a78eb3612"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libXau_jll", "Xorg_libXdmcp_jll"]
+git-tree-sha1 = "bfcaf7ec088eaba362093393fe11aa141fa15422"
 uuid = "c7cfdc94-dc32-55de-ac96-5a1b8d977c5b"
-version = "1.17.0+3"
+version = "1.17.1+0"
 
 [[deps.Xorg_libxkbfile_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
@@ -1258,9 +1510,9 @@ version = "2.39.0+0"
 
 [[deps.Xorg_xtrans_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6dba04dbfb72ae3ebe5418ba33d087ba8aa8cb00"
+git-tree-sha1 = "a63799ff68005991f9d9491b6e95bd3478d783cb"
 uuid = "c5fb5394-a638-5e4d-96e5-b29de1b5cf10"
-version = "1.5.1+0"
+version = "1.6.0+0"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
@@ -1269,9 +1521,9 @@ version = "1.2.13+1"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "622cf78670d067c738667aaa96c553430b65e269"
+git-tree-sha1 = "446b23e73536f84e8037f5dce465e92275f6a308"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
-version = "1.5.7+0"
+version = "1.5.7+1"
 
 [[deps.eudev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
@@ -1334,9 +1586,9 @@ version = "1.18.0+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "d7b5bbf1efbafb5eca466700949625e07533aff2"
+git-tree-sha1 = "068dfe202b0a05b8332f1e8e6b4080684b9c7700"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.45+1"
+version = "1.6.47+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
@@ -1380,19 +1632,41 @@ version = "1.4.1+2"
 """
 
 # ╔═╡ Cell order:
-# ╟─17faca3a-dd8d-11ef-380f-e74ec3aa4468
-# ╠═8c2ce4d5-858a-4f13-91ab-92f32c0f2b20
-# ╠═94b7282f-6bb2-4a5c-a630-a4028030afb8
-# ╟─1b374e1a-8c31-4bbc-a216-2716e5fc101b
-# ╟─7104aab1-cc95-4839-bbfd-ec651319df3f
-# ╟─471dedd9-5362-4abf-836e-758e65816cdc
-# ╟─1801ae3e-3d07-4c84-a685-497b468f7b16
-# ╟─90b9d091-dca2-4cf2-aba2-c377dc53788a
-# ╟─014dbc9d-b6a4-46a6-983d-c457317aab02
-# ╟─44703df0-6c66-4090-87f6-77e9fcbde4bb
-# ╟─d91940c3-ebc2-487e-8e35-10bc31b08feb
-# ╟─fe117a43-ef57-42e0-bd18-f57821b07422
-# ╟─84e60eb7-0d6f-46ed-8720-d323092b8a54
-# ╠═ec4d2258-1fa6-41d2-8f11-cf8169dcd403
+# ╟─7e474146-f044-11ea-2c0c-cbda0c574da5
+# ╟─59abbfe8-f0bb-11ea-267b-2126df2b62c9
+# ╟─0e55ea72-f0bc-11ea-16dc-4d9ccba649e0
+# ╟─01c3378c-f0bd-11ea-1983-3bb57d137076
+# ╟─25cd0414-f0bd-11ea-3eae-f787a36a3798
+# ╠═7654497e-f0bd-11ea-2520-cf6617405b48
+# ╟─b48f2b86-2281-4804-b4ac-614457eab859
+# ╠═31427b48-f0be-11ea-3493-39d0617e6c14
+# ╟─f51c794d-9753-4431-bf5a-ccf0a7a0641c
+# ╟─3e8a79b8-f0be-11ea-314c-333d84cea659
+# ╠═87373db4-f0bd-11ea-0b4b-0fbf22e8098d
+# ╟─8553e0b4-f0be-11ea-2487-07aacadc4508
+# ╟─02c1ebd0-f0c0-11ea-1f7d-a33e7bb4c88f
+# ╟─23fa4662-f0c0-11ea-2df0-d9dd86ebf137
+# ╟─2fc7ef3a-f0c0-11ea-3eca-ab02d7f3fcfe
+# ╟─63ef008c-f0c0-11ea-3d12-070c342c851b
+# ╟─7bba65e4-f0c0-11ea-231c-290c9a4e290a
+# ╟─993aaf52-f0c0-11ea-3a6a-9141a6706f7e
+# ╠═e617816a-f0c0-11ea-1a5d-81f5db895c05
+# ╟─ee206a84-f0c0-11ea-041d-97696dd759d6
+# ╠═096fb72c-f0c1-11ea-3323-fdb949953348
+# ╟─1302fd1c-f0c1-11ea-1da6-7fd6f5e43ad0
+# ╠═905abc24-f0c0-11ea-3891-85947dc03075
+# ╟─ea7364f4-f0ed-11ea-06e1-e1022a7d47d9
+# ╟─564cff50-f0ee-11ea-3908-afe9a2164805
+# ╠═5e3b806a-f0ee-11ea-245e-77cb9d224ff3
+# ╟─6dbf5778-f0ee-11ea-36fb-214682733716
+# ╟─76cc8e12-f0ee-11ea-3aa5-27934c3a44b9
+# ╠═cc76d034-f0ee-11ea-11f2-4f1a8b8cfa47
+# ╠═d8899b9a-f0ee-11ea-3396-c51ae5beb62b
+# ╠═c9f295b4-f0ee-11ea-2505-b1705a92ebd1
+# ╟─543b0024-f0ef-11ea-2775-6f0c0b586865
+# ╟─5e3b0846-f0ef-11ea-2c4a-15c55ba5cd43
+# ╟─85d9fc20-f0ef-11ea-2b0a-e9f51d73d562
+# ╠═4a58cc90-f0f0-11ea-1afc-152c4acac936
+# ╟─53d29d28-f0f0-11ea-3e2d-4bb7363f37cb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

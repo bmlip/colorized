@@ -1,318 +1,263 @@
 ### A Pluto.jl notebook ###
-# v0.20.10
-
-#> [frontmatter]
-#> image = "https://imgur.com/mFH19GB.png"
-#> description = "Introduction to working with Distributions and Plots in Julia."
+# v0.20.14
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 22104542-dd68-11ef-2c1f-b75e5c076a18
-using Distributions
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
-# ╔═╡ a6436e1e-47c4-4705-9baf-6a66e2bf089d
+# ╔═╡ bf15c588-ab9a-4755-bf8d-c270910de96c
+using Random
+
+# ╔═╡ 2bd84680-c035-4753-9f9b-e65aa59eccba
+using Plots, PlutoUI, PlutoTeachingTools, Distributions, HypertextLiteral
+
+# ╔═╡ f5243fd2-510e-11f0-3528-f9689c1f359d
+md"""
+# Mini: Generative Classification
+
+This mini demonstrates the core concepts of Bayesian generative classification with two classes.
+
+The challenge: **Can you teach a computer to distinguish apples from peaches?** We'll explore how a Bayesian approach gives us not just predictions, but also **confidence** in those predictions and **uncertainty** when data is scarce.
+"""
+
+# ╔═╡ 12d273aa-3acf-4389-80c4-579fa59e4b21
+TableOfContents(;include_definitions=true)
+
+# ╔═╡ d13cdb7a-901d-4555-b0ee-a8d9af79a7c0
+md"""
+## Step 1: Dataset
+
+In this mini, we have a (randomly generated) dataset of fruits, apples or peaches. For each fruit, we have measured two quantities (let's say, _sugar content_ and _acidity_), and we know its class (_apple_ or _peach_). 
+
+The challenge is to classify a new fruit, given these two measurements.
+"""
+
+# ╔═╡ 95fb5694-9ec5-4cdb-9c6d-aae1d501f3ac
 begin
-	using Plots
-
-	# set some default styles, not necessary!
-	default(
-		size=(600, 200),
-		palette=:Dark2_8,
-		width=2,
-		legend=false,
-   )
+	N_bond = @bindname N Slider(1:250; show_value=true, default=50)
 end
 
-# ╔═╡ 5f4c4feb-be08-4fcf-ad74-67cfab522c99
+# ╔═╡ cbf3990b-09e6-433f-9a4d-9d95b805a606
 md"""
-# Distributions in Julia
-
-This mini will showcase how to work with [**mathematical probability distributions**](https://en.wikipedia.org/wiki/Probability_distribution) in Julia. Very useful is the open source package [Distributions.jl](https://github.com/JuliaStats/Distributions.jl). 
+Our data is structured as follows:
+- **`y`** is whether a data point is an apple (`true`) or a peach (`false`)
+- **`X`** has one column of data per fruit
 """
 
-# ╔═╡ 2eb0788a-342b-4d21-904d-71b2afa026f1
+# ╔═╡ 26317a8b-e37a-426a-8ef0-b3610cb436b9
+y = let
+	p_apple = 0.7
+	y = rand(MersenneTwister(23), Bernoulli(p_apple), N)
+end
+
+# ╔═╡ 6d0a5590-96ae-4eef-9446-c07275a70c6b
 md"""
-> ##### `using` vs `import`
-> By doing `using`, we automatically import lots of "exported" funcitons and types into our namespace. For example, we can now use `Normal` directly in our code, without having to type `Distributions.Normal`.
->
-> You can run `names(Distributions)` to see the list of all variables that get exported.
+We also split our matrix `X` into two parts, corresponding to the measurements of apples and of peaches.
 """
 
-# ╔═╡ 86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
-html"""
-<style>
-	pluto-output h2:first-child,
-	pluto-output h2
-	{
-		margin-block-start: 8rem;
-	}
+# ╔═╡ 753a1840-5c54-4bf5-9541-1339089ec03a
+md"""
+## Step 2: Fit a generative model for each class
+
+The idea of **generative** classifcation is to find a model that can accurately generate data for each class. We will model both classes as a Guassian distribution with known ``\Sigma`` and unkown means ``\mu_k``, using the MLE to find the parameters.
+"""
+
+# ╔═╡ e598f41d-df2b-480e-a2c5-b3e3c30e1b8b
+N_bond
+
+# ╔═╡ 84ebd73e-522a-49d4-bd27-f59ed2f216bf
+md"""
+Fitting models using the MLE method:
+"""
+
+# ╔═╡ 3432ee28-23e4-4ddb-8277-33a2de7aef53
+p_apple_est = fit_mle(Bernoulli, y)
+
+# ╔═╡ c5bde25d-c81f-4419-b104-e34d65906cb0
+
+
+# ╔═╡ 0aee1ae7-f3ec-4e30-a092-9bbbc83015b0
+md"""
+We fitted two Gaussians, which means we have two ``\Sigma``s. Let's take the weighted average, to stick to our model of a single ``\Sigma`` for both distributions.
+"""
+
+# ╔═╡ 90f1b9f4-f2ba-43e1-a5d7-b367892ae36d
+π̂ = [p_apple_est.p, 1.0 - p_apple_est.p]
+
+# ╔═╡ 6bf7d6ab-8d13-41f5-93d9-cb9ad6f557d5
+
+
+# ╔═╡ f3d7791f-bca0-44f3-a0a5-1a2184ee8c37
+md"""
+This gives us the two conditional distributions. _(These are shown in contour plots above.)_
+"""
+
+# ╔═╡ 2a40ef0a-9d87-4482-ae25-aef286b14b73
+md"""
+## Step 3: Classify using Bayes' rule
+Using our generative model, we can compute the probability of being a _peach_ for any point! Let's show this as a heatmap, which also makes the discriminative boundary clear.
+"""
+
+# ╔═╡ 3cb8e8d1-3f51-4b10-b501-8fd7d206fdee
+N_bond
+
+# ╔═╡ a99138e2-2be3-4e49-b971-2864fa138342
+md"""
+We can use our model to predict the probability of the new fruit _(yellow in the plot)_ belonging to each class:
+"""
+
+# ╔═╡ cb64aee7-0f3d-4445-acc5-a729a67d587d
+"""
+Calculate ``p(C_k | X)``
+"""
+function predict_class(k, X; π̂, conditionals)
+    norm = π̂[1]*pdf(conditionals[1],X) + π̂[2]*pdf(conditionals[2],X)
+    return π̂[k]*pdf(conditionals[k], X) ./ norm
+end
+
+# ╔═╡ 4e468327-a827-4df8-ab19-4a56ebf3bff6
+md"""
+ You can read the full lecture here:
+"""
+
+# ╔═╡ 99e16d33-18b1-4fb1-9c10-49e6664cfc75
+NotebookCard("https://bmlip.github.io/colorized/lectures/Generative%20Classification.html"; link_text="Read full lecture")
+
+# ╔═╡ 6b417a4a-eafa-4f2d-91f2-925887d8c20d
+md"""
+# Appendix
+"""
+
+# ╔═╡ 9f7d59f3-2440-456c-8a05-5c42b4ff518b
+x_test = [2.3; 1.5]                                             # Features of 'new' data point
+
+# ╔═╡ 8bfd0e18-8af4-448e-8eeb-3c13018ca9d2
+const Σ_secret = [0.2 0.1; 0.1 0.3]
+
+# ╔═╡ 79e7d86e-b06a-4937-a4bf-c831be6ccd4c
+X = let
+	Σ = Σ_secret
+	p_given_apple = MvNormal([1.0, 1.0], Σ) # p(X|y=apple)
+	p_given_peach = MvNormal([1.7, 2.5], Σ) # p(X|y=peach)
+
+	# Apple or peach?
+	X = Matrix{Float64}(undef,2,N);
+
+	rng = MersenneTwister(76)
 	
-	pluto-output h3:first-child,
-	pluto-output h3
-	{
-		margin-block-start: 5rem;
-	}
-</style>
-"""
+	for n in 1:N
+		X[:,n] = rand(rng, y[n] ? p_given_apple : p_given_peach)
+	end
 
-# ╔═╡ dcd02dba-1463-40cd-a135-968e7d79631b
-md"""
-## Distributions as types
+	X
+end
 
-All common mathematical distributions are implemented in Distributions.jl as a **type**. 
+# ╔═╡ 747b1209-10da-44ab-b171-d7bc97b61d26
+X_apples, X_peaches = 
+	X[:,findall(y)]',
+	X[:,findall(.!y)]'
 
-For example, the Normal distribution family is a type (`Normal`), and ``\text{Normal}(10, 2^2)`` is an instance of that type (an "object"):
-"""
+# ╔═╡ 09b70069-fbfd-4962-8533-22b579095740
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	plot!(; xlim=(-0.5, 2.5), ylim=(-0.5, 3.5))
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown", c=:yellow, ms=9)
+end
 
-# ╔═╡ 0c5e39ba-5a52-4803-be96-8702bfc9fd01
-normal_dist = Normal(10.0, 2.0)
+# ╔═╡ fcd35d0c-5aa7-4c65-922d-d349ec5174bb
+d1 = fit_mle(FullNormal, X_apples')  # MLE density estimation d1 = N(μ₁, Σ₁)
 
-# ╔═╡ 72165b48-4643-4bce-b4a3-b11174a8f6e3
-md"""
-Let's look at the type. This is a **subtype** of the general `Distribution` type:
-"""
+# ╔═╡ 4dc38703-b935-4763-bd78-101aa482b0c8
+d2 = fit_mle(FullNormal, X_peaches') # MLE density estimation d2 = N(μ₂, Σ₂)
 
-# ╔═╡ d4bbc4de-2d1c-4f70-ac15-3153bb437de5
-typeof(normal_dist)
+# ╔═╡ 5887cfb5-48be-4e65-a169-972d4dd380bf
+Σ_computed = π̂[1]*cov(d1) + π̂[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
 
-# ╔═╡ 7655d5f2-ae4e-447d-8b8e-2b1419e1e6e7
-supertype(typeof(normal_dist))
+# ╔═╡ 1c43498b-d0c7-4cc4-b2e9-97dd899f6bf0
+conditionals = (
+	MvNormal(mean(d1), Σ_computed),
+	MvNormal(mean(d2), Σ_computed),
+) # p(x|C)
 
-# ╔═╡ 2ae28b6d-611b-4ce5-a044-3d3611aa3aa0
-md"""
-!!! info "Type parameters"
-	You can see that these types are *parametric*: the **type contains additional information** between `{...}` curly brackets.
+# ╔═╡ 2176a474-c7ce-46cd-8b70-01ca40997369
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	plot!(; xlim=(-0.5, 2.5), ylim=(-0.5, 3.5))
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown", c=:yellow, ms=9)
+
+	for class in [1,2]
+		xs = range(-0.5, 2.5; length=20)
+		ys = range(-0.5, 3.5; length=50)
+
+		zs = [
+			pdf(conditionals[class], [x,y])
+			for y in ys, x in xs
+		]
+		contour!(xs, ys, zs; opacity=.4, color=cgrad(:grays, rev=true), label="prob")
+	end
+
+	plot!()
+end
+
+# ╔═╡ 635f1847-af95-449a-8b52-0283c9dfd948
+Text("p(apple|x=x∙) = $(round(predict_class(1,x_test; π̂, conditionals), digits=2))")
+
+# ╔═╡ e1da8788-29bc-4669-b30c-2c75723157e8
+Text("p(peach|x=x∙) = $(round(predict_class(2,x_test; π̂, conditionals), digits=2))")
+
+# ╔═╡ 49403477-b5b9-48a1-b48f-4ccaf5410588
+let
+	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
+	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
+	plot!(; xlim=(-0.5, 2.5), ylim=(-0.5, 3.5))
+
+	let
+		xs = range(-0.5, 2.5; length=20)
+		ys = range(-0.5, 3.5; length=50)
+
+		zs = [
+			predict_class(2, [x,y]; π̂, conditionals)
+			for y in ys, x in xs
+		]
+		heatmap!(xs, ys, zs; opacity=.4, color=:haline, cbar_title="peach probability", label="prob")
+	end
+
 	
-	- `Normal{Float64}` has parameter `Float64` to store the **support** type. Another popular choice is `Float32`.
-	- `Distribution{Univariate, Continuous}` has parameters that represent mathematical properties. This is useful for writing different methods for different types of distributions using [multiple dispatch](https://docs.julialang.org/en/v1/manual/methods/).
-"""
-
-# ╔═╡ 1424a1a0-844a-4cac-929e-bd36fd22f5b4
-
-
-# ╔═╡ 10f3d24f-3834-4e1c-9621-b0957338e293
-md"""
-### Converting between Distribution types
-
-Some distributions can be represented in multiple ways. In Julia, you can use the `convert` function to convert between different representations of the same distribution.
-
-For example, the Exponential distribution is a special case of a Gamma distribution, and we can convert between the two:
-"""
-
-# ╔═╡ 5ad762a5-afde-42f4-8f83-95f56bd78717
-convert(Gamma, Exponential(7.5))
-
-# ╔═╡ da2afb93-15b9-4f29-a0da-92cd417b4ca2
-
-
-# ╔═╡ d8816513-94e6-4e0d-abc9-ebf0d9220233
-md"""
-## Sampling data from a Distribution
-
-So what can we do with these Distribution types? One thing is **sampling**, which means generating random numbers as if they come from the distribution.
-
-We use the Julia function `rand` for this:
-"""
-
-# ╔═╡ 58aea76d-1f48-4b53-aa60-e45e66bc1d2f
-rand(Normal(87, 0.1))
-
-# ╔═╡ 318e88b2-654d-4e23-ac66-4a36e4826c43
-
-
-# ╔═╡ d7f6bf27-9168-4b3a-bd2e-8a6f5a103af6
-md"""
-`rand` lets you specify **dimensions**, to generate Vectors, Matrices or even bigger Arrays.
-"""
-
-# ╔═╡ c4addacc-e31b-432f-9c58-bd98e7300cde
-rand(Normal(87, 0.1), 5)
-
-# ╔═╡ 94c2f2c2-5c2c-45db-bd59-ba5d241d2921
-rand(Exponential(200), 3, 5)
-
-# ╔═╡ 077d1f00-a4dd-444e-83ae-58dc1bbfc3b7
-rand(Poisson(200), 3, 5)
-
-# ╔═╡ 4f7c6e82-cd32-49e5-b811-797146f0d9fc
-
-
-# ╔═╡ 92d53fb0-1096-45d5-b0ae-dbb579f97e81
-md"""
-You can also use discrete distributions:
-"""
-
-# ╔═╡ a9e834af-fb03-4970-90c7-86c98bf82abd
-rand(Dirac(20), 3)
-
-# ╔═╡ 8bbfb599-d51e-485e-ab79-0ca861f34461
-rand(Categorical([0.1, 0.1, 0.7, 0.0, 0.1]), 10)
-
-# ╔═╡ 6c30c0f9-4e5c-4c9f-826a-48974dcbff9c
-rand(Bernoulli(0.8), 3, 5, 2)
-
-# ╔═╡ d09ef2c3-6120-41b3-b32b-67ee18dfe0c1
-md"""
-## `pdf` and `cdf`
-
-The **probability density function** (`pdf`) and the **cumulative density function** (`cdf`) are really useful, and you can use these functions in Julia:
-
-```
-pdf(...distribution..., ...where to evaluate...)
-```
-"""
-
-# ╔═╡ 44c2efea-6d7d-4c06-8239-1bc24efb3c9c
-pdf(Normal(7, 2), 7)
-
-# ╔═╡ 90f1b82f-0a31-448a-b410-86e9e7260866
-pdf(Normal(7, 2), 9)
-
-# ╔═╡ b9bf3413-d02a-4345-b9dd-fac2a82c8614
-pdf(Normal(7, 2), 10_000)
-
-# ╔═╡ f68dd49d-5131-4069-a8ee-dcd6955b1744
-
-
-# ╔═╡ 49ffd1bf-f7d2-43bb-82af-cf9fe622bf9d
-cdf(Normal(7, 2), -1000)
-
-# ╔═╡ 6905786d-47e6-47b9-b5a0-b8b121a1817d
-cdf(Normal(7, 2), 5)
-
-# ╔═╡ 2e8b9c29-ecfd-47e0-ba77-65fab80a0750
-cdf(Normal(7, 2), 7)
-
-# ╔═╡ 3aadbc46-2696-4f67-8472-1197464f0aaa
-cdf(Normal(7, 2), 1000)
-
-# ╔═╡ a944e908-23a6-41cb-a372-26a3d1f6086b
-
-
-# ╔═╡ 3119073a-9add-4f05-a7d1-b683bab98184
-md"""
-Sometimes, you want the `pdf` or `cdf` "as a function", not just at one specific point. You can use anonymous functions for this:
-"""
-
-# ╔═╡ b079d0da-4878-4ac7-acef-6b89e4c17aa2
-my_cdf = x -> cdf(Normal(7, 2), x);
-
-# ╔═╡ 0e566c76-cce5-4491-9b86-2a286393b733
-my_cdf(9.0)
-
-# ╔═╡ 8c849208-89bd-4d1b-9bd9-ff312d3f0011
-md"""
-## Plotting – histogram and pdf
-
-We can use the [Plots.jl](https://github.com/JuliaPlots/Plots.jl/) package to draw some graphs! Useful are the `plot`, `scatter` and `histogram` functions.
-"""
-
-# ╔═╡ 70a5aa51-89df-458c-b1c5-f770a5abbc7b
-plot([10, 11, 11, 8, 0])
-
-# ╔═╡ 1ba580c6-0eb1-4e3e-a909-b5494fc5423f
-md"""
-The `plot` command also accepts a `Function` as argument, and it will make a nice graph:
-"""
-
-# ╔═╡ c41cfb6e-9a5d-462e-93ed-39c068356225
-plot(sin)
-
-# ╔═╡ 4b6cd352-24cb-43bb-97ee-327341f20832
-md"""
-### `pdf` and `cdf`
-"""
-
-# ╔═╡ 21e23276-d19b-4a7f-8a34-19d84614b5b3
-plot(x -> pdf(Exponential(20), x); xlim=(-3,50))
-
-# ╔═╡ 0dc75b55-1568-4820-ade1-cda82b48f157
-md"""
-Using a `let` or `begin` block, you can overlay plots:
-"""
-
-# ╔═╡ 4b9ab901-712f-407c-aa00-eaa732992290
-let
-	p = plot(xlim=(-3,50), legend=true)
-	plot!(p, x -> cdf(Exponential(4), x); label="λ = 4")
-	plot!(p, x -> cdf(Exponential(20), x); label="λ = 20")
-	plot!(p, x -> cdf(Exponential(30), x); label="λ = 30")
+	# 'new' unlabelled data
+	scatter!([x_test[1]], [x_test[2]], label="unknown", c=:yellow, ms=9)
 end
-
-# ╔═╡ 579c1ab0-1dda-43d0-a733-f202648ab3dd
-md"""
-### Histogram
-
-When you have a `Vector` of data, it is often useful to look at a histogram of your data.
-"""
-
-# ╔═╡ 2d40fd79-0cde-480a-a9d8-89dfd12c60a1
-data = begin
-	secret_distribution = MixtureModel([
-		Exponential(30),
-		Uniform(150, 200)
-	], [0.8, 0.2])
-		
-	rand(secret_distribution, 1000)
-end
-
-# ╔═╡ 42bcc83e-0e9f-4338-9399-d28b5d17cbac
-histogram(data; bins=40)
-
-# ╔═╡ e931674f-0494-4d73-bf2c-45cce404587e
-md"""
-You can use the keyword argument `normalize=:pdf` to scale the result so that the total bar area is ``1``. This is useful when you want to overlay a PDF.
-"""
-
-# ╔═╡ 323eafb0-08e9-4f23-a6db-22b8eb45a081
-let
-	histogram(data; bins=40, normalize=:pdf)
-
-	plot!(x -> pdf(secret_distribution, x))
-end
-
-# ╔═╡ 55e20ec1-f809-4647-8619-beae88b17c16
-md"""
-### Scatter
-For two-dimensional data, a `scatter` plot is very useful!
-
-Let's use the `rand` function to sample from a Multivariate Normal distribution. Instead of a number and a number, we use a `Vector` for the mean, and a `Matrix` for the covariance:
-
-"""
-
-# ╔═╡ b02beec7-8499-4cdb-ba90-22dec8ec9c13
-sample_mv_gaussian_data = rand(
-	MvNormal([5.0, 7.0], [
-		2.0  0.8
-		0.8  0.35
-	]),
-	1000
-)
-
-# ╔═╡ 58a61472-98c0-447f-b2f1-76e78099cbbb
-md"""
-The result is a **`2×100` matrix of numbers**, each column corresponding to one sample.
-
-Let's make a scatter plot. Each point corresponds to one sample.
-"""
-
-# ╔═╡ 32dcb058-dacc-4ce7-92d3-7c08aa0105a9
-scatter(
-	sample_mv_gaussian_data[1,:], sample_mv_gaussian_data[2,:];
-	color="black", markersize=3, opacity=.5,
-	size=(600,400)
-)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
-Distributions = "~0.25.117"
-Plots = "~1.40.9"
+Distributions = "~0.25.120"
+HypertextLiteral = "~0.9.5"
+Plots = "~1.40.14"
+PlutoTeachingTools = "~0.4.1"
+PlutoUI = "~0.7.65"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -321,7 +266,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.9"
 manifest_format = "2.0"
-project_hash = "1fd90941fd8466013892867b633598af3850846c"
+project_hash = "e022b94a88c1407a9a49fb250c2909eb9741a373"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -592,9 +543,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
+git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.16"
+version = "1.10.17"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
@@ -607,6 +558,24 @@ deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
 git-tree-sha1 = "68c173f4f449de5b438ee67ed0c9c748dc31a2ec"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.28"
+
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.5"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -780,6 +749,11 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "1.1.0"
+
 [[deps.MacroTools]]
 git-tree-sha1 = "1e0228a030642014fe5cfe68c2c0a818f9e3f522"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
@@ -939,6 +913,18 @@ version = "1.40.14"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoTeachingTools]]
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "537c439831c0f8d37265efe850ee5c0d9c7efbe4"
+uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
+version = "0.4.1"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "3151a0c8061cc3f887019beebf359e6c4b3daa08"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.65"
+
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1051,9 +1037,9 @@ version = "0.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
+git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.1"
+version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -1166,10 +1152,15 @@ git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
+[[deps.Tricks]]
+git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.10"
+
 [[deps.URIs]]
-git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
+git-tree-sha1 = "24c1c558881564e2217dcf7840a8b2e10caeb0f9"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.2"
+version = "1.6.0"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -1493,62 +1484,43 @@ version = "1.8.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─5f4c4feb-be08-4fcf-ad74-67cfab522c99
-# ╠═22104542-dd68-11ef-2c1f-b75e5c076a18
-# ╟─2eb0788a-342b-4d21-904d-71b2afa026f1
-# ╟─86502f0a-a36a-4bd3-8dd8-c5bc37e26b83
-# ╟─dcd02dba-1463-40cd-a135-968e7d79631b
-# ╠═0c5e39ba-5a52-4803-be96-8702bfc9fd01
-# ╟─72165b48-4643-4bce-b4a3-b11174a8f6e3
-# ╠═d4bbc4de-2d1c-4f70-ac15-3153bb437de5
-# ╠═7655d5f2-ae4e-447d-8b8e-2b1419e1e6e7
-# ╟─2ae28b6d-611b-4ce5-a044-3d3611aa3aa0
-# ╟─1424a1a0-844a-4cac-929e-bd36fd22f5b4
-# ╟─10f3d24f-3834-4e1c-9621-b0957338e293
-# ╠═5ad762a5-afde-42f4-8f83-95f56bd78717
-# ╟─da2afb93-15b9-4f29-a0da-92cd417b4ca2
-# ╟─d8816513-94e6-4e0d-abc9-ebf0d9220233
-# ╠═58aea76d-1f48-4b53-aa60-e45e66bc1d2f
-# ╟─318e88b2-654d-4e23-ac66-4a36e4826c43
-# ╟─d7f6bf27-9168-4b3a-bd2e-8a6f5a103af6
-# ╠═c4addacc-e31b-432f-9c58-bd98e7300cde
-# ╠═94c2f2c2-5c2c-45db-bd59-ba5d241d2921
-# ╠═077d1f00-a4dd-444e-83ae-58dc1bbfc3b7
-# ╟─4f7c6e82-cd32-49e5-b811-797146f0d9fc
-# ╟─92d53fb0-1096-45d5-b0ae-dbb579f97e81
-# ╠═a9e834af-fb03-4970-90c7-86c98bf82abd
-# ╠═8bbfb599-d51e-485e-ab79-0ca861f34461
-# ╠═6c30c0f9-4e5c-4c9f-826a-48974dcbff9c
-# ╟─d09ef2c3-6120-41b3-b32b-67ee18dfe0c1
-# ╠═44c2efea-6d7d-4c06-8239-1bc24efb3c9c
-# ╠═90f1b82f-0a31-448a-b410-86e9e7260866
-# ╠═b9bf3413-d02a-4345-b9dd-fac2a82c8614
-# ╟─f68dd49d-5131-4069-a8ee-dcd6955b1744
-# ╠═49ffd1bf-f7d2-43bb-82af-cf9fe622bf9d
-# ╠═6905786d-47e6-47b9-b5a0-b8b121a1817d
-# ╠═2e8b9c29-ecfd-47e0-ba77-65fab80a0750
-# ╠═3aadbc46-2696-4f67-8472-1197464f0aaa
-# ╟─a944e908-23a6-41cb-a372-26a3d1f6086b
-# ╟─3119073a-9add-4f05-a7d1-b683bab98184
-# ╠═b079d0da-4878-4ac7-acef-6b89e4c17aa2
-# ╠═0e566c76-cce5-4491-9b86-2a286393b733
-# ╟─8c849208-89bd-4d1b-9bd9-ff312d3f0011
-# ╠═a6436e1e-47c4-4705-9baf-6a66e2bf089d
-# ╠═70a5aa51-89df-458c-b1c5-f770a5abbc7b
-# ╟─1ba580c6-0eb1-4e3e-a909-b5494fc5423f
-# ╠═c41cfb6e-9a5d-462e-93ed-39c068356225
-# ╟─4b6cd352-24cb-43bb-97ee-327341f20832
-# ╠═21e23276-d19b-4a7f-8a34-19d84614b5b3
-# ╟─0dc75b55-1568-4820-ade1-cda82b48f157
-# ╠═4b9ab901-712f-407c-aa00-eaa732992290
-# ╟─579c1ab0-1dda-43d0-a733-f202648ab3dd
-# ╟─2d40fd79-0cde-480a-a9d8-89dfd12c60a1
-# ╠═42bcc83e-0e9f-4338-9399-d28b5d17cbac
-# ╟─e931674f-0494-4d73-bf2c-45cce404587e
-# ╠═323eafb0-08e9-4f23-a6db-22b8eb45a081
-# ╟─55e20ec1-f809-4647-8619-beae88b17c16
-# ╠═b02beec7-8499-4cdb-ba90-22dec8ec9c13
-# ╟─58a61472-98c0-447f-b2f1-76e78099cbbb
-# ╠═32dcb058-dacc-4ce7-92d3-7c08aa0105a9
+# ╟─f5243fd2-510e-11f0-3528-f9689c1f359d
+# ╟─12d273aa-3acf-4389-80c4-579fa59e4b21
+# ╟─d13cdb7a-901d-4555-b0ee-a8d9af79a7c0
+# ╟─95fb5694-9ec5-4cdb-9c6d-aae1d501f3ac
+# ╟─09b70069-fbfd-4962-8533-22b579095740
+# ╟─cbf3990b-09e6-433f-9a4d-9d95b805a606
+# ╟─26317a8b-e37a-426a-8ef0-b3610cb436b9
+# ╟─79e7d86e-b06a-4937-a4bf-c831be6ccd4c
+# ╟─6d0a5590-96ae-4eef-9446-c07275a70c6b
+# ╠═747b1209-10da-44ab-b171-d7bc97b61d26
+# ╟─753a1840-5c54-4bf5-9541-1339089ec03a
+# ╟─e598f41d-df2b-480e-a2c5-b3e3c30e1b8b
+# ╟─2176a474-c7ce-46cd-8b70-01ca40997369
+# ╟─84ebd73e-522a-49d4-bd27-f59ed2f216bf
+# ╠═fcd35d0c-5aa7-4c65-922d-d349ec5174bb
+# ╠═4dc38703-b935-4763-bd78-101aa482b0c8
+# ╠═3432ee28-23e4-4ddb-8277-33a2de7aef53
+# ╟─c5bde25d-c81f-4419-b104-e34d65906cb0
+# ╟─0aee1ae7-f3ec-4e30-a092-9bbbc83015b0
+# ╠═90f1b9f4-f2ba-43e1-a5d7-b367892ae36d
+# ╠═5887cfb5-48be-4e65-a169-972d4dd380bf
+# ╟─6bf7d6ab-8d13-41f5-93d9-cb9ad6f557d5
+# ╟─f3d7791f-bca0-44f3-a0a5-1a2184ee8c37
+# ╠═1c43498b-d0c7-4cc4-b2e9-97dd899f6bf0
+# ╟─2a40ef0a-9d87-4482-ae25-aef286b14b73
+# ╟─3cb8e8d1-3f51-4b10-b501-8fd7d206fdee
+# ╟─49403477-b5b9-48a1-b48f-4ccaf5410588
+# ╟─a99138e2-2be3-4e49-b971-2864fa138342
+# ╟─635f1847-af95-449a-8b52-0283c9dfd948
+# ╟─e1da8788-29bc-4669-b30c-2c75723157e8
+# ╠═cb64aee7-0f3d-4445-acc5-a729a67d587d
+# ╟─4e468327-a827-4df8-ab19-4a56ebf3bff6
+# ╟─99e16d33-18b1-4fb1-9c10-49e6664cfc75
+# ╟─6b417a4a-eafa-4f2d-91f2-925887d8c20d
+# ╟─9f7d59f3-2440-456c-8a05-5c42b4ff518b
+# ╟─8bfd0e18-8af4-448e-8eeb-3c13018ca9d2
+# ╠═bf15c588-ab9a-4755-bf8d-c270910de96c
+# ╠═2bd84680-c035-4753-9f9b-e65aa59eccba
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

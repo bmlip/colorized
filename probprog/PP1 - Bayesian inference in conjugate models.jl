@@ -1,1010 +1,624 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
-
-#> [frontmatter]
-#> description = "Introduction to Active Inference and application to the design of synthetic intelligent agents"
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true"
-#> 
-#>     [[frontmatter.author]]
-#>     name = "BMLIP"
-#>     url = "https://github.com/bmlip"
-
+# v0.20.10
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
-using LinearAlgebra, Plots, RxInfer
-
-# ╔═╡ 97a0384a-0596-4714-a3fc-bf422aed4474
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 278382c0-d294-11ef-022f-0d78e9e2d04c
-md"""
-# Intelligent Agents and Active Inference
-
-"""
-
-# ╔═╡ 9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
-PlutoUI.TableOfContents()
-
-# ╔═╡ 27839788-d294-11ef-30a2-8ff6357aa68b
-md"""
-## Preliminaries
-
-Goal 
-
-  * Introduction to Active Inference and application to the design of synthetic intelligent agents
-
-Materials        
-
-  * Mandatory
-
-      * These lecture notes
-      * Bert de Vries - 2021 - Presentation on [Beyond deep learning: natural AI systems](https://youtu.be/QYbcm6G_wsk?si=G9mkjmnDrQH9qk5k) (video)
-  * Optional
-
-      * Bert de Vries, Tim Scarfe and Keith Duggar - 2023 - Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
-
-          * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
-      * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/WIRED-Friston.pdf).
-
-          * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
-      * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
-
-          * Friston's vision on the future of AI.
-      * Van de Laar and De Vries (2019), [Simulating Active Inference Processes by Message Passing](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full)
-
-          * How to implement active inference by message passing in a Forney-style factor graph.
-
-    
-
-"""
-
-# ╔═╡ 2783a99e-d294-11ef-3163-bb455746bf52
-md"""
-## Agents
-
-In the previous lessons we assumed that a data set was given. 
-
-In this lesson we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
-
-Crucially, by acting onto the environment, the agent is able to affect the data that it will sense in the future.
-
-  * As an example, by changing the direction where I look, I can affect the (visual) data that will be sensed by my retina.
-
-With this definition of an agent, (biological) organisms are agents, and so are robots, self-driving cars, etc.
-
-In an engineering context, we are particularly interesting in agents that behave with a *purpose* (with a goal in mind), e.g., to drive a car or to design a speech recognition algorithm.
-
-In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as minimization of a free energy functional. 
-
-"""
-
-# ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
-md"""
-## Illustrative Example: the Mountain Car Problem
-
-In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem) which is a classical benchmark problem in the reinforcement learning literature.
-
-The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill, and subsequently use its momentum to overcome the steep incline towards the goal position. 
-
-We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) are known up to some additive Gaussian noise.
-
-Your challenge is to design an agent that guides the car to the goal position. (The agent should be specified as a probabilistic model and the control signal should be formulated as a Bayesian inference task).  
-
-"""
-
-# ╔═╡ 2783b9ca-d294-11ef-0bf7-e767fbfad74a
-md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true)
-
-Solution at the end of this lesson.
-
-"""
-
-# ╔═╡ 2783c686-d294-11ef-3942-c75d2b559fb3
-md"""
-## Karl Friston and the Free Energy Principle
-
-We begin with a motivating example that requires "intelligent" goal-directed decision making: assume that you are an owl and that you're hungry. What are you going to do?
-
-Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
-
-Friston argues that intelligent decision making (behavior, action making) by an agent requires *minimization of a functional of beliefs*. 
-
-Friston further argues (later in the lecture and his papers) that this functional is a (variational) free energy (to be defined below), thus linking decision-making and acting to Bayesian inference. 
-
-In fact, Friston's **Free Energy Principle** (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
-
-  * This includes perception, learning, attention mechanisms, recall, acting and decision making, etc.
-
-Taking inspiration from FEP, if we want to develop synthetic "intelligent" agents, we have (only) two issues to consider:
-
-1. Specification of the FE functional.
-2. *How* to minimize the FE functional (often in real-time under situated conditions).
-
-Agents that follow the FEP are said to be involved in **Active Inference** (AIF). An AIF agent updates its states and parameters (and ultimately its model structure) solely by FE minimization, and selects its actions through (expected) FE minimization (to be explained below).    
-
-"""
-
-# ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
-md"""
-## Execution of an AIF Agent
-
-Consider an AIF agent with observations (sensory states) ``x_t``, latent internal states ``s_t`` and latent control states ``u_t`` for ``t=1,2,\ldots``. 
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/AIF-agent.png?raw=true)
-
-The agent is embedded in an environment with "external states" ``\tilde{s}_t``. The dynamics of the environment are driven by actions. 
-
-Actions ``a_t`` are selected by the agent. Actions affect the environment and consequently affect future observations. 
-
-In pseudo-code, an AIF agent executes the $(HTML("<span id='AIF-algorithm'></span>"))following algorithm:
-
-> **ACTIVE INFERENCE (AIF) AGENT ALGORITHM**    
->
-> SPECIFY generative model ``p(x,s,u)``     ASSUME/SPECIFY environmental process ``R``
->
-> FORALL t DO    
->
-> 1. ``(x_t, \tilde{s}_t) = R(a_t, \tilde{s}_{t-1})``   % environment generates new observation
-> 2. ``q(s_t) = \arg\min_q F[q]``            % update agent's internal states ("perception")
-> 3. ``q(u_{t+1}) = \arg\min_q F_>[q]``      % update agent's control states ("actions")
-> 4. ``a_{t+1} \sim q(u_{t+1})``             % sample next action and push to environment
->
-> END
-
-
-In the above algorithm, ``F[q]`` and ``F_>[q]`` are appropriately defined Free Energy functionals, to be discussed below. Next, we discuss these steps in more details.
-
-"""
-
-# ╔═╡ 7128f91d-f3f3-41fe-a491-ede27921a822
-html"""
-<style>
-pluto-output img {
-	background: white;
-	border-radius: 3px;
-}
-</style>
-"""
-
-# ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
-md"""
-## The Generative Model in an AIF agent
-
-What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
-
-Conant and Ashley state: "The theorem has the interesting corollary that the living brain, so far as it is to be successful and efficient as a regulator for survival, **must** proceed, in learning, by the formation of a model (or models) of its environment."
-
-Indeed, perception in brains is clearly affected by predictions about sensory inputs by the brain's own generative model.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/the-gardener.png?raw=true)
-
-In the above picture (The Gardener, by Giuseppe Arcimboldo, ca 1590), on the left you will likely see a bowl of vegetables, while the same picture upside down elicits with most people the perception of a gardener's face rather than an upside-down vegetable bowl. 
-
-The reason is that the brain's model predicts to see straight-up faces with much higher probability than upside-down vegetable bowls. 
-
-So the $(HTML("<span id='model-specification'></span>")) agent's model ``p`` will be a model that aims to explain how environmental causes (latent states) lead to sensory observations.
-
-"""
-
-# ╔═╡ 2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-md"""
-## Specification of AIF Agent's model and Environmental Dynamics
-
-In this notebook, for illustrative purposes, we specify the **generative model** at time step ``t`` of an AIF agent as 
-
-```math
-p(x_t,s_t,u_t|s_{t-1}) = \underbrace{p(x_t|s_t)}_{\text{observations}} \cdot \underbrace{p(s_t|s_{t-1},u_t)}_{\substack{\text{state} \\ \text{transition}}} \cdot \underbrace{p(u_t)}_{\substack{\text{action} \\ \text{prior}}}
-```
-
-We will assume that the agent interacts with an environment, which we represent by a dynamic model ``R`` as
-
-```math
-(x_t,\tilde{s}_t) = R\left( a_t,\tilde{s}_{t-1}\right)
-```
-
-where ``a_t`` are *actions* (by the agent), ``x_t`` are *outcomes* (the agent's observations) and ``\tilde{s}_t`` holds the environmental latent *states*. 
-
-Note that ``R`` only needs to be specified for simulated environments. If we were to deploy the agent in a real-world environment, we would not need to specify ``R``. 
-
-The agent's knowledge about environmental process ``R`` is expressed by its generative model ``p(x_t,s_t,u_t|s_{t-1})``. 
-
-Note that we distinguish between *control states* and *actions*. Control states ``u_t`` are latent variables in the agent's generative model. An action ``a_t`` is a realization of a control state as observed by the environment. 
-
-Observations ``x_t`` are generated by the environment and observed by the agent. Vice versa, actions ``a_t`` are generated by the agent and observed by the environment. 
-
-"""
-
-# ╔═╡ 2784529a-d294-11ef-3b0e-c5a60644fa53
-md"""
-## State Updating in the AIF Agent
-
-After the agent makes a new observation ``x_t``, it will update beliefs over its latent variables. First the internal state variables ``s``. 
-
-Assume the following at time step ``t``:
-
-  * the state of the agent's model has already been updated to ``q(s_{t-1}| x_{1:t-1})``.
-  * the agent has selected a new action ``a_t``.
-  * the agent has recorded a new observation ``x_t``.
-
-The **state updating** task is to infer ``q(s_{t}|x_{1:t})``, based on the previous estimate ``q(s_{t-1}| x_{1:t-1})``, the new data ``\{a_t,x_t\}``, and the agent's generative model. 
-
-Technically, this is a Bayesian filtering task. In a real brain, this process is called **perception**.   
-
-We specify the following FE functional
-
-```math
-F[q] = \sum_{s_t} q(s_t| x_{1:t}) \log \frac{\overbrace{q(s_t| x_{1:t})}^{\text{state posterior}}}{\underbrace{p( x_t|s_t) p(s_t|s_{t-1},a_t)}_{\text{generative model w new data}} \underbrace{q(s_{t-1}|x_{1:t-1})}_{\text{state prior}}}
-```
-
-The state updating task can be formulated as minimization of the above FE (see also [AIF Algorithm](#AIF-algorithm), step 2):
-
-```math
-q(s_t|x_{1:t}) = \arg\min_q F[q]
-```
-
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://bmlip.github.io/colorized/lectures/Dynamic%20Models.html#kalman-filter). 
-
-In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
-
-Our toolbox [RxInfer](http://rxinfer.com) specializes in automated execution of  this minimization task. 
-
-"""
-
-# ╔═╡ 27846c9e-d294-11ef-0a86-2527c96da2c3
-md"""
-## Policy Updating in an AIF Agent
-
-Once the agent has updated its internal states, it will turn to inferring the next action. 
-
-In order to select a **good** next action, we need to investigate and compare consequences of a *sequence* of future actions. 
-
-A sequence of future actions ``a= (a_{t+1}, a_{t+2}, \ldots, a_{t+T})`` is called a **policy**. Since relevant consequences are usually the result of an future action sequence rather than a single action, we will be interested in updating beliefs over policies. 
-
-In order to assess the consequences of a selected policy, we will, as a function of that policy, run the generative model forward-in-time to make predictions about future observations ``x_{t+1:t+T}``. 
-
-Note that perception (state updating) preceeds policy updating. In order to accurately predict the future, the agent first needs to understand the current state of the world.  
-
-Consider an AIF agent at time step ``t`` with (future) observations ``x = (x_{t+1}, x_{t+2}, \ldots, x_{t+T})``,  latent future internal states ``s= (s_t, s_{t+1}, \ldots, s_{t+T})``, and latent future control variables ``u= (u_{t+1}, u_{t+2}, \ldots, u_{t+T})``. 
-
-From the agent's viewpoint, the evolution of these future variables are constrained by its generative model, rolled out into the future:
-
-```math
-\begin{align*}
-p(x,s,u) &= \underbrace{q(s_{t})}_{\substack{\text{current}\\ \text{state}}} \cdot \underbrace{\prod_{k=t+1}^{t+T} p(x_k|s_k) \cdot p(s_k | s_{k-1}, u_k) p(u_k)}_{\text{GM roll-out to future}}
-\end{align*}
-```
-
-Consider the Free Energy functional for estimating posterior beliefs ``q(s,u)`` over latent *future* states and latent *future* control signals: 
-
-```math
-\begin{align*}
-F_>[q] &= \overbrace{\sum_{x,s} q(x|s)}^{\text{marginalize }x} \bigg( \overbrace{\sum_u q(s,u) \log \frac{q(s,u)}{p(x,s,u)} }^{\text{"regular" variational Free Energy}}\bigg) \\
-&= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)}
-\end{align*}
-```
-
-In principle, this is a regular FE functional, with one difference to previous versions: since future observations ``x`` have not yet occurred, ``F_>[q]`` marginalizes not only over latent states ``s`` and policies ``u``, but also over future observations ``x``.
-
-We will update the beliefs over policies by minimization of Free Energy functional ``F_>[q]``. In the [optional slides below, we prove that the solution to this optimization task](#q-star) is given by (see [AIF Algorithm](#AIF-algorithm), step 3, above)
-
-```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&\propto p(u)\exp(-G(u))\,,
-\end{aligned}
-```
-
-$(HTML("<span id='q-star-main-cell'></span>")) where the factor ``p(u)`` is a prior over admissible policies, and the factor ``\exp(-G(u))`` updates the prior with information about future consequences of a selected policy ``u``. 
-
-The function 
-
-```math
-G(u) = \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}
-```
-
-is called the **Expected Free Energy** (EFE) for policy ``u``. 
-
-The FEP takes the following stance: if FE minimization is all that an agent does, then the only consistent and appropriate behavior for an agent is to select actions that minimize the **expected** Free Energy in the future (where expectation is taken over current beliefs about future observations). 
-
-Note that, since ``q^*(u) \propto p(u)\exp(-G(u))``, the probability ``q^*(u)`` for selecting a policy ``u`` increases when EFE ``G(u)`` gets smaller. 
-
-Once the policy (control) variables have been updated, in simulated environments, it is common to assume that the next action ``a_{t+1}`` (an action is the *observed* control variable by the environment) gets selected in proportion to the probability of the related control variable (see [AIF Agent Algorithm](#AIF-algorithm), step 4, above), i.e., the environment samples the action from the control posterior:
-
-```math
-a_{t+1} \sim q(u_{t+1}) 
-```
-
-Next, we analyze some properties of the EFE.
-
-"""
-
-# ╔═╡ 278491ec-d294-11ef-305a-41b583d12d5a
-md"""
-## Active Inference Analysis: exploitation-exploration dilemma
-
-Consider the following decomposition of EFE:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)} \\
-&= \sum_{x,s} q(x,s|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(s|x,u)}\frac{q(s|x)}{q(s|x)} \\
-&= \sum_x q(x|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{q(s|x)} + \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x,u)}}_{E\left[ D_{\text{KL}}[q(s|x),p(s|x,u)] \right]\geq 0} \\
-&\geq \underbrace{\sum_x q(x|u) \log \frac{1}{p(x)}}_{\substack{\text{goal-seeking behavior} \\ \text{(exploitation)}}} - \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}}_{\substack{\text{information-seeking behavior}\\ \text{(exploration)}}} 
-\end{aligned}
-```
-
-Apparently, minimization of EFE leads to selection of policies that balances the following two imperatives: 
-
-1. minimization of the first term of ``G(u)``, i.e. minimizing ``\sum_x q(x|u) \log \frac{1}{p(x)}``, leads to policies (``u``) that align the inferred observations ``q(x|u)`` under policy ``u`` (i.e., predicted future observations under policy ``u``) with a prior ``p(x)`` on future observations. We are in control to choose any prior ``p(x)`` and usually we choose a prior that aligns with desired (goal) observations. Hence, policies with low EFE leads to **$(HTML("<span id='goal-seeking'>goal-seeking behavior</span>"))** (a.k.a. pragmatic behavior or exploitation). [In the OPTIONAL SLIDES](#ambiguity-plus-risk), we derive an alternative (perhaps clearer) expression to support this interpretation].
-2. minimization of ``G(u)`` maximizes the second term
-
-```math
-\begin{aligned}
-  \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)} &= \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}\frac{q(x|u)}{q(x|u)} \\
-  &= \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(x,s|u)}{q(x|u)q(s|u)}}_{\text{(conditional) mutual information }I[x,s|u]}
-  \end{aligned}
-```
-
-which is the (conditional) [**mutual information**](https://en.wikipedia.org/wiki/Mutual_information) between (posteriors on) future observations and states, for a given policy ``u``. Thus, maximizing this term leads to actions that maximize statistical dependency between future observations and states. In other words, a policy with low EFE also leads to **information-seeking behavior** (a.k.a. epistemic behavior or exploration). 
-
-(The third term ``\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x)}`` is an (expected) KL divergence between posterior and prior on the states. This can be interpreted as a complexity/regularization term and ``G(u)`` minimization will drive this term to zero.)   
-
-Seeking actions that balance goal-seeking behavior (exploitation) and information-seeking behavior (exploration) is a [fundamental problem in the Reinforcement Learning literature](https://en.wikipedia.org/wiki/Exploration-exploitation_dilemma). 
-
-**Active Inference solves the exploration-exploitation dilemma**. Both objectives are served by EFE minimization without any need for tuning parameters. 
-
-"""
-
-# ╔═╡ 2784b474-d294-11ef-1305-ef0f0771d28f
-md"""
-## $(HTML("<span id='PS-decomposition'></span>")) AIF Agents learn both the Problem and Solution
-
-We highlight another great feature of FE minimizing agents. Consider an AIF agent (``m``) with generative model ``p(x,s,u|m)``.
-
-Consider the Divergence-Evidence decomposition of the FE again:
-
-```math
-\begin{aligned}
-F[q] &= \sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(x,s,u|m)} \\
-&= \underbrace{-\log p(x|m)}_{\substack{\text{problem} \\ \text{representation costs}}} + \underbrace{\sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(s,u|x,m)}}_{\text{solution costs}}
-\end{aligned}
-```
-
-The first term, ``-\log p(x|m)``, is the (negative log-) evidence for model ``m``, given recorded data ``x``. 
-
-Minimization of FE maximizes the evidence for the given model. The model captures the  **problem representation**. A model with high evidence predicts the data well and therefore "understands the world".  
-
-The second term scores the cost of inference. In almost all cases, the solution to a problem can be phrased as an inference task on the generative model. Hence, the second term **scores the accuracy of the inferred solution**, for the given model. 
-
-FE minimization optimizes a balanced trade-off between a good-enough problem representation and a good-enough solution proposal for that model. Since FE comprises both a cost for solution *and* problem representation, it is a neutral criterion that applies across a very wide set of problems. 
-
-A good solution to the wrong problem is not good enough. A poor solution to a great problem statement is not sufficient either.  In order to solve a problem well, we need both to represent the problem correctly (high model evidence) and we need to solve it well (low inference costs). 
-
-
-
-"""
-
-# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
-md"""
-## The Brain's Action-Perception Loop by FE Minimization
-
-The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
-
-Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
-
-The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/brain-design-cycle.png?raw=true)
-
-"""
-
-# ╔═╡ 2784cf9a-d294-11ef-2284-a507f840ea99
-md"""
-## The Engineering Challenge: Synthetic AIF Agents
-
-We have here a framework (the FEP) for emergent intelligent behavior in self-organizing biological systems that
-
-  * leads to optimal (Bayesian) information processing, including balancing accuracy vs complexity.
-  * leads to balanced and continual learning of both problem representation and solution proposal
-  * actively selects data in-the-field under situated conditions (no dependency on large data base)
-  * pursues a optimal trade-off between exploration (information-seeking) and exploitation (goal-seeking) behavior
-  * needs no external tuning parameters (such as step sizes, thresholds, etc.)
-
-Clearly, the FEP, and synthetic AIF agents as a realization of FEP, comprise a very attractive framework for all things relating to AI and AI agents. 
-
-A current big AI challenge is to design synthetic AIF agents based solely on FE/EFE minimization.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Synthetic-FEP-agent.png?raw=true) 
-
-Executing a synthetic AIF agent often poses a large computational problem because of the following reasons: 
-
-1. For interesting problems (e.g. speech recognition, scene analysis), generative models may contain thousands of latent variables.
-2. The FE function is a time-varying function, since it is also a function of observable variables.
-3. An AIF agent must execute inference in real-time if it is engaged and embedded in a real world environment.
-
-So, in practice, executing a synthetic AIF agent may lead to a **task of minimizing a time-varying FE function of thousands of variables in real-time**!!
-
-"""
-
-# ╔═╡ 2784e0fc-d294-11ef-360c-f14e94324770
-md"""
-## Factor Graph Approach to Modeling of an Active Inference Agent
-
-How to specify and execute a synthetic AIF agent is an active area of research. 
-
-There is no definitive solution approach to AIF agent modeling yet; we ([BIASlab](http://biaslab.org)) think that (reactive) message passing in a factor graph representation provides a promising path. 
-
-After selecting an action ``a_t`` and making an observation ``x_t``, the FFG for the rolled-out generative model is given by the following FFG:
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-active-inference-model-specification.png?raw=true)
-
-The open red nodes for ``p(x_{t+k})`` specify **desired future observations**, whereas the open black boxes for ``p(s_k|s_{k-1},u_k)`` and ``p(x_k|s_k)`` reflect the agent's beliefs about how the world actually evolves (ie, the **veridical model**). 
-
-The (brown) dashed box is the agent's Markov blanket. Given the states on the Markov blanket, the internal states of the agent are independent of the state of the world.   
-
-"""
-
-# ╔═╡ 2784e908-d294-11ef-1c3d-ff9c59696590
-md"""
-## How to minimize FE: Online Active Inference
-
-[Online active inference proceeds by iteratively executing three stages](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full): 
-
-1. act-execute-observe
-2. infer: update the latent variables and select an action
-3. slide forward
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-online-active-inference.png?raw=true)
-
-"""
-
-# ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
-md"""
-## The Mountain car Problem Revisited
-
-Here we solve the mountain car problem as stated at the beginning of this lesson. Before implementing the active inference agent, let's first perform a naive approach that executes the engine's maximum power to reach the goal. As can be seen in the results, this approach fails since the car's engine is not strong enough to reach the goal directly. 
-
-"""
-
-# ╔═╡ f43d3264-f88e-42bf-8147-92b4225807f4
-import .ReactiveMP: getrecent, messageout
-
-# ╔═╡ d3ac9383-fef5-48e9-86b5-8c7f308ae43b
-# Environment variables
-initial_position     = -0.5
-
-# ╔═╡ cc30633a-78ad-4892-ba4a-a9e8071df050
-initial_velocity     =  0.0
-
-# ╔═╡ a726946b-817a-49d1-80cd-cace2915a6b1
-engine_force_limit   =  0.04
-
-# ╔═╡ b9c4d863-0723-4488-9146-b458f1cfdb06
-friction_coefficient =  0.1
-
-# ╔═╡ dfef4a95-89dd-4f58-9ab9-55aa2d78a794
-# Target position and velocity
-target = [0.5, 0.0];
-
-# ╔═╡ 27854ba0-d294-11ef-005b-fd5df84ce6c6
-md"""
-Next, we try a more sophisticated active inference agent. Above, we specified a probabilistic generative model for the agent's environment and then constrained future observations by a prior distribution that is located on the goal position. We then execute the (1) Act-execute-observe –> (2) infer –> (3) slide procedures as discussed above to infer future actions. 
-
-"""
-
-# ╔═╡ 937a96bc-b2d8-4b11-8907-ea2c3a9b134f
-@model function mountain_car(m_u, V_u, m_x, V_x, m_s_t_min, V_s_t_min, T, Fg, Fa, Ff, engine_force_limit)
-    
-    # Transition function modeling transition due to gravity and friction
-    g = (s_t_min::AbstractVector) -> begin 
-        
-        s_t    = similar(s_t_min)                               # Next state
-        s_t[2] = s_t_min[2] + Fg(s_t_min[1]) + Ff(s_t_min[2])   # Update velocity
-        s_t[1] = s_t_min[1] + s_t[2]                            # Update position
-        
-        return s_t
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
     end
-    
-    # Function for modeling engine control
-    h = (u::AbstractVector) -> [0.0, Fa(u[1])] 
-    
-    # Inverse engine force, from change in state to corresponding engine force
-    h_inv = (delta_s_dot::AbstractVector) -> [atanh(clamp(delta_s_dot[2], -engine_force_limit+1e-3, engine_force_limit-1e-3)/engine_force_limit)] 
-    
-    # Internal model perameters
-    Gamma = 1e4*diageye(2)      # Transition precision
-    Theta = 1e-4*diageye(2)     # Observation variance
-
-    s_t_min ~ MvNormal(mean = m_s_t_min, cov = V_s_t_min)
-    s_k_min = s_t_min
-
-    local s
-    
-    for k in 1:T
-        u[k]       ~ MvNormal(mean = m_u[k], cov = V_u[k])
-        u_h_k[k]   ~ h(u[k]) where { meta = DeltaMeta(method = Linearization(), inverse = h_inv) }
-        s_g_k[k]   ~ g(s_k_min) where { meta = DeltaMeta(method = Linearization()) }
-        u_s_sum[k] ~ s_g_k[k] + u_h_k[k]
-        s[k]       ~ MvNormal(mean = u_s_sum[k], precision = Gamma)
-        x[k]       ~ MvNormal(mean = s[k], cov = Theta)
-        x[k]       ~ MvNormal(mean = m_x[k], cov = V_x[k])      # goal
-
-        s_k_min    = s[k]
-    end
-    
-    return (s, )
+    #! format: on
 end
 
-# ╔═╡ 3417a5dc-7d39-4a69-b207-02379731445a
-function create_agent(;T = 20, Fg, Fa, Ff, engine_force_limit, target, initial_position, initial_velocity)
-    
-    Epsilon   = fill(huge, 1, 1)                        # Control prior variance
-    m_u       = Vector{Float64}[ [ 0.0] for k=1:T ]     # Set control priors
-    V_u       = Matrix{Float64}[ Epsilon for k=1:T ]
-
-    Sigma     = 1e-4*diageye(2)                         # Goal prior variance
-    m_x       = [zeros(2) for k=1:T]
-    V_x       = [huge*diageye(2) for k=1:T]
-    V_x[end]  = Sigma                                   # Set prior to reach goal at t=T
-
-    # Set initial brain state prior
-    m_s_t_min = [initial_position, initial_velocity] 
-    V_s_t_min = tiny * diageye(2)
-    
-    # Set current inference results
-    result = nothing
-
-    # The `compute` function performs Bayesian inference by message passing
-    compute = (upsilon_t::Float64, y_hat_t::Vector{Float64}) -> begin
-        
-        m_u[1] = [ upsilon_t ]              # Register action with the generative model
-        V_u[1] = fill(tiny, 1, 1)           # Clamp control prior to performed action
-
-        m_x[1] = y_hat_t                    # Register observation with the generative model
-        V_x[1] = tiny*diageye(2)            # Clamp goal prior to observation
-
-        data = Dict(:m_u       => m_u, 
-                    :V_u       => V_u, 
-                    :m_x       => m_x, 
-                    :V_x       => V_x,
-                    :m_s_t_min => m_s_t_min,
-                    :V_s_t_min => V_s_t_min)
-        
-        model  = mountain_car(T=T, Fg=Fg, Fa=Fa, Ff=Ff, engine_force_limit=engine_force_limit) 
-        result = infer(model = model, data = data)
-    end
-    
-    # The `act` function returns the inferred best possible action
-    act = () -> begin
-        if result !== nothing
-            return mode(result.posteriors[:u][2])[1]
-        else
-            # Without inference result we return some 'random' action
-            return 0.0 
-        end
-    end
-    
-    # The `future` function returns the inferred future states
-    future = () -> begin 
-        if result !== nothing 
-            return getindex.(mode.(result.posteriors[:s]), 1)
-        else
-            return zeros(T)
-        end
-    end
-
-    # The `slide` function modifies the `(m_s_t_min, V_s_t_min)` for the next step
-    # and shifts (or slides) the array of future goals `(m_x, V_x)` and inferred actions `(m_u, V_u)`
-    slide = () -> begin
-
-        model  = RxInfer.getmodel(result.model)
-        (s, )  = RxInfer.getreturnval(model)
-        varref = RxInfer.getvarref(model, s) 
-        var    = RxInfer.getvariable(varref)
-        
-        slide_msg_idx = 3       # This index is model dependent
-        (m_s_t_min, V_s_t_min) = mean_cov(getrecent(messageout(var[2], slide_msg_idx)))
-
-        m_u      = circshift(m_u, -1)
-        m_u[end] = [0.0]
-        V_u      = circshift(V_u, -1)
-        V_u[end] = Epsilon
-
-        m_x      = circshift(m_x, -1)
-        m_x[end] = target
-        V_x      = circshift(V_x, -1)
-        V_x[end] = Sigma
-    end
-
-    return (compute, act, slide, future)    
-end
-
-# ╔═╡ 27859b3c-d294-11ef-17e9-19c68a3f5ab5
-md"""
-Note that the AIF agent **explores** other options, like going first in the opposite direction of the goal prior, to reach its goals. This agent is able to mix exploration (information-seeking behavior) with exploitation (goal-seeking behavior).
-
-"""
-
-# ╔═╡ 2785b056-d294-11ef-1415-49b1508736ba
-md"""
-## Extensions and Comments
-
-Just to be sure, you don't need to memorize all FE/EFE decompositions nor are you expected to derive them on-the-spot. We present these decompositions only to provide insight into the multitude of forces that underlie FEM-based action selection.
-
-In a sense, the FEP is an umbrella for describing the mechanics and self-organization of intelligent behavior, in man and machines. Lots of sub-fields in AI, such as reinforcement learning, can be interpreted as a special case of active inference under the FEP, see e.g., [Friston et al., 2009](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421). 
-
-Is EFE minimization really different from "regular" FE minimization? Not really, it appears that [EFE minimization can be reformulated as a special case of FE minimization](https://link.springer.com/article/10.1007/s00422-019-00805-w). In other words, FE minimization is still the only game in town.
-
-Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-complete.png?raw=true)
-
-Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, **AIF is an automated Bayes-optimal engineering design loop**!!
-
-The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.    
-
-
-
-"""
-
-# ╔═╡ 2785c0f8-d294-11ef-2529-0b340c00b8ab
-md"""
-## Final Thoughts
-
-In the end, all the state inference, parameter estimation, etc., in this lecture series could have been implemented by FE minimization in an appropriately specified generative probabilistic model. However, the Free Energy Principle extends beyond state and parameter estimation. Driven by FE minimization, brains change their structure as well over time. In fact, the FEP extends beyond brains to a general theory for biological self-organization, e.g., [Darwin's natural selection process](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5857288/) may be interpreted as a FE minimization-driven model optimization process, and here's an article on [FEP for predictive processing in plants](https://royalsocietypublishing.org/doi/10.1098/rsif.2017.0096). Moreover, Constrained-FE minimization (rephrased as the Principle of Maximum Relative Entropy) provides an elegant framework to derive most (if not all) physical laws, as Caticha exposes in his [brilliant monograph](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf) on Entropic Physics. Indeed, the framework of FE minimization is known in the physics community as the very fundamental [Principle of Least Action](https://en.wikipedia.org/wiki/Stationary-action_principle) that governs the equations-of-motion in nature. 
-
-So, the FEP is very fundamental and extends way beyond applications to machine learning. At [our research lab](http://biaslab.org) at TU/e, we work on developing FEP-based intelligent agents that go out into the world and autonomously learn to accomplish a pre-determined task, such as learning-to-walk or learning-to-process-noisy-speech-signals. Free free to approach us if you want to know more about that effort.    
-
-"""
-
-# ╔═╡ 2785cdc8-d294-11ef-0592-5945c1e39d5f
-md"""
-# OPTIONAL SLIDES
-
-"""
-
-# ╔═╡ 27861ca6-d294-11ef-3a75-ff797da3cf44
-md"""
-## In an AIF Agent, Actions fulfill Desired Expectations about the Future
-
-In the [derivations above](#goal-seeking), we decomposed the EFE into an upperbound on the sum of a goal-seeking and information-seeking term. Here, we derive an alternative (exact) decomposition that more clearly reveals the goal-seeking objective.
-
-We consider again the EFE and factorize the generative model ``p(x,s|u) = p^\prime(x) p(s|x,u)`` as a product of a **goal prior** ``p^\prime(x)`` on observations and a **veridical** state model ``p(s|x,u)``. 
-
-Through the **goal prior** ``p^\prime(x)``, the agent declares which observations it **wants** to observe in the future. (The prime is just to distinguish the semantics of a desired future from the model for the actual future).
-
-Through the **veridical** state model ``p(s|x,u)`` , the agent implicitly declares its beliefs about how the world will **actually** generate observations.
-
-  * In particular, note that through the equality (by Bayes rule)
-
-```math
-p(s|x,u) = \frac{p(x|s)p(s|u)}{p(x|u)} = \frac{p(x|s)p(s|u)}{\sum_s p(x|s)p(s|u)}\,,
-```
-
-it follows that in practice the agent may specify ``p(s|x,u)`` implicitly by explicitly specifying a state transition model ``p(s|u)`` and observation model ``p(x|s)``. 
-
-Hence, an AIF agent holds both a model for its beliefs about how the world will actually evolve AND a model for its beliefs about how it desires the world to evolve!! 
-
-$(HTML("<span id='ambiguity-plus-risk'></span>")) To highlight the role of these two models in the EFE, consider the following alternative EFE decomposition:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)p(s|x,u)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{1}{p(s|x,u)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{p(x|u)}{p(x|s)p(s|u)} \quad \text{(use Bayes)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} q(x,s|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  p(s|u) p(x|s) \log \frac{p(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} p(s|u) p(x|s) \log \frac{p(x|u)}{p^\prime(x)} \quad \text{( assume }q(x,s|u)=p(x|s)p(s|u)\text{ )}\\
-&= \sum_{s}  p(s|u) \sum_x p(x|s) \log \frac{1}{p(x|s)} + \sum_x p(x|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \underbrace{E_{p(s|u)}\left[ H[p(x|s)]\right]}_{\text{ambiguity}} + \underbrace{D_{\text{KL}}\left[ p(x|u), p^\prime(x)\right]}_{\text{risk}}
-\end{aligned}
-```
-
-In this derivation, we have assumed that we can use the generative model to make inferences in the "forward" direction. Hence, ``q(s|u)=p(s|u)`` and ``q(x|s)=p(x|s)``.  
-
-The terms "ambiguity" and "risk" have their origin in utility theory for behavioral ecocomics. Minimization of EFE leads to minimizing both ambiguity and risk.
-
-Ambiguous (future) states are states that map to large uncertainties about (future) observations. We want to avoid those ambiguous states since it implies that the model is not capable to predict how the world evolves. Ambiguity can be resolved by selecting information-seeking (epistemic) actions. 
-
-Minimization of the second term (risk) leads to choosing actions (``u``) that align **predicted** future observations (represented by ``p(x|u)``) with **desired** future observations (represented by ``p^\prime(x)``). Agents minimize risk by selecting pragmatic (goal-seeking) actions.
-
-```math
-\Rightarrow
-```
-
-**Actions fulfill desired expectations about the future!**
-
-([return to related cell in main text](#goal-seeking)).
-
-"""
-
-# ╔═╡ 27862b56-d294-11ef-1f0b-c72293441005
-md"""
-## Proof ``q^*(u) = \arg\min_q F_>[q] \propto p(u)\exp(-G(u))``
-
-$(HTML("<span id='q-star'></span>"))Consider the following decomposition:
-
-```math
-\begin{aligned}
-F_>[q] &= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)} \\
-&= \sum_{x,s,u} q(x,s|u) q(u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)} \\
-&= \sum_{u} q(u) \bigg(\sum_{x,s} q(x,s|u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)}\bigg) \\
-&= \sum_{u} q(u) \bigg( \log q(u) + \log \frac{1}{p(u)}+ \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}}_{G(u)}\bigg) \\
-&= \sum_{u} q(u) \log \frac{q(u)}{p(u)\exp\left(- G(u)\right) }
-\end{aligned}
-```
-
-This is a KL-divergence. Minimization of ``F_>[q]`` leads to the following posterior for the policy:
-
-```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&= \frac{1}{Z}p(u)\exp(-G(u))
-\end{aligned}
-```
-
-[(click to return to linked cell in the main text.)](#q-star-main-cell)
-
-"""
-
-# ╔═╡ 27863dee-d294-11ef-3709-955340e17547
-md"""
-## What Makes a Good Agent? [The Good Regulator Theorem](https://en.wikipedia.org/wiki/Good_regulator)
-
-$(HTML("<span id='good-regulator-theorem'></span>")) According to Friston, an "intelligent" agent like a brain minimizes a variational free energy functional, which, in general, is a functional of a probability distribution ``p`` and a variational posterior ``q``. 
-
-What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
-
-A Quote from Conant and Ashby's paper (this statement was later finessed by [Friston (2013)](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2013.0475)): 
-
-> "The theory has the interesting corollary that the living brain, insofar as it is successful and efficient as a regulator for survival, *must* proceed, in learning, by the formation of a model (or models) of its environment."
-
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/good-regulator.png?raw=true)
-
-([Return to related cell in main text](#model-specification)).
-
-"""
-
-# ╔═╡ be0dc5c0-6340-4d47-85ae-d70e06df1676
-md"""
-# Appendix
-"""
-
-# ╔═╡ 0652eab9-f472-4dc5-89ed-66787c6bd49e
-import HypergeometricFunctions: _₂F₁
-
-# ╔═╡ cad4c77c-a187-4071-881d-ad76f1bb50fd
-function create_physics(; engine_force_limit = 0.04, friction_coefficient = 0.1)
-    # Engine force as function of action
-    Fa = (a::Real) -> engine_force_limit * tanh(a) 
-
-    # Friction force as function of velocity
-    Ff = (y_dot::Real) -> -friction_coefficient * y_dot 
-    
-    # Gravitational force (horizontal component) as function of position
-    Fg = (y::Real) -> begin
-        if y < 0
-            0.05*(-2*y - 1)
-        else
-            0.05*(-(1 + 5*y^2)^(-0.5) - (y^2)*(1 + 5*y^2)^(-3/2) - (y^4)/16)
-        end
-    end
-    
-    # The height of the landscape as a function of the horizontal coordinate
-    height = (x::Float64) -> begin
-        if x < 0
-            h = x^2 + x
-        else
-            h = x * _₂F₁(0.5,0.5,1.5, -5*x^2) + x^3 * _₂F₁(1.5, 1.5, 2.5, -5*x^2) / 3 + x^5 / 80
-        end
-        return 0.05*h
-    end
-
-    return (Fa, Ff, Fg,height)
-end
-
-# ╔═╡ eea0b08b-0039-4960-ab2f-c319cd2dfd82
-Fa, Ff, Fg, height = create_physics(
-    engine_force_limit = engine_force_limit,
-    friction_coefficient = friction_coefficient
-);
-
-# ╔═╡ 7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
-function create_world(; Fg, Ff, Fa, initial_position = -0.5, initial_velocity = 0.0)
-
-    y_t_min = initial_position
-    y_dot_t_min = initial_velocity
-    
-    y_t = y_t_min
-    y_dot_t = y_dot_t_min
-    
-    execute = (a_t::Float64) -> begin
-        # Compute next state
-        y_dot_t = y_dot_t_min + Fg(y_t_min) + Ff(y_dot_t_min) + Fa(a_t)
-        y_t = y_t_min + y_dot_t
-    
-        # Reset state for next step
-        y_t_min = y_t
-        y_dot_t_min = y_dot_t
-    end
-    
-    observe = () -> begin 
-        return [y_t, y_dot_t]
-    end
-        
-    return (execute, observe)
-end
-
-# ╔═╡ 0c12e2dc-15a0-45ca-bade-30ed49bf1cad
-function plot_car(y, target; title_plot="trial", fps=12)
-
-    function height(x::Float64)
-        if x < 0
-            h = x^2 + x
-        else
-            h = x * _₂F₁(0.5,0.5,1.5, -5*x^2) + x^3 * _₂F₁(1.5, 1.5, 2.5, -5*x^2) / 3 + x^5 / 80
-        end
-        return 0.05*h
-    end
-
-    valley_x = range(-1.3, 1, length=400)
-    valley_y = [ height(xs) for xs in valley_x ];
-
-    animation_car = @gif for i in eachindex(y)
-        plot(valley_x, valley_y, title = "$title_plot, t=$i", label = "Landscape", color = "black", size = (800, 400))
-        scatter!([target[1]], [height(target[1])], label="goal", markersize= 15) 
-        scatter!([y[i][1]], [height(y[i][1])], label="car", markersize= 15)  
-    end
-
-    # file_name = "./ai_agent/ " * title_plot * ".gif"
-    # gif(animation_car, file_name, fps = fps, show_msg = false);
-
-end
-
-# ╔═╡ 2785277e-d294-11ef-275b-995f8187ea63
-# Simulation of a naive policy, going full power toward the parking place  
+# ╔═╡ 10bdf484-848d-44a1-af9b-64c0c11395f7
 begin
-	# Let there be a world
-	(execute, observe) = create_world(
-	    Fg = Fg, Ff = Ff, Fa = Fa, 
-	    initial_position = initial_position, 
-	    initial_velocity = initial_velocity
-	)
-	
-	# Total simulation time
-	global N = 40 
+	using PlutoUI
+	using PlutoTeachingTools
+	using LaTeXStrings
+	using CSV
+	using Random
+	using DataFrames
+	using LinearAlgebra
+	using SpecialFunctions
+	using Distributions
+	using RxInfer
+	using Plots; default(label="", linewidth=4, margin=10Plots.pt)
 
-	
-	y = Vector{Vector{Float64}}(undef, N)
-	for n in 1:N
-	    execute(100.0)      # Act with the maximum power 
-	    y[n] = observe()    # Observe the current environmental outcome
-	end
-
-	plot_car(y, target, title_plot="Mountain Car Problem: naive policy", fps=5)
+	import CairoMakie: tricontourf
+	import ReactiveMP: @call_rule, prod
+	import BayesBase: ClosedProd
 end
 
-# ╔═╡ 27853c5a-d294-11ef-012d-018b742488e0
-let
-	# Let's also plot the goal and car positions over time 
-	trajectories = reduce(hcat, y)'
-	plot(trajectories[:,1]; label="car: naive policy", title="Car and Goal Positions", color = "orange")
-	plot!(0.5 * ones(N); color="black", linestyle=:dash, label="goal")
+# ╔═╡ 779f3ea6-36dd-11f0-0323-613cd06c6f3c
+md"
+# Probabilistic Programming 1
+### Bayesian inference in conjugate models
+
+
+Learning objectives:
+  - Specify models in a probabilistic programming language.
+  - Specify inference procedures in a probabilistic programming language.
+  - Perform message passing as Bayesian infernece on factor graphs.
+
+Materials:
+  - Mandatory
+    - This notebook
+    - Lecture notes on factor graphs
+    - Lecture notes on continuous data
+    - Lecture notes on discrete data
+  - Optional
+    - Chapters 2 and 3 of [Model-Based Machine Learning](http://www.mbmlbook.com/LearningSkills.html).
+    - [Differences between Julia and Matlab / Python](https://docs.julialang.org/en/v1/manual/noteworthy-differences/index.html).
+"
+
+# ╔═╡ bac564cd-47db-4010-a397-c6ac2ced9319
+
+
+# ╔═╡ de99bbcb-ce5b-44f1-85ef-ad26a9238509
+md"
+## Problem: A Job Interview
+
+Suppose you have graduated and applied for a job at a tech company. The company wants a talented and skilled employee, but measuring a person's skill is tricky; even a highly-skilled person makes mistakes and - vice versa - people with few skills can get lucky. They decide to approach this objectively and construct a statistical model of responses. 
+
+In this session, we will look at estimating parameters in various distributions under the guise of assessing skills based on different types of interview questions. We will practice message passing on factor graphs using a probabilistic programming language developed at the TU/e: [RxInfer.jl](https://rxinfer.com/).
+"
+
+# ╔═╡ f05721c1-e085-4c7d-92c8-292aa17c8040
+md"""
+### 1: Right or wrong
+
+To start, the company wants to test the applicants' programming skills and created a set of bug detection questions. We will first look at a single question, which we treat as an outcome variable $X_1$. Your answer is either right or wrong, which can be modelled with a Bernoulli likelihood function. The company assumes you have a skill level, denoted $\theta$, and the higher the skill, the more likely you are to get the question right. Since the company doesn't know anything about you, they chose an uninformative prior distribution: the Beta(1,1). We can write the generative model for answering this question as follows:
+
+$$\begin{aligned} p(X_1, \theta) =&\ p(X_1 \mid \theta) \cdot p(\theta) \\ =&\ \text{Bernoulli}(X_1 \mid \theta) \cdot \text{Beta}(\theta \mid \alpha = 1, \beta=1) \, . \end{aligned}$$
+
+The factor graph for this model is:
+
+![](figures/PP2-singleobs.png)
+
+We are now going to construct this factor graph / probabilistic model in RxInfer.
+"""
+
+# ╔═╡ 35d8e213-09ef-4419-a5b8-ac9a1b4e3c1f
+@model function beta_bernoulli1(X)
+    "Beta-Bernoulli model with single observation"
+    
+    # Prior distribution
+    θ ~ Beta(1.0, 1.0)
+        
+    # Likelihood of data point
+    X ~ Bernoulli(θ)
 end
 
-# ╔═╡ 278573d4-d294-11ef-36a2-19eba9a07c1b
+# ╔═╡ 5cf8f6fe-31cc-4226-89dd-6e8fe6527442
+md"""
+Note that we may define random variables using a tilde symbol, which should be read as "[random variable] is distributed according to [probability distribution function]". For example, $\theta \sim \text{Beta}(1,1)$ should be read as "$\theta$ is distributed according to a Beta($\theta$ | $a$=1, $b$=1) probability distribution".
+
+Having defined the model, we can now call an inference procedure which will automatically compute the posterior distribution for the random variable:
+"""
+
+# ╔═╡ 5411235f-e823-4db4-b4c4-1532d4bc8927
+# ╠═╡ disabled = true
+#=╠═╡
+resultsBB1 = infer(
+    model      = beta_bernoulli1(),
+    data       = (X = 1,),
+)
+  ╠═╡ =#
+
+# ╔═╡ 307acd4b-72a7-4aa5-add8-8269708adaa9
+md"""
+Under the hood, RxInfer is performing message passing. Each variable definition actually creates a factor node and each node will send a message. The collision of messages will automatically update the marginal distributions. 
+
+We may inspect some of the message and marginal computations with the following commands:
+"""
+
+# ╔═╡ a5f57521-2008-4dfa-a055-f7f4248daf98
+messageBB1_1 = @call_rule Beta(:out, Marginalisation) (m_a = PointMass(1.0), m_b = PointMass(1.0))
+
+# ╔═╡ 5bb30240-e6d6-4df5-ac59-383eed58fff4
+messageBB1_2 = @call_rule Bernoulli(:p, Marginalisation) (m_out = PointMass(1),)
+
+# ╔═╡ 3b35113b-8c81-4409-92a1-1b2223659e94
+md"""
+Alright. So, they are both Beta distributions. Do they actually make sense? Where do these parameters come from?
+
+Recall from the lecture notes that the formula for messages sent by factor nodes is:
+
+$$\underbrace{\overrightarrow{\mu}_{Y}(y)}_{\text{outgoing message}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\text{incoming messages}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\text{node function}} \, ,$$
+
+visually represented by
+
+TODO: figure
+
+The prior node is not connected to any other unknown variables and so does not receive incoming messages. Its outgoing message is
+
+$$\begin{aligned} \mu_1(\theta) =&\ f(\theta) \\ =&\ \text{Beta}(\theta \mid \alpha=1, \beta=1) \, . \end{aligned}$$
+
+We can also derive the message from the likelihood node by hand. For this, we need to know that the message coming from the observation $\overleftarrow{\mu}(x)$ is a delta function, which, if you gave the right answer ($X_1 = 1$), has the form $\delta(X_1 - 1)$. The "node function" is the Bernoulli likelihood $\text{Bernoulli}(X_1 \mid \theta)$. Another thing to note is that this is essentially a convolution with respect to a delta function and that its [sifting property](https://en.wikipedia.org/wiki/Dirac_delta_function#Translation) holds: 
+
+$$\int_{X} \delta(X - x) \ f(X, \theta) \mathrm{d}X = f(x, \theta) \, .$$ 
+
+The fact that $X_1$ is a discrete variable instead of a continuous one, does not negate this. Using these facts, we can perform the message computation by hand:
+
+$$\begin{aligned} \mu_2(\theta) =&\ \sum_{X_1} \mu(X_1) \ f(X_1, \theta) \\ =&\ \sum_{X_1} \delta(X_1 - 1) \ \text{Bernoulli}(X_1 \mid \theta) \\ =&\ \sum_{X_1} \delta(X_1 - 1) \ \theta^{X_1} (1 - \theta)^{1-X_1} \\ =&\ \theta^{1} (1 - \theta)^{1-1} \, . \end{aligned}$$
+
+Remember that the pdf of a Beta distribution is proportional to $\theta^{\alpha-1} (1 - \theta)^{\beta-1}$. So, if you read the second-to-last line above as $\theta^{2-1} (1 - \theta)^{1-1}$, then the outgoing message $\overleftarrow{\mu}(\theta)$ is proportional to a Beta distribution with $\alpha=2$ and $\beta=1$. So, our manual derivation matches RxInfer's message 2.
+
+Let's now look at these messages visually.
+"""
+
+# ╔═╡ 5ecd1dc3-5b71-4f62-a75d-aa1439966235
 begin
-	# Create another world
-	(execute_ai, observe_ai) = create_world(
-	    Fg = Fg, 
-	    Ff = Ff, 
-	    Fa = Fa, 
-	    initial_position = initial_position, 
-	    initial_velocity = initial_velocity
-	)
+	# Sample space of random variable
+	θ_range = range(0, step=0.01, stop=1.0)
 	
-	# Planning horizon
-	T_ai = 50
-	
-	# Let there be an agent
-	(compute_ai, act_ai, slide_ai, future_ai) = create_agent(; 
-	    
-	    T  = T_ai, 
-	    Fa = Fa,
-	    Fg = Fg, 
-	    Ff = Ff, 
-	    engine_force_limit = engine_force_limit,
-	    target             = target,
-	    initial_position   = initial_position,
-	    initial_velocity   = initial_velocity
-	) 
-	
-	# Length of trial
-	N_ai = 100
-	
-	# Step through experimental protocol
-	agent_a = Vector{Float64}(undef, N_ai)          # Actions
-	agent_f = Vector{Vector{Float64}}(undef, N_ai)  # Predicted future
-	agent_x = Vector{Vector{Float64}}(undef, N_ai)  # Observations
-	
-	for t=1:N_ai
-	    agent_a[t] = act_ai()               # Invoke an action from the agent
-	    agent_f[t] = future_ai()            # Fetch the predicted future states
-	    execute_ai(agent_a[t])              # The action influences hidden external states
-	    agent_x[t] = observe_ai()           # Observe the current environmental outcome (update p)
-	    compute_ai(agent_a[t], agent_x[t])  # Infer beliefs from current model state (update q)
-	    slide_ai()                          # Prepare for next iteration
-	end
-	
-	plot_car(agent_x, target, title_plot="Mountain Car Problem: active inference agent", fps=5)
+	# Plot messages
+	plot( θ_range, x -> pdf.(messageBB1_1, x), color="red", label="Prior-based message", xlabel="θ", ylabel="p(θ)")
+	plot!(θ_range, x -> pdf.(messageBB1_2, x), color="blue", label="Likelihood-based message", legend=:topleft, size=(800,400))
 end
 
-# ╔═╡ 27858c46-d294-11ef-28aa-7744a577e6e5
-let
-	# Again, let's plot the goal and car positions over time
-	trajectories = reduce(hcat, agent_x)'
-	p1 = plot(trajectories[:,1], label="car: AIF agent", title = "Car and Goal Positions", color = "orange")
-	plot!(0.5 * ones(N_ai), color = "black", linestyle=:dash, label = "goal")
-	p2 = plot(agent_a, title = "Actions", color = "orange")
-	plot(p1,p2, layout = @layout [a ; b])
-end
+# ╔═╡ 16a2c037-8b56-428d-9c0b-0b5f40e52edf
+md"""
+The marginal distribution for $\theta$, representing the posterior $p(\theta \mid X_1)$, is obtained by taking the product (followed by normalization) of the two messages: $\mu_1(\theta) \cdot \mu_2(\theta)$. Multiplying two Beta distributions produces another Beta distribution with parameter:
 
-# ╔═╡ 74181be4-02d3-4049-882c-04d64152dad8
-function dzdt(z, a)
-    fc = - 0.1 # friction coefficient 
-    fl = 0.04 # engine force limit
-    function Fg(y::Real) # Gravitational force
+$$\begin{aligned} \alpha \leftarrow&\ \alpha_1 + \alpha_2 - 1 \\ \beta \leftarrow&\ \beta_1 + \beta_2 - 1 \, , \end{aligned}$$
+
+In our case, the new parameters would be $\alpha = 1 + 2 - 1 = 2$ and $\beta = 1 + 1 - 1 = 1$. 
+
+Let's check with RxInfer. The product of the two Beta's can be computed with:
+"""
+
+# ╔═╡ f6baaa1c-d946-418f-9249-f4f23e760946
+prod(ClosedProd(), Beta(1.,1.), Beta(1.,1.))
+
+# ╔═╡ 9e0be153-e04a-4876-a88e-748394ffa72d
+Foldable("Extra information:",
+md"""
+The `ClosedProd()` input indicates that julia should not use the generic `prod` function (e.g., for products of `Float64`'s or `Int64`'s), but that it should use the product operations defined by the RxInfer ecosystem for parametric probability distributions. It is an example of Julia's "multiple dispatch" feature, which is making waves in the programming languages world ([youtube](https://www.youtube.com/watch?v=HAEgGFqbVkA), [blog](https://medium.com/swlh/how-julia-uses-multiple-dispatch-to-beat-python-8fab888bb4d8)). 
+""")
+
+# ╔═╡ e1024dac-912b-4b13-854e-a7d9a769ceb8
+# ╠═╡ disabled = true
+#=╠═╡
+posteriorBB1 = resultsBB1.posteriors[:θ]
+  ╠═╡ =#
+
+# ╔═╡ 28c39e23-b07d-45ee-8e4a-e410f0e62b8d
+md"""
+Let's visualize the messages as well as the marginal posterior.
+"""
+
+# ╔═╡ 60269224-ba34-40e0-aa35-04b49819fd49
+#=╠═╡
+begin
+	plot( θ_range, x -> pdf.(messageBB1_1, x), color="red", label="Prior-based message", xlabel="θ", ylabel="p(θ)")
+	plot!(θ_range, x -> pdf.(messageBB1_2, x), color="blue", linewidth=8, linestyle=:dash, alpha=0.5, label="Likelihood-based message", legend=:topleft,size=(800,400))
+	plot!(θ_range, x -> pdf.(posteriorBB1, x), color="purple", label="Marginal posterior")
+end
+  ╠═╡ =#
+
+# ╔═╡ f7d8239b-19d8-4d0c-a9ae-2ea63fe6e70e
+md"""
+The pdf of the marginal distribution lies on top of the pdf of Message 2. That's not always going to be the case; the Beta(1,1) distribution is special in that when you multiply Beta(1,1) with a general Beta(a,b) the result will always be Beta(a,b), kinda like multiplying by $1$. We call prior distributions that have this special effect "non-informative priors".
+"""
+
+# ╔═╡ 147c1456-1b60-4ac0-af7c-5418f19448cb
+md"""
+#### Multiple questions
+
+Of course, in practice you would be evaluated on multiple questions, which are essentially more samples from the underlying distribution that is your skill level. We are going to add question outcomes to the model. For now, we will still work with right-or-wrong questions (i.e., binary outcomes), denoted $X = (X_1, \dots, X_N)$. The generative model becomes
+
+$$\begin{aligned} p(X, \theta) &= p(\theta) \prod_{i=1}^{N} p(X_i \mid \theta) \\ &= \text{Beta}(\theta) \prod_{i=1}^{N} \text{Bernoulli}(X_i \mid \theta) \, , \end{aligned}$$ 
+
+The factor graph for this model is:
+
+TODO: figure
+
+Specified in code, this is:
+"""
+
+# ╔═╡ 0a0c546f-1f1a-4410-ad41-17071b659b50
+@model function beta_bernoulli(X,N)
+    "Beta-Bernoulli model with multiple observations"
+    
+    # Prior distribution
+    θ ~ Beta(3.0, 2.0)
         
-        if y < 0
-            f = 0.05*(-2*y - 1)
-        else
-            f = 0.05*(-(1 + 5*y^2)^(-0.5) - (y^2)*(1 + 5*y^2)^(-3/2) - (y^4)/16)
-        end
+    # Loop over data
+    for i in 1:N
         
-        return f
+        # Likelihood of i-th data points
+        X[i] ~ Bernoulli(θ)
+        
     end
-
-    θ̇ = z[2] + Fg(z[1]) + fc * z[2] + fl * tanh(a[1])
-    θ = z[1] + θ̇
-    z_tp1 = [θ, θ̇ ]
-    return z_tp1
 end
 
-# ╔═╡ f6fe4d57-f1a5-46bd-a8b5-b2648899f03a
-@meta function car_meta()
-    dzdt() -> DeltaMeta(method = Linearization())
+# ╔═╡ c0736593-d3c7-4fb5-9772-66d2abe91d72
+md"""
+You may have noticed that the prior distribution changed; the company now assumes that you must have _some_ skill if you applied for the position. This is reflected in the prior Beta distribution with $\alpha = 3.0$ and $\beta = 2.0$.
+
+Now suppose we have two outcomes, $X_1 = 1$ and $X_2 = 0$:
+"""
+
+# ╔═╡ 8a663a1c-5707-4aba-acea-83c309a1b55c
+X = [1; 0];
+
+# ╔═╡ 89ecaba1-0ce7-426d-9334-69f93df0a94f
+md"""
+Running the inference procedure is nearly exactly the same, except now we have to provide the sample size parameter $N$:
+"""
+
+# ╔═╡ e6e6a0cb-d0d8-41a1-9088-20550803ca3d
+# ╠═╡ disabled = true
+#=╠═╡
+resultsBB = infer(
+    model = beta_bernoulli(N=length(X)),
+    data  = (X = X,),
+)
+  ╠═╡ =#
+
+# ╔═╡ 93fce8a3-82c2-42d1-8a99-5f27fcf2e960
+md"We now have two likelihood-based messages:"
+
+# ╔═╡ 1dfeae91-04a0-4d17-be0e-96718986a227
+messageBB_1 = @call_rule Bernoulli(:p, Marginalisation) (m_out = PointMass(X[1]),)
+
+# ╔═╡ fd3a89bc-698a-4dd1-9153-2b7212901023
+messageBB_2 = @call_rule Bernoulli(:p, Marginalisation) (m_out = PointMass(X[2]),)
+
+# ╔═╡ d09f77b9-d0b8-4a83-9e17-cb9958d4b374
+md"""
+Taking their product gives us a total likelihood message, i.e., 
+
+$$\begin{aligned} \mu_3(\theta) &= \mu_1(\theta) \cdot \mu_2(\theta) \\ &= \sum_{X_1} \delta(X_1 - 1) \ \text{Bernoulli}(X_1 \mid \theta) \cdot \sum_{X_2} \delta(X_2 - 0) \ \text{Bernoulli}(X_2 \mid \theta) \\ &= \text{Beta}(\alpha = 2, \beta = 1) \cdot \text{Beta}(\alpha = 1, \beta = 2) \\ &= \text{Beta}(\alpha = 2, \beta = 2) \end{aligned}$$
+
+Let's verify that manual calculation using RxInfer:
+"""
+
+# ╔═╡ 0eaa6865-ef25-43f6-880e-1ef54de31f3c
+messageBB_3 = prod(ClosedProd(), messageBB_1, messageBB_2)
+
+# ╔═╡ fd6317e2-b787-433d-aa16-0cc6e8b99551
+md"""
+This product of messages is the result of passing the two likelihood-based messages through an equality node (see [Bert's lecture](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Factor-Graphs.ipynb#Equality-Nodes-for-Branching-Points)):
+
+$$\begin{aligned} \mu_3(\theta) &= \int_{\theta'} \int_{\theta''} \overrightarrow{\mu}(\theta'')\ f_{=}(\theta, \theta', \theta'') \ \overleftarrow{\mu}(\theta') \mathrm{d}\theta' \, \mathrm{d}\theta'' \\
+ &= \mu'(\theta) \cdot \mu''(\theta) \, . \end{aligned}$$
+
+You don't have to worry about explicitly managing equality nodes; most packages automatically perform these operations (or functionally similar ones) under the hood.
+"""
+
+# ╔═╡ c6d8d802-ee4b-4eac-84cb-a1769d2ab175
+Foldable("Exercise",
+md"""
+What would be your likelihood-based message if your data was $X = [0 \ \ 0 \ \ 0]$?
+""")
+
+# ╔═╡ 0735f44e-2b14-41f8-a7fd-ab18b20a6d87
+answer_box(md"""Beta(α=1,β=4)"""; invite="Solution")
+
+# ╔═╡ a02942f7-971d-4c1e-a39a-ce79c3a518c9
+md"""Now that we have a likelihood-based message, we can combine that with the message from the prior distribution, $\mu_4(\theta) = \text{Beta}(\alpha = 3, \beta = 2)$, to get the marginal posterior for $\theta$:
+
+$$\begin{aligned} p(\theta \mid X_1, X_2) &= \mu_3(\theta) \cdot \mu_4(\theta) \\ &= \text{Beta}(\alpha = 2, \beta = 2) \cdot \text{Beta}(\alpha = 3, \beta = 2) \\ &= \text{Beta}(\alpha = 4, \beta = 3) \, . \end{aligned}$$
+
+Let's check with RxInfer:
+"""
+
+# ╔═╡ 80b690a5-1c6c-4e1c-8803-a0e60c64e9a4
+begin
+	messageBB_4 = Beta(3.0, 2.0)
+	posteriorBB = prod(ClosedProd(), messageBB_3, messageBB_4)
 end
+
+# ╔═╡ 2f3e4f87-854d-4db8-a437-629d2df5af02
+md"That should also be equal to the inferred posterior:"
+
+# ╔═╡ 2981f82c-dd4e-4f9d-a242-1fb1207ff86a
+#=╠═╡
+resultsBB.posteriors[:θ]
+  ╠═╡ =#
+
+# ╔═╡ 007e1e0c-9978-4ff2-9660-fba766bcd918
+md"""
+Great. That checks out.
+
+Let's also visualize the messages and the resulting marginal:
+"""
+
+# ╔═╡ 47b944bf-35ca-49bc-8782-9595ddceae5a
+begin
+	plot( θ_range, x -> pdf.(messageBB_1, x), color="red", label="Message for X₁", xlabel="θ", ylabel="p(θ)")
+	plot!(θ_range, x -> pdf.(messageBB_2, x), color="blue", label="Message for X₂", size=(800,400))
+	plot!(θ_range, x -> pdf.(messageBB_3, x), color="purple", label="Total likelihood message")
+end
+
+# ╔═╡ 79f68e86-9a36-403f-93b5-39f2dbd9d835
+md"""Message 1 and message 2 are direct opposites: the first increases the estimate and the second decreases the estimate of your skill level. The total likelihood message ends up being centered on the average, i.e., $0.5$. If we plot the prior- and likelihood-based messages as well as the marginal, we can see that Bayes' rule is really a weighted average. """
+
+# ╔═╡ 6f36f99d-08aa-4d71-99fa-ec736d46249a
+begin
+	# Plot prior-based message
+	plot( θ_range, x -> pdf(messageBB_4, x), color="red", linewidth=3, label="Prior", xlabel="θ", ylabel="p(θ)")
+	
+	# plot likelihood-based message
+	plot!(θ_range, x -> pdf(messageBB_3, x), color="blue", linewidth=3, label="Likelihood", size=(800,400))
+	
+	# Plot marginal posterior
+	plot!(θ_range, x -> pdf(posteriorBB, x), color="purple", linewidth=4, linestyle=:dash, label="Posterior")
+end
+
+# ╔═╡ aa1528c5-1c46-4c45-a8e8-8a899e8124c8
+md"""
+### 2. Score questions
+
+Suppose you are not tested on a right-or-wrong question, but on a score question. For instance, you have to complete a piece of code for which you get a score. If all of it was wrong you get a score of $0$, if some of it was correct you get a score of $1$ and if all of it was correct you get a score $2$. That means we have a likelihood with three outcomes: $X_1 = \{ 0,1,2\}$. Suppose we once again ask two questions, $X_1$ and $X_2$. The order in which we ask these questions does not matter, so that means we choose Categorical distributions for these likelihood functions: $X_1, X_2 \sim \text{Categorical}(\theta)$. The parameter $\theta$ is no longer a single parameter, indicating the probability of getting the question right, but a vector of three parameters: $\theta = (\theta_1, \theta_2, \theta_3)$. Each $\theta_k$ indicates the probability of getting the $k$-th outcome. In other words, $\theta_1$ indicates the probability of getting $0$ points, $\theta_2$ of getting $1$ point and $\theta_3$ of getting $2$ points. A highly-skilled applicant mights have a parameter vector of $(0.05, 0.1, 0.85)$, for example. The prior distribution conjugate to the Categorical distribution is the Dirichlet distribution. 
+"""
+
+# ╔═╡ 4a0d19ef-1756-4d14-a787-0b31763577f5
+md"""
+Visualizing a Dirichlet distribution is a bit tricky. In the special case of $3$ parameters, we can plot the probabilities on a simplex. As a reminder, a [simplex](https://en.wikipedia.org/wiki/Simplex) in 3-dimensions is the triangle between the coordinates $[0,0,1]$, $[0,1,0]$ and $[1,0,0]$:
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/2D-simplex.svg/150px-2D-simplex.svg.png)
+
+Every point on that triangle is 3D vector that sums to 1. Since the triangle is a 2-dimensional subspace, we can map the 3D simplex to a 2D triangular surface and plot the Dirichlet's probability density over it.
+"""
+
+# ╔═╡ 0a536620-fc4a-41c6-8f34-7015b400c910
+md"""
+Let's look at the generative model:
+
+$$p(X_1, X_2, \theta) = p(X_1 \mid \theta) p(X_2 \mid \theta) p(\theta) \, .$$ 
+
+It's the same as before. The only difference is the parameterization of the distributions:
+
+$$\begin{aligned} p(X_1 \mid \theta) =&\ \text{Categorical}(X_1 \mid \theta) \\ p(X_2 \mid \theta) =&\ \text{Categorical}(X_2 \mid \theta) \\ p(\theta) =&\ \text{Dirichlet}(\theta \mid \alpha) \, , \end{aligned}$$
+
+where $\alpha$ are the concentration parameters of the Dirichlet. This model can be written directly in RxInfer:
+"""
+
+# ╔═╡ 4973ed66-7e7f-402b-b636-0a7f8771e743
+@model function dirichlet_categorical(Y, N, α)
+    
+    # Prior distribution
+    θ ~ Dirichlet(α)
+    
+    # Likelihood
+    for i in 1:N
+
+        Y[i] ~ Categorical(θ)
+        
+    end
+end
+
+# ╔═╡ ff49a7f8-7f83-4fe0-a470-0f2c265fc619
+md"""
+Suppose you got a score of $1$ on the first question, a score of $2$ on the second question and a score of $2$ on the third question. In a one-hot encoding, this is represented as:
+"""
+
+# ╔═╡ ad1caf8c-4170-4cb4-bd5a-b1d6d9493887
+Y = [[0, 1, 0],
+	 [0, 0, 1],
+	 [0, 0, 1]];
+
+# ╔═╡ 31b1d5ee-32d7-4e7c-90dc-02e6f8bda6f3
+md"""You can set the prior concentration parameters yourself:"""
+
+# ╔═╡ ebae7e2f-929d-47db-9c06-2a5cf4c3c971
+@bind α01 html"<input type=range min=0.1 max=100. step=1e-1>"
+
+# ╔═╡ 995f16fd-db2f-4ba7-b976-1187165352ad
+md"""
+α₀[1] = $(α01)
+"""
+
+# ╔═╡ 01967611-a33f-441a-844b-c28fbf2c9b4a
+@bind α02 html"<input type=range min=0.1 max=100. step=1e-1>"
+
+# ╔═╡ b0325117-2895-45fb-9d0b-b43fdac4e6e5
+md"""
+α₀[2] = $(α02)
+"""
+
+# ╔═╡ e8bcb137-25f8-47fb-a2b3-b34ac9583e5e
+@bind α03 html"<input type=range min=0.1 max=100. step=1e-1>"
+
+# ╔═╡ f163e386-95f1-4f63-9b88-0cb1e38fec78
+md"""
+α₀[3] = $(α03)
+"""
+
+# ╔═╡ 4df18a8f-7483-45db-9988-8579dc4b9103
+α0 = [α01, α02, α03]
+
+# ╔═╡ 886f8df5-e2cc-417b-bfbc-068a37f2de04
+begin
+	# Load pre-generated triangular mesh
+	mesh = Matrix(DataFrame(CSV.File("data/trimesh.csv")))
+	
+	# Compute probabilities on trimesh of simplex
+	pvals = [pdf(Dirichlet(α0), mesh[n,3:5]) for n in 1:size(mesh,1)]
+	
+	# Generate filled contour plot
+	tricontourf(mesh[:,1], mesh[:,2], pvals)
+end
+
+# ╔═╡ 8442878d-068c-4cee-b51a-782190703f58
+md"""
+The yellow spot is the area of high probability, with the contour lines indicating regions of decreasing probability. 
+"""
+
+# ╔═╡ 41e0eb82-bf76-49e0-8742-fcb30e675905
+md"""
+Now we infer the posterior distribution:
+"""
+
+# ╔═╡ 2f0932a8-7f5e-41f8-aea6-882a147aadf3
+resultsDC = infer(
+    model = dirichlet_categorical(α=α0, N=length(Y)),
+    data = (Y = Y,),
+)
+
+# ╔═╡ 28d63bb9-af87-4b97-a650-d58d95c4b74c
+begin
+	# Extract parameters 
+	αN = params(resultsDC.posteriors[:θ])[1]
+	
+	# Generate filled contour plot
+	tricontourf(mesh[:,1], mesh[:,2], [pdf(Dirichlet(αN), mesh[n,3:5]) for n in 1:size(mesh,1)])
+end
+
+# ╔═╡ ac1321cb-764a-48d3-8ac4-9cedfe34d370
+md"""
+### 3. Continuous-valued score
+
+Suppose the company wants to know how fast applicants respond to questions. The interview conductor also has a stopwatch and measures your response time per question. Each applicant is assumed to have some underlying response speed $\theta$. Each measurement $X_i$ is a noisy observation of that response speed, where the noise is assumed to be symmetric, i.e., the applicant might a bit as faster as often as they are a bit slower than usual. The Gaussian, or Normal, distribution is a symmetric continuous-valued distribution and will characterize the assumption well. The likelihood is therefore:
+
+$$p(X \mid \theta) = \mathcal{N}(X \mid \theta, \sigma^2) \, ,$$ 
+
+where $\sigma$ is the standard deviation. The conjugate prior to the mean in a Gaussian likelihood is another Gaussian distribution: 
+
+$$p(\theta) = \mathcal{N}(\theta \mid m_0, v_0)$$ 
+
+with $m_0, v_0$ as prior mean and variance. 
+"""
+
+# ╔═╡ 12d5f6d1-f214-448e-9c2e-da691b997d60
+@model function normal_normal(Z, m0, v0, σ, N)
+    
+    # Prior distribution
+    θ ~ Normal(mean = m0, variance = v0)
+    
+    # Likelihood
+    for i = 1:N
+
+        Z[i] ~ Normal(mean = θ, variance = σ^2)
+        
+    end    
+end
+
+# ╔═╡ 09c40ed2-a06d-4565-8ba9-2e7a855327d8
+md"""The interview conductor cannot stop immediately after you have responded. From previous interviews, the company knows that the conductor in front of you is typically off by roughly $2$ seconds. That translates to a likelihood variance of $\sigma^2 = 4$. """
+
+# ╔═╡ abe4105c-c42b-4d97-bc15-ef9741c23fcf
+σ = 2.0;
+
+# ╔═╡ d2ca1a6d-4f96-4e90-9868-9db407ffd1b5
+md"Your response times on the questions are:"
+
+# ╔═╡ 9c1da54d-edad-499a-91ae-88483b5d5a72
+Z = [ 52.390036995147426
+      74.49846899398719
+      50.92640384934159
+      39.548361884989717]; 
+
+# ╔═╡ 63000198-bdda-4c18-bf0c-dd6a9018405d
+md"""
+The company designed the questions such that they think it may take the average participant 60 seconds to respond, $\pm$ 20 seconds. That translates to the following values for the prior parameters:
+"""
+
+# ╔═╡ 75abee86-a43c-4a53-8edb-cf943f4e570c
+begin
+m0 = 60;
+v0 = 20;
+end
+
+# ╔═╡ 5d308e05-cf04-4289-ab75-7677a71839d4
+resultsNN = infer(
+    model = normal_normal(m0=m0, v0=v0, σ=σ, N=length(Z)),
+    data  = (Z = Z,),
+)
+
+# ╔═╡ ac33150f-57b1-4cfb-8176-80750c981019
+begin
+posteriorNN = resultsNN.posteriors[:θ]
+μNN = mean(posteriorNN)
+σNN = var(posteriorNN)
+"mean = $μNN, variance = $σNN"
+end
+
+# ╔═╡ 43799ac6-6a21-4852-8077-5e8b7e5489fa
+md"""Ah! It seems that you are a bit faster than the average participant.
+
+Let's visualize the prior message, the total likelihood message and the posterior again. First, we want to get the likelihood message:
+"""
+
+# ╔═╡ 9b7c71cb-ea6f-4472-b783-21c22b9a23b7
+begin
+	messageNN = @call_rule NormalMeanVariance(:μ, Marginalisation) (m_out=PointMass(X[1]), m_v=PointMass(1.5^2))
+	for i in 2:length(Z)
+	    messageNN_i = @call_rule NormalMeanVariance(:μ, Marginalisation) (m_out=PointMass(Z[i]), m_v=PointMass(1.5^2))
+	    messageNN = prod(ClosedProd(), messageNN, messageNN_i)
+	end
+	mean_var(messageNN)
+end
+
+# ╔═╡ 50d10285-67c9-487e-8c19-a10d8d663fc5
+begin
+	# Range of values to plot pdf for
+	μ_range = range(50.0, step=0.1, stop=65.0)
+	
+	# Prior
+	plot( μ_range, x -> pdf(Normal(m0, sqrt(v0)), x), color="red", label="Prior", xlabel="θ", ylabel="p(θ)")
+	
+	# Likelihood
+	plot!(μ_range, x -> pdf(messageNN, x), color="blue", label="Likelihood")
+	
+	# Posterior
+	plot!(μ_range, x -> pdf(posteriorNN, x), color="purple", linestyle=:dash, label="Posterior", size=(800,300))
+end
+
+# ╔═╡ be5ebcb7-1981-4771-9c42-967fc576ce5e
+md"""
+The prior is quite wide, indicating the company has a lot of uncertainty about participants' response speeds. The likelihood is sharply peaked, even after only 4 questions. Note that the posterior is a weighted average of the prior- and likelihood-based messages. In this case, it is closer to the likelihood because the likelihood variance, $4$, is much smaller than the prior variance $20$. 
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+BayesBase = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+ReactiveMP = "a194aa59-28ba-4574-a09c-4a745416d6e3"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-HypergeometricFunctions = "~0.3.28"
-Plots = "~1.40.13"
-PlutoTeachingTools = "~0.3.1"
-PlutoUI = "~0.7.62"
-RxInfer = "~4.4.2"
+BayesBase = "~1.5.4"
+CSV = "~0.10.15"
+CairoMakie = "~0.13.1"
+DataFrames = "~1.7.0"
+Distributions = "~0.25.118"
+LaTeXStrings = "~1.4.0"
+Plots = "~1.40.12"
+PlutoTeachingTools = "~0.4.1"
+PlutoUI = "~0.7.23"
+ReactiveMP = "~4.6.2"
+RxInfer = "~3.10.1"
+SpecialFunctions = "~2.5.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "662424eb95cce2dc98253e1bf2dd87c27679a2ed"
+project_hash = "f3cd75fe88effa6294ea06bd99353cba3a7af9d8"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "e2478490447631aedba0823d4d7a80b2cc8cdb32"
@@ -1021,11 +635,27 @@ version = "1.14.0"
     ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
     EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
 
+[[deps.AbstractFFTs]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "d92ad398961a3ed262d8bf04a1a2b8340f915fef"
+uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+version = "1.5.0"
+weakdeps = ["ChainRulesCore", "Test"]
+
+    [deps.AbstractFFTs.extensions]
+    AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
+    AbstractFFTsTestExt = "Test"
+
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
 git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.2"
+
+[[deps.AbstractTrees]]
+git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
+uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+version = "0.4.5"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -1038,15 +668,26 @@ weakdeps = ["SparseArrays", "StaticArrays"]
     AdaptSparseArraysExt = "SparseArrays"
     AdaptStaticArraysExt = "StaticArrays"
 
+[[deps.AdaptivePredicates]]
+git-tree-sha1 = "7e651ea8d262d2d74ce75fdf47c4d63c07dba7a6"
+uuid = "35492f91-a3bd-45ad-95db-fcad7dcfedb7"
+version = "1.2.0"
+
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
 git-tree-sha1 = "9876e1e164b144ca45e9e3198d0b689cadfed9ff"
 uuid = "66dad0bd-aa9a-41b7-9441-69ab47430ed8"
 version = "1.1.3"
 
+[[deps.Animations]]
+deps = ["Colors"]
+git-tree-sha1 = "e092fa223bf66a3c41f9c022bd074d916dc303e7"
+uuid = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
+version = "0.4.2"
+
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.ArnoldiMethod]]
 deps = ["LinearAlgebra", "Random", "StaticArrays"]
@@ -1056,9 +697,9 @@ version = "0.4.0"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "bebb10cd3f0796dd1429ba61e43990ba391186e9"
+git-tree-sha1 = "9606d7832795cbef89e06a550475be300364a8aa"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.18.1"
+version = "7.19.0"
 
     [deps.ArrayInterface.extensions]
     ArrayInterfaceBandedMatricesExt = "BandedMatrices"
@@ -1098,9 +739,34 @@ weakdeps = ["SparseArrays"]
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
+
+[[deps.Automa]]
+deps = ["PrecompileTools", "SIMD", "TranscodingStreams"]
+git-tree-sha1 = "a8f503e8e1a5f583fbef15a8440c8c7e32185df2"
+uuid = "67c07d97-cdcb-5c2c-af73-a7f9c32a568b"
+version = "1.1.0"
+
+[[deps.AxisAlgorithms]]
+deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
+git-tree-sha1 = "01b8ccb13d68535d73d2b0c23e39bd23155fb712"
+uuid = "13072b0f-2c55-5437-9ae7-d433b7a33950"
+version = "1.1.0"
+
+[[deps.AxisArrays]]
+deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
+git-tree-sha1 = "16351be62963a67ac4083f748fdb3cca58bfd52f"
+uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
+version = "0.4.7"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
+
+[[deps.BaseDirs]]
+git-tree-sha1 = "03fea4a4efe25d2069c2d5685155005fc251c0a1"
+uuid = "18cc8868-cbac-4acf-b575-c8ff214dc66f"
+version = "1.3.0"
 
 [[deps.BayesBase]]
 deps = ["Distributions", "DomainSets", "LinearAlgebra", "LoopVectorization", "Random", "SpecialFunctions", "StaticArrays", "Statistics", "StatsAPI", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
@@ -1149,17 +815,66 @@ git-tree-sha1 = "1b96ea4a01afe0ea4090c5c8039690672dd13f2e"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.9+0"
 
+[[deps.CEnum]]
+git-tree-sha1 = "389ad5c84de1ae7cf0e28e381131c98ea87d54fc"
+uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+version = "0.5.0"
+
 [[deps.CPUSummary]]
 deps = ["CpuId", "IfElse", "PrecompileTools", "Static"]
 git-tree-sha1 = "5a97e67919535d6841172016c9530fd69494e5ec"
 uuid = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
 version = "0.2.6"
 
+[[deps.CRC32c]]
+uuid = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
+version = "1.11.0"
+
+[[deps.CRlibm]]
+deps = ["CRlibm_jll"]
+git-tree-sha1 = "66188d9d103b92b6cd705214242e27f5737a1e5e"
+uuid = "96374032-68de-5a5b-8d9e-752f78720389"
+version = "1.0.2"
+
+[[deps.CRlibm_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "e329286945d0cfc04456972ea732551869af1cfc"
+uuid = "4e9b3aee-d8a1-5a3d-ad8b-7d824db253f0"
+version = "1.0.1+0"
+
+[[deps.CSV]]
+deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "PrecompileTools", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
+git-tree-sha1 = "deddd8725e5e1cc49ee205a1964256043720a6c3"
+uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+version = "0.10.15"
+
+[[deps.Cairo]]
+deps = ["Cairo_jll", "Colors", "Glib_jll", "Graphics", "Libdl", "Pango_jll"]
+git-tree-sha1 = "71aa551c5c33f1a4415867fe06b7844faadb0ae9"
+uuid = "159f3aea-2a34-519c-b102-8c37f9878175"
+version = "1.1.1"
+
+[[deps.CairoMakie]]
+deps = ["CRC32c", "Cairo", "Cairo_jll", "Colors", "FileIO", "FreeType", "GeometryBasics", "LinearAlgebra", "Makie", "PrecompileTools"]
+git-tree-sha1 = "9bd45574379e50579a78774334f4a1f1238c0af5"
+uuid = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+version = "0.13.10"
+
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
+git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.4+0"
+version = "1.18.5+0"
+
+[[deps.ChainRulesCore]]
+deps = ["Compat", "LinearAlgebra"]
+git-tree-sha1 = "1713c74e00545bfe14605d2a2be1712de8fbcb58"
+uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+version = "1.25.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.ChainRulesCore.extensions]
+    ChainRulesCoreSparseArraysExt = "SparseArrays"
 
 [[deps.CloseOpenIntervals]]
 deps = ["Static", "StaticArrayInterface"]
@@ -1167,17 +882,17 @@ git-tree-sha1 = "05ba0d07cd4fd8b7a39541e31a7b0254704ea581"
 uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
 version = "0.1.13"
 
-[[deps.CodeTracking]]
-deps = ["InteractiveUtils", "UUIDs"]
-git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
-uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
-version = "1.3.9"
-
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "962834c22b66e32aa10f7611c08c8ca4e20749a9"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.8"
+
+[[deps.ColorBrewer]]
+deps = ["Colors", "JSON"]
+git-tree-sha1 = "e771a63cc8b539eca78c85b0cabd9233d6c8f06f"
+uuid = "a2cac450-b92f-5266-8821-25eda20663c8"
+version = "0.4.1"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
@@ -1203,9 +918,9 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
+git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Combinatorics]]
 git-tree-sha1 = "8010b6bb3388abe68d95743dcbea77650bb2eddf"
@@ -1250,9 +965,9 @@ uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
 
 [[deps.ConstructionBase]]
-git-tree-sha1 = "76219f1ed5771adbb096743bff43fb5fdd4c1157"
+git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.8"
+version = "1.6.0"
 weakdeps = ["IntervalSets", "LinearAlgebra", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
@@ -1281,6 +996,12 @@ git-tree-sha1 = "abe83f3a2f1b857aac70ef8b269080af17764bbe"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
+[[deps.DataFrames]]
+deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "fb61b4812c49343d7ef0b533ba982c46021938a6"
+uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+version = "1.7.0"
+
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
 git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
@@ -1295,12 +1016,19 @@ version = "1.0.0"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "473e9afc9cf30814eb67ffa5f2db7df82c3ad9fd"
 uuid = "ee1fde0b-3d02-5ea6-8484-8dfef6360eab"
 version = "1.16.2+0"
+
+[[deps.DelaunayTriangulation]]
+deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
+git-tree-sha1 = "5620ff4ee0084a6ab7097a27ba0c19290200b037"
+uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
+version = "1.6.4"
 
 [[deps.DelimitedFiles]]
 deps = ["Mmap"]
@@ -1328,9 +1056,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "aa87a743e3778d35a950b76fbd2ae64f810a2bb3"
+git-tree-sha1 = "210933c93f39f832d92f9efbbe69a49c453db36d"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.6.52"
+version = "0.7.1"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1379,12 +1107,13 @@ version = "0.6.52"
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "6d8b535fd38293bc54b88455465a1386f8ac1c3c"
+git-tree-sha1 = "3e6d038b77f22791b8e3472b7c633acea1ecac06"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.119"
+version = "0.25.120"
 
     [deps.Distributions.extensions]
     DistributionsChainRulesCoreExt = "ChainRulesCore"
@@ -1397,32 +1126,36 @@ version = "0.25.119"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
+git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.DomainIntegrals]]
-deps = ["CompositeTypes", "DomainSets", "FastGaussQuadrature", "GaussQuadrature", "HCubature", "IntervalSets", "LinearAlgebra", "QuadGK", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "934bf806ef2948114243f25e84a3ddf775d0f1a6"
+deps = ["CompositeTypes", "DomainSets", "FastGaussQuadrature", "GaussQuadrature", "HCubature", "IntervalSets", "LinearAlgebra", "QuadGK", "StaticArrays"]
+git-tree-sha1 = "95c6b8fd44ee7e41d166c1adf7b1c94309be6195"
 uuid = "cc6bae93-f070-4015-88fd-838f9505a86c"
-version = "0.5.2"
+version = "0.4.6"
 
 [[deps.DomainSets]]
 deps = ["CompositeTypes", "IntervalSets", "LinearAlgebra", "Random", "StaticArrays"]
 git-tree-sha1 = "a7e9f13f33652c533d49868a534bfb2050d1365f"
 uuid = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
 version = "0.7.15"
+weakdeps = ["Makie"]
 
     [deps.DomainSets.extensions]
     DomainSetsMakieExt = "Makie"
-
-    [deps.DomainSets.weakdeps]
-    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
+
+[[deps.EarCut_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "e3290f2d49e661fbd94046d7e3726ffcb2d41053"
+uuid = "5ae413db-bbd1-5e63-b57d-d24a61df00f5"
+version = "2.2.4+0"
 
 [[deps.EnumX]]
 git-tree-sha1 = "bddad79635af6aec424f53ed8aad5d7555dc6f00"
@@ -1434,6 +1167,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "8a4be429317c42cfae6a7fc03c31bad1970c310d"
 uuid = "2702e6a9-849d-5ed8-8c21-79e8b8f9ee43"
 version = "0.0.20230411+1"
+
+[[deps.ExactPredicates]]
+deps = ["IntervalArithmetic", "Random", "StaticArrays"]
+git-tree-sha1 = "b3f2ff58735b5f024c392fde763f29b057e4b025"
+uuid = "429591f6-91af-11e9-00e2-59fbe8cec110"
+version = "2.2.8"
 
 [[deps.ExceptionUnwrapping]]
 deps = ["Test"]
@@ -1449,9 +1188,14 @@ version = "2.6.5+0"
 
 [[deps.ExponentialFamily]]
 deps = ["BayesBase", "BlockArrays", "Distributions", "DomainSets", "FastCholesky", "FillArrays", "ForwardDiff", "HCubature", "HypergeometricFunctions", "IntervalSets", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "LoopVectorization", "PositiveFactorizations", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
-git-tree-sha1 = "63abcf79108b50b27c7f6cccefb890cdaee3714f"
+git-tree-sha1 = "91857b13ac2767b830afb867c7dc8734f6b89962"
 uuid = "62312e5e-252a-4322-ace9-a5f4bf9b357b"
-version = "2.0.5"
+version = "1.7.1"
+
+[[deps.Extents]]
+git-tree-sha1 = "b309b36a9e02fe7be71270dd8c0fd873625332b4"
+uuid = "411431e0-e8b7-467b-b5e0-f676ba4f2910"
+version = "0.1.6"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -1465,11 +1209,23 @@ git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.4+1"
 
+[[deps.FFTW]]
+deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
+git-tree-sha1 = "797762812ed063b9b94f6cc7742bc8883bb5e69e"
+uuid = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+version = "1.9.0"
+
+[[deps.FFTW_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "6d6219a004b8cf1e0b4dbe27a2860b8e04eba0be"
+uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
+version = "3.3.11+0"
+
 [[deps.FastCholesky]]
 deps = ["LinearAlgebra", "PositiveFactorizations"]
-git-tree-sha1 = "5422860597c671655e0bbaa10ed0eb4ff54e9fb3"
+git-tree-sha1 = "1c0a81e006e40e9fcbd5f6f6cb42ac2700f86889"
 uuid = "2d5283b6-8564-42b6-bb00-83ed8e915756"
-version = "1.4.1"
+version = "1.4.3"
 weakdeps = ["StaticArraysCore"]
 
     [deps.FastCholesky.extensions]
@@ -1477,9 +1233,9 @@ weakdeps = ["StaticArraysCore"]
 
 [[deps.FastGaussQuadrature]]
 deps = ["LinearAlgebra", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "fd923962364b645f3719855c88f7074413a6ad92"
+git-tree-sha1 = "0f478d8bad6f52573fb7658a263af61f3d96e43a"
 uuid = "442a2c76-b920-505d-bb47-c5924d526838"
-version = "1.0.2"
+version = "0.5.1"
 
 [[deps.FileIO]]
 deps = ["Pkg", "Requires", "UUIDs"]
@@ -1491,8 +1247,26 @@ weakdeps = ["HTTP"]
     [deps.FileIO.extensions]
     HTTPExt = "HTTP"
 
+[[deps.FilePaths]]
+deps = ["FilePathsBase", "MacroTools", "Reexport", "Requires"]
+git-tree-sha1 = "919d9412dbf53a2e6fe74af62a73ceed0bce0629"
+uuid = "8fc22ac5-c921-52a6-82fd-178b2807b824"
+version = "0.8.3"
+
+[[deps.FilePathsBase]]
+deps = ["Compat", "Dates"]
+git-tree-sha1 = "3bab2c5aa25e7840a4b065805c0cdfc01f3068d2"
+uuid = "48062228-2e41-5def-b9a4-89aafe57970f"
+version = "0.9.24"
+weakdeps = ["Mmap", "Test"]
+
+    [deps.FilePathsBase.extensions]
+    FilePathsBaseMmapExt = "Mmap"
+    FilePathsBaseTestExt = "Test"
+
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1557,11 +1331,23 @@ weakdeps = ["StaticArrays"]
     [deps.ForwardDiff.extensions]
     ForwardDiffStaticArraysExt = "StaticArrays"
 
+[[deps.FreeType]]
+deps = ["CEnum", "FreeType2_jll"]
+git-tree-sha1 = "907369da0f8e80728ab49c1c7e09327bf0d6d999"
+uuid = "b38be410-82b0-50bf-ab77-7b57e271db43"
+version = "4.1.1"
+
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
 git-tree-sha1 = "2c5512e11c791d1baed2049c5652441b28fc6a31"
 uuid = "d7e528f0-a631-5988-bf34-fe36492bcfd7"
 version = "2.13.4+0"
+
+[[deps.FreeTypeAbstraction]]
+deps = ["BaseDirs", "ColorVectorSpace", "Colors", "FreeType", "GeometryBasics", "Mmap"]
+git-tree-sha1 = "4ebb930ef4a43817991ba35db6317a05e59abd11"
+uuid = "663a7486-cb36-511b-a19d-713bb74d65c9"
+version = "0.10.8"
 
 [[deps.FriBidi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1572,6 +1358,7 @@ version = "1.0.17+0"
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+version = "1.11.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
@@ -1581,15 +1368,15 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "7ffa4049937aeba2e5e1242274dc052b0362157a"
+git-tree-sha1 = "4424dca1462cc3f19a0e6f07b809ad948ac1d62b"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.14"
+version = "0.73.16"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "98fc192b4e4b938775ecd276ce88f539bcec358e"
+git-tree-sha1 = "d7ecfaca1ad1886de4f9053b5b8aef34f36ede7f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.14+0"
+version = "0.73.16+0"
 
 [[deps.GaussQuadrature]]
 deps = ["SpecialFunctions"]
@@ -1597,23 +1384,46 @@ git-tree-sha1 = "eb6f1f48aa994f3018cbd029a17863c6535a266d"
 uuid = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
 version = "0.5.8"
 
+[[deps.GeoFormatTypes]]
+git-tree-sha1 = "8e233d5167e63d708d41f87597433f59a0f213fe"
+uuid = "68eda718-8dee-11e9-39e7-89f7f65f511f"
+version = "0.4.4"
+
+[[deps.GeoInterface]]
+deps = ["DataAPI", "Extents", "GeoFormatTypes"]
+git-tree-sha1 = "294e99f19869d0b0cb71aef92f19d03649d028d5"
+uuid = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
+version = "1.4.1"
+
+[[deps.GeometryBasics]]
+deps = ["EarCut_jll", "Extents", "GeoInterface", "IterTools", "LinearAlgebra", "PrecompileTools", "Random", "StaticArrays"]
+git-tree-sha1 = "2670cf32dcf0229c9893b895a9afe725edb23545"
+uuid = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+version = "0.5.9"
+
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
 git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
 uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
 version = "0.21.0+0"
 
+[[deps.Giflib_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "6570366d757b50fabae9f4315ad74d2e40c0560a"
+uuid = "59f7168a-df46-5410-90c8-f2779963d0ec"
+version = "5.2.3+0"
+
 [[deps.Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "b0036b392358c80d2d2124746c2bf3d48d457938"
+git-tree-sha1 = "fee60557e4f19d0fe5cd169211fdda80e494f4e8"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.82.4+0"
+version = "2.84.0+0"
 
 [[deps.GraphPPL]]
 deps = ["BitSetTuples", "DataStructures", "Dictionaries", "MacroTools", "MetaGraphsNext", "NamedTupleTools", "Static", "StaticArrays", "TupleTools", "Unrolled"]
-git-tree-sha1 = "efc643a7065bdba366fc4e50dbc20661194b7806"
+git-tree-sha1 = "85a3b38192e452439c1008ba65c344b47eb730e2"
 uuid = "b3f8163a-e979-4e85-b43e-1f63d8c8b42c"
-version = "4.6.2"
+version = "4.5.1"
 
     [deps.GraphPPL.extensions]
     GraphPPLDistributionsExt = "Distributions"
@@ -1626,6 +1436,12 @@ version = "4.6.2"
     GraphPlot = "a2cc645c-3eea-5389-862e-a155d0052231"
     GraphViz = "f526b714-d49f-11e8-06ff-31ed36ee7ee0"
 
+[[deps.Graphics]]
+deps = ["Colors", "LinearAlgebra", "NaNMath"]
+git-tree-sha1 = "a641238db938fff9b2f60d08ed9030387daf428c"
+uuid = "a2bd30eb-e257-5431-a919-1863eab51364"
+version = "1.1.3"
+
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "8a6dbda1fd736d60cc477d99f2e7a042acfa46e8"
@@ -1633,10 +1449,16 @@ uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
 version = "1.3.15+0"
 
 [[deps.Graphs]]
-deps = ["ArnoldiMethod", "Compat", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
-git-tree-sha1 = "3169fd3440a02f35e549728b0890904cfd4ae58a"
+deps = ["ArnoldiMethod", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
+git-tree-sha1 = "c5abfa0ae0aaee162a3fbb053c13ecda39be545b"
 uuid = "86223c79-3864-5bf0-83f7-82e725a168b6"
-version = "1.12.1"
+version = "1.13.0"
+
+[[deps.GridLayoutBase]]
+deps = ["GeometryBasics", "InteractiveUtils", "Observables"]
+git-tree-sha1 = "dc6bed05c15523624909b3953686c5f5ffa10adc"
+uuid = "3955a311-db13-416c-9275-1d80ed98e5e9"
+version = "0.11.1"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -1657,9 +1479,9 @@ version = "1.10.16"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
-git-tree-sha1 = "55c53be97790242c29031e5cd45e8ac296dadda3"
+git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "8.5.0+0"
+version = "8.5.1+0"
 
 [[deps.HostCPUFeatures]]
 deps = ["BitTwiddlingConvenienceFunctions", "IfElse", "Libdl", "Static"]
@@ -1696,19 +1518,105 @@ git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
 uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
 version = "0.1.1"
 
+[[deps.ImageAxes]]
+deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
+git-tree-sha1 = "e12629406c6c4442539436581041d372d69c55ba"
+uuid = "2803e5a7-5153-5ecf-9a86-9b4c37f5f5ac"
+version = "0.6.12"
+
+[[deps.ImageBase]]
+deps = ["ImageCore", "Reexport"]
+git-tree-sha1 = "eb49b82c172811fd2c86759fa0553a2221feb909"
+uuid = "c817782e-172a-44cc-b673-b171935fbb9e"
+version = "0.1.7"
+
+[[deps.ImageCore]]
+deps = ["ColorVectorSpace", "Colors", "FixedPointNumbers", "MappedArrays", "MosaicViews", "OffsetArrays", "PaddedViews", "PrecompileTools", "Reexport"]
+git-tree-sha1 = "8c193230235bbcee22c8066b0374f63b5683c2d3"
+uuid = "a09fc81d-aa75-5fe9-8630-4744c3626534"
+version = "0.10.5"
+
+[[deps.ImageIO]]
+deps = ["FileIO", "IndirectArrays", "JpegTurbo", "LazyModules", "Netpbm", "OpenEXR", "PNGFiles", "QOI", "Sixel", "TiffImages", "UUIDs", "WebP"]
+git-tree-sha1 = "696144904b76e1ca433b886b4e7edd067d76cbf7"
+uuid = "82e4d734-157c-48bb-816b-45c225c6df19"
+version = "0.6.9"
+
+[[deps.ImageMetadata]]
+deps = ["AxisArrays", "ImageAxes", "ImageBase", "ImageCore"]
+git-tree-sha1 = "2a81c3897be6fbcde0802a0ebe6796d0562f63ec"
+uuid = "bc367c6b-8a6b-528e-b4bd-a4b897500b49"
+version = "0.9.10"
+
+[[deps.Imath_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "0936ba688c6d201805a83da835b55c61a180db52"
+uuid = "905a6f67-0a94-5f89-b386-d35d92009cd1"
+version = "3.1.11+0"
+
 [[deps.Indexing]]
 git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
 uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
 version = "1.1.1"
+
+[[deps.IndirectArrays]]
+git-tree-sha1 = "012e604e1c7458645cb8b436f8fba789a51b257f"
+uuid = "9b13fd28-a010-5f03-acff-a1bbcff69959"
+version = "1.0.0"
 
 [[deps.Inflate]]
 git-tree-sha1 = "d1b1b796e47d94588b3757fe84fbf65a5ec4a80d"
 uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
 version = "0.1.5"
 
+[[deps.InlineStrings]]
+git-tree-sha1 = "8594fac023c5ce1ef78260f24d1ad18b4327b420"
+uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+version = "1.4.4"
+
+    [deps.InlineStrings.extensions]
+    ArrowTypesExt = "ArrowTypes"
+    ParsersExt = "Parsers"
+
+    [deps.InlineStrings.weakdeps]
+    ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+    Parsers = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+
+[[deps.IntelOpenMP_jll]]
+deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl"]
+git-tree-sha1 = "0f14a5456bdc6b9731a5682f439a672750a09e48"
+uuid = "1d5cc7b8-4909-519e-a0f8-d0f5ad9712d0"
+version = "2025.0.4+0"
+
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
+
+[[deps.Interpolations]]
+deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
+git-tree-sha1 = "88a101217d7cb38a7b481ccd50d21876e1d1b0e0"
+uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+version = "0.15.1"
+weakdeps = ["Unitful"]
+
+    [deps.Interpolations.extensions]
+    InterpolationsUnitfulExt = "Unitful"
+
+[[deps.IntervalArithmetic]]
+deps = ["CRlibm", "MacroTools", "OpenBLASConsistentFPCSR_jll", "Random", "RoundingEmulator"]
+git-tree-sha1 = "694c52705f8b23dc5b39eeac629dc3059a168a40"
+uuid = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
+version = "0.22.35"
+weakdeps = ["DiffRules", "ForwardDiff", "IntervalSets", "LinearAlgebra", "RecipesBase", "SparseArrays"]
+
+    [deps.IntervalArithmetic.extensions]
+    IntervalArithmeticDiffRulesExt = "DiffRules"
+    IntervalArithmeticForwardDiffExt = "ForwardDiff"
+    IntervalArithmeticIntervalSetsExt = "IntervalSets"
+    IntervalArithmeticLinearAlgebraExt = "LinearAlgebra"
+    IntervalArithmeticRecipesBaseExt = "RecipesBase"
+    IntervalArithmeticSparseArraysExt = "SparseArrays"
 
 [[deps.IntervalSets]]
 git-tree-sha1 = "5fbb102dcb8b1a858111ae81d56682376130517d"
@@ -1721,10 +1629,36 @@ weakdeps = ["Random", "RecipesBase", "Statistics"]
     IntervalSetsRecipesBaseExt = "RecipesBase"
     IntervalSetsStatisticsExt = "Statistics"
 
+[[deps.InverseFunctions]]
+git-tree-sha1 = "a779299d77cd080bf77b97535acecd73e1c5e5cb"
+uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
+version = "0.1.17"
+weakdeps = ["Dates", "Test"]
+
+    [deps.InverseFunctions.extensions]
+    InverseFunctionsDatesExt = "Dates"
+    InverseFunctionsTestExt = "Test"
+
+[[deps.InvertedIndices]]
+git-tree-sha1 = "6da3c4316095de0f5ee2ebd875df8721e7e0bdbe"
+uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
+version = "1.3.1"
+
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.4"
+
+[[deps.Isoband]]
+deps = ["isoband_jll"]
+git-tree-sha1 = "f9b6d97355599074dc867318950adaa6f9946137"
+uuid = "f1662d9f-8043-43de-a69a-05efc1cc6ff4"
+version = "0.1.1"
+
+[[deps.IterTools]]
+git-tree-sha1 = "42d5f897009e7ff2cf88db414a389e5ed1bdd023"
+uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+version = "1.10.0"
 
 [[deps.IteratorInterfaceExtensions]]
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
@@ -1759,17 +1693,23 @@ git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.4"
 
+[[deps.JpegTurbo]]
+deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]
+git-tree-sha1 = "9496de8fb52c224a2e3f9ff403947674517317d9"
+uuid = "b835a17e-a41a-41e7-81f0-2f016b05efe0"
+version = "0.1.6"
+
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
 
-[[deps.JuliaInterpreter]]
-deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
-git-tree-sha1 = "6ac9e4acc417a5b534ace12690bc6973c25b862f"
-uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
-version = "0.10.3"
+[[deps.KernelDensity]]
+deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
+git-tree-sha1 = "7d703202e65efa1369de1279c162b915e245eed1"
+uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
+version = "0.6.9"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1802,19 +1742,21 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
+git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.7"
+version = "0.16.8"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
     SparseArraysExt = "SparseArrays"
     SymEngineExt = "SymEngine"
+    TectonicExt = "tectonic_jll"
 
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+    tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 
 [[deps.LayoutPointers]]
 deps = ["ArrayInterface", "LinearAlgebra", "ManualMemory", "SIMDTypes", "Static", "StaticArrayInterface"]
@@ -1840,6 +1782,16 @@ version = "2.6.1"
     BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
     StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
+[[deps.LazyArtifacts]]
+deps = ["Artifacts", "Pkg"]
+uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
+version = "1.11.0"
+
+[[deps.LazyModules]]
+git-tree-sha1 = "a560dd966b386ac9ae60bdd3a3d3a326062d3c3e"
+uuid = "8cdb02fc-e678-4876-92c5-9defec4f444e"
+version = "0.3.1"
+
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
 uuid = "b27032c2-a3e7-50c8-80cd-2d36dbcbfd21"
@@ -1848,16 +1800,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1866,12 +1819,13 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c8da7e6a91781c41a863611c7e966098d783c57a"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+2"
+version = "3.4.7+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -1905,13 +1859,14 @@ version = "2.41.0+0"
 
 [[deps.LineSearches]]
 deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
-git-tree-sha1 = "e4c3be53733db1051cc15ecf573b1042b3a712a1"
+git-tree-sha1 = "4adee99b7262ad2a1a4bbbc59d993d24e55ea96f"
 uuid = "d3d80556-e9d4-5f37-9878-2ab0fcc64255"
-version = "7.3.0"
+version = "7.4.0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1931,6 +1886,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1943,40 +1899,60 @@ deps = ["ArrayInterface", "CPUSummary", "CloseOpenIntervals", "DocStringExtensio
 git-tree-sha1 = "e5afce7eaf5b5ca0d444bcb4dc4fd78c54cbbac0"
 uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
 version = "0.12.172"
+weakdeps = ["ChainRulesCore", "ForwardDiff", "SpecialFunctions"]
 
     [deps.LoopVectorization.extensions]
     ForwardDiffExt = ["ChainRulesCore", "ForwardDiff"]
     SpecialFunctionsExt = "SpecialFunctions"
-
-    [deps.LoopVectorization.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-
-[[deps.LoweredCodeUtils]]
-deps = ["JuliaInterpreter"]
-git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
-uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
-version = "3.3.0"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "1.1.0"
 
+[[deps.MKL_jll]]
+deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "oneTBB_jll"]
+git-tree-sha1 = "5de60bc6cb3899cd318d80d627560fae2e2d99ae"
+uuid = "856f044c-d86e-5d09-b602-aeab76dc8ba7"
+version = "2025.0.1+1"
+
 [[deps.MacroTools]]
 git-tree-sha1 = "1e0228a030642014fe5cfe68c2c0a818f9e3f522"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 version = "0.5.16"
+
+[[deps.Makie]]
+deps = ["Animations", "Base64", "CRC32c", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Dates", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG_jll", "FileIO", "FilePaths", "FixedPointNumbers", "Format", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageBase", "ImageIO", "InteractiveUtils", "Interpolations", "IntervalSets", "InverseFunctions", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "MathTeXEngine", "Observables", "OffsetArrays", "PNGFiles", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Scratch", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun", "Unitful"]
+git-tree-sha1 = "1d7d16f0e02ec063becd7a140f619b2ffe5f2b11"
+uuid = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+version = "0.22.10"
+
+[[deps.MakieCore]]
+deps = ["ColorTypes", "GeometryBasics", "IntervalSets", "Observables"]
+git-tree-sha1 = "c3159eb1e3aa3e409edbb71f4035ed8b1fc16e23"
+uuid = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
+version = "0.9.5"
 
 [[deps.ManualMemory]]
 git-tree-sha1 = "bcaef4fc7a0cfe2cba636d84cda54b5e4e4ca3cd"
 uuid = "d125e4d3-2237-4719-b19c-fa641b8a4667"
 version = "0.1.8"
 
+[[deps.MappedArrays]]
+git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
+uuid = "dbb5928d-eab1-5f90-85c2-b9b0edb7c900"
+version = "0.4.2"
+
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
+
+[[deps.MathTeXEngine]]
+deps = ["AbstractTrees", "Automa", "DataStructures", "FreeTypeAbstraction", "GeometryBasics", "LaTeXStrings", "REPL", "RelocatableFolders", "UnicodeFun"]
+git-tree-sha1 = "6e64d2321257cc52f47e193407d0659ea1b2b431"
+uuid = "0a4f8689-d25c-4efe-a92b-7142dfc1aa53"
+version = "0.6.5"
 
 [[deps.MatrixCorrectionTools]]
 deps = ["LinearAlgebra"]
@@ -1993,7 +1969,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -2014,16 +1990,23 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
+
+[[deps.MosaicViews]]
+deps = ["MappedArrays", "OffsetArrays", "PaddedViews", "StackViews"]
+git-tree-sha1 = "7b86a5d4d70a9f5cdf2dacb3cbe6d251d1a61dbe"
+uuid = "e94cdb99-869f-56ef-bcf0-1ae2bcbe0389"
+version = "0.3.4"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NLSolversBase]]
 deps = ["ADTypes", "DifferentiationInterface", "Distributed", "FiniteDiff", "ForwardDiff"]
-git-tree-sha1 = "b14c7be6046e7d48e9063a0053f95ee0fc954176"
+git-tree-sha1 = "25a6638571a902ecfb1ae2a18fc1575f86b1d4df"
 uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.9.1"
+version = "7.10.0"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -2036,9 +2019,20 @@ git-tree-sha1 = "90914795fc59df44120fe3fff6742bb0d7adb1d0"
 uuid = "d9ec5142-1e00-5aa0-9d6a-321866360f50"
 version = "0.14.3"
 
+[[deps.Netpbm]]
+deps = ["FileIO", "ImageCore", "ImageMetadata"]
+git-tree-sha1 = "d92b107dbb887293622df7697a2223f9f8176fcd"
+uuid = "f09324ee-3d7c-5217-9330-fc30815ba969"
+version = "1.1.1"
+
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
+
+[[deps.Observables]]
+git-tree-sha1 = "7438a59546cf62428fc9d1bc94729146d37a7225"
+uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
+version = "0.5.5"
 
 [[deps.OffsetArrays]]
 git-tree-sha1 = "117432e406b5c023f665fa73dc26e79ec3630151"
@@ -2055,21 +2049,39 @@ git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+1"
 
+[[deps.OpenBLASConsistentFPCSR_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "567515ca155d0020a45b05175449b499c63e7015"
+uuid = "6cdc7f73-28fd-5e50-80fb-958a8875b1af"
+version = "0.3.29+0"
+
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
+
+[[deps.OpenEXR]]
+deps = ["Colors", "FileIO", "OpenEXR_jll"]
+git-tree-sha1 = "97db9e07fe2091882c765380ef58ec553074e9c7"
+uuid = "52e1d378-f018-4a11-a4be-720524705ac7"
+version = "0.3.3"
+
+[[deps.OpenEXR_jll]]
+deps = ["Artifacts", "Imath_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
+git-tree-sha1 = "8292dd5c8a38257111ada2174000a33745b06d4e"
+uuid = "18a262bb-aa17-5467-a713-aee519bc75cb"
+version = "3.2.4+0"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
+git-tree-sha1 = "f1a7e086c677df53e064e0fdd2c9d0b0833e3f6e"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2085,9 +2097,9 @@ version = "0.5.6+0"
 
 [[deps.Optim]]
 deps = ["Compat", "EnumX", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "31b3b1b8e83ef9f1d50d74f1dd5f19a37a304a1f"
+git-tree-sha1 = "61942645c38dd2b5b78e2082c9b51ab315315d10"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.12.0"
+version = "1.13.2"
 
     [deps.Optim.extensions]
     OptimMOIExt = "MathOptInterface"
@@ -2102,9 +2114,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.3+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
+git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2113,15 +2125,33 @@ version = "10.42.0+1"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "0e1340b5d98971513bddaa6bbed470670cebbbfe"
+git-tree-sha1 = "f07c06228a1c670ae4c87d1276b92c7c597fdda0"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.34"
+version = "0.11.35"
+
+[[deps.PNGFiles]]
+deps = ["Base64", "CEnum", "ImageCore", "IndirectArrays", "OffsetArrays", "libpng_jll"]
+git-tree-sha1 = "cf181f0b1e6a18dfeb0ee8acc4a9d1672499626c"
+uuid = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
+version = "0.4.4"
+
+[[deps.Packing]]
+deps = ["GeometryBasics"]
+git-tree-sha1 = "bc5bf2ea3d5351edf285a06b0016788a121ce92c"
+uuid = "19eb6ba3-879d-56ad-ad62-d5c202156566"
+version = "0.5.1"
+
+[[deps.PaddedViews]]
+deps = ["OffsetArrays"]
+git-tree-sha1 = "0fac6313486baae819364c52b4f483450a9d793f"
+uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
+version = "0.5.12"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
+git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.1+0"
+version = "1.56.3+0"
 
 [[deps.Parameters]]
 deps = ["OrderedCollections", "UnPack"]
@@ -2142,9 +2172,19 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
+
+[[deps.PkgVersion]]
+deps = ["Pkg"]
+git-tree-sha1 = "f9501cc0430a26bc3d156ae1b5b0c1b47af4d6da"
+uuid = "eebad327-c553-4316-9ea0-9fa01ccd7688"
+version = "0.3.3"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2178,29 +2218,17 @@ version = "1.40.13"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PlutoHooks]]
-deps = ["InteractiveUtils", "Markdown", "UUIDs"]
-git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
-version = "0.0.5"
-
-[[deps.PlutoLinks]]
-deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
-git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
-version = "0.1.6"
-
 [[deps.PlutoTeachingTools]]
-deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
-git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "537c439831c0f8d37265efe850ee5c0d9c7efbe4"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.3.1"
+version = "0.4.1"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+git-tree-sha1 = "3876f0ab0390136ae0b5e3f064a109b87fa1e56e"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.62"
+version = "0.7.63"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
@@ -2213,6 +2241,17 @@ deps = ["BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "Static", "T
 git-tree-sha1 = "645bed98cd47f72f67316fd42fc47dee771aefcd"
 uuid = "1d0040c9-8b98-4ee7-8388-3f51789ca0ad"
 version = "0.2.2"
+
+[[deps.PolygonOps]]
+git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
+uuid = "647866c9-e3ac-4575-94e7-e3d426903924"
+version = "0.1.2"
+
+[[deps.PooledArrays]]
+deps = ["DataAPI", "Future"]
+git-tree-sha1 = "36d8b4b899628fb92c2749eb488d884a926614d3"
+uuid = "2dfb63ee-cc39-5dd5-95bd-886bf059d720"
+version = "1.4.3"
 
 [[deps.PositiveFactorizations]]
 deps = ["LinearAlgebra"]
@@ -2241,6 +2280,7 @@ version = "2.4.0"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.ProgressMeter]]
 deps = ["Distributed", "Printf"]
@@ -2253,29 +2293,35 @@ git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
 uuid = "43287f4e-b6f4-7ad1-bb20-aadabca52c3d"
 version = "1.3.0"
 
+[[deps.QOI]]
+deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
+git-tree-sha1 = "8b3fc30bc0390abdce15f8822c889f669baed73d"
+uuid = "4b34888f-f399-49d4-9bb3-47ed5cae4e65"
+version = "1.0.1"
+
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "492601870742dcd38f233b23c3ec629628c1d724"
+git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
-git-tree-sha1 = "e5dd466bf2569fe08c91a2cc29c1003f4797ac3b"
+git-tree-sha1 = "da7adf145cce0d44e892626e647f9dcbe9cb3e10"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.7.1+2"
+version = "6.8.2+1"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
-git-tree-sha1 = "1a180aeced866700d4bebc3120ea1451201f16bc"
+git-tree-sha1 = "9eca9fc3fe515d619ce004c83c31ffd3f85c7ccf"
 uuid = "ce943373-25bb-56aa-8eca-768745ed7b5a"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
+git-tree-sha1 = "2766344a35a1a5ec1147305c4b343055d7c22c90"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.7.1+1"
+version = "6.8.2+0"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -2290,18 +2336,35 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
+
+[[deps.RangeArrays]]
+git-tree-sha1 = "b9039e93773ddcfc828f12aadf7115b4b4d225f5"
+uuid = "b3c3ace0-ae52-54e7-9d0b-2c1406fd6b9d"
+version = "0.3.2"
+
+[[deps.Ratios]]
+deps = ["Requires"]
+git-tree-sha1 = "1342a47bf3260ee108163042310d26f2be5ec90b"
+uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
+version = "0.4.5"
+weakdeps = ["FixedPointNumbers"]
+
+    [deps.Ratios.extensions]
+    RatiosFixedPointNumbersExt = "FixedPointNumbers"
 
 [[deps.ReactiveMP]]
-deps = ["BayesBase", "DataStructures", "DiffResults", "Distributions", "DomainIntegrals", "DomainSets", "ExponentialFamily", "FastCholesky", "FastGaussQuadrature", "FixedArguments", "ForwardDiff", "HCubature", "LazyArrays", "LinearAlgebra", "LoopVectorization", "MacroTools", "MatrixCorrectionTools", "Optim", "PolyaGammaHybridSamplers", "PositiveFactorizations", "Random", "Rocket", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers", "Tullio", "TupleTools", "Unrolled"]
-git-tree-sha1 = "47602c5b74a9bbc610877d015eb7a5167d3cc316"
+deps = ["BayesBase", "DataStructures", "DiffResults", "Distributions", "DomainIntegrals", "DomainSets", "ExponentialFamily", "FastCholesky", "FastGaussQuadrature", "FixedArguments", "ForwardDiff", "HCubature", "LazyArrays", "LinearAlgebra", "LoopVectorization", "MacroTools", "MatrixCorrectionTools", "Optim", "PolyaGammaHybridSamplers", "PositiveFactorizations", "Random", "Rocket", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers", "TupleTools", "Unrolled"]
+git-tree-sha1 = "6f012dcd5a691c7d9bcd78708f15efb8b1c3fd3a"
 uuid = "a194aa59-28ba-4574-a09c-4a745416d6e3"
-version = "5.4.3"
+version = "4.6.2"
 
     [deps.ReactiveMP.extensions]
     ReactiveMPOptimisersExt = "Optimisers"
@@ -2342,16 +2405,6 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
-[[deps.Revise]]
-deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
-git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
-uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "3.7.6"
-weakdeps = ["Distributed"]
-
-    [deps.Revise.extensions]
-    DistributedExt = "Distributed"
-
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
@@ -2370,11 +2423,16 @@ git-tree-sha1 = "af6e944256dc654a534082f08729afc1189933e4"
 uuid = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 version = "1.8.2"
 
+[[deps.RoundingEmulator]]
+git-tree-sha1 = "40b9edad2e5287e05bd413a38f61a8ff55b9557b"
+uuid = "5eaf0fd0-dfba-4ccb-bf02-d820a40db705"
+version = "0.2.1"
+
 [[deps.RxInfer]]
-deps = ["BayesBase", "DataStructures", "Dates", "Distributions", "DomainSets", "ExponentialFamily", "FastCholesky", "GraphPPL", "HTTP", "JSON", "LinearAlgebra", "Logging", "MacroTools", "Optim", "Preferences", "PrettyTables", "ProgressMeter", "Random", "ReactiveMP", "Reexport", "Rocket", "Static", "Statistics", "TupleTools", "UUIDs"]
-git-tree-sha1 = "60e631d6c65de5194907387858195c7806635f8f"
+deps = ["BayesBase", "DataStructures", "Distributions", "DomainSets", "ExponentialFamily", "FastCholesky", "GraphPPL", "LinearAlgebra", "MacroTools", "Optim", "ProgressMeter", "Random", "ReactiveMP", "Reexport", "Rocket", "Static", "TupleTools"]
+git-tree-sha1 = "69bb8ce236f4cfd678592ed4fcfe8f793df4255a"
 uuid = "86711068-29c9-4ff7-b620-ae75d7495b3d"
-version = "4.4.2"
+version = "3.10.1"
 
     [deps.RxInfer.extensions]
     ProjectionExt = "ExponentialFamilyProjection"
@@ -2385,6 +2443,12 @@ version = "4.4.2"
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
+
+[[deps.SIMD]]
+deps = ["PrecompileTools"]
+git-tree-sha1 = "fea870727142270bdf7624ad675901a1ee3b4c87"
+uuid = "fdea26ae-647d-5447-a871-4b548cad5224"
+version = "3.7.1"
 
 [[deps.SIMDTypes]]
 git-tree-sha1 = "330289636fb8107c5f32088d2741e9fd7a061a5c"
@@ -2403,8 +2467,15 @@ git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.2.1"
 
+[[deps.SentinelArrays]]
+deps = ["Dates", "Random"]
+git-tree-sha1 = "712fb0231ee6f9120e005ccd56297abbc053e7e0"
+uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
+version = "1.4.8"
+
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Setfield]]
 deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
@@ -2412,15 +2483,28 @@ git-tree-sha1 = "c5391c6ace3bc430ca630251d02ea9687169ca68"
 uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 version = "1.1.2"
 
+[[deps.ShaderAbstractions]]
+deps = ["ColorTypes", "FixedPointNumbers", "GeometryBasics", "LinearAlgebra", "Observables", "StaticArrays"]
+git-tree-sha1 = "818554664a2e01fc3784becb2eb3a82326a604b6"
+uuid = "65257c39-d410-5151-9873-9b3e5be5013e"
+version = "0.5.0"
+
 [[deps.SharedArrays]]
 deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "1.0.3"
+
+[[deps.SignedDistanceFields]]
+deps = ["Random", "Statistics", "Test"]
+git-tree-sha1 = "d263a08ec505853a5ff1c1ebde2070419e3f28e9"
+uuid = "73760f76-fbc4-59ce-8f25-708e95d2df96"
+version = "0.4.0"
 
 [[deps.SimpleBufferStream]]
 git-tree-sha1 = "f305871d2f381d21527c770d4788c06c097c9bc1"
@@ -2433,8 +2517,15 @@ git-tree-sha1 = "5d7e3f4e11935503d3ecaf7186eac40602e7d231"
 uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
 version = "0.9.4"
 
+[[deps.Sixel]]
+deps = ["Dates", "FileIO", "ImageCore", "IndirectArrays", "OffsetArrays", "REPL", "libsixel_jll"]
+git-tree-sha1 = "2da10356e31327c7096832eb9cd86307a50b1eb6"
+uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
+version = "0.1.3"
+
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2445,25 +2536,29 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
 git-tree-sha1 = "41852b8679f78c8d8961eeadc8f62cef861a52e3"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "2.5.1"
+weakdeps = ["ChainRulesCore"]
 
     [deps.SpecialFunctions.extensions]
     SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
-
-    [deps.SpecialFunctions.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 
 [[deps.StableRNGs]]
 deps = ["Random"]
 git-tree-sha1 = "95af145932c2ed859b63329952ce8d633719f091"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
+
+[[deps.StackViews]]
+deps = ["OffsetArrays"]
+git-tree-sha1 = "be1cf4eb0ac528d96f5115b4ed80c26a8d8ae621"
+uuid = "cae243ae-269e-4f55-b966-ac2d0dc13c15"
+version = "0.1.2"
 
 [[deps.Static]]
 deps = ["CommonWorldInvalidations", "IfElse", "PrecompileTools"]
@@ -2487,14 +2582,11 @@ deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
 git-tree-sha1 = "0feb6b9031bd5c51f9072393eb5ab3efd31bf9e4"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
 version = "1.9.13"
+weakdeps = ["ChainRulesCore", "Statistics"]
 
     [deps.StaticArrays.extensions]
     StaticArraysChainRulesCoreExt = "ChainRulesCore"
     StaticArraysStatisticsExt = "Statistics"
-
-    [deps.StaticArrays.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
@@ -2502,15 +2594,20 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "1ff449ad350c9c4cbc756624d6f8a8c3ef56d3ed"
+git-tree-sha1 = "9d72a13a3f4dd3795a195ac5a44d7d6ff5f552ff"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -2523,20 +2620,42 @@ deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Re
 git-tree-sha1 = "8e45cecc66f3b42633b8ce14d431e8e57a3e242e"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 version = "1.5.0"
+weakdeps = ["ChainRulesCore", "InverseFunctions"]
 
     [deps.StatsFuns.extensions]
     StatsFunsChainRulesCoreExt = "ChainRulesCore"
     StatsFunsInverseFunctionsExt = "InverseFunctions"
-
-    [deps.StatsFuns.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
 [[deps.StringManipulation]]
 deps = ["PrecompileTools"]
 git-tree-sha1 = "725421ae8e530ec29bcbdddbe91ff8053421d023"
 uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
 version = "0.4.1"
+
+[[deps.StructArrays]]
+deps = ["ConstructionBase", "DataAPI", "Tables"]
+git-tree-sha1 = "8ad2e38cbb812e29348719cc63580ec1dfeb9de4"
+uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
+version = "0.7.1"
+
+    [deps.StructArrays.extensions]
+    StructArraysAdaptExt = "Adapt"
+    StructArraysGPUArraysCoreExt = ["GPUArraysCore", "KernelAbstractions"]
+    StructArraysLinearAlgebraExt = "LinearAlgebra"
+    StructArraysSparseArraysExt = "SparseArrays"
+    StructArraysStaticArraysExt = "StaticArrays"
+
+    [deps.StructArrays.weakdeps]
+    Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
+    KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
 
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
@@ -2545,7 +2664,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2560,9 +2679,9 @@ version = "1.0.1"
 
 [[deps.Tables]]
 deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
+git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.12.0"
+version = "1.12.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -2578,12 +2697,19 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.ThreadingUtilities]]
 deps = ["ManualMemory"]
-git-tree-sha1 = "18ad3613e129312fe67789a71720c3747e598a61"
+git-tree-sha1 = "d969183d3d244b6c33796b5ed01ab97328f2db85"
 uuid = "8290d209-cae3-49c0-8002-c8c24d57dab5"
-version = "0.5.3"
+version = "0.5.5"
+
+[[deps.TiffImages]]
+deps = ["ColorTypes", "DataStructures", "DocStringExtensions", "FileIO", "FixedPointNumbers", "IndirectArrays", "Inflate", "Mmap", "OffsetArrays", "PkgVersion", "PrecompileTools", "ProgressMeter", "SIMD", "UUIDs"]
+git-tree-sha1 = "02aca429c9885d1109e58f400c333521c13d48a0"
+uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
+version = "0.11.4"
 
 [[deps.TinyHugeNumbers]]
 git-tree-sha1 = "c8760444248aef64bc728b340ebc50df13148c93"
@@ -2600,23 +2726,10 @@ git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 version = "0.1.10"
 
-[[deps.Tullio]]
-deps = ["DiffRules", "LinearAlgebra", "Requires"]
-git-tree-sha1 = "972698b132b9df8791ae74aa547268e977b55f68"
-uuid = "bc48ee85-29a4-5162-ae0b-a64e1601d4bc"
-version = "0.3.8"
-
-    [deps.Tullio.extensions]
-    TullioCUDAExt = "CUDA"
-    TullioChainRulesCoreExt = "ChainRulesCore"
-    TullioFillArraysExt = "FillArrays"
-    TullioTrackerExt = "Tracker"
-
-    [deps.Tullio.weakdeps]
-    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
+[[deps.TriplotBase]]
+git-tree-sha1 = "4d4ed7f294cda19382ff7de4c137d24d16adc89b"
+uuid = "981d1d27-644d-49a2-9326-4793e63143c3"
+version = "0.1.0"
 
 [[deps.TupleTools]]
 git-tree-sha1 = "41e43b9dc950775eac654b9f845c839cd2f1821e"
@@ -2631,6 +2744,7 @@ version = "1.5.2"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.UnPack]]
 git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
@@ -2639,6 +2753,7 @@ version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2648,23 +2763,22 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "c0667a8e676c53d390a09dc6870b3d8d6650e2bf"
+git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.22.0"
+version = "1.23.1"
+weakdeps = ["ConstructionBase", "ForwardDiff", "InverseFunctions", "Printf"]
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
+    ForwardDiffExt = "ForwardDiff"
     InverseFunctionsUnitfulExt = "InverseFunctions"
-
-    [deps.Unitful.weakdeps]
-    ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-    InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    PrintfExt = "Printf"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
-git-tree-sha1 = "975c354fcd5f7e1ddcc1f1a23e6e091d99e99bc8"
+git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
-version = "1.6.4"
+version = "1.7.0"
 
 [[deps.Unrolled]]
 deps = ["MacroTools"]
@@ -2690,16 +2804,39 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "85c7811eddec9e7f22615371c3cc81a504c508ee"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "XML2_jll"]
+git-tree-sha1 = "49be0be57db8f863a902d59c0083d73281ecae8e"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.21.0+2"
+version = "1.23.1+0"
 
 [[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "54b8a029ac145ebe8299463447fd1590b2b1d92f"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.36.0+0"
+version = "1.44.0+0"
+
+[[deps.WeakRefStrings]]
+deps = ["DataAPI", "InlineStrings", "Parsers"]
+git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
+uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
+version = "1.4.2"
+
+[[deps.WebP]]
+deps = ["CEnum", "ColorTypes", "FileIO", "FixedPointNumbers", "ImageCore", "libwebp_jll"]
+git-tree-sha1 = "aa1ca3c47f119fbdae8770c29820e5e6119b83f2"
+uuid = "e3aaa7dc-3e4b-44e0-be63-ffb868ccd7c1"
+version = "0.1.3"
+
+[[deps.WoodburyMatrices]]
+deps = ["LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "c1a7aa6219628fcd757dede0ca95e245c5cd9511"
+uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
+version = "1.0.0"
+
+[[deps.WorkerUtilities]]
+git-tree-sha1 = "cd1659ba0d57b71a464a29e64dbc67cfe83d54e7"
+uuid = "76eceee3-57b5-4d4a-8e66-0e911cebbf60"
+version = "1.6.1"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
@@ -2804,34 +2941,34 @@ uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
 version = "0.1.4+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "0fab0a40349ba1cba2c1da699243396ff8e94b97"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f4fc02e384b74418679983a97385644b67e1263b"
 uuid = "12413925-8142-5f55-bb0e-6d7ca50bb09b"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxcb_jll"]
-git-tree-sha1 = "e7fd7b2881fa2eaa72717420894d3938177862d1"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll"]
+git-tree-sha1 = "68da27247e7d8d8dafd1fcf0c3654ad6506f5f97"
 uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_keysyms_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "d1151e2c45a544f32441a567d1690e701ec89b00"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "44ec54b0e2acd408b0fb361e1e9244c60c9c3dd4"
 uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_renderutil_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "dfd7a8f38d4613b6a575253b3174dd991ca6183e"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "5b0263b6d080716a02544c55fdff2c8d7f9a16a0"
 uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
-version = "0.3.9+1"
+version = "0.3.10+0"
 
 [[deps.Xorg_xcb_util_wm_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f233c83cad1fa0e70b7771e0e21b061a116f2763"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
-version = "0.4.1+1"
+version = "0.4.2+0"
 
 [[deps.Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
@@ -2863,10 +3000,10 @@ uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
 [[deps.eudev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
-git-tree-sha1 = "431b678a28ebb559d224c0b6b6d01afce87c51ba"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
 uuid = "35ca27e7-8b34-5b7f-bca9-bdc33f59eb06"
-version = "3.2.9+0"
+version = "3.2.14+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2874,11 +3011,11 @@ git-tree-sha1 = "b6a34e0e0960190ac2a4363a1bd003504772d631"
 uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
 
-[[deps.gperf_jll]]
+[[deps.isoband_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "0ba42241cb6809f1a278d0bcb976e0483c3f1f2d"
-uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.1.1+1"
+git-tree-sha1 = "51b5eeb3f98367157a7a12a1fb0aa5328946c03c"
+uuid = "9a68df92-36a6-505f-a73e-abb412b6bfb4"
+version = "0.2.3+0"
 
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2904,10 +3041,10 @@ uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
 version = "0.2.2+0"
 
 [[deps.libevdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "141fe65dc3efabb0b1d5ba74e91f6ad26f84cc22"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "56d643b57b188d30cccc25e331d416d3d358e557"
 uuid = "2db6ffa8-e38f-5e21-84af-90c45d0032cc"
-version = "1.11.0+0"
+version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2916,16 +3053,22 @@ uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
 version = "2.0.3+0"
 
 [[deps.libinput_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "eudev_jll", "libevdev_jll", "mtdev_jll"]
-git-tree-sha1 = "ad50e5b90f222cfe78aa3d5183a20a12de1322ce"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
+git-tree-sha1 = "91d05d7f4a9f67205bd6cf395e488009fe85b499"
 uuid = "36db933b-70db-51c0-b978-0f229ee0e533"
-version = "1.18.0+0"
+version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "068dfe202b0a05b8332f1e8e6b4080684b9c7700"
+git-tree-sha1 = "cd155272a3738da6db765745b89e466fa64d0830"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.47+0"
+version = "1.6.49+0"
+
+[[deps.libsixel_jll]]
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "libpng_jll"]
+git-tree-sha1 = "c1733e347283df07689d71d61e14be986e49e47a"
+uuid = "075b6546-f08a-558a-be8f-8157d0f608a5"
+version = "1.10.5+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
@@ -2933,16 +3076,28 @@ git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
 version = "1.3.7+2"
 
+[[deps.libwebp_jll]]
+deps = ["Artifacts", "Giflib_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libglvnd_jll", "Libtiff_jll", "libpng_jll"]
+git-tree-sha1 = "d2408cac540942921e7bd77272c32e58c33d8a77"
+uuid = "c5f90fcd-3b7e-5836-afba-fc50a0988cb2"
+version = "1.5.0+0"
+
 [[deps.mtdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "814e154bdb7be91d78b6802843f76b6ece642f11"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
 uuid = "009596ad-96f7-51b1-9f1b-5ce2d5e8a71e"
-version = "1.1.6+0"
+version = "1.1.7+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
+
+[[deps.oneTBB_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "d5a767a3bb77135a99e433afe0eb14cd7f6914c3"
+uuid = "1317d2d5-d96f-522e-a858-c73665f53c3e"
+version = "2022.0.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2969,55 +3124,80 @@ version = "1.8.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─278382c0-d294-11ef-022f-0d78e9e2d04c
-# ╟─9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
-# ╟─27839788-d294-11ef-30a2-8ff6357aa68b
-# ╟─2783a99e-d294-11ef-3163-bb455746bf52
-# ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
-# ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
-# ╟─2783c686-d294-11ef-3942-c75d2b559fb3
-# ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
-# ╟─7128f91d-f3f3-41fe-a491-ede27921a822
-# ╟─2783dc14-d294-11ef-2df0-1b7474f85e29
-# ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-# ╟─2784529a-d294-11ef-3b0e-c5a60644fa53
-# ╟─27846c9e-d294-11ef-0a86-2527c96da2c3
-# ╟─278491ec-d294-11ef-305a-41b583d12d5a
-# ╟─2784b474-d294-11ef-1305-ef0f0771d28f
-# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
-# ╟─2784cf9a-d294-11ef-2284-a507f840ea99
-# ╟─2784e0fc-d294-11ef-360c-f14e94324770
-# ╟─2784e908-d294-11ef-1c3d-ff9c59696590
-# ╟─2784f45e-d294-11ef-0439-1903016c1f14
-# ╠═2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
-# ╠═f43d3264-f88e-42bf-8147-92b4225807f4
-# ╠═d3ac9383-fef5-48e9-86b5-8c7f308ae43b
-# ╠═cc30633a-78ad-4892-ba4a-a9e8071df050
-# ╠═a726946b-817a-49d1-80cd-cace2915a6b1
-# ╠═b9c4d863-0723-4488-9146-b458f1cfdb06
-# ╠═eea0b08b-0039-4960-ab2f-c319cd2dfd82
-# ╠═dfef4a95-89dd-4f58-9ab9-55aa2d78a794
-# ╠═2785277e-d294-11ef-275b-995f8187ea63
-# ╠═27853c5a-d294-11ef-012d-018b742488e0
-# ╟─27854ba0-d294-11ef-005b-fd5df84ce6c6
-# ╠═937a96bc-b2d8-4b11-8907-ea2c3a9b134f
-# ╠═f6fe4d57-f1a5-46bd-a8b5-b2648899f03a
-# ╠═3417a5dc-7d39-4a69-b207-02379731445a
-# ╠═278573d4-d294-11ef-36a2-19eba9a07c1b
-# ╠═27858c46-d294-11ef-28aa-7744a577e6e5
-# ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
-# ╟─2785b056-d294-11ef-1415-49b1508736ba
-# ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
-# ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
-# ╟─27861ca6-d294-11ef-3a75-ff797da3cf44
-# ╟─27862b56-d294-11ef-1f0b-c72293441005
-# ╟─27863dee-d294-11ef-3709-955340e17547
-# ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
-# ╠═97a0384a-0596-4714-a3fc-bf422aed4474
-# ╠═0652eab9-f472-4dc5-89ed-66787c6bd49e
-# ╟─cad4c77c-a187-4071-881d-ad76f1bb50fd
-# ╟─7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
-# ╟─0c12e2dc-15a0-45ca-bade-30ed49bf1cad
-# ╟─74181be4-02d3-4049-882c-04d64152dad8
+# ╟─779f3ea6-36dd-11f0-0323-613cd06c6f3c
+# ╟─10bdf484-848d-44a1-af9b-64c0c11395f7
+# ╟─bac564cd-47db-4010-a397-c6ac2ced9319
+# ╟─de99bbcb-ce5b-44f1-85ef-ad26a9238509
+# ╟─f05721c1-e085-4c7d-92c8-292aa17c8040
+# ╠═35d8e213-09ef-4419-a5b8-ac9a1b4e3c1f
+# ╟─5cf8f6fe-31cc-4226-89dd-6e8fe6527442
+# ╠═5411235f-e823-4db4-b4c4-1532d4bc8927
+# ╟─307acd4b-72a7-4aa5-add8-8269708adaa9
+# ╠═a5f57521-2008-4dfa-a055-f7f4248daf98
+# ╠═5bb30240-e6d6-4df5-ac59-383eed58fff4
+# ╟─3b35113b-8c81-4409-92a1-1b2223659e94
+# ╟─5ecd1dc3-5b71-4f62-a75d-aa1439966235
+# ╟─16a2c037-8b56-428d-9c0b-0b5f40e52edf
+# ╠═f6baaa1c-d946-418f-9249-f4f23e760946
+# ╟─9e0be153-e04a-4876-a88e-748394ffa72d
+# ╠═e1024dac-912b-4b13-854e-a7d9a769ceb8
+# ╟─28c39e23-b07d-45ee-8e4a-e410f0e62b8d
+# ╠═60269224-ba34-40e0-aa35-04b49819fd49
+# ╟─f7d8239b-19d8-4d0c-a9ae-2ea63fe6e70e
+# ╟─147c1456-1b60-4ac0-af7c-5418f19448cb
+# ╠═0a0c546f-1f1a-4410-ad41-17071b659b50
+# ╟─c0736593-d3c7-4fb5-9772-66d2abe91d72
+# ╠═8a663a1c-5707-4aba-acea-83c309a1b55c
+# ╟─89ecaba1-0ce7-426d-9334-69f93df0a94f
+# ╠═e6e6a0cb-d0d8-41a1-9088-20550803ca3d
+# ╟─93fce8a3-82c2-42d1-8a99-5f27fcf2e960
+# ╠═1dfeae91-04a0-4d17-be0e-96718986a227
+# ╠═fd3a89bc-698a-4dd1-9153-2b7212901023
+# ╟─d09f77b9-d0b8-4a83-9e17-cb9958d4b374
+# ╠═0eaa6865-ef25-43f6-880e-1ef54de31f3c
+# ╟─fd6317e2-b787-433d-aa16-0cc6e8b99551
+# ╟─c6d8d802-ee4b-4eac-84cb-a1769d2ab175
+# ╟─0735f44e-2b14-41f8-a7fd-ab18b20a6d87
+# ╟─a02942f7-971d-4c1e-a39a-ce79c3a518c9
+# ╠═80b690a5-1c6c-4e1c-8803-a0e60c64e9a4
+# ╟─2f3e4f87-854d-4db8-a437-629d2df5af02
+# ╠═2981f82c-dd4e-4f9d-a242-1fb1207ff86a
+# ╟─007e1e0c-9978-4ff2-9660-fba766bcd918
+# ╠═47b944bf-35ca-49bc-8782-9595ddceae5a
+# ╟─79f68e86-9a36-403f-93b5-39f2dbd9d835
+# ╠═6f36f99d-08aa-4d71-99fa-ec736d46249a
+# ╟─aa1528c5-1c46-4c45-a8e8-8a899e8124c8
+# ╟─4a0d19ef-1756-4d14-a787-0b31763577f5
+# ╟─0a536620-fc4a-41c6-8f34-7015b400c910
+# ╠═4973ed66-7e7f-402b-b636-0a7f8771e743
+# ╟─ff49a7f8-7f83-4fe0-a470-0f2c265fc619
+# ╠═ad1caf8c-4170-4cb4-bd5a-b1d6d9493887
+# ╟─31b1d5ee-32d7-4e7c-90dc-02e6f8bda6f3
+# ╟─995f16fd-db2f-4ba7-b976-1187165352ad
+# ╟─ebae7e2f-929d-47db-9c06-2a5cf4c3c971
+# ╟─b0325117-2895-45fb-9d0b-b43fdac4e6e5
+# ╟─01967611-a33f-441a-844b-c28fbf2c9b4a
+# ╟─f163e386-95f1-4f63-9b88-0cb1e38fec78
+# ╟─e8bcb137-25f8-47fb-a2b3-b34ac9583e5e
+# ╟─4df18a8f-7483-45db-9988-8579dc4b9103
+# ╟─886f8df5-e2cc-417b-bfbc-068a37f2de04
+# ╟─8442878d-068c-4cee-b51a-782190703f58
+# ╟─41e0eb82-bf76-49e0-8742-fcb30e675905
+# ╠═2f0932a8-7f5e-41f8-aea6-882a147aadf3
+# ╟─28d63bb9-af87-4b97-a650-d58d95c4b74c
+# ╟─ac1321cb-764a-48d3-8ac4-9cedfe34d370
+# ╠═12d5f6d1-f214-448e-9c2e-da691b997d60
+# ╟─09c40ed2-a06d-4565-8ba9-2e7a855327d8
+# ╠═abe4105c-c42b-4d97-bc15-ef9741c23fcf
+# ╟─d2ca1a6d-4f96-4e90-9868-9db407ffd1b5
+# ╠═9c1da54d-edad-499a-91ae-88483b5d5a72
+# ╟─63000198-bdda-4c18-bf0c-dd6a9018405d
+# ╠═75abee86-a43c-4a53-8edb-cf943f4e570c
+# ╠═5d308e05-cf04-4289-ab75-7677a71839d4
+# ╠═ac33150f-57b1-4cfb-8176-80750c981019
+# ╟─43799ac6-6a21-4852-8077-5e8b7e5489fa
+# ╠═9b7c71cb-ea6f-4472-b783-21c22b9a23b7
+# ╠═50d10285-67c9-487e-8c19-a10d8d663fc5
+# ╟─be5ebcb7-1981-4771-9c42-967fc576ce5e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
