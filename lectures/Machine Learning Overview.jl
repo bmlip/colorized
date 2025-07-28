@@ -228,7 +228,7 @@ IDEE: hier ook live
 TODO("ook references van toekomstige lectures")
 
 # ╔═╡ 1684dc8b-1bfd-4a83-9ece-460c64e9bee7
-NotebookCard("https://bmlip.github.io/colorized/lectures/Discriminative%20Classification.html")
+NotebookCard("https://bmlip.github.io/course/lectures/Discriminative%20Classification.html")
 
 # ╔═╡ 3ced567c-d294-11ef-2657-df20e23a00fa
 md"""
@@ -257,7 +257,7 @@ Given the state of the world (obtained from sensory data), the agent must *learn
 
 In contrast to supervised and unsupervised learning, an agent is able to affect its data set by making actions, e.g., a robot can change its input video data stream by turning the head of its camera. 
 
-In this course, we focus on the active inference approach to trial design, see the [Intelligent Agent lesson](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html) for details. 
+In this course, we focus on the active inference approach to trial design, see the [Intelligent Agent lesson](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html) for details. 
 
 """
 

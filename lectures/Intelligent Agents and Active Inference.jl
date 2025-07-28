@@ -246,7 +246,7 @@ The state updating task can be formulated as minimization of the above FE (see a
 q(s_t|x_{1:t}) = \arg\min_q F[q]
 ```
 
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://bmlip.github.io/colorized/lectures/Dynamic%20Models.html#kalman-filter). 
+In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://bmlip.github.io/course/lectures/Dynamic%20Models.html#kalman-filter). 
 
 In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
 

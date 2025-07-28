@@ -33,7 +33,7 @@ include(joinpath(@__DIR__, "DramaBrokenLink.jl"))
 sources_old = [
     PSSCache(pluto_state_cache)
     WebsiteDir(gh_pages_dir)
-    WebsiteAddress("https://bmlip.github.io/colorized/")
+    WebsiteAddress("https://bmlip.github.io/course/")
     SafePreview()
 ]
 
