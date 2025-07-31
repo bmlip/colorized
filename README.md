@@ -1,13 +1,8 @@
 # BMLIP *2025-2026 edition*
 
 
-
-
-
-<h2 style="color:red;">
-Note: This site is currently under construction. This is the class for roughly 15 Nov 2025 - 22 Jan 2026 (2nd quarter).
-</h2>
-
+> [!WARNING]
+> This site is currently under construction. This is the class for roughly 15 Nov 2025 - 22 Jan 2026 (2nd quarter).
 
 <img src="https://github.com/bmlip/course/blob/main/assets/figures/5SSD0-banner.png?raw=true">
 
