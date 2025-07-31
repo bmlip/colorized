@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
 #> description = "Introduction to latent variable models and variational inference via free energy minimization."
 #> 
 #>     [[frontmatter.author]]
@@ -57,13 +57,13 @@ md"""
       * Blei et al. (2017), [Variational Inference: A Review for Statisticians](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773)
       * Lanczos (1961), [The variational principles of mechanics](https://www.amazon.com/Variational-Principles-Mechanics-Dover-Physics/dp/0486650677)
       * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-)
-      * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
-      * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
+      * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
+      * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bmlip/course/blob/main/assets/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
 
 """
 
 # ╔═╡ e0d0f3a1-5e00-44f0-9c2b-4308cbd673ce
-TODO("the figure above is very large; can we scale teh size down a bit?")
+TODO("the figure above is very large; can we scale the size down a bit?")
 
 # ╔═╡ f8c8013a-3e87-4d01-a3ae-86b39cf1f002
 md"""
@@ -114,7 +114,7 @@ z_{nk} = \begin{cases} 1 & \text{if } x_n \in \mathcal{C}_k \text{ (the $k$-th c
 
 # ╔═╡ 26c5c1ae-d294-11ef-15c6-13cae5bc0dc8
 md"""
-We consider the same model as we did in the [generative classification lesson](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#GDA): the data for each class is distributed as a Gaussian:
+We consider the same model as we did in the [generative classification lesson](https://bmlip.github.io/course/lectures/Generative%20Classification.html#GDA): the data for each class is distributed as a Gaussian:
 
 ```math
 \begin{align*}
@@ -150,7 +150,7 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 \end{align*}
 ```
 
-**Proof**: see [exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
+**Proof**: see [exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
 
 Eq. B-9.12 reveals the link to the name Gaussian *mixture model*. The priors ``\pi_k`` for the ``k``-th class are also called **mixture coefficients**. 
 
@@ -164,7 +164,7 @@ md"""
 
 GMMs are very popular models. They have decent computational properties and are **universal approximators of densities** (as long as there are enough Gaussians, of course).
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
 
 (In the above figure, the Gaussian components are shown in $(html"<span style='color: red'>red</span>") and the pdf of the mixture models in $(html"<span style='color: blue'>blue</span>")).
 
@@ -194,7 +194,7 @@ md"""
 
 Indeed, the fact that the observation-dependent class labels are *unobserved* for the GMM, leads to a problem for processing new data by Bayes rule in a GMM.
 
-Consider a given data set ``D = \{x_1,x_2,\ldots,x_N\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html):
+Consider a given data set ``D = \{x_1,x_2,\ldots,x_N\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://bmlip.github.io/course/lectures/Generative%20Classification.html):
 
 ```math
 \log\, p(D|\theta) =  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{Gaussian} } + \underbrace{ \sum_{n,k} y_{nk} \log \pi_k }_{ \text{multinomial} } \,.
@@ -247,7 +247,7 @@ The goal of Bayesian inference is to transform the (known) *likelihood-times-pri
  \underbrace{p(x|z) p(z)}_{\text{what we know}} \rightarrow \underbrace{p(z|x) p(x)}_{\text{what we want}} 
 ```
 
-Remember from the [Bayesian machine learning lesson](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#Bayesian-model-evidence) that negative log-evidence can be decomposed as "complexity" minus "accuracy" terms (the CA decomposition):
+Remember from the [Bayesian machine learning lesson](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#Bayesian-model-evidence) that negative log-evidence can be decomposed as "complexity" minus "accuracy" terms (the CA decomposition):
 
 ```math
  -\log p(x) =  \underbrace{ \int p(z|x) \log \frac{p(z|x)}{p(z)} \mathrm{d}z }_{\text{complexity}} - \underbrace{\int p(z|x) \log p(x|z) \mathrm{d}z}_{\text{accuracy}}
@@ -288,7 +288,7 @@ To explain inference by VFE minimization (abbreviated as VFEM), we first rewrite
  \end{align*}
 ```
 
-Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
+Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
 
 Since the second term (log-evidence) does not involve ``q(z)``, VFEM over ``q`` will bring ``q(z)`` closer to the Bayesian posterior ``p(z|x)``.
 
@@ -340,7 +340,7 @@ F[\hat{q}] &\approx -\log p(x)
 Executing inference by minimizing the VFE functional is called **Variational Bayes** (VB) or **Variational Inference** (VI). 
 
 
-(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* VFE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing VFE rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
+(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* VFE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing VFE rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
 """
 
 # ╔═╡ 40ce0abb-a086-4977-9131-10f60ab44152
@@ -383,7 +383,6 @@ with respect to the parameters ``\mu`` and ``\Sigma``.
 We can often use standard gradient-based optimization methods to minimize the function ``F(\mu,\Sigma)\,.``
 
 
-
 """
 
 # ╔═╡ 3654551d-5d08-4bb0-8a0d-c7d42225bc69
@@ -423,7 +422,7 @@ md"""
 
 The following image by [David Blei](https://www.cs.columbia.edu/~blei/) illustrates the Variational Bayes approach:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/blei-variational-inference.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/blei-variational-inference.png?raw=true)
 
 
 """
@@ -554,7 +553,7 @@ Exam guide: Working out VFE minimization for the GMM to these update equations (
 
 # ╔═╡ cc547bfa-a130-4382-af47-73de56e4741b
 old_faithful = 
-	# CSV.read(download("https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/datasets/old_faithful.csv?raw=true"), DataFrame);
+	# CSV.read(download("https://github.com/bmlip/course/blob/v2/assets/datasets/old_faithful.csv?raw=true"), DataFrame);
 
 	# inlining the dataset is the most reliable :)s
 [
@@ -915,7 +914,7 @@ md"""
 
 ## Variational Inference and The Maximum Entropy Principle
 
-In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the [Principle of Maximum (Relative) Entropy](https://en.wikipedia.org/wiki/Principle_of_maximum_entropy) is developed as a method for rational updating of priors to posteriors when faced with new information in the form of constraints.
+In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bmlip/course/blob/main/assets/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the [Principle of Maximum (Relative) Entropy](https://en.wikipedia.org/wiki/Principle_of_maximum_entropy) is developed as a method for rational updating of priors to posteriors when faced with new information in the form of constraints.
 
 
 Caticha's argumentation is as follows:
@@ -1160,7 +1159,7 @@ Sometimes, the SP update rule is not analytically solvable.
 
 Fortunately, for many well-known Bayesian approximation methods, a message passing update rule can be created, e.g. [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) (VMP) for variational inference. 
 
-In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Latent-Variable-Models-and-VB.ipynb) is the proper way for updating beliefs. 
+In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://bmlip.github.io/course/lectures/Latent%20Variable%20Models%20and%20VB.html) is the proper way for updating beliefs. 
 
 Different message passing updates rules can be combined to get a hybrid inference method in one model. 
 
@@ -1211,7 +1210,7 @@ md"""
 
 Let us now consider the local free energy that is associated with edge corresponding to ``x_j``. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/VMP-two-nodes.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/VMP-two-nodes.png?raw=true)
 
 Apparently (see previous slide), there are three contributions to the free energy for ``x_j``:
 
@@ -1253,7 +1252,7 @@ Note that message ``\nu_a(x_j)`` depends on posterior beliefs over incoming edge
 
 These considerations lead to the [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) procedure, which is an iterative free energy minimization procedure that can be executed completely through locally computable messages.  
 
-Procedure VMP, see [Dauwels (2007), section 3](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
+Procedure VMP, see [Dauwels (2007), section 3](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
 
 > 1. Initialize all messages ``q`` and ``ν``, e.g., ``q(\cdot) \propto 1`` and ``\nu(\cdot) \propto 1``. <br/>
 > 2. Select an edge ``z_k`` in the factor graph of ``f(z_1,\ldots,z_m)``.<br/>
@@ -1558,7 +1557,7 @@ $(challenge_header("Density Modeling for the Old Faithful Data Set"; challenge_t
 
 You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
 
 """
 

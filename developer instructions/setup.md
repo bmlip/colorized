@@ -8,7 +8,7 @@ Use git to clone this repository locally. We recommend using "GitHub Desktop" fo
 
 When you open a notebook in Pluto and make changes, **Pluto will always auto-save, and the `.jl` notebook files get modified**. You can then use git normally to submit the changed files: you can make branches and commits.
 
-Here is an example of a PR made with this method: https://github.com/bmlip/colorized/pull/42
+Here is an example of a PR made with this method: https://github.com/bmlip/course/pull/42
 
 ## Setting up Pluto
 

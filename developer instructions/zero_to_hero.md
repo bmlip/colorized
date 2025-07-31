@@ -4,7 +4,7 @@ This guide will take you through the process of making a lecture edit, starting 
 ## Setup
 Install Git (GitHub Desktop), Julia and Pluto. For instructions, see the [Setup Guide](setup.md). Clone the repository to your computer. Open one of the notebooks in Pluto.
 
-After using the instructions to launch Pluto, here is a video of launching a lecture notebook. The path of the `colorized` folder will be different on your computer.
+After using the instructions to launch Pluto, here is a video of launching a lecture notebook. The path of the `course` folder (previously called `colorized`) will be different on your computer.
 
 
 

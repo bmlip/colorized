@@ -41,8 +41,8 @@ md"""
 #### Materials       
   - Mandatory
     - This notebook.
-    - Lecture notes on [regression](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Regression.ipynb).
-    - Lecture notes on [discriminative classification](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Discriminative-Classification.ipynb).
+    - Lecture notes on [regression](https://bmlip.github.io/course/lectures/Regression.html).
+    - Lecture notes on [discriminative classification](https://bmlip.github.io/course/lectures/Discriminative%20Classification.html).
   - Optional
     - Bayesian linear regression (Section 3.3 [Bishop](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf))
     - Bayesian logistic regression (Section 4.5 [Bishop](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf))

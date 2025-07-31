@@ -3,7 +3,7 @@ We have a GHA that runs for every commit to `main`. It runs all the notebooks us
 
 The action uses caching: if a notebook file is exactly the same (same file hash), then the notebook does not run, and the previous result is reused.
 
-The result is https://bmlip.github.io/colorized/
+The result is https://bmlip.github.io/course/
 
 This uses [**PlutoSliderServer.jl**](https://github.com/JuliaPluto/PlutoSliderServer.jl).
 
@@ -58,7 +58,7 @@ I modified the `/usr/local/bin/pluto-slider-server.sh` script to use JSON loggin
 # this env var allows us to side step various issues with the Julia-bundled git
 export JULIA_PKG_USE_CLI_GIT=true
 
-cd /home/fplasvande/BMLIP-colorized
+cd /home/fplasvande/BMLIP-course
 julia --project="pluto-slider-server-environment" -e "import Pkg; Pkg.instantiate(); using LoggingFormats, LoggingExtras; global_logger(FormatLogger(LoggingFormats.JSON(), stderr)); import PlutoSliderServer; PlutoSliderServer.run_git_directory(\".\")"
 ```
 

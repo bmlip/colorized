@@ -39,7 +39,7 @@ Read more: [https://plutojl.org/en/docs/packages/](https://plutojl.org/en/docs/p
 
 You can use LaTeX in Markdown! Because of conflicts with interpolation, we recommend using backticks:
 
-```julia
+`````julia
 md"""
 Here is some ``\srt{inline}`` math.
 
@@ -47,28 +47,13 @@ Here is some ``\srt{inline}`` math.
 This = \frac{block}{math}
 ```
 """
-```
+`````
 
 You can also use `\begin{align}` etc inside a math block.
 
 ## Adding Images
 
-The best method is to use GitHub's Issues feature:
-
-1. Open a new issue in any public GitHub repository
-2. Drag your image into the writing box
-3. Copy the generated image URL
-4. Use it in your Markdown:
-
-```julia
-md"""
-My image:
-
-![some description](https://github.com/user-attachments/assets/your-image-id)
-"""
-```
-
-5. Close the issue (no need to post it)
+Check out https://plutojl.org/en/docs/images/
 
 ## HTML in Notebooks
 
@@ -89,7 +74,7 @@ My header:
 
 $(html"<h1>My header</h1>")
 """
-```
+````
 
 ## Linking
 
@@ -98,7 +83,7 @@ Go to the **course website**, find the lecture you want to link, and use that UR
 
 ```julia
 md"""
-Take a look at [the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html).
+Take a look at [the Bayesian Machine Learning lecture](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html).
 """
 ```
 
@@ -123,14 +108,14 @@ If you want to link to an element **inside another notebook**, you can use the f
 
 ```julia
 md"""
-Take a look at [the beta prior from the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#beta-prior).
+Take a look at [the beta prior from the Bayesian Machine Learning lecture](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#beta-prior).
 """
 ```
 
 Here the URL consists of two parts, joined together:
 ```
 # the URL
-https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html
+https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html
 
 # the ID
 #beta-prior
@@ -140,7 +125,7 @@ https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html
 ### Adding IDs to elements
 
 Some elements have IDs by default, but most don't. These have **IDs by default**:
-- (since [Pluto 0.20.11, July 2025](https://github.com/fonsp/Pluto.jl/releases/tag/v0.20.11)) Markdown headers: you can click on the 🔗 button next to header text to copy a link to the header. When editing a notebook, it gives just the hash: `#Header-text`, and when clicked on a website, it gives the full URL with hash: `https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#Header-text`.
+- (since [Pluto 0.20.11, July 2025](https://github.com/fonsp/Pluto.jl/releases/tag/v0.20.11)) Markdown headers: you can click on the 🔗 button next to header text to copy a link to the header. When editing a notebook, it gives just the hash: `#Header-text`, and when clicked on a website, it gives the full URL with hash: `https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#Header-text`.
 - Global variables: a cell that defines `example` will get a linkable ID of `example`. (More on this below.)
 - Pluto cells: *(not recommended)* each cell has a unique ID, like `f2a42c4d-9607-4f50-bbda-9a9a4942faab`. You can find it by right-clicking the cell and selecting "Inspect", or you can see it in the Julia source code of the notebook. But this is not the easiest way to do it.
 

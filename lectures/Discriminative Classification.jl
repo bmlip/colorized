@@ -2,7 +2,7 @@
 # v0.20.14
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true"
 #> description = "Introduction to discriminative classification models and Bayesian logistic regression."
 #> 
 #>     [[frontmatter.author]]
@@ -56,7 +56,7 @@ Materials
 
       * Bishop pp. 213 - 217 (Laplace approximation)
       * Bishop pp. 217 - 220 (Bayesian logistic regression)
-      * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
+      * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
 
 """
 
@@ -135,7 +135,7 @@ What model should we use for the posterior distribution ``p(y_n \in \mathcal{C}_
 md"""
 #### Likelihood
 
-We will take inspiration from the [generative classification](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
+We will take inspiration from the [generative classification](https://bmlip.github.io/course/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
 
 ```math
 p(y_{nk} = 1\,|\,x_n,\beta_k,\gamma_k) = \sigma(\beta_k^T x_n + \gamma_k)
@@ -163,7 +163,7 @@ Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sig
 
 # ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
 md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true)
 
 (Bishop fig.4.9). The logistic function ``\sigma(a) = 1/(1+e^{-a})`` (red), together with the $(HTML("<span id='scaled-probit'>scaled probit function</span>")) ``\Phi(\lambda a)``, for ``\lambda^2=\pi/8`` (in blue). We will use this approximation later in the [Laplace approximation](#gaussian-cdf).
 
@@ -235,7 +235,7 @@ md"""
 
 Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. In principle, we could have used Bayesian parameter estimation for the generative classification model as well (but the math is not suited for a introductory lesson).  
 
-In the optional paper by [T. Minka (2005)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
+In the optional paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
 
 As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
 
@@ -243,7 +243,7 @@ As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, 
 \frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
 ```
 
-is a straight line, see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Classification.ipynb). 
+is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 
 """
 
@@ -295,7 +295,7 @@ Many methods have been developed to approximate the integrals in order to get an
 """
 
 # ╔═╡ 33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
-NotebookCard("https://bmlip.github.io/colorized/minis/Laplace%20Approximation.html")
+NotebookCard("https://bmlip.github.io/course/minis/Laplace%20Approximation.html")
 
 # ╔═╡ 25f356b0-d294-11ef-17b9-8583928f7829
 md"""
@@ -331,7 +331,7 @@ Computing the gradient ``\nabla_{\theta_k} \mathrm{L}(\theta)`` leads to (for [p
 
 # ╔═╡ 25f386e4-d294-11ef-2cec-f56f4a6feb19
 md"""
-Compare this to the [gradient for *linear* regression](https://bmlip.github.io/colorized/lectures/Regression.html#regression-gradient):
+Compare this to the [gradient for *linear* regression](https://bmlip.github.io/course/lectures/Regression.html#regression-gradient):
 
 ```math
 \nabla_\theta \mathrm{L}(\theta) =  \sum_n \left(y_n - \theta^T x_n \right)  x_n
@@ -357,7 +357,7 @@ The parameter vector ``\theta`` for logistic regression can be estimated through
 \hat{\theta}^{(i+1)} =  \hat{\theta}^{(i)} + \eta \cdot \left. \nabla_\theta   \mathrm{L}(\theta)  \right|_{\theta = \hat{\theta}^{(i)}}
 ```
 
-Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
+Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
 
 """
 
@@ -367,7 +367,7 @@ md"""
 
 Let us perform ML estimation of ``w`` on the data set from the introduction. To allow an offset in the discrimination boundary, we add a constant 1 to the feature vector ``x``. We only have to specify the (negative) log-likelihood and the gradient w.r.t. ``w``. Then, we use an off-the-shelf optimisation library to minimize the negative log-likelihood.
 
-We plot the resulting maximum likelihood discrimination boundary. For comparison we also plot the ML discrimination boundary obtained from the [code example in the generative Gaussian classifier lesson](https://bmlip.github.io/colorized/lectures/Generative%20Classification.html#code-generative-classification-example).
+We plot the resulting maximum likelihood discrimination boundary. For comparison we also plot the ML discrimination boundary obtained from the [code example in the generative Gaussian classifier lesson](https://bmlip.github.io/course/lectures/Generative%20Classification.html#code-generative-classification-example).
 
 """
 
