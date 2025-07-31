@@ -462,7 +462,7 @@ A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{
 p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
 ```
 
-In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Probability-Theory-Review.ipynb#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
+In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
 
 """
 
@@ -713,7 +713,7 @@ Given independent variables
 x \sim \mathcal{N}(\mu_x,\sigma_x^2)
 ```
 
-and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-The-Gaussian-Distribution.ipynb))
+and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
 
 """
 

@@ -42,7 +42,7 @@ The Laplace approximation usually serves one or both of the following two purpos
 md"""
 #### $(HTML("<span id='Laplace-example'>Example</span>"))
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.14a.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.14a.png?raw=true)
 
 (Bishop fig.4.14a). Laplace approximation (in red) to the distribution ``p(z)\propto \exp(-z^2/2)\sigma(20z+4)``, where ``\sigma(a)=1/(1+e^{-a})``. The Laplace approximation is centered on the mode of ``p(z)``.
 

@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Faragher-2012-cart-1.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true"
 #> description = "Introduction to dynamic latent variable models, including HMMs and Kalman filters."
 #> 
 #>     [[frontmatter.author]]
@@ -86,7 +86,7 @@ x_t &= \begin{bmatrix} z_t \\ \dot{z_t}\end{bmatrix} + \mathcal{N}(0,\Sigma_x)
 
 Task: Infer the position ``z_t`` after 10 time steps. (Solution later in this lesson).
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Faragher-2012-cart-1.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true)
 
 """
 
@@ -178,7 +178,7 @@ The condition ``p(z_t\,|\,z^{t-1}) = p(z_t\,|\,z_{t-1})`` is called a ``1``-st o
 md"""
 The Forney-style factor graph for a state-space model:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space.png?raw=true)
 
 """
 
@@ -260,15 +260,15 @@ Alternatively, we could specify the generative model in a (Forney-style) factor 
 
 **Filtering**, a.k.a. state estimation: estimation of a state (at time step ``t``), based on past and current (at ``t``) observations. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-filtering.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-filtering.png?raw=true)
 
 **Smoothing**: estimation of a state based on both past and future observations. Needs backward messages from the future.  
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-smoothing.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-smoothing.png?raw=true)
 
 **Prediction**: estimation of future state or observation based only on observations of the past.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-prediction.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-prediction.png?raw=true)
 
 """
 
@@ -538,7 +538,7 @@ md"""
 
 Using the methods of the previous lessons, it is possible to create your own new models based on stacking Gaussian and categorical distributions in new ways: 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-generative-Gaussian-models.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-generative-Gaussian-models.png?raw=true)
 
 """
 
@@ -603,7 +603,7 @@ result = infer(
 @bind which_timestep Slider(eachindex(result.posteriors[:z]); show_value=true)
 
 # ╔═╡ a0116427-cff8-44e5-b3bb-8dee2ecf73c2
-bg_img_path = download("https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/figures/cart-bg.png?raw=true")
+bg_img_path = download("https://github.com/bmlip/course/blob/v2/assets/figures/cart-bg.png?raw=true")
 
 # ╔═╡ 0b41c9ab-ee04-446e-a3fc-decfeb9d1571
 bg_img = load(bg_img_path)[end:-1:1, :]

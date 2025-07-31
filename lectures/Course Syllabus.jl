@@ -85,7 +85,7 @@ Materials consist of the following resources:
 
 
 
-Source materials are available at github repo at [https://github.com/bertdv/BMLIP](https://github.com/bertdv/BMLIP). You do not need to bother with this site. If you spot an error in the materials, please raise the issue at Piazza.  
+Source materials are available at github repo at [https://github.com/bmlip/course](https://github.com/bmlip/course). You do not need to bother with this site. If you spot an error in the materials, please raise the issue at Piazza.  
 
 """
 

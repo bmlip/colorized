@@ -790,7 +790,7 @@ $(section_outline("Inference Exercise:", "Bag Counter"))
 
 ##### Solution 
 
-- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 ``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
 
@@ -809,7 +809,7 @@ $(section_outline("Inference Exercise:", "Causality?"))
 
 ##### Solution 
 
-- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 
 ``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
@@ -918,7 +918,7 @@ Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\
 Z = A X + b \,.
 ```
 
-No matter the specification of ``p(X)``, we can derive that (see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook)
+No matter the specification of ``p(X)``, we can derive that (see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook)
 
 ```math
 \begin{align*}
@@ -935,7 +935,7 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 md"""
 ## PDF for the Sum of Two Variables
 
-Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
+Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb))
 
 ```math
 \begin{align*}
@@ -1213,7 +1213,7 @@ For a variable ``X`` with distribution ``p(X)`` with mean ``\mu_x`` and variance
 
 # ╔═╡ 3e2009e2-d294-11ef-255d-8d4a44865663
 md"""
-That's really about all you need to know about probability theory, but you need to *really* know it, so do the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb)!
+That's really about all you need to know about probability theory, but you need to *really* know it, so do the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb)!
 
 """
 

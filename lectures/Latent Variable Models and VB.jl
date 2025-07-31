@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
 #> description = "Introduction to latent variable models and variational inference via free energy minimization."
 #> 
 #>     [[frontmatter.author]]
@@ -65,7 +65,7 @@ md"""
 
 You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
 
 """
 
@@ -148,7 +148,7 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 \end{align*}
 ```
 
-Full proof as an [exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
+Full proof as an [exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
 
 Eq. B-9.12 reveals the link to the name Gaussian *mixture model*. The priors ``\pi_k`` for the ``k``-th class are also called **mixture coefficients**. 
 
@@ -162,7 +162,7 @@ md"""
 
 GMMs are very popular models. They have decent computational properties and are **universal approximators of densities** (as long as there are enough Gaussians of course)
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
 
 (In the above figure, the Gaussian components are shown in $(html"<span style='color: red'>red</span>") and the pdf of the mixture models in $(html"<span style='color: blue'>blue</span>")).
 
@@ -356,7 +356,7 @@ We can often use standard gradient-based optimization methods to minimize the FE
 
 In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian posterior](https://bmlip.github.io/course/lectures/Discriminative%20Classification.html#Laplace-example) (yellow) for a binary classification problem has been approximated by a Laplace approximation (red) and a variational posterior ``q(z) \sim \mathcal{N}(\mu,\sigma^2)`` (green). 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure10.1a.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure10.1a.png?raw=true)
 
 ### Factorization constraints
 
@@ -385,7 +385,7 @@ md"""
 
 The following image by [David Blei](https://www.cs.columbia.edu/~blei/) illustrates the Variational Bayes approach:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/blei-variational-inference.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/blei-variational-inference.png?raw=true)
 
 
 """
@@ -507,7 +507,7 @@ Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data
 
 # ╔═╡ cc547bfa-a130-4382-af47-73de56e4741b
 old_faithful = 
-	# CSV.read(download("https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/datasets/old_faithful.csv?raw=true"), DataFrame);
+	# CSV.read(download("https://github.com/bmlip/course/blob/v2/assets/datasets/old_faithful.csv?raw=true"), DataFrame);
 
 	# inlining the dataset is the most reliable :)s
 [
@@ -1094,7 +1094,7 @@ Sometimes, the SP update rule is not analytically solvable.
 
 Fortunately, for many well-known Bayesian approximation methods, a message passing update rule can be created, e.g. [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) (VMP) for variational inference. 
 
-In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Latent-Variable-Models-and-VB.ipynb) is the proper way for updating beliefs. 
+In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://bmlip.github.io/course/lectures/Latent%20Variable%20Models%20and%20VB.html) is the proper way for updating beliefs. 
 
 Different message passing updates rules can be combined to get a hybrid inference method in one model. 
 
@@ -1145,7 +1145,7 @@ md"""
 
 Let us now consider the local free energy that is associated with edge corresponding to ``x_j``. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/VMP-two-nodes.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/VMP-two-nodes.png?raw=true)
 
 Apparently (see previous slide), there are three contributions to the free energy for ``x_j``:
 
