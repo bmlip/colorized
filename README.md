@@ -9,7 +9,7 @@ Note: This site is currently under construction. This is the class for roughly 1
 </h2>
 
 
-<img src="https://github.com/bmlip/course/blob/v2/assets/figures/5SSD0-banner.png?raw=true">
+<img src="https://github.com/bmlip/course/blob/main/assets/figures/5SSD0-banner.png?raw=true">
 
 ### Course goals
 This course provides an introduction to Bayesian machine learning and information processing systems. The Bayesian approach affords a unified and consistent treatment of many useful information processing systems.
