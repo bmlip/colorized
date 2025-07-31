@@ -381,25 +381,15 @@ The first question of the exam will be an open question: "You get 5 minutes to t
 
 
 # Behind the scenes
-
-
+For instructors:
 
 > [!IMPORTANT]
-> View the **notebooks online**: https://bmlip.github.io/course/
+> The Pluto notebooks in this repository (`.jl` files) are automatically rendered on our website. You can view them online at https://bmlip.github.io/course/, and copy URLs from this index to use in the course schedule.
 >
 > *Status for live interactivity (PlutoSliderServer):* [![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/1svzl.svg)](https://tue-bmlip.betteruptime.com/)
 
 
-
-
-This is the *new* version of the course [Bayesian Machine Learning and Information Processing](https://github.com/bertdv/BMLIP). ✨
-
-There will be new lecture materials based on [Pluto.jl](https://plutojl.org/) with interactivity and color!
-
-
-
-
-# How to modify lecture materials
+## How to modify lecture materials
 
 Take a look at https://github.com/bmlip/course/tree/main/developer%20instructions for more information aimed at the course lecturers and website admins.
 
