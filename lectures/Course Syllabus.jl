@@ -109,7 +109,7 @@ Still got any sticky issues regarding the lecture notes?
   * Pose you question at the **Piazza site**!
   * Your questions will be answered at the Piazza site by fellow students and accorded (or corrected) by the teaching staff.
 
-Each class also comes with a set of exercises. They are often a bit challenging and test more of your quantitative skills than you will need for the exam. When doing exercises, feel free to make use of Sam Roweis' cheat sheets for [Matrix identities](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-matrix-identities.pdf) and [Gaussian identities](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-gaussian-identities.pdf). Also accessible from the course homepage.   
+Each class also comes with a set of exercises. They are often a bit challenging and test more of your quantitative skills than you will need for the exam. When doing exercises, feel free to make use of Sam Roweis' cheat sheets for [Matrix identities](https://github.com/bmlip/course/blob/main/assets/files/Roweis-1999-matrix-identities.pdf) and [Gaussian identities](https://github.com/bmlip/course/blob/main/assets/files/Roweis-1999-gaussian-identities.pdf). Also accessible from the course homepage.   
 
 """
 
