@@ -177,9 +177,6 @@ is a so-called **equality** (or branching) node.
 
 """
 
-# ╔═╡ f170d9f9-3e39-4daf-b399-4d600e52d382
-TODO("For many images in this lecture, I like to resize them. This image is too large. How do I resize images?")
-
 # ╔═╡ 96561594-d294-11ef-1590-198382927808
 md"""
 Note that through introduction of auxiliary variables ``x_2^{\prime}`` and ``x_2^{\prime\prime}`` and a factor ``f_=(x_2,x_2^\prime,x_2^{\prime\prime})``, each variable in ``g`` appears in maximally two factors.
@@ -281,10 +278,7 @@ In an FFG, we visualize a delta node by a small black box, see FFG below.
 """
 
 # ╔═╡ ea4a720f-a644-46a0-ad35-b215780e0928
-keyconcept("","Any factorized probabilistic model, including a set of observations for that model, can be represented by a Terminated Forney-style factor graph.")
-
-# ╔═╡ 00b50d78-c33b-42ed-bb51-4ae4b18865e7
-TODO("FOns: I dont like that the sentence in the key concept is in quotes. I dont know how to remove the quotes. ")
+keyconcept("",md"Any factorized probabilistic model, including a set of observations for that model, can be represented by a Terminated Forney-style factor graph.")
 
 # ╔═╡ 00c69a22-feb5-4d1e-9ab5-a136435d7d22
 md"""
@@ -321,34 +315,31 @@ Note that, if each variable ``x_i`` can take on ``10`` values, then computing th
 
 """
 
+# ╔═╡ b33b2aef-e672-490c-bdf4-a5f655fa4695
+md"""
+We draw here the FFG for the factorized distribution:
+
+![](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/figures/ffg-message-passing.png?raw=true)
+
+For now, only consider the nodes and edges. The messages ``\overrightarrow{\mu}_\bullet(\cdot)`` will be discussed below. Note that we drew *directed edges* to distinguish between intermediate results ``\overrightarrow{\mu}_\bullet(\cdot)`` that flow in the same direction as the arrow of the edge (later to be called: forward messages) from intermediate results ``\overleftarrow{\mu}_\bullet(\cdot)`` that flow in opposite direction (later to be called: backward messages).  This is just a notational convenience since an FFG is computationally an undirected graph. 
+
+"""
+
 # ╔═╡ 96570d3e-d294-11ef-0178-c34dda717495
 md"""
-Due to the factorization and the [Generalized Distributive Law](https://en.wikipedia.org/wiki/Generalized_distributive_law), we can decompose this sum-of-products to the following product-of-sums:
+Due to the factorization of ``f(x_1,x_2,\ldots,x_7)`` and the [Generalized Distributive Law](https://en.wikipedia.org/wiki/Generalized_distributive_law), we can decompose the marginalization operation to the following product-of-sums:
 
 ```math
-\begin{align*}\bar{f}&(x_3) = \\
-  &\underbrace{ \Bigg( \sum_{x_1,x_2} \underbrace{f_a(x_1)}_{\overrightarrow{\mu}_{X_1}(x_1)}\, \underbrace{f_b(x_2)}_{\overrightarrow{\mu}_{X_2}(x_2)}\,f_c(x_1,x_2,x_3)\Bigg) }_{\overrightarrow{\mu}_{X_3}(x_3)} 
-  \underbrace{ \cdot\Bigg( \sum_{x_4,x_5} \underbrace{f_d(x_4)}_{\overrightarrow{\mu}_{X_4}(x_4)}\,f_e(x_3,x_4,x_5) \cdot \underbrace{ \big( \sum_{x_6,x_7} f_f(x_5,x_6,x_7)\,\underbrace{f_g(x_7)}_{\overleftarrow{\mu}_{X_7}(x_7)}\big) }_{\overleftarrow{\mu}_{X_5}(x_5)} \Bigg) }_{\overleftarrow{\mu}_{X_3}(x_3)}
+\begin{align*}
+\bar{f}(x_3) = 
+  &\underbrace{ \Bigg( \sum_{x_1,x_2} \underbrace{f_a(x_1)}_{\overrightarrow{\mu}_{X_1}(x_1)}\, \underbrace{f_b(x_2)}_{\overrightarrow{\mu}_{X_2}(x_2)}\,f_c(x_1,x_2,x_3)\Bigg) }_{\overrightarrow{\mu}_{X_3}(x_3)} \\
+  &\quad\underbrace{ \cdot\Bigg( \sum_{x_4,x_5} \underbrace{f_d(x_4)}_{\overrightarrow{\mu}_{X_4}(x_4)}\,f_e(x_3,x_4,x_5) \cdot \underbrace{ \big( \sum_{x_6,x_7} f_f(x_5,x_6,x_7)\,\underbrace{f_g(x_7)}_{\overleftarrow{\mu}_{X_7}(x_7)}\big) }_{\overleftarrow{\mu}_{X_5}(x_5)} \Bigg) }_{\overleftarrow{\mu}_{X_3}(x_3)}
 \end{align*}
 ```
 
 which, in case ``x_i`` has ``10`` values, requires a few hundred additions and is therefore computationally (much!) lighter than executing the full sum ``\sum_{x_1,\ldots,x_7}f(x_1,x_2,\ldots,x_7)``
 
 
-"""
-
-# ╔═╡ 2e417c9c-2449-4023-b461-4901392ac277
-TODO("The equation above does not fit on the page. How do we deal with that?")
-
-# ╔═╡ a4ced00a-4131-4e94-8f0a-83d850ceb4de
-md"""
-
-![](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/figures/ffg-message-passing.png?raw=true)
-"""
-
-# ╔═╡ 5ef03512-b6ba-4c0b-9914-550092220232
-md"""
-Note: In the above FFG, we drew *directed edges* to distinguish between intermediate results ``\overrightarrow{\mu}_\bullet(\cdot)`` that flow in the same direction as the arrow of the edge (later to be called: forward messages) from intermediate results ``\overleftarrow{\mu}_\bullet(\cdot)`` that flow in opposite direction (later to be called: backward messages).  This is just a notational convenience since an FFG is computationally an undirected graph. 
 """
 
 # ╔═╡ 9657b088-d294-11ef-3017-e95c4c69b62b
@@ -392,7 +383,8 @@ When closing the box around a terminal node, the result is simply the factor ass
 
 # ╔═╡ a7b1f559-3c34-491e-83e7-ba95c8c22c80
 md"""
-Closing the box can alternatively be interpreted as **passing a message** from the newly created composite node to the rest of the graph. For instance, ``\overrightarrow{\mu}_{X_3}(x_3)`` can be understood in two equivalent ways: 
+
+The Closing-the-box operation can alternatively be interpreted as **passing a message** from the newly created composite node to the rest of the graph. For instance, ``\overrightarrow{\mu}_{X_3}(x_3)`` can be understood in two equivalent ways: 
   * as a factor associated with the composite node that encloses the subgraph inside the red box.
   * as a message sent from this composite node to the variable ``x_3``. 
 
@@ -420,7 +412,7 @@ This message-based interpretation enables modular, local inference that scales e
 md"""
 ## Sum-Product Messages
 
-Let's continue with the message passing interpretation of inference in an FFG. Closing the red box around ``f_a``, ``f_b`` and ``f_c`` leads to an outgoing message ``\overrightarrow{\mu}_{X_3}(x_3)``, given by
+Let's continue with the message passing interpretation of inference in an FFG. Closing the red box around ``f_a``, ``f_b`` and ``f_c`` leads to an outgoing message ``\overrightarrow{\mu}_{X_3}(x_3)`` for node ``f_c``, given by
 
 ```math
 \begin{align}
@@ -435,24 +427,57 @@ This recipe holds generally. For a node ``f(y,x_1,\ldots,x_n)`` with incoming me
 \underbrace{\overrightarrow{\mu}_{Y}(y)}_{\substack{ \text{outgoing}\\ \text{message}}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\substack{\text{incoming} \\ \text{messages}}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\substack{\text{node}\\ \text{function}}} \tag{SP}
 ```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-sum-product.png?raw=true)
 
+
+"""
+
+# ╔═╡ ee8cf06a-fde0-4231-8c45-c72c265d9e73
+@htl """
+
+<img src="https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-sum-product.png?raw=true" alt=" " style="display: block; width: 70%; margin: 0 auto;">
+
+"""
+
+
+
+
+# ╔═╡ f65f5d0e-2583-4b88-b9f2-5fee15257c05
+md"""
 Equation (SP) is called a **Sum-Product** message, so named because the computation involves evaluating a sum-of-products. Note that all SP messages in an FFG can be computed from information that is **locally available** at each node.
 
 If the factor graph for the whole model has no cycles, i.e., the FFG is a tree, then the process of passing SP message from the terminal nodes to the internal (latent) variables yields exact Bayesian marginals for all hidden variables. This inference method is known as the **Sum-Product** (SP) algorithm.
 
 However, if the graph contains cycles, one can conceptually view the graph as an infinite tree by “unrolling” the cycles. In this loopy setting, SP-based inference is not guaranteed to yield exact marginals. Nevertheless, in practice, if we run the SP algorithm for a limited number of iterations (i.e., a finite unrolling), we often obtain high-quality approximate marginals that are sufficient for many inference tasks.
-
 """
 
-# ╔═╡ 9657f32a-d294-11ef-2d6b-330969a7e395
+# ╔═╡ 91f81188-727c-4754-9a07-e754eef8bbe0
 md"""
-## $(HTML("<span id='sp-for-equality-node'>Sum-Product Messages for the Equality Node</span>"))
+## Example: Sum-Product Messages for the Equality Node
+"""
 
-As an example, let´s evaluate the SP messages for the **equality node** ``f_=(x,y,z) = \delta(z-x)\delta(z-y)``: 
+# ╔═╡ ead88056-7ed5-447d-9f51-b3e75c59e4d8
+TwoColumn(
+md"""
+As an example, let´s evaluate the SP messages for the **equality node** 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-equality-node.png?raw=true)
+```math 
+f_=(x,y,z) = \delta(z-x)\delta(z-y) \,.
+``` 
 
+""",
+@htl """
+
+<img src="https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-equality-node.png?raw=true" alt="Equality-node" style="display: block; width: 80%; margin: 0 auto;">
+
+"""
+)
+
+# ╔═╡ f11564db-aafc-4df9-b494-4e5ced9bfcfe
+md"""
+
+##### general formulation 
+
+Given incoming messages ``\overrightarrow{\mu}_{X}(x)`` and ``\overrightarrow{\mu}_{Y}(y)``, the outgoing SP message ``\overrightarrow{\mu}_{Z}(z)`` to edge ``z`` is given by
 ```math
 \begin{align*}
 \overrightarrow{\mu}_{Z}(z) &= \iint  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(y) \,\delta(z-x)\delta(z-y) \,\mathrm{d}x \mathrm{d}y \\
@@ -465,10 +490,16 @@ By symmetry, this also implies (for the same equality node) that
 
 ```math
 \begin{align*}
-\overleftarrow{\mu}_{X}(x) &= \overrightarrow{\mu}_{Y}(x) \overleftarrow{\mu}_{Z}(x) \quad \text{and} \\
+\overleftarrow{\mu}_{X}(x) &= \overrightarrow{\mu}_{Y}(x) \overleftarrow{\mu}_{Z}(x) \\
 \overleftarrow{\mu}_{Y}(y) &= \overrightarrow{\mu}_{X}(y) \overleftarrow{\mu}_{Z}(y)\,.
 \end{align*}
 ```
+"""
+
+# ╔═╡ ce9e9dad-ef4c-432d-87dd-3152100b146e
+md"""
+
+##### The case for Gaussian incoming messages
 
 Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_X,\overrightarrow{V}_X)``, ``\overrightarrow{\mu}_{Y}(y) = \mathcal{N}(y| \overrightarrow{m}_Y,\overrightarrow{V}_Y)`` and ``\overrightarrow{\mu}_{Z}(z) = \mathcal{N}(z|\overrightarrow{m}_Z,\overrightarrow{V}_Z)``. Let´s also define the precision matrices ``\overrightarrow{W}_X \triangleq \overrightarrow{V}_X^{-1}`` and similarly for ``Y`` and ``Z``. Then applying the SP update rule leads to multiplication of two Gaussian distributions (see [Roweis notes](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-gaussian-identities.pdf)), resulting in 
 
@@ -480,7 +511,6 @@ Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) 
 ```
 
 It follows that **message passing through an equality node is similar to applying Bayes rule**, i.e., fusion of two information sources. Does this make sense?
-
 """
 
 # ╔═╡ 9651f976-b834-4b81-8810-649f0290969d
@@ -501,9 +531,6 @@ If the update rules for all node types in a graph have been tabulated, then infe
 In our research lab [BIASlab](http://biaslab.org) (FLUX 7.060), we are developing [RxInfer](http://rxinfer.com), which is a (Julia) toolbox for automating Bayesian inference by message passing in a factor graph.
 
 """
-
-# ╔═╡ 12569abc-4566-4f63-9718-b1df6ae663ff
-
 
 # ╔═╡ 96589eb0-d294-11ef-239a-2513a805cdcf
 md"""
@@ -910,7 +937,7 @@ RxInfer = "~4.4.2"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.11.5"
 manifest_format = "2.0"
 project_hash = "aacc534113e47e6438eb875663f1139a4ac160cd"
 
@@ -2002,7 +2029,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2935,22 +2962,18 @@ version = "1.9.2+0"
 # ╟─9655ed6e-d294-11ef-370f-937b590036f3
 # ╟─9655fb88-d294-11ef-1ceb-91585012d142
 # ╟─965606f2-d294-11ef-305b-870427879e50
-# ╟─f170d9f9-3e39-4daf-b399-4d600e52d382
 # ╟─96561594-d294-11ef-1590-198382927808
 # ╟─9656cf72-d294-11ef-03aa-b715dd686c09
 # ╟─9656d850-d294-11ef-21a1-474b07ea7729
 # ╟─9658329c-d294-11ef-0d03-45e6872c4985
 # ╟─f0181b53-a604-489f-a89e-db6fc58571dd
 # ╟─ea4a720f-a644-46a0-ad35-b215780e0928
-# ╟─00b50d78-c33b-42ed-bb51-4ae4b18865e7
 # ╟─00c69a22-feb5-4d1e-9ab5-a136435d7d22
 # ╟─9656e606-d294-11ef-1daa-312623552a5b
 # ╟─9656ee62-d294-11ef-38f4-7bc8031df7ee
 # ╟─9656fae2-d294-11ef-10d8-ff921d5956bd
+# ╟─b33b2aef-e672-490c-bdf4-a5f655fa4695
 # ╟─96570d3e-d294-11ef-0178-c34dda717495
-# ╠═2e417c9c-2449-4023-b461-4901392ac277
-# ╟─a4ced00a-4131-4e94-8f0a-83d850ceb4de
-# ╟─5ef03512-b6ba-4c0b-9914-550092220232
 # ╟─9657b088-d294-11ef-3017-e95c4c69b62b
 # ╟─0afe3cdc-15ed-4d9a-848a-d1977d051866
 # ╟─96571c34-d294-11ef-11ef-29beeb1f96c2
@@ -2958,10 +2981,14 @@ version = "1.9.2+0"
 # ╟─a7b1f559-3c34-491e-83e7-ba95c8c22c80
 # ╟─70736e62-2b6c-4b3a-ab59-7e51522d620b
 # ╟─96575dd4-d294-11ef-31d6-b39b4c4bdea1
-# ╟─9657f32a-d294-11ef-2d6b-330969a7e395
-# ╠═9651f976-b834-4b81-8810-649f0290969d
+# ╟─ee8cf06a-fde0-4231-8c45-c72c265d9e73
+# ╟─f65f5d0e-2583-4b88-b9f2-5fee15257c05
+# ╟─91f81188-727c-4754-9a07-e754eef8bbe0
+# ╟─ead88056-7ed5-447d-9f51-b3e75c59e4d8
+# ╟─f11564db-aafc-4df9-b494-4e5ced9bfcfe
+# ╟─ce9e9dad-ef4c-432d-87dd-3152100b146e
+# ╟─9651f976-b834-4b81-8810-649f0290969d
 # ╟─96587a66-d294-11ef-2c7a-9fd7bea76582
-# ╠═12569abc-4566-4f63-9718-b1df6ae663ff
 # ╟─96589eb0-d294-11ef-239a-2513a805cdcf
 # ╟─9658c106-d294-11ef-01db-cfcff611ed81
 # ╟─96594d44-d294-11ef-22b8-95165fb08ce4
@@ -2979,7 +3006,7 @@ version = "1.9.2+0"
 # ╠═e20e9048-1271-41c7-97d3-635f320aa365
 # ╠═96ef3cfb-ca18-46d6-bcac-0122c2c85fba
 # ╠═34ebbbe1-2a6b-422b-aeb1-cd2953acddca
-# ╟─7764541a-c11e-4e12-bbac-f8906cbc5dc6
+# ╠═7764541a-c11e-4e12-bbac-f8906cbc5dc6
 # ╟─965a1df0-d294-11ef-323c-3da765f1104a
 # ╠═2cb7d369-e7fd-4d66-8321-66a9197a26bd
 # ╠═fd338a30-9622-405a-96fa-caca6bd4ccfb
