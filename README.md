@@ -217,7 +217,7 @@ You can access all lecture notes, assignments, videos and exercises online throu
             <td></td>
          </tr>
          <tr>
-            <td colspan="6">🔵 break</td>
+            <td colspan="6" style="text-align:center">🔵 break</td>
          </tr>
          <tr>
             <td>07-Jan-2026 <em>(Wed)</em></td>
@@ -342,10 +342,6 @@ You can access all lecture notes, assignments, videos and exercises online throu
 ### Grading
 
 - The final grade is composed of the results of assignments A1 (10%),  A2 (10%), and the final written exam (80%). The grade will be rounded to the nearest integer.
-
-### Resit
-
-- See [information at Piazza](https://piazza.com/class/m1ukrwkpd823oc/post/197) about resit.
 
 
 <!---
