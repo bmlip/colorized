@@ -2,7 +2,7 @@
 # v0.20.11
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-bishop12.png?raw=true"
 #> description = "Introduction to Bayesian linear regression and predictive modeling for continuous data."
 #> 
 #>     [[frontmatter.author]]
@@ -51,7 +51,7 @@ Materials
 md"""
 ## Regression - Illustration
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-bishop12.png?raw=true)
 
 Given a set of (noisy) data measurements, find the 'best' relation between an input variable ``x \in \mathbb{R}^M`` and input-dependent outcomes ``y \in \mathbb{R}``.
 
@@ -197,7 +197,7 @@ m_N = \left(\frac{\alpha}{\beta}\mathbf{I} + \mathbf{X}^T \mathbf{X} \right)^{-1
 md"""
 (Bishop Fig.3.7) Illustration of sequential Bayesian learning for a simple linear model of the form ``y(x, w) = w_0 + w_1 x``. (Bishop Fig.3.7, detailed description at Bishop, pg.154.)
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.7.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.7.png?raw=true)
 
 """
 
@@ -246,11 +246,11 @@ y_n &=\sum_{m=1}^9 w_m \phi_m(x_n) + \epsilon_n \\
 \end{align*}
 ```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.1b.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.1b.png?raw=true)
 
 The predictive distributions for ``y`` are shown in the following plots (Bishop, Fig.3.8)
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.8.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.8.png?raw=true)
 
 """
 
@@ -258,7 +258,7 @@ The predictive distributions for ``y`` are shown in the following plots (Bishop,
 md"""
 And some plots of draws of posteriors for the functions ``w^T \phi(x)`` (Bishop, Fig.3.9) 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.9.png?raw=true) 
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.9.png?raw=true) 
 
 """
 
@@ -465,7 +465,7 @@ Aside from the above example, we also recommend that you read through the [RxInf
 
 In this lesson, we focussed on modelling the map from given inputs ``x`` to uncertain outputs ``y``, or more formally, on the distribution ``p(y|x)``. What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
 
-While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
+While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
 
 """
 

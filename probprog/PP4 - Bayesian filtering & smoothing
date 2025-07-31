@@ -106,7 +106,7 @@ end
 md"""
 ### Model specification
 
-Following the steps from the [lecture on Dynamic Systems](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Dynamic-Models.ipynb), we can derive the following probabilistic state-space model:
+Following the steps from the [lecture on Dynamic Systems](https://bmlip.github.io/course/lectures/Dynamic%20Models.html), we can derive the following probabilistic state-space model:
 
 ```math
 p(z_k \mid z_{k-1}) = \mathcal{N}(z_k \mid A z_{k-1}, Q)\\ p(y_k \mid z_k) = \mathcal{N}(y_k \mid C z_k, \sigma^2) \, .

@@ -39,7 +39,7 @@ Read more: [https://plutojl.org/en/docs/packages/](https://plutojl.org/en/docs/p
 
 You can use LaTeX in Markdown! Because of conflicts with interpolation, we recommend using backticks:
 
-```julia
+`````julia
 md"""
 Here is some ``\srt{inline}`` math.
 
@@ -47,28 +47,13 @@ Here is some ``\srt{inline}`` math.
 This = \frac{block}{math}
 ```
 """
-```
+`````
 
 You can also use `\begin{align}` etc inside a math block.
 
 ## Adding Images
 
-The best method is to use GitHub's Issues feature:
-
-1. Open a new issue in any public GitHub repository
-2. Drag your image into the writing box
-3. Copy the generated image URL
-4. Use it in your Markdown:
-
-```julia
-md"""
-My image:
-
-![some description](https://github.com/user-attachments/assets/your-image-id)
-"""
-```
-
-5. Close the issue (no need to post it)
+Check out https://plutojl.org/en/docs/images/
 
 ## HTML in Notebooks
 
@@ -89,7 +74,7 @@ My header:
 
 $(html"<h1>My header</h1>")
 """
-```
+````
 
 ## Linking
 

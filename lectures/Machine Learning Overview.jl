@@ -2,7 +2,7 @@
 # v0.20.9
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/figures/scientific-inquiry-loop.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop.png?raw=true"
 #> description = "What type of problem can be solved using Machine Learning? Can we apply the Bayesian approach?"
 #> 
 #>     [[frontmatter.author]]
@@ -79,7 +79,7 @@ This field is known in various scientific communities with slight variations und
 md"""
 ## Machine Learning and the Scientific Inquiry Loop
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop.png?raw=true)
 
 Machine learning technology uses the scientific inquiry loop to develop models and use these models in applications.
 
@@ -123,7 +123,7 @@ Quality of Observed Data
 md"""
 ## A Machine Learning Taxonomy
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ml-taxonomy.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ml-taxonomy.png?raw=true)
 
 **Supervised Learning**: Given examples of inputs and corresponding
 
@@ -174,7 +174,7 @@ Given observations of desired input-output behavior ``D=\{(x_1,y_1),\dots,(x_N,y
 
 #### Classification
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Bishop-Figure4.5b.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Bishop-Figure4.5b.png?raw=true)
 
 The target variable ``y`` is a *discrete-valued* vector representing class labels 
 
@@ -195,7 +195,7 @@ IDEE: idem voor gressie
 md"""
 #### Regression
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Bishop-Figure1.2.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Bishop-Figure1.2.png?raw=true)
 
 Same problem statement as classification but now the target variable is a *real-valued* vector.
 
@@ -211,7 +211,7 @@ Given data ``D=\{x_1,\ldots,x_N\}``, model the (unconditional) probability distr
 
 #### Clustering
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Zoubin-clustering-example.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Zoubin-clustering-example.png?raw=true)
 
 Group data into clusters such that all data points in a cluster have similar properties.
 
@@ -234,7 +234,7 @@ NotebookCard("https://bmlip.github.io/course/lectures/Discriminative%20Classific
 md"""
 #### Compression / dimensionality reduction
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-compression-example.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-compression-example.png?raw=true)
 
 Output from coder is much smaller in size than original, but if coded signal if further processed by a decoder, then the result is very close (or exactly equal) to the original.
 
@@ -253,7 +253,7 @@ md"""
 
 Given the state of the world (obtained from sensory data), the agent must *learn* to produce actions (like making a movement or making a decision) that optimize some performance criterion about the expected future.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/RL-example.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/RL-example.png?raw=true)
 
 In contrast to supervised and unsupervised learning, an agent is able to affect its data set by making actions, e.g., a robot can change its input video data stream by turning the head of its camera. 
 
