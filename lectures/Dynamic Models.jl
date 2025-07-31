@@ -62,8 +62,8 @@ Materials
 
       * Bishop pp.605-615 on Hidden Markov Models
       * Bishop pp.635-641 on Kalman filters
-      * Faragher (2012), [Understanding the Basis of the Kalman Filter](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf)
-      * Minka (1999), [From Hidden Markov Models to Linear Dynamical Systems](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-1999-from-HMM-to-LDS.pdf)
+      * Faragher (2012), [Understanding the Basis of the Kalman Filter](https://github.com/bmlip/course/blob/main/assets/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf)
+      * Minka (1999), [From Hidden Markov Models to Linear Dynamical Systems](https://github.com/bmlip/course/blob/main/assets/files/Minka-1999-from-HMM-to-LDS.pdf)
 
 """
 
@@ -71,7 +71,7 @@ Materials
 md"""
 ## Example Problem
 
-We consider a one-dimensional cart position tracking problem, see [Faragher (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf).  
+We consider a one-dimensional cart position tracking problem, see [Faragher (2012)](https://github.com/bmlip/course/blob/main/assets/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf).  
 
 The hidden states are the position ``z_t`` and velocity ``\dot z_t``. We can apply an external acceleration/breaking force ``u_t``. (Noisy) observations are represented by ``x_t``. 
 

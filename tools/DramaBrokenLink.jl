@@ -21,7 +21,7 @@ https://en.wikipedia.org/wiki/Differential_entropy#Maximization_in_the_normal_di
 http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf#page=250
 https://en.wikipedia.org/wiki/Central_limit_theorem
 https://reactivebayes.github.io/RxInfer.jl/stable/examples/basic_examples/Bayesian%20Linear%20Regression%20Tutorial/
-https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf
+https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf
 https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#natural-parameterization
 #change-of-variable-derivation
 #predictive-distribution
