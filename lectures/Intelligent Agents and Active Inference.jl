@@ -3,7 +3,7 @@
 
 #> [frontmatter]
 #> description = "Introduction to Active Inference and application to the design of synthetic intelligent agents"
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true"
 #> 
 #>     [[frontmatter.author]]
 #>     name = "BMLIP"
@@ -97,7 +97,7 @@ Your challenge is to design an agent that guides the car to the goal position. (
 
 # ╔═╡ 2783b9ca-d294-11ef-0bf7-e767fbfad74a
 md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./ai_agent/agent-cart-interaction2.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true)
 
 Solution at the end of this lesson.
 
@@ -134,7 +134,7 @@ md"""
 
 Consider an AIF agent with observations (sensory states) ``x_t``, latent internal states ``s_t`` and latent control states ``u_t`` for ``t=1,2,\ldots``. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/AIF-agent.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/AIF-agent.png?raw=true)
 
 The agent is embedded in an environment with "external states" ``\tilde{s}_t``. The dynamics of the environment are driven by actions. 
 
@@ -180,7 +180,7 @@ Conant and Ashley state: "The theorem has the interesting corollary that the liv
 
 Indeed, perception in brains is clearly affected by predictions about sensory inputs by the brain's own generative model.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/the-gardener.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/the-gardener.png?raw=true)
 
 In the above picture (The Gardener, by Giuseppe Arcimboldo, ca 1590), on the left you will likely see a bowl of vegetables, while the same picture upside down elicits with most people the perception of a gardener's face rather than an upside-down vegetable bowl. 
 
@@ -398,7 +398,7 @@ Moreover, the FE by itself serves as a proper objective across a very wide range
 
 The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/brain-design-cycle.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
 
 """
 
@@ -418,7 +418,7 @@ Clearly, the FEP, and synthetic AIF agents as a realization of FEP, comprise a v
 
 A current big AI challenge is to design synthetic AIF agents based solely on FE/EFE minimization.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Synthetic-FEP-agent.png?raw=true) 
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Synthetic-FEP-agent.png?raw=true) 
 
 Executing a synthetic AIF agent often poses a large computational problem because of the following reasons: 
 
@@ -440,7 +440,7 @@ There is no definitive solution approach to AIF agent modeling yet; we ([BIASlab
 
 After selecting an action ``a_t`` and making an observation ``x_t``, the FFG for the rolled-out generative model is given by the following FFG:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-active-inference-model-specification.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-active-inference-model-specification.png?raw=true)
 
 The open red nodes for ``p(x_{t+k})`` specify **desired future observations**, whereas the open black boxes for ``p(s_k|s_{k-1},u_k)`` and ``p(x_k|s_k)`` reflect the agent's beliefs about how the world actually evolves (ie, the **veridical model**). 
 
@@ -458,7 +458,7 @@ md"""
 2. infer: update the latent variables and select an action
 3. slide forward
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-online-active-inference.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-online-active-inference.png?raw=true)
 
 """
 
@@ -641,7 +641,7 @@ Is EFE minimization really different from "regular" FE minimization? Not really,
 
 Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-complete.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-complete.png?raw=true)
 
 Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, **AIF is an automated Bayes-optimal engineering design loop**!!
 
@@ -764,7 +764,7 @@ A Quote from Conant and Ashby's paper (this statement was later finessed by [Fri
 > "The theory has the interesting corollary that the living brain, insofar as it is successful and efficient as a regulator for survival, *must* proceed, in learning, by the formation of a model (or models) of its environment."
 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/good-regulator.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/good-regulator.png?raw=true)
 
 ([Return to related cell in main text](#model-specification)).
 

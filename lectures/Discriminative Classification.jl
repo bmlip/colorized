@@ -2,7 +2,7 @@
 # v0.20.14
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true"
 #> description = "Introduction to discriminative classification models and Bayesian logistic regression."
 #> 
 #>     [[frontmatter.author]]
@@ -163,7 +163,7 @@ Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sig
 
 # ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
 md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true)
 
 (Bishop fig.4.9). The logistic function ``\sigma(a) = 1/(1+e^{-a})`` (red), together with the $(HTML("<span id='scaled-probit'>scaled probit function</span>")) ``\Phi(\lambda a)``, for ``\lambda^2=\pi/8`` (in blue). We will use this approximation later in the [Laplace approximation](#gaussian-cdf).
 
@@ -243,7 +243,7 @@ As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, 
 \frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
 ```
 
-is a straight line, see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Classification.ipynb). 
+is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 
 """
 
