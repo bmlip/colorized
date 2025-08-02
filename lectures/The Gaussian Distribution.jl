@@ -24,20 +24,17 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
-using Distributions, Plots, LaTeXStrings
-
-# ╔═╡ 69d951b6-58b3-4ce2-af44-4cb799e453ff
-using HypertextLiteral
-
 # ╔═╡ 9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
 using Random
 
 # ╔═╡ 5638c1d0-db95-49e4-bd80-528f79f2947e
 using HCubature, LinearAlgebra# Numerical integration package
+
+# ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
+using PlutoUI, PlutoTeachingTools
+
+# ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
+using Distributions, Plots, LaTeXStrings
 
 # ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
 begin
@@ -54,6 +51,9 @@ begin
   end
 end
 
+# ╔═╡ 69d951b6-58b3-4ce2-af44-4cb799e453ff
+using HypertextLiteral
+
 # ╔═╡ b9a38e20-d294-11ef-166b-b5597125ed6d
 md"""
 # Continuous Data and the Gaussian Distribution
@@ -67,18 +67,22 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Review of information processing with Gaussian distributions in linear systems
 
-Materials        
+##### Materials        
 
   * Mandatory
 
       * These lecture notes
   * Optional
 
+<<<<<<< Updated upstream
       * Bishop pp. 85-93
+=======
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 85-93
+>>>>>>> Stashed changes
       * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
       * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
   * References
@@ -87,9 +91,11 @@ Materials
 
 """
 
+# ╔═╡ 82025c2f-a21f-4080-b301-3ffe3715442d
+section_outline("Challenge:", "Classify a Gaussian Sample" , color= "red" )
+
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
-## Challenge: Classify a Gaussian Sample Point
 
 Consider a data set as shown in the figure below
 
@@ -291,6 +297,118 @@ Given independent variables ``x \sim \mathcal{N}(\mu_x,\sigma_x^2)`` and ``y \si
 md"""
 Think about the role of the Gaussian distribution for stochastic linear systems in relation to what sinusoidals mean for deterministic linear system analysis.
 
+"""
+
+# ╔═╡ 76bc0078-1ab7-4c68-bcc0-7fcbc3567524
+md"""
+# Maximum Likelihood Estimation
+"""
+
+# ╔═╡ 883e8244-270e-4c6c-874b-b69d8989c24c
+md"""
+We are given an IID data set ``D = \{x_1,x_2,\ldots,x_N\}``, where ``x_n \in \mathbb{R}^M``. Assume that the data were drawn from a multivariate Gaussian (MVG) 
+
+```math 
+p(x_n|\theta) = \mathcal{N}(x_n|\,\mu,\Sigma) \,.
+```
+
+Let us derive the maximum likelihood estimates for the parameters ``\mu`` and ``\Sigma``.
+"""
+
+# ╔═╡ 747aee06-ab2a-48c8-9e06-7797b2f13d89
+section_outline("Exercise:", "evaluating the log-likelihood" , color= "yellow", header_level=5 )
+
+# ╔═╡ f02aa0b1-2261-4f65-9bd0-3be33230e0d6
+md"""
+
+Let ``\theta =\{\mu,\Sigma\}``. Proof that the log-likelihood function ``\log p(D|\theta)`` can be worked out to
+
+```math
+\log p(D|\theta) =
+ \frac{N}{2}\log  |\Sigma|^{-1} - \frac{1}{2}\sum_n (x_n-\mu)^T \Sigma^{-1}(x_n-\mu)
+
+```
+			
+"""
+
+# ╔═╡ f008a742-6900-4e18-ab4e-b5da53fb64a6
+details("click to see proof",
+		
+		md" ```math
+\begin{align*}
+\log p(D|\theta) &= \log \prod_n p(x_n|\theta) \\
+ &= \log \prod_n \mathcal{N}(x_n|\mu, \Sigma) \\
+&= \log \prod_n (2\pi)^{-M/2} |\Sigma|^{-1/2} \exp\left\{ -\frac{1}{2}(x_n-\mu)^T \Sigma^{-1}(x_n-\mu)\right\} \\
+&= \sum_n \left( \log (2\pi)^{-M/2} + \log  |\Sigma|^{-1/2} -\frac{1}{2}(x_n-\mu)^T \Sigma^{-1}(x_n-\mu)\right) \\
+&\propto \frac{N}{2}\log  |\Sigma|^{-1} - \frac{1}{2}\sum_n (x_n-\mu)^T \Sigma^{-1}(x_n-\mu)
+\end{align*}
+```
+"	   )
+
+# ╔═╡ 34cdb4e1-b387-4e45-835d-59c549e49b6d
+section_outline("Exercise:", "estimation of mean" , color= "yellow", header_level=5 )
+
+# ╔═╡ 2d4628eb-d8fb-4fc1-9140-4123af5b6460
+md"""
+Proof that the maximum likelihood estimate for the mean is given by
+```math
+\hat{\mu} = \frac{1}{N}\sum_n x_n
+```
+"""
+
+# ╔═╡ 8d2732e8-479f-4744-9b1f-d0364f0c6488
+details("click to see proof",		
+md""" 
+```math
+\begin{align*}
+\nabla_{\mu} \log p(D|\theta) &\propto - \sum_n \nabla_{\mu} \left(x_n-\mu \right)^T\Sigma^{-1}\left(x_n-\mu \right)  \\
+&= - \sum_n \nabla_{\mu} \left(-2 \mu^T\Sigma^{-1}x_n + \mu^T \Sigma^{-1}\mu \right) \\
+&= - \sum_n \left(-2 \Sigma^{-1}x_n + 2\Sigma^{-1}\mu \right) \\
+&= -2 \Sigma^{-1} \sum_n (x_n - \mu) \\
+&= -2 \Sigma^{-1} \Big( \sum_n x_n - N \mu	\Big) 	
+\end{align*}
+```	
+
+Since the map ``Ax=0`` for general ``A`` can only be true if ``x=0``, it follows that setting the gradient to ``0`` leads to ``\hat{\mu} = \frac{1}{N}\sum_n x_n``.
+		
+""")
+
+# ╔═╡ 808f6fcc-37cd-4d27-b656-703c3adb99ee
+section_outline("Exercise:", "estimation of variance" , color= "yellow", header_level=5 )
+
+# ╔═╡ 0f9feb8d-971e-4a94-8c70-3e1f0d284314
+md"""
+The gradient of the LLH with respect to the variance ``\Sigma`` is a bit more involved. It's actually easier to estimate ``\Sigma`` by taking the derivative to the precision. Compute ``\nabla_{\Sigma^{-1}} \log p(D|\theta)``, and show that the maximum likelihood estimate for ``\Sigma`` is given by
+
+```math
+\hat{\Sigma} = \frac{1}{N}\sum_n (x_n-\hat{\mu}) (x_n-\hat{\mu})^T
+```
+"""
+
+
+# ╔═╡ 2767b364-6f9a-413d-aa9e-88741cd2bbb1
+details("click to see proof",		
+md""" 
+```math
+\begin{align*}
+\nabla_{\Sigma^{-1}} \log p(D|\theta) &= \nabla_{\Sigma^{-1}} \left( \frac{N}{2} \log |\Sigma| ^{-1} -\frac{1}{2}\sum_n (x_n-\mu)^T
+\Sigma^{-1} (x_n-\mu)\right)  \\
+&= \nabla_{\Sigma^{-1}} \left( \frac{N}{2} \log |\Sigma| ^{-1} - \frac{1}{2}\sum_n \mathrm{Tr}\left[(x_n-\mu)
+(x_n-\mu)^T \Sigma^{-1} \right]\right) \\
+&=\frac{N}{2}\Sigma - \frac{1}{2}\sum_n (x_n-\mu)
+(x_n-\mu)^T
+\end{align*}
+```	
+
+Setting the derivative to zero leads to ``\hat{\Sigma} = \frac{1}{N}\sum_n (x_n-\hat{\mu})
+(x_n-\hat{\mu})^T``.
+		
+""")
+
+
+# ╔═╡ 04d9183c-8019-4c7e-bf48-33b3ccd3cc65
+md"""
+# Bayesian Inference
 """
 
 # ╔═╡ b9a5cbc2-d294-11ef-214a-c71fb1272326
@@ -756,30 +874,56 @@ and transition ``2`` derives from using the multiplication rule for Gaussians.
 
 # ╔═╡ b9a85716-d294-11ef-10e0-a7b08b800a98
 md"""
-## Maximum Likelihood Estimation for the Gaussian
+## Maximum Likelihood Estimation (MLE) Revisited
 
-In order to determine the *maximum likelihood* estimate of ``\theta``, we let ``\sigma_0^2 \rightarrow \infty`` (leads to uniform prior for ``\theta``), yielding ``\frac{1}{\sigma_N^2} = \frac{N}{\sigma^2}`` and consequently
+##### MLE as a special case of Bayesian Inference
 
-```math
-\begin{align*}
-  \mu_{\text{ML}}  = \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \sigma_N^2 \, \left(   \frac{1}{\sigma^2}\sum_n  x_n  \right) = \frac{1}{N} \sum_{n=1}^N x_n 
-  \end{align*}
-```
-
-As expected, having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\theta`` as the combination of a prior-based prediction and likelihood-based correction:
+To determine the MLE of ``\mu`` as a special case of Bayesian inference, we let ``\sigma_0^2 \rightarrow \infty`` in the Bayesian posterior for ``\mu`` (Eq. B-2.141) to get a uniform prior for ``\mu``. This yields
 
 ```math
-\begin{align*}
-  \underbrace{\mu_N}_{\text{posterior}}   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
-  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
-  &= \frac{ \sigma^2}{N\sigma_0^2 + \sigma^2}   \mu_0 + \frac{N \sigma_0^2}{N\sigma_0^2 + \sigma^2} \mu_{\text{ML}}   \\
-  &= \underbrace{\mu_0}_{\text{prior}} + \underbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}_{\text{correction}}\tag{B-2.141}
-\end{align*}
+\begin{align}
+ \mu_{\text{ML}} &= \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \Bigg.  \underbrace{\left(\frac{1}{\sigma_0^2} + \sum_n \frac{1}{\sigma^2}\right)^{-1}}_{\text{Eq. B-2.142}} \cdot \underbrace{\left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right)}_{\text{Eq. B-2.141 }} \Bigg\vert_{\sigma_0^2 \rightarrow \infty}  \\
+&=  \left(\sum_n \frac{1}{\sigma^2}\right)^{-1} \cdot \left( \sum_n \frac{1}{\sigma^2} x_n  \right)  \\
+&= \left(\frac{N}{\sigma^2}\right)^{-1} \cdot \left( \frac{1}{\sigma^2} \sum_n  x_n  \right) \\
+&= \frac{1}{N} \sum_{n=1}^N x_n 
+\end{align}
 ```
+This is a reassuring result: it matches the maximum likelihood estimate for ``\mu`` that we [previously derived by setting the gradient of the log-likelihood function to zero](#Maximum-Likelihood-Estimation).
+
+Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.
+
+
+"""
+
+# ╔═╡ 50d90759-8e7f-4da5-a741-89b997eae40b
+md"""
+##### A prediction-correction decomposition 
+
+Having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\mu`` as the combination of a prior-based prediction and likelihood-based (data-based) correction. 
+
+Proof that 
+
+```math
+\underbrace{\mu_N}_{\substack{\text{posterior} \\ \text{mean}}}= \overbrace{\underbrace{\mu_0}_{\substack{\text{prior} \\ \text{mean}}}}^{\substack{\text{prior-based} \\ \text{prediction}}} + \overbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}^{\text{data-based correction}}\tag{B-2.141}
+```
+
 Hence, the posterior mean always lies somewhere between the prior mean ``\mu_0`` and the maximum likelihood estimate (the "data" mean) ``\mu_{\text{ML}}``.
 
-(Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.)
+
 """
+
+# ╔═╡ d05975bb-c5cc-470a-a6f3-60bc43c51e89
+details("proof:", 
+md"""		
+```math
+\begin{align*}
+\mu_N  &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \tag{B-2.141 } \\
+  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \tag{used B-2.142}\\
+  &= \frac{ \sigma^2}{N\sigma_0^2 + \sigma^2}   \mu_0 + \frac{N \sigma_0^2}{N\sigma_0^2 + \sigma^2} \mu_{\text{ML}}   \\
+  &= \mu_0 + \frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}\cdot \left(\mu_{\text{ML}} - \mu_0 \right)
+\end{align*}
+```
+""")		
 
 # ╔═╡ b9aa930a-d294-11ef-37ec-8d17be226c74
 md"""
@@ -953,9 +1097,11 @@ The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. T
 
 """
 
+# ╔═╡ 9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
+section_outline("Challenge Revisited:", "Classify a Gaussian Sample", header_level=1, color="red")
+
 # ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
 md"""
-$(section_outline("Challenge Revisited:", "Classify a Gaussian Sample"; header_level=1))
 
 Let's solve the challenge from the beginning of the lecture. We apply maximum likelihood estimation to fit a 2-dimensional Gaussian model (``m``) to data set ``D``. Next, we evaluate ``p(x_\bullet \in S | m)`` by (numerical) integration of the Gaussian pdf over ``S``: ``p(x_\bullet \in S | m) = \int_S p(x|m) \mathrm{d}x``.
 
@@ -1208,6 +1354,11 @@ In short, Gaussian-distributed variables remain Gaussian in linear systems, but 
 
 """
 
+# ╔═╡ 7673f050-12c4-4f9e-a422-870342077a5f
+md"""
+# Code
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1237,9 +1388,9 @@ SpecialFunctions = "~2.5.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "f244e3b4ec7fe807f855c2366c4f5ec629157650"
+project_hash = "b18562c258d58a51fb4121f8c5315532c2c761d3"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1255,13 +1406,15 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1297,12 +1450,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -1327,9 +1478,9 @@ version = "1.0.3"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.17.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1365,6 +1516,7 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1436,6 +1588,7 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1564,6 +1717,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1649,16 +1803,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1667,6 +1822,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1707,6 +1863,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1726,6 +1883,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1746,6 +1904,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1756,7 +1915,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1771,10 +1930,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1795,7 +1955,7 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1861,9 +2021,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1899,9 +2063,9 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "ce33e4fd343e43905a8416e6148de8c630101909"
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -1924,6 +2088,7 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -1967,12 +2132,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2027,6 +2194,7 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2041,6 +2209,7 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2051,7 +2220,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2091,9 +2260,14 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2121,6 +2295,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2128,7 +2306,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2149,6 +2327,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2156,9 +2335,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.11"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2168,9 +2347,11 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2180,9 +2361,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.23.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -2448,7 +2629,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2476,13 +2657,11 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─b9a38e20-d294-11ef-166b-b5597125ed6d
-# ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
-# ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
-# ╠═69d951b6-58b3-4ce2-af44-4cb799e453ff
-# ╠═5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
+# ╟─5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
 # ╟─b9a46c3e-d294-11ef-116f-9b97e0118e5b
+# ╟─82025c2f-a21f-4080-b301-3ffe3715442d
 # ╟─b9a48c60-d294-11ef-3b90-03053fcd82fb
-# ╠═ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
+# ╟─ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
 # ╟─02853a5c-f6aa-4af8-8a25-bfffd4b96afc
 # ╟─71f1c8ee-3b65-4ef8-b36f-3822837de410
 # ╟─b9a4eb62-d294-11ef-06fa-af1f586cbc15
@@ -2494,6 +2673,18 @@ version = "1.9.2+0"
 # ╟─a82378ae-d1be-43f9-b63a-2f897767d1fb
 # ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
 # ╟─b9a5b7e0-d294-11ef-213e-4b72b8c88db7
+# ╟─76bc0078-1ab7-4c68-bcc0-7fcbc3567524
+# ╟─883e8244-270e-4c6c-874b-b69d8989c24c
+# ╟─747aee06-ab2a-48c8-9e06-7797b2f13d89
+# ╟─f02aa0b1-2261-4f65-9bd0-3be33230e0d6
+# ╟─f008a742-6900-4e18-ab4e-b5da53fb64a6
+# ╟─34cdb4e1-b387-4e45-835d-59c549e49b6d
+# ╟─2d4628eb-d8fb-4fc1-9140-4123af5b6460
+# ╟─8d2732e8-479f-4744-9b1f-d0364f0c6488
+# ╟─808f6fcc-37cd-4d27-b656-703c3adb99ee
+# ╟─0f9feb8d-971e-4a94-8c70-3e1f0d284314
+# ╟─2767b364-6f9a-413d-aa9e-88741cd2bbb1
+# ╟─04d9183c-8019-4c7e-bf48-33b3ccd3cc65
 # ╟─b9a5cbc2-d294-11ef-214a-c71fb1272326
 # ╟─b9a5dcc0-d294-11ef-2c85-657a460db5cd
 # ╟─b9a6557e-d294-11ef-0a90-d74c337ade25
@@ -2528,6 +2719,8 @@ version = "1.9.2+0"
 # ╟─0072e73e-1569-4ce4-bffb-280823499f0d
 # ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
 # ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
+# ╟─50d90759-8e7f-4da5-a741-89b997eae40b
+# ╟─d05975bb-c5cc-470a-a6f3-60bc43c51e89
 # ╟─b9aa930a-d294-11ef-37ec-8d17be226c74
 # ╟─b9aabe9a-d294-11ef-2489-e9fc0dbb760a
 # ╟─b9aad50e-d294-11ef-23d2-8d2bb3b47574
@@ -2547,6 +2740,7 @@ version = "1.9.2+0"
 # ╟─3a53f67c-f291-4530-a2ba-f95a97b27960
 # ╠═661082eb-f0c9-49a9-b046-8705f4342b37
 # ╟─b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
+# ╟─9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
 # ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
 # ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
 # ╠═b9ac5190-d294-11ef-0a99-a9d369b34045
@@ -2567,5 +2761,9 @@ version = "1.9.2+0"
 # ╟─b9abdc7e-d294-11ef-394a-a708c96c86fc
 # ╟─b9abf984-d294-11ef-1eaa-3358379f8b44
 # ╟─b9ac09c4-d294-11ef-2cb8-270289d01f25
+# ╟─7673f050-12c4-4f9e-a422-870342077a5f
+# ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
+# ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
+# ╠═69d951b6-58b3-4ce2-af44-4cb799e453ff
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
