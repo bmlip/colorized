@@ -79,7 +79,11 @@ md"""
   * Optional
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       * Bishop pp. 85-93
+=======
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 85-93
+>>>>>>> Stashed changes
 =======
       * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 85-93
 >>>>>>> Stashed changes
@@ -305,6 +309,7 @@ md"""
 """
 
 # ╔═╡ 883e8244-270e-4c6c-874b-b69d8989c24c
+<<<<<<< Updated upstream
 md"""
 We are given an IID data set ``D = \{x_1,x_2,\ldots,x_N\}``, where ``x_n \in \mathbb{R}^M``. Assume that the data were drawn from a multivariate Gaussian (MVG) 
 
@@ -411,6 +416,10 @@ md"""
 # Bayesian Inference
 """
 
+=======
+
+
+>>>>>>> Stashed changes
 # ╔═╡ b9a5cbc2-d294-11ef-214a-c71fb1272326
 md"""
 ## Bayesian Inference for the Gaussian
@@ -2673,6 +2682,7 @@ version = "1.9.2+0"
 # ╟─a82378ae-d1be-43f9-b63a-2f897767d1fb
 # ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
 # ╟─b9a5b7e0-d294-11ef-213e-4b72b8c88db7
+<<<<<<< Updated upstream
 # ╟─76bc0078-1ab7-4c68-bcc0-7fcbc3567524
 # ╟─883e8244-270e-4c6c-874b-b69d8989c24c
 # ╟─747aee06-ab2a-48c8-9e06-7797b2f13d89
@@ -2685,6 +2695,10 @@ version = "1.9.2+0"
 # ╟─0f9feb8d-971e-4a94-8c70-3e1f0d284314
 # ╟─2767b364-6f9a-413d-aa9e-88741cd2bbb1
 # ╟─04d9183c-8019-4c7e-bf48-33b3ccd3cc65
+=======
+# ╠═76bc0078-1ab7-4c68-bcc0-7fcbc3567524
+# ╠═883e8244-270e-4c6c-874b-b69d8989c24c
+>>>>>>> Stashed changes
 # ╟─b9a5cbc2-d294-11ef-214a-c71fb1272326
 # ╟─b9a5dcc0-d294-11ef-2c85-657a460db5cd
 # ╟─b9a6557e-d294-11ef-0a90-d74c337ade25
