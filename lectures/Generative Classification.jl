@@ -195,15 +195,25 @@ In principle, a full Bayesian treatment requires us to specify prior distributio
 
 """
 
-# ╔═╡ 6eda4ae4-d536-42d3-94dc-cc70bf358e3f
+# ╔═╡ ffc80e65-a454-4b45-a9b7-76b01c7e96c0
+section_outline("Exercise:", "Evaluate log-likelihood" , color= "yellow", header_level=4 )
+
+# ╔═╡ 2e1ccf78-6097-4097-8bc8-1f1ec2d9c3ff
 md"""
-#### Evaluating the log-likelihood
 
-As is common with distributions from the [exponential family](https://en.wikipedia.org/wiki/Exponential_family), it is computationally more convenient to maximize the log-likelihood (LLH) function rather than the likelihood itself. This is because the logarithm turns products into sums, which simplifies both the analytical derivation and numerical optimization.
+Show that the log-likelihood for the parameters evaluates to
 
-Let's evaluate the log-likelihood for the parameters:
+```math
+\log\, p(D|\theta) = \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{see Gaussian lecture} } + \underbrace{ \sum_k m_k \log \pi_k }_{ \text{see multinomial lecture} } \tag{3}
+```
 
+where we used ``m_k \triangleq \sum_n y_{nk}``.
 
+"""
+
+# ╔═╡ 32cb67f6-1ed2-4d30-8493-e4eed9651526
+details("Click for answer", 
+md"""	   
 ```math
 \begin{align*}
 \log\, p(D|\theta) &= \log \prod_n p(x_n,y_n|\theta ) \quad \text{(assume IID data)} \\
@@ -212,14 +222,11 @@ Let's evaluate the log-likelihood for the parameters:
   &=  \sum_{n,k} y_{nk} \log p(x_n,y_{nk}=1\,|\,\theta) \\
      &=  \sum_{n,k} y_{nk}  \log p(x_n|y_{nk}=1)  +  \sum_{n,k} y_{nk} \log p(y_{nk}=1) \\
    &=  \sum_{n,k} y_{nk}  \log\mathcal{N}(x_n|\mu_k,\Sigma)  +  \sum_{n,k} y_{nk} \log \pi_k \\
-   &=  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{see Gaussian lecture} } + \underbrace{ \sum_k m_k \log \pi_k }_{ \text{see multinomial lecture} } \tag{3}
+   &=  \sum_{n,k} y_{nk} \log\mathcal{N}(x_n|\mu_k,\Sigma)+ \sum_k m_k \log \pi_k 
 \end{align*}
 ```
-
-where we used ``m_k \triangleq \sum_n y_{nk}``.
-
-
 """
+	   )
 
 # ╔═╡ 23c78d3e-d294-11ef-0309-ff10f58f0252
 md"""
@@ -269,24 +276,18 @@ Note that the binary class selection variable ``y_{nk}`` groups data from the sa
 
 # ╔═╡ 23c7baa4-d294-11ef-22c1-31b0d86f5586
 md"""
-## 3 - Application: Class prediction for new Data
+## Application: Class prediction for new Data
 
-Let's apply the trained model to predict the class for given a 'new' input ``x_\bullet``:
+Let's apply the trained model to predict the class for a "new" input ``x_\bullet``:
 
 ```math
 \begin{align*}
-p(\mathcal{C}_k|x_\bullet,D ) &= \int p(\mathcal{C}_k|x_\bullet,\theta ) \underbrace{p(\theta|D)}_{\text{ML: }\delta(\theta - \hat{\theta})} \mathrm{d}\theta \\
-&= p(\mathcal{C}_k|x_\bullet,\hat{\theta} ) \\
-&\propto p(\mathcal{C}_k)\,p(x_\bullet|\mathcal{C}_k) \\
-&= \hat{\pi}_k \cdot \mathcal{N}(x_\bullet | \hat{\mu}_k, \hat{\Sigma}) \\
-  &\propto \hat{\pi}_k \exp \left\{ { - {\frac{1}{2}}(x_\bullet - \hat{\mu}_k )^T \hat{\Sigma}^{ - 1} (x_\bullet - \hat{\mu}_k )} \right\}\\
-  &=\exp \Big\{ \underbrace{-\frac{1}{2}x_\bullet^T \hat{\Sigma}^{ - 1} x_\bullet}_{\text{not a function of }k} + \underbrace{\hat{\mu}_k^T \hat{\Sigma}^{-1}}_{\beta_k^T} x_\bullet \underbrace{- {\frac{1}{2}}\hat{\mu}_k^T \hat{\Sigma}^{ - 1} \hat{\mu}_k  + \log \hat{\pi}_k }_{\gamma_k} \Big\}  \\
-  &\propto  \frac{1}{Z}\exp\{\beta_k^T x_\bullet + \gamma_k\} \\
-  &\triangleq \sigma\left( \beta_k^T x_\bullet + \gamma_k\right)
+p(\mathcal{C}_k|x_\bullet,D ) &= \int p(\mathcal{C}_k|x_\bullet,\theta ) p(\theta|D) \mathrm{d}\theta \\
+  &= \sigma\left( \beta_k^T x_\bullet + \gamma_k\right) \tag{4}
 \end{align*}
 ```
 
-where  ``\sigma(a_k) \triangleq \frac{\exp(a_k)}{\sum_{k^\prime}\exp(a_{k^\prime})}`` is $(HTML("<span id='softmax'>called a</span>")) [**softmax**](https://en.wikipedia.org/wiki/Softmax_function) (a.k.a. **normalized exponential**) function, and
+where  ``\sigma(a)_k \triangleq \frac{\exp(a_k)}{\sum_{k^\prime}\exp(a_{k^\prime})}`` is $(HTML("<span id='softmax'>called a</span>")) [**softmax**](https://en.wikipedia.org/wiki/Softmax_function) (a.k.a., **normalized exponential**) function, and
 
 ```math
 \begin{align*}
@@ -298,26 +299,62 @@ Z &= \sum_{k^\prime}\exp\{\beta_{k^\prime}^T x_\bullet + \gamma_{k^\prime}\}\,. 
 
 """
 
+# ╔═╡ 84353cd1-e4fb-4689-9e90-d8995cbe2e9b
+details("Click for proof of (4)", 
+md""" ```math
+\begin{align*}
+p(\mathcal{C}_k|x_\bullet,D ) &= \int p(\mathcal{C}_k|x_\bullet,\theta ) \underbrace{p(\theta|D)}_{=\delta(\theta - \hat{\theta})} \mathrm{d}\theta \\
+&= p(\mathcal{C}_k|x_\bullet,\hat{\theta} ) \\
+&\propto p(\mathcal{C}_k)\,p(x_\bullet|\mathcal{C}_k) \\
+&= \hat{\pi}_k \cdot \mathcal{N}(x_\bullet | \hat{\mu}_k, \hat{\Sigma}) \\
+  &\propto \hat{\pi}_k \exp \left\{ { - {\frac{1}{2}}(x_\bullet - \hat{\mu}_k )^T \hat{\Sigma}^{ - 1} (x_\bullet - \hat{\mu}_k )} \right\}\\
+  &=\exp \Big\{ \underbrace{-\frac{1}{2}x_\bullet^T \hat{\Sigma}^{ - 1} x_\bullet}_{\text{not a function of }k} + \underbrace{\hat{\mu}_k^T \hat{\Sigma}^{-1}}_{\beta_k^T} x_\bullet \underbrace{- {\frac{1}{2}}\hat{\mu}_k^T \hat{\Sigma}^{ - 1} \hat{\mu}_k  + \log \hat{\pi}_k }_{\gamma_k} \Big\}  \\
+  &\propto  \frac{1}{Z}\exp\{\beta_k^T x_\bullet + \gamma_k\} \\
+  &= \sigma\left( \beta_k^T x_\bullet + \gamma_k\right)
+\end{align*}
+``` """ )
+		
+
 # ╔═╡ 23c7c920-d294-11ef-1b6d-d98dd54dcbe3
 md"""
-The softmax function is a smooth approximation to the max-function. Note that we did not a priori specify a softmax posterior, but rather it followed from applying Bayes rule to the prior and likelihood assumptions. 
 
+##### The softmax function
+
+The softmax function can be viewed as a smooth approximation to the maximum function.
+Importantly, we did not impose the softmax posterior by assumption; rather, it emerged naturally by applying Bayes rule to our chosen prior and likelihood models.
 """
 
 # ╔═╡ 23c7d700-d294-11ef-1268-c1441a3301a4
 md"""
-Note the following properties of the softmax function ``\sigma(a_k)``:
+Note the following properties of the softmax function ``\sigma(a)_k``:
 
-  * ```math
-    \sigma(a_k)
-    ```
+  * ``\sigma(a)_k`` is monotonically ascending function and hence it preserves the order of ``a_k``. That is, if ``a_j>a_k`` then ``\sigma(a)_j > \sigma(a)_k``.
+  
+  * ``\sigma(a)`` is always a proper probability distribution, since ``\forall_k \sigma(a)_k>0`` and ``\sum_k \sigma(a)_k = 1``.
 
-    is monotonicaly ascending function and hence it preserves the order of ``a_k``. That is, if ``a_j>a_k`` then ``\sigma(a_j)>\sigma(a_k)``.
-  * ```math
-    \sigma(a_k)
-    ```
+"""
 
-    is always a proper probability distribution, since ``\sigma(a_k)>0`` and ``\sum_k \sigma(a_k) = 1``.
+# ╔═╡ 23c82154-d294-11ef-0945-c9c94fc2a44d
+md"""
+#### making a decision
+
+How should we classify a new input ``x_\bullet``?
+
+The Bayesian answer is to compute the posterior distribution over classes, 
+```math 
+p(\mathcal{C}_k | x_\bullet,D)\,,
+```
+and this completes the classification task: the posterior encapsulates all available information about class membership given the input and data. 
+
+If a definite classification **must** be made, a natural choice is the class with the highest posterior probability:
+
+```math
+\begin{align*}
+k^* &= \arg\max_k p(\mathcal{C}_k|x_\bullet,D) \\
+  &= \arg\max_k \left( \beta _k^T x_\bullet + \gamma_k \right)
+\end{align*}
+```
+This corresponds to a maximum a posteriori (MAP) decision rule, which is both simple and effective in many practical settings.
 
 """
 
@@ -331,30 +368,63 @@ The class log-posterior ``\log p(\mathcal{C}_k|x) \propto \beta_k^T x + \gamma_k
 
 # ╔═╡ 23c7f170-d294-11ef-1340-fbdf4ce5fd44
 md"""
-Thus, the contours of equal probability (**discriminant functions**) are lines (hyperplanes) in the feature space
+Therefore, the contours of equal probability (also known as **discriminant functions**, or **decision boundaries**), given by
 
 ```math
-\log \frac{{p(\mathcal{C}_k|x,\theta )}}{{p(\mathcal{C}_j|x,\theta )}} = \beta_{kj}^T x + \gamma_{kj} = 0
+\log \frac{{p(\mathcal{C}_k|x,D )}}{{p(\mathcal{C}_j|x,D )}} \overset{!}{=} 0 \,,
+```
+are lines (hyperplanes) in the feature space.
+
+
+"""
+
+# ╔═╡ 5c746070-19a9-464b-aedc-401d016dfdb6
+section_outline("Exercise:", "Discrimination boundaries" , color= "yellow", header_level=4 )
+
+# ╔═╡ 8d78f9d3-7ba8-46b0-8d6f-231e681caa49
+md"""
+Show that the discrimination boundaries for the posterior class probabilities in Eq. (4) evaluates to a line (or hyperplane).
+"""
+
+# ╔═╡ 25e18c78-9cac-4faa-bb7c-ac036d0eac90
+details("Click for answer",
+md"""
+```math
+\begin{align}
+&\log \frac{{p(\mathcal{C}_k|x,D )}}{{p(\mathcal{C}_j|x,D )}} \overset{!}{=} 0 \\
+\implies &\frac{\beta_k^T x + \gamma_k}{\beta_j^T x + \gamma_j} = 0 \\
+\implies &\beta_k^T x + \gamma_k = \beta_j^T x + \gamma_j \\
+\implies &\beta_{kj}^T x + \gamma_{kj} = 0 \quad \text{(this is a line)}\,,
+\end{align}
 ```
 
 where we defined ``\beta_{kj} \triangleq \beta_k - \beta_j`` and similarly for ``\gamma_{kj}``.
+"""	   
+	   
+	   )
 
-"""
-
-# ╔═╡ 23c82154-d294-11ef-0945-c9c94fc2a44d
+# ╔═╡ a8adaf31-bee2-40e9-8d9b-bb9f1ad996ca
 md"""
-How to classify a new input ``x_\bullet``? The Bayesian answer is a posterior distribution ``p(\mathcal{C}*k|x*\bullet)``. If you must choose, then the class with maximum posterior class probability
-
+Now assume that the class-conditional feature distributions are modeled with class-dependent covariance matrices, i.e.,
 ```math
-\begin{align*}
-k^* &= \arg\max_k p(\mathcal{C}_k|x_\bullet) \\
-  &= \arg\max_k \left( \beta _k^T x_\bullet + \gamma_k \right)
-\end{align*}
+ p(x_n|\mathcal{C}_{k}) = \mathcal{N}(x_n|\mu_k,\Sigma_k) 
+ 
 ```
-
-is an appealing decision. 
-
+What do the decision boundaries look like in this case?
 """
+
+# ╔═╡ b01a4a56-bed2-4a06-991a-831adc84aa3e
+details("Click for answer",
+md""" 
+Following the same derivation as above (in the cell "Click for proof of (4)"), the posterior class probability evaluates to		
+		```math
+\begin{align*}
+p(\mathcal{C}_k|x_\bullet,D ) \propto \exp \Big\{ \underbrace{-\frac{1}{2}x_\bullet^T \hat{\Sigma}_k^{ - 1} x_\bullet}_{\text{now a function of }k} + \underbrace{\hat{\mu}_k^T \hat{\Sigma}_k^{-1}}_{\beta_k^T} x_\bullet \underbrace{- {\frac{1}{2}}\hat{\mu}_k^T \hat{\Sigma}_k^{ - 1} \hat{\mu}_k  + \log \hat{\pi}_k }_{\gamma_k} \Big\}  \,.
+\end{align*}
+```		
+Because the quadratic term ``x_\bullet^T \hat{\Sigma}_k^{-1} x_\bullet`` is now class-dependent, the decision boundaries are given by quadratic equations in ``x``. Hence, the decision boundaries are generally (hyper-)parabolic surfaces.
+		
+"""	)
 
 # ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
 md"""
@@ -391,36 +461,37 @@ md"""
 
 A student in one of the previous years posed the following question at Piazza: 
 
-> " After re-reading topics regarding generative classification, this question popped into my mind: Besides the sole purpose of the lecture, which is getting to know the concepts of generative classification and how to implement them, are there any advantages of using this instead of using deep neural nets? DNNs seem simpler and more powerful."
+> "After re-reading topics regarding generative classification, this question popped into my mind: Besides the sole purpose of the lecture, which is getting to know the concepts of generative classification and how to implement them, are there any advantages of using this instead of using deep neural nets (DNN), as they seem simpler and more powerful?"
 
 
 The following answer was provided: 
 
-  * If you are only are interested in approximating a function, say ``y=f_\theta(x)``, and you have lots of examples ``\{(x_i,y_i)\}`` of desired behavior, then often a non-probabilistic DNN is a fine approach.
-  * However, if you are willing to formulate your models in a probabilistic framework, you can improve on the deterministic approach in many ways, eg,
+If you are only interested in approximating a function, and you have lots of examples of desired behavior, then often a non-probabilistic DNN is a fine approach. However, if you are willing to formulate your models in a probabilistic framework, you can frequently improve on the deterministic approach in many ways. We list a few below:
 
-> 1. Bayesian evidence for model performance assessment. This means you can use the whole data set for training without an ad-hoc split into testing and training data sets.
+1.	Bayesian Evidence as a Performance Metric
+  - Model performance is evaluated using the evidence ``p(D|m)`` for a model, which inherently balances fit and complexity. This enables the use of the entire dataset for learning: there is no need for arbitrary splits into training and test sets.
+
+2.	Parameter Uncertainty Enables Active Learning
+  - By maintaining uncertainty over model parameters, Bayesian models support active learning, i.e., the selection of data points that are expected to be most informative (See the [lesson on intelligent agents](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). This allows learning from smaller datasets, unlike deterministic deep networks, which often require massive amounts of labeled data.
+
+3.	Predictions with Confidence Bounds
+  - Bayesian models naturally yield predictive distributions, enabling uncertainty quantification (e.g., confidence intervals) around predictions.
+
+4.	Explicit and Modular Assumptions
+  - Priors, likelihoods, and structural assumptions are explicitly specified and can be independently modified, promoting transparency and model modularity.
+
+5.	Unified Treatment of Accuracy and Complexity
+  - Both data fit and model complexity are scored in the same probabilistic units. In contrast, how would you penalize overparameterized architectures (e.g., deep networks) in a deterministic framework?
+
+6.	Data-Dependent, Optimal Learning Rates
+  - Learning rates emerge naturally from Bayesian updates. Contrast this with the trial-and-error tuning needed in standard optimization.
+  - Example: The Kalman gain is an optimal learning rate based on current uncertainty.
+
+7.	Principled Knowledge Transfer
+  - Bayesian inference enables posterior-to-prior propagation: results from one experiment (posterior) can inform the next (as a prior). This provides a principled mechanism for sequential learning and integration of heterogeneous information sources.
 
 
-> 2. Uncertainty about parameters in the model is a measure that allows you to do *active learning*, ie, choose data that is most informative (see also the [lesson on intelligent agents](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). This will allow you to train on small data sets, whereas the deterministic DNNs generally require much larger data sets.
-
-
-> 3. Prediction with uncertainty/confidence bounds.
-
-
-> 4. Explicit specification and separation of your assumptions.
-
-
-> 5. A framework that supports scoring both accuracy and model complexity in the same currency (probability). How are you going to penalize the size of your network in a deterministic framework?
-
-
-> 6. Automatic learning rates, no tuning parameters. For instance, the Kalman gain is a data-dependent, optimal learning rate. How will *you* choose your learning rates in a deterministic framework? Trial and error?
-
-
-> 7. Principled absorption of different sources of knowledge. Eg, outcome of one set of experiments can be captured by a posterior distribution that serves as a prior distribution for the next set of experiments.
-
-
-> Admittedly, it's not easy to understand the probabilistic approach, but it is worth the effort.
+Admittedly, the probabilistic approach can be challenging to grasp at first, but the effort often pays off. It provides a principled, flexible, and robust framework for reasoning under uncertainty.
 
 
 """
@@ -1872,17 +1943,25 @@ version = "1.9.2+0"
 # ╟─23c75dc8-d294-11ef-3c57-614e75f06d8f
 # ╟─23c763ce-d294-11ef-015b-736be1a5e9d6
 # ╟─23c7779a-d294-11ef-2e2c-6ba6cadb1381
-# ╟─6eda4ae4-d536-42d3-94dc-cc70bf358e3f
+# ╟─ffc80e65-a454-4b45-a9b7-76b01c7e96c0
+# ╟─2e1ccf78-6097-4097-8bc8-1f1ec2d9c3ff
+# ╟─32cb67f6-1ed2-4d30-8493-e4eed9651526
 # ╟─23c78d3e-d294-11ef-0309-ff10f58f0252
 # ╟─23c798ce-d294-11ef-0190-f342f30e2266
 # ╟─23c7a54c-d294-11ef-0252-ef7a043e995c
 # ╟─23c7ab20-d294-11ef-1926-afae49e79923
 # ╟─23c7baa4-d294-11ef-22c1-31b0d86f5586
+# ╠═84353cd1-e4fb-4689-9e90-d8995cbe2e9b
 # ╟─23c7c920-d294-11ef-1b6d-d98dd54dcbe3
 # ╟─23c7d700-d294-11ef-1268-c1441a3301a4
+# ╟─23c82154-d294-11ef-0945-c9c94fc2a44d
 # ╟─23c7e4a0-d294-11ef-16e9-6f96a41baf97
 # ╟─23c7f170-d294-11ef-1340-fbdf4ce5fd44
-# ╟─23c82154-d294-11ef-0945-c9c94fc2a44d
+# ╟─5c746070-19a9-464b-aedc-401d016dfdb6
+# ╟─8d78f9d3-7ba8-46b0-8d6f-231e681caa49
+# ╟─25e18c78-9cac-4faa-bb7c-ac036d0eac90
+# ╟─a8adaf31-bee2-40e9-8d9b-bb9f1ad996ca
+# ╟─b01a4a56-bed2-4a06-991a-831adc84aa3e
 # ╟─23c82e10-d294-11ef-286a-ff6fee0f2805
 # ╟─4481b38d-dc67-4c1f-ac0b-b348f0aea461
 # ╠═cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
@@ -1900,7 +1979,7 @@ version = "1.9.2+0"
 # ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
 # ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
 # ╠═d5a342ff-6c5c-45af-affb-baf66ac7a7c1
-# ╟─23c85d90-d294-11ef-375e-7101d4d3cbfa
+# ╠═23c85d90-d294-11ef-375e-7101d4d3cbfa
 # ╟─23c8698e-d294-11ef-2ae8-83bebd89d6c0
 # ╟─23c87654-d294-11ef-3aaf-595b207054a5
 # ╟─23c88284-d294-11ef-113b-f57800a10e5d
