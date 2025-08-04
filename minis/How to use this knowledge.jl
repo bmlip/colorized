@@ -3,6 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/P%C3%A4ij%C3%A4nne_and_p%C3%A4ij%C3%A4tsalo.jpg/960px-P%C3%A4ij%C3%A4nne_and_p%C3%A4ij%C3%A4tsalo.jpg"
+#> title = "Mini: How to use this knowledge?"
 #> description = "What can Bayesian machine learning be used for after this course?"
 
 using Markdown

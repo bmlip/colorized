@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
 #> description = "Introduction to latent variable models and variational inference via free energy minimization."
 #> 
 #>     [[frontmatter.author]]
@@ -21,6 +21,9 @@ using PlutoUI, PlutoTeachingTools
 # ╔═╡ 58bd0d43-743c-4745-b353-4a89b35e85ba
 using Distributions, Plots, StatsPlots
 
+# ╔═╡ 9d2068d7-db54-460e-930c-b7c3273162ee
+using HypertextLiteral
+
 # ╔═╡ 26c56fd8-d294-11ef-236d-81deef63f37c
 md"""
 # Latent Variable Models and Variational Bayes
@@ -34,18 +37,18 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Introduction to latent variable models and variational inference by Free energy minimization
 
-Materials
+##### Materials
 
   * Mandatory
 
       * These lecture notes
   * Optional 
 
-      * Bishop (2016), pp. 461-486 (sections 10.1, 10.2 and 10.3)
+      * Bishop (2016), [PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), pp. 461-486 (sections 10.1, 10.2 and 10.3)
       * Ariel Caticha (2010), [Entropic Inference](https://arxiv.org/abs/1011.0723)
 
           * tutorial on entropic inference, which is a generalization to Bayes rule and provides a foundation for variational inference.
@@ -54,28 +57,26 @@ Materials
       * Blei et al. (2017), [Variational Inference: A Review for Statisticians](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773)
       * Lanczos (1961), [The variational principles of mechanics](https://www.amazon.com/Variational-Principles-Mechanics-Dover-Physics/dp/0486650677)
       * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-)
-      * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
-      * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
+      * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
+      * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bmlip/course/blob/main/assets/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
 
 """
 
-# ╔═╡ 26c591fc-d294-11ef-0423-b7a854d09bad
+# ╔═╡ e0d0f3a1-5e00-44f0-9c2b-4308cbd673ce
+TODO("the figure above is very large; can we scale the size down a bit?")
+
+# ╔═╡ f8c8013a-3e87-4d01-a3ae-86b39cf1f002
 md"""
-## Challenge $(HTML("<span id='illustrative-example'></span>")): Density Modeling for the Old Faithful Data Set
-
-You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
-
+# The Gaussian Mixture Model
 """
 
 # ╔═╡ 26c59b52-d294-11ef-1eba-d3f235f85eee
 md"""
 ## Unobserved Classes
 
-Consider again a set of observed data ``D=\{x_1,\dotsc,x_N\}``
+Consider again a set of observed data ``D=\{x_1,\dotsc,x_N\}``.
 
-This time we suspect that there are *unobserved* class labels that would help explain (or predict) the data, e.g.,
+This time, we suspect that there are *unobserved* class labels that would help explain (or predict) the data, e.g.,
 
   * the observed data are the color of living things; the unobserved classes are animals and plants.
   * observed are wheel sizes; unobserved categories are trucks and personal cars.
@@ -85,7 +86,7 @@ This time we suspect that there are *unobserved* class labels that would help ex
 
 # ╔═╡ 26c5a1f6-d294-11ef-3565-39d027843fbb
 md"""
-Classification problems with unobserved classes are called **Clustering** problems. The learning algorithm needs to **discover the classes from the observed data**.
+Classification problems with unobserved classes are called **Clustering** problems. In clustering problems, the learning algorithm needs to *discover the underlying classes from the observed data*.
 
 """
 
@@ -93,13 +94,14 @@ Classification problems with unobserved classes are called **Clustering** proble
 md"""
 ## The Gaussian Mixture Model
 
-The spread of the data in the illustrative example looks like it could be modeled by two Gaussians. Let's develop a model for this data set. 
+The spread of the data in the Old Faithful data set looks like it could be modeled by two Gaussians. Let's develop a model for this data set. 
 
 """
 
 # ╔═╡ 26c5b896-d294-11ef-1d8e-0feb99d2d45b
 md"""
-Let ``D=\{x_n\}`` be a set of observations. We associate a one-hot coded hidden class label ``z_n`` with each observation:
+
+We associate a one-hot coded hidden class label ``z_n`` with each observation ``x_n``:
 
 ```math
 \begin{equation*}
@@ -148,7 +150,7 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 \end{align*}
 ```
 
-Full proof as an [exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
+**Proof**: see [exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
 
 Eq. B-9.12 reveals the link to the name Gaussian *mixture model*. The priors ``\pi_k`` for the ``k``-th class are also called **mixture coefficients**. 
 
@@ -158,11 +160,11 @@ Be aware that Eq. B-9.12 is not the generative model for the GMM! The generative
 
 # ╔═╡ 26c5d734-d294-11ef-20a3-afd2c3324323
 md"""
-## GMM is a very flexible model
+## GMM is a Flexible Model
 
-GMMs are very popular models. They have decent computational properties and are **universal approximators of densities** (as long as there are enough Gaussians of course)
+GMMs are very popular models. They have decent computational properties and are **universal approximators of densities** (as long as there are enough Gaussians, of course).
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-ZoubinG-GMM-universal-approximation.png?raw=true)
 
 (In the above figure, the Gaussian components are shown in $(html"<span style='color: red'>red</span>") and the pdf of the mixture models in $(html"<span style='color: blue'>blue</span>")).
 
@@ -172,15 +174,17 @@ GMMs are very popular models. They have decent computational properties and are 
 md"""
 ## Latent Variable Models
 
-The GMM contains both **observed** variables ``{x*n}``, (unobserved) **parameters** ``\theta= \{\pi_k,\mu_k, \Sigma_k\}`` and **unobserved** (synonym: latent, hidden) variables ``\{z_{nk}\}``.
+A GMM contains both **observed** variables ``\{x_n\}``, and **unobserved** variables, namely unobserved (synonym: latent, hidden) parameters ``\theta= \{\pi_k,\mu_k, \Sigma_k\}`` and unobserved  class labels ``\{z_{nk}\}``.
 
-From a Bayesian viewpoint, both latent variables ``\{z_{nk}\}`` and parameters ``\theta`` are just unobserved variables for which we can set a prior and compute a posterior by Bayes rule. 
+From a Bayesian viewpoint, both the class labels ``\{z_{nk}\}`` and the parameters ``\theta`` are just unobserved variables for which we can set a prior and compute a posterior by Bayes rule. 
 
-Note that ``z_{nk}`` has a subscript ``n``, hence its value depends not only on the class (``k``) but also on the ``n``-th observation (in contrast to parameters). These observation-dependent latent variables are generally a useful tool to encode additional structure in the model about the causes of your observations. Here (in the GMM), the latent variables ``\{z_{nk}\}`` encode (unobserved) class membership. 
+Note that ``z_{nk}`` carries a subscript ``n``, indicating that its value depends not only on the class index ``k``, but also on the specific observation ``n``. This contrasts with global model parameters ``\theta``, which are shared across all data points. 
 
-Models with observation-dependent latent variables are generally called **Latent Variable Models**. 
+Observation-specific latent variables can be a powerful modeling tool for capturing additional structure in the data, particularly information about the hidden causes of individual observations. In the case of the Gaussian Mixture Model (GMM), the latent variables ``z_{nk}`` represent unobserved class memberships, specifying which component generated each data point.
 
-By adding model structure through (equations among) observation-dependent latent variables, we can often build more accurate models for very complex processes. Unfortunately, adding structure through observation-dependent latent variables in models often is accompanied by a more complex inference task.
+Models that incorporate unobserved variables, often specific to each observation, are broadly known as **Latent Variable Models** (LVMs). These latent variables help explain the hidden structure or generative process underlying the observed data.
+
+By adding model structure through (equations among) observation-dependent latent variables, we can often build more accurate models for very complex processes. Unfortunately, adding structure through observation-dependent latent variables in models is also often accompanied by a more complex inference task.
 
 """
 
@@ -190,7 +194,7 @@ md"""
 
 Indeed, the fact that the observation-dependent class labels are *unobserved* for the GMM, leads to a problem for processing new data by Bayes rule in a GMM.
 
-Consider a given data set ``D = \{x_n\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://bmlip.github.io/course/lectures/Generative%20Classification.html):
+Consider a given data set ``D = \{x_1,x_2,\ldots,x_N\}``. We recall here the log-likelihood for the Gaussian-Categorial Model, see the [generative classification lesson](https://bmlip.github.io/course/lectures/Generative%20Classification.html):
 
 ```math
 \log\, p(D|\theta) =  \sum_{n,k} y_{nk} \underbrace{ \log\mathcal{N}(x_n|\mu_k,\Sigma) }_{ \text{Gaussian} } + \underbrace{ \sum_{n,k} y_{nk} \log \pi_k }_{ \text{multinomial} } \,.
@@ -212,7 +216,7 @@ However, for the Gaussian mixture model (same log-likelihood function with ``z_{
 
 # ╔═╡ 26c64174-d294-11ef-2bbc-ab1a84532311
 md"""
-There is no known conjugate prior for the latent variables for the GMM likelihood function and, therefore, we cannot compute Bayes rule to get a closed-form expression for the posterior over the latent variables:
+There is no known conjugate prior for the latent variables in the GMM likelihood. Therefore, Bayes rule does not yield a closed-form expression for the posterior over the latent variables:
 
 ```math
  \underbrace{p(\{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\} | D)}_{\text{posterior (no analytical solution)}} \propto \underbrace{p(D\,|\,\{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\})}_{\text{likelihood}} \cdot \underbrace{p( \{z_{nk}\},\{\mu_k,\Sigma_k,\pi_k\} )}_{\text{prior (no known conjugate)}} 
@@ -226,11 +230,16 @@ Can we still compute an approximate posterior? In this lesson, we introduce an a
 
 """
 
+# ╔═╡ f1f7407d-86a1-4f24-b78a-61a411d1f371
+md"""
+# Variational Inference
+"""
+
 # ╔═╡ 26c67f04-d294-11ef-03a4-838ae255689d
 md"""
 ## The Variational Free Energy Functional
 
-We'll start from scratch. Consider a model ``p(x,z) = p(x|z) p(z)``, where ``x`` and ``z`` are observed and latent variables respectively. ``z`` may include parameters but also observation-dependent latent variables. 
+We'll start from scratch. Consider a model ``p(x,z) = p(x|z) p(z)``, where ``x`` and ``z`` are observed and latent variables, respectively. ``z`` may include parameters but also observation-dependent latent variables. 
 
 The goal of Bayesian inference is to transform the (known) *likelihood-times-prior* factorization of the full model to a *posterior-times-evidence* decomposition: 
 
@@ -247,7 +256,7 @@ Remember from the [Bayesian machine learning lesson](https://bmlip.github.io/cou
 
 The CA decomposition cannot be evaluated because it depends on the posterior ``p(z|x)``, which cannot be evaluated since it is the objective of the inference process. 
 
-Let's now introduce a distribution ``q(z)`` that we use to approximate the posterior ``p(z|x)``, and assume that ``q(z)`` can be evaluated! 
+Let's now introduce a distribution ``q(z)`` (called the "variational" or "approximate" posterior distribution) that we will use to *approximate* the posterior ``p(z|x)``. Since we propose the distribution ``q(z)`` ourselves, we will assume that ``q(z)`` can be evaluated. 
 
 If will substitute ``q(z)`` for ``p(z|x)`` in the CA decomposition, then we obtain 
 
@@ -256,40 +265,40 @@ If will substitute ``q(z)`` for ``p(z|x)`` in the CA decomposition, then we obta
  
 ```
 
-This expression is called the variational *Free Energy* (FE). We consider the Free Energy ``F`` as a function of the posterior ``q(z)``. Technically, a function of a function is called a functional, and we write square brackets (e.g., ``F[q]``) to differentiate functionals from functions (e.g., ``q(z)``). 
+This expression is called the **Variational Free Energy** (VFE), represented by the symbol ``F``. We treat ``F`` as a function of the posterior ``q(z)``. Technically, a function of a function is called a functional, and we write square brackets (e.g., ``F[q]``) to differentiate functionals from functions (e.g., ``q(z)``). 
 
-Note that all factors in the CA decomposition of FE (i.e., ``q(z)``, ``p(z)`` and ``p(x|z)``) can be evaluated as a function of ``z`` (and ``x`` is observed), and therefore the FE can be evaluated. This is important: log-evidence cannot be evaluated, but FE *can* be evaluated! 
+Note that all factors in the CA decomposition of VFE (i.e., ``q(z)``, ``p(z)``, and ``p(x|z)``) can be evaluated as a function of ``z`` (and ``x`` is observed), and therefore the VFE can be evaluated. This is important: log-evidence ``\log p(x)`` cannot be evaluated, but ``F[q]`` *can* be evaluated! 
 
 """
 
 # ╔═╡ 26c6e002-d294-11ef-15a4-33e30d0d76ec
 md"""
-## Inference by FE Minimization
+## The Global VFE Minimum Recovers Bayes Rule
 
-It turns out that we can do (approximate) Bayesian inference through FE Minimization (FEM) with respect to ``q``. 
+It turns out that we can perform (approximate) Bayesian inference by minimizing the Variational Free Energy (VFE) with respect to the variational distribution ``q``.
 
-To explain inference by FEM, we first rewrite FE in terms of "inference bound" minus "log-evidence" terms (the bound-evidence (BE) decomposition):
+To explain inference by VFE minimization (abbreviated as VFEM), we first rewrite the VFE in terms of "inference bound" minus "log-evidence" terms (the bound-evidence (BE) decomposition):
 
 ```math
 \begin{align*}
  F[q] &= \underbrace{ \int q(z) \log \frac{q(z)}{p(z)} \mathrm{d}z }_{\text{complexity}} - \underbrace{\int q(z) \log p(x|z) \mathrm{d}z}_{\text{accuracy}} \\
- &= \int q(z) \log \frac{q(z)}{p(z) p(x|z) }\mathrm{d}z \\
- &= \int q(z) \log \frac{q(z)}{p(z|x) p(x)}\mathrm{d}z \\
+ &= \int q(z) \log \frac{q(z)}{ p(x|z) p(z) }\mathrm{d}z \\
+ &= \int q(z) \log \frac{q(z)}{ p(z|x) p(x)}\mathrm{d}z \quad \text{( since }  p(x|z) p(z) =  p(z|x) p(x)\text{ )} \\
  &= \underbrace{\int q(z) \log \frac{q(z)}{p(z|x)}\mathrm{d}z}_{\text{inference bound}\geq 0} - \underbrace{\log p(x)}_{\text{log-evidence}} 
  \end{align*}
 ```
 
 Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
 
-Since the second term (log-evidence) does not involve ``q(z)``, FEM over ``q`` will bring ``q(z)`` closer to the Bayesian posterior ``p(z|x)``.
+Since the second term (log-evidence) does not involve ``q(z)``, VFEM over ``q`` will bring ``q(z)`` closer to the Bayesian posterior ``p(z|x)``.
 
-Since ``\mathrm{KL}[q(z),p(z|x)]\geq 0`` for any ``q(z)``, and ``\mathrm{KL}[q(z),p(z|x)]= 0``  only if ``q(z)=p(z|x)``, the FE is always an upperbound on (minus) log-evidence, i.e.,
+Since ``D_{\text{KL}}[q(z),p(z|x)]\geq 0`` for any ``q(z)``, and ``D_{\text{KL}}[q(z),p(z|x)]= 0``  only if ``q(z) = p(z|x)``, the VFE is always an upper-bound on (minus) log-evidence, i.e.,
 
 ```math
 F[q] \geq -\log p(x) \,.
 ```
 
-As a result, **global FEM recovers Bayes rule**, i.e., global optimization of FE w.r.t. ``q`` leads to
+As a result, global minimization of VFE leads to
 
 ```math
 q^*(z) = \arg\min_q F[q]
@@ -298,13 +307,22 @@ q^*(z) = \arg\min_q F[q]
 where
 
 ```math
-\begin{align*}
-   \text{posterior: } q^*(z) &= p(z|x) \\
-   \text{evidence: } F[q^*] &= -\log p(x) 
-\end{align*}
+\begin{align}
+   q^*(z) &= p(z|x) \tag{posterior}\\
+   F[q^*] &= -\log p(x) \tag{evidence}
+\end{align}
 ```
 
-In practice, even if we cannot attain the global minimum of FE, we can still use a local minimum 
+"""
+
+# ╔═╡ e6aeee80-9e63-4937-9edf-428d5e3e38d3
+keyconcept("", md"Global VFE minimization recovers Bayes rule!")
+
+# ╔═╡ baec0494-9557-49d1-b4d8-a8030d3281b7
+md"""
+## Approximate Bayesian Inference by VFE Minimization
+
+In practice, even if we cannot attain the global minimum of VFE, we can still use a local minimum, 
 
 ```math
 \hat{q}(z) \approx \arg\min_q F[q]
@@ -314,53 +332,64 @@ to accomplish **approximate Bayesian inference** by:
 
 ```math
 \begin{align*}
-   \text{posterior: } \hat{q}(z) &\approx p(z|x) \\
-   \text{evidence: } F[\hat{q}] &\approx -\log p(x)
+\hat{q}(z) &\approx p(z|x) \\
+F[\hat{q}] &\approx -\log p(x)
     \end{align*}
 ```
 
-In short, FE minimization transforms an inference problem (that involves integration) to an optimization problem! Generally, optimization problems are easier to solve than integration problems. 
+Executing inference by minimizing the VFE functional is called **Variational Bayes** (VB) or **Variational Inference** (VI). 
 
-Executing inference by minimizing the variational FE functional is called **Variational Bayes** (VB) or variational inference. 
 
-(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* FE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing Free Energy rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
-
+(As an aside), note that Bishop introduces in Eq. B-10.3 an *Evidence Lower BOund* (in modern machine learning literature abbreviated as **ELBO**) ``\mathcal{L}[q]`` that equals the *negative* VFE (``\mathcal{L}[q]=-F[q]``). In this class, we prefer to discuss inference in terms of minimizing VFE rather than maximizing ELBO, but note that these two concepts are equivalent. (The reason why we prefer the Free Energy formulation relates to the terminology in the Free Energy Principle, which we introduce in the [Intelligent Agents and active Inference lesson (B12)](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html)). 
 """
+
+# ╔═╡ 40ce0abb-a086-4977-9131-10f60ab44152
+keyconcept("", md"VFE minimization transforms a Bayesian inference problem (that involves integration) into an optimization problem! Generally, optimization problems are easier to solve than integration problems.")  
 
 # ╔═╡ 26c6f63c-d294-11ef-1090-e9238dd6ad3f
 md"""
-## Constrained FE Minimization
+## Constrained VFE Minimization
 
-It is common to add simplifying constraints to optimization problems to make a difficult optimization task tractible. This is also common practice when approximating Bayesian inference by FE minimization.
+It is common to add simplifying constraints to an optimization problem to make a difficult optimization task tractible. This is also standard practice when approximating Bayesian inference by FE minimization.
 
-There are three important cases of adding constraints to ``q(z)`` that often alleviates the FE minimization task:
+There are three important cases of adding constraints to the VFE functional that often alleviate the VFE minimization task:
+  - form constraints on ``q(z)``
+  - factorization constraints on ``q(z)``
+  - other (ad hoc) constraints
 
-### Form constraints
+We will shortly discuss these simplifications below.
 
-For almost every practical setting, we constrain the posterior ``q(z)`` to be a specific parameterized probability distribution, e.g.,
+"""
+
+# ╔═╡ aea77d69-9ecd-4be0-b6fd-c944d27d68df
+md"""
+##### 1. Form constraints
+
+For almost every practical setting, we constrain the posterior ``q(z)`` to belong to a **specific parameterized family** of probability distributions, e.g.,
 
 ```math
 q(z) = \mathcal{N}\left( z | \mu, \Sigma \right)\,.
 ```
 
-In this case, the _functional_ minimization problem for ``F[q]`` reduces to the minimization of a _function_.
+In this case, the *functional* minimization problem for ``F[q]`` simplifies to the minimization of an ordinary *function*
 
 ```math
 F(\mu,\Sigma) = \int \mathcal{N}\left( z | \mu, \Sigma \right) \log \frac{\mathcal{N}\left( z | \mu, \Sigma \right)}{p(x,z)}\mathrm{d}z
 ```
 
-w.r.t. the parameters ``\mu`` and ``\Sigma``. 
+with respect to the parameters ``\mu`` and ``\Sigma``. 
 
 
-We can often use standard gradient-based optimization methods to minimize the FE.
+We can often use standard gradient-based optimization methods to minimize the function ``F(\mu,\Sigma)\,.``
 
-In the figure below (see Bishop Fig.10.1a, pg.464), an [intractable Bayesian posterior](https://bmlip.github.io/course/lectures/Discriminative%20Classification.html#Laplace-example) (yellow) for a binary classification problem has been approximated by a Laplace approximation (red) and a variational posterior ``q(z) \sim \mathcal{N}(\mu,\sigma^2)`` (green). 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure10.1a.png?raw=true)
+"""
 
-### Factorization constraints
+# ╔═╡ 3654551d-5d08-4bb0-8a0d-c7d42225bc69
+md"""
+##### 2. Factorization constraints
 
-In addition to form constraints, it is also common to constrain the posterior ``q(z)`` by a specific factorization. For instance, in _mean-field factorization_, we constrain the posterior to factorize into a set of independent factors, i.e.,
+In addition to form constraints, it is also common to constrain the posterior ``q(z)`` by a specific factorization. For instance, in the *mean-field factorization* constraints, we constrain the variational posterior to factorize fully into a set of independent factors, i.e.,
 
 ```math
 q(z) = \prod_{j=1}^m q_j(z_j)\,, \tag{B-10.5}
@@ -368,41 +397,59 @@ q(z) = \prod_{j=1}^m q_j(z_j)\,, \tag{B-10.5}
 
 Variational inference with mean-field factorization has been worked out in detail as the **Coordinate Ascent Variational Inference** (CAVI) algorithm. See the [Optional Slide on CAVI](#CAVI) for details. 
 
-Mean-field factorization is just an example of various _factorization constraints_ that have been successfully applied to FEM.
+Mean-field factorization is just an example of various _factorization constraints_ that have been successfully applied to VFEM.
 
 
-### Other constraints, e.g. the Expectation-Minimization (EM) algorithm
-
-Aside from form and factorization constraints, several ad hoc algorithms have been derived that ease the process of FE minimization for particular models. 
-
-In particular, the Expectation-Maximization (EM) algorithm is a famous special case of constrained FE minimization. The EM algorithm places some constraints on both the posterior ``q(z)`` and the prior ``p(z)`` (see the [OPTIONAL SLIDE](#EM-Algorithm) for more info) that essentially reduces FE minimization to maximum likelihood estimation.
 
 """
 
+# ╔═╡ edb179df-5cff-4e7b-8645-6da4818dceee
+md"""
+
+##### 3. Other constraints, e.g., the Expectation-Minimization (EM) algorithm
+
+Aside from form and factorization constraints on ``q(z)``, several ad hoc algorithms have been developed that ease the process of VFE minimization for particular models. 
+
+In particular, the [Expectation-Maximization (EM) algorithm](https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm) is a famous special case of constrained VFE minimization. The EM algorithm places some constraints on both the posterior ``q(z)`` and the prior ``p(z)`` (see the [OPTIONAL SLIDE](#EM-Algorithm) for more info) that essentially reduce VFE minimization to maximum likelihood estimation.
+"""
+
+# ╔═╡ 757465a4-6a7f-4c8e-98de-6df5ca995b03
+TODO("internal links do not seem to work")
+
 # ╔═╡ 26c704f6-d294-11ef-1b3d-d52f0fb1c81d
 md"""
-## Visualization of Constrained Free Energy Minimization
+## Visualization of Constrained VFEM
 
 The following image by [David Blei](https://www.cs.columbia.edu/~blei/) illustrates the Variational Bayes approach:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/blei-variational-inference.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/blei-variational-inference.png?raw=true)
 
 
 """
 
 # ╔═╡ 26c728f0-d294-11ef-0c01-6143abe8c3f0
 md"""
-The Bayesian posterior ``p(z|x)`` (upper-right) is the posterior that would be obtained through executing Bayes rule, but unfortunately Bayes rule is not tractable here. Instead, we propose a variational posterior ``q(z;\nu)`` that is parameterized by ``\nu``. The inside area of the ellipsis represents the area that is reachable by choosing values for the parameter ``\nu``. Note that ``p(z|x)`` is not reachable. We start the FE minimization process by choosing an initial value ``\nu^{\text{init}}``, which corresponds to posterior ``q(z;\nu^{\text{init}})``, as indicated in the figure. FE minimization leads to a final value ``\nu^{*}`` that minimizes the KL-divergence between ``q(z;\nu)`` and ``p(z|x)``. 
+The Bayesian posterior ``p(z|x)`` (upper-right) is the posterior that would be obtained through executing Bayes rule, but unfortunately, Bayes rule is not tractable here. Instead, we propose a variational posterior ``q(z;\nu)`` that is parameterized by ``\nu``. The inside area of the ellipsis represents the area that is reachable by choosing values for the parameter ``\nu``. Note that ``p(z|x)`` is not reachable. We start the FE minimization process by choosing an initial value ``\nu^{\text{init}}``, which corresponds to posterior ``q(z;\nu^{\text{init}})``, as indicated in the figure. VFE minimization leads to a final value ``\nu^{*}`` that minimizes the KL-divergence between ``q(z;\nu)`` and ``p(z|x)``. 
 
+"""
+
+# ╔═╡ 06512595-bdb7-4adf-88ae-62af20210891
+md"""
+# Challenge Revisited: Modeling of the Old Faithful Data Set
 """
 
 # ╔═╡ 26c73cf0-d294-11ef-297b-354eb9c71f57
 md"""
-## Challenge Revisited: Density Modeling for the Old Faithful Data Set
+
+## Derivation of VFEM Update Equations
 
 Let's get back to the illustrative challenge at the beginning of this lesson: we want to do [density modeling for the Old Faithful data set](#illustrative-example).
 
-### model specification
+"""
+
+# ╔═╡ 3e897a59-e7b5-492c-8a8a-724248513a72
+md"""
+##### model specification
 
 We consider a Gaussian Mixture Model, specified by 
 
@@ -414,7 +461,7 @@ p(x,z|\theta) &= p(x|z,\mu,\Lambda)p(z|\pi) \\
 \end{align*}
 ```
 
-Let us introduce some priors for the parameters ``\pi``, ``\mu`` and ``\Lambda``. We factorize the prior and choose conjugate distributions by
+Let us introduce some priors for the parameters ``\pi``, ``\mu``, and ``\Lambda``. We factorize the prior and choose conjugate distributions by
 
 ```math
 p(\pi,\mu,\Lambda) = p(\pi) p(\mu|\Lambda) p(\Lambda)
@@ -423,11 +470,11 @@ p(\pi,\mu,\Lambda) = p(\pi) p(\mu|\Lambda) p(\Lambda)
 with 
 
 ```math
-\begin{align*}
-p(\pi) &= \mathrm{Dir}(\pi|\alpha_0) = C(\alpha_0) \prod_k \pi_k^{\alpha_0-1} \qquad &&\text{(B-10.39)}\\
-p(\mu|\Lambda) &= \prod_k \mathcal{N}\left(\mu_k | m_0, \left( \beta_0 \Lambda_k\right)^{-1} \right) \qquad &&\text{(B-10.40)}\\
-p(\Lambda) &= \prod_k \mathcal{W}\left( \Lambda_k | W_0, \nu_0 \right) \qquad &&\text{(B-10.40)}
-\end{align*}
+\begin{align}
+p(\pi) &= \mathrm{Dir}(\pi|\alpha_0) = C(\alpha_0) \prod_k \pi_k^{\alpha_0-1} \tag{B-10.39} \\
+p(\mu|\Lambda) &= \prod_k \mathcal{N}\left(\mu_k | m_0, \left( \beta_0 \Lambda_k\right)^{-1} \right) \tag{B-10.40} \\
+p(\Lambda) &= \prod_k \mathcal{W}\left( \Lambda_k | W_0, \nu_0 \right) \tag{B-10.40}
+\end{align}
 ```
 
 where ``\mathcal{W}\left( \cdot \right)`` is a [Wishart distribution](https://en.wikipedia.org/wiki/Wishart_distribution) (i.e., a multi-dimensional Gamma distribution).
@@ -435,28 +482,28 @@ where ``\mathcal{W}\left( \cdot \right)`` is a [Wishart distribution](https://en
 The full generative model is now specified by
 
 ```math
-p(x,z,\pi,\mu,\Lambda) = p(x|z,\mu,\Lambda) p(z|\pi) p(\pi) p(\mu|\Lambda) p(\Lambda) \tag{B-10.41}
+p(x,z,\pi,\mu,\Lambda) = \underbrace{p(x|z,\mu,\Lambda) p(z|\pi)}_{\text{B-10.37-38}} \underbrace{p(\pi) p(\mu|\Lambda) p(\Lambda)}_{\text{B-10.39-40}} \tag{B-10.41}
 ```
 
 with hyperparameters ``\{ \alpha_0, m_0, \beta_0, W_0, \nu_0\}``.
 
-### inference
+"""
+
+# ╔═╡ 93e7c7d5-a940-4764-8784-07af2f056e49
+md"""
+##### inference by constrained VFEM
 
 Assume that we have observed ``D = \left\{x_1, x_2, \ldots, x_N\right\}`` and are interested to infer a posterior distribution for the parameters ``\pi``, ``\mu`` and ``\Lambda``.  
 
-We will approximate Bayesian inference by FE minimization. For the specified model, this leads to FE minimization w.r.t. the hyperparameters, i.e., we need to minimize the function 
+We will approximate Bayesian inference by VFE minimization. For the specified model, this leads to VFE minimization with respect to the hyperparameters, i.e., we need to minimize the function 
 
 ```math
 F(\alpha_0, m_0, \beta_0, W_0, \nu_0) \,.
 ```
 
-In general, this function can be optimized in various ways, e.g. by a gradient-descent procedure. 
+In general, this function can be optimized in various ways, e.g., by a gradient-descent procedure. 
 
-"""
-
-# ╔═╡ 26c74c9a-d294-11ef-2d31-67bd57d56d7c
-md"""
-It turns out that adding the following **factorization constraints** on the posterior makes the FEM task analytically tractible:
+It turns out that adding the following **factorization constraints** on the variational posterior makes the VFEM task analytically tractible:
 
 ```math
 \begin{equation}
@@ -464,7 +511,14 @@ q(z,\pi,\mu,\Lambda) = q(z) \cdot q(\pi,\mu,\Lambda) \,. \tag{B-10.42}
 \end{equation}
 ```
 
-For this specific case (GMM model with assumed factorization and parameterization constraints), Bishop shows that the equations for the [optimal solutions (Eq. B-10.9)](#optimal-solutions) are analytically solvable, leading to the following variational update equations (for ``k=1,\ldots,K``): 
+"""
+
+# ╔═╡ 26c74c9a-d294-11ef-2d31-67bd57d56d7c
+md"""
+
+##### update equations
+
+For this specific case (GMM model with factorization constraints), Bishop shows that the equations for the [optimal solutions (Eq. B-10.9)](#optimal-solutions) are analytically solvable, leading to the following variational update equations (for ``k=1,\ldots, K`` ): 
 
 ```math
 \begin{align*}
@@ -493,21 +547,13 @@ S_k &= \frac{1}{N_k} \sum_{n=1}^N r_{nk} \left( x_n - \bar{x}_k\right) \left( x_
 
 # ╔═╡ 26c75b5e-d294-11ef-173e-b3f46a1df536
 md"""
-Exam guide: Working out FE minimization for the GMM to these update equations (eqs B-10.58 through B-10.63) is not something that you need to reproduce without assistance at the exam. Rather, the essence is that *it is possible* to arrive at closed-form variational update equations for the GMM. You should understand though how FEM works conceptually and in principle be able to derive variational update equations for very simple models that do not involve clever mathematical tricks.
-
-"""
-
-# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
-md"""
-## Code Example: FEM for GMM on Old Faithfull data set
-
-Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by Free Energy Minimization, using the constraints as specified above. 
+Exam guide: Working out VFE minimization for the GMM to these update equations (eqs B-10.58 through B-10.63) is not something that you need to reproduce without assistance at the exam. Rather, the essence is that *it is possible* to arrive at closed-form variational update equations for the GMM. You should understand though how FEM works conceptually and in principle be able to derive variational update equations for very simple models that do not involve clever mathematical tricks.
 
 """
 
 # ╔═╡ cc547bfa-a130-4382-af47-73de56e4741b
 old_faithful = 
-	# CSV.read(download("https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/datasets/old_faithful.csv?raw=true"), DataFrame);
+	# CSV.read(download("https://github.com/bmlip/course/blob/v2/assets/datasets/old_faithful.csv?raw=true"), DataFrame);
 
 	# inlining the dataset is the most reliable :)s
 [
@@ -838,36 +884,54 @@ end
 
 # ╔═╡ 26c796c8-d294-11ef-25be-17dcd4a9d315
 md"""
-The generated figure looks much like Figure 10.6 in Bishop. The plots show FEM results for a GMM of ``K = 6`` Gaussians applied to the Old Faithful data set. The ellipses denote the one standard-deviation density contours for each of the components, and the color coding of the data points reflects the "soft" class label assignments. Components whose expected mixing coefficient are numerically indistinguishable from zero are not plotted.
+The generated figure resembles Figure 10.6 in Bishop. The plots show VFEM results for a GMM of ``K = 6`` Gaussians applied to the Old Faithful data set. The ellipses denote the one standard-deviation density contours for each of the components, and the color coding of the data points reflects the "soft" class label assignments. Components whose expected mixing coefficients are numerically indistinguishable from zero are not plotted.
 
 """
 
-# ╔═╡ d4e239be-5ff1-4f96-9c65-8a5a0dda8b1b
+# ╔═╡ 0090be18-2453-4ad3-8e2c-6953649b171e
+TODO("Fons: can you make this into a cool code example where user gets to run through the iterations?")
+
+# ╔═╡ f42a1a65-20ce-452f-9974-bc8146943574
 md"""
-# TODO: the result is different from the notebooks online
+# Theoretical Underpinning of VFE Minimization
 """
 
 # ╔═╡ 26c7b428-d294-11ef-150a-bb37e37f4b5d
 md"""
-## Variational Inference and The Method of Maximum Entropy
+## Observations as Variational Constraints
 
-We derived variational inference by substituting a variational posterior ``q(z)`` for the Bayesian posterior ``p(z|x)`` in the CA decomposition of (negative log) Bayesian evidence for a model. This is clever, but reveals nothing about the foundations of variational inference. Is variational inference any good?
+We derived variational inference by substituting a variational posterior ``q(z)`` for the Bayesian posterior ``p(z|x)`` in the CA decomposition of (negative log) Bayesian evidence for a model. This led to a straightforward derivation of the VFE functional, but revealed nothing about the foundations of variational inference. Is variational inference any good?
 
-In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the **Method of Maximum (Relative) Entropy** is developed for rational updating of priors to posteriors when faced with new information in the form of constraints. Caticha's argumentation is as follows:
+To approach this question, let us first recognize that, in the context of a given model ``p(x,z)``, new observations ``x`` can generally be formulated as a constraint on a posterior distribution ``q``. For instance, observing a new data point ``x_1 = 5`` can be formalized as a constraint ``q(x_1) = \delta(x_1 - 5)``, where ``\delta(\cdot)`` is the Dirac delta function. 
 
-  * Consider prior beliefs (ie, a generative model) ``p(x,z)`` about observed and latent variables ``x`` and ``z``. Assume that new information in the form of (data, factorization or form) constraints is obtained and we are interested in the "best update" to a posterior ``q(x,z)``.
-  * We first establish that new observations of ``x`` can be phrased as constraints on the variational posterior ``q``. For instance, a new observation ``x_1=5`` can be formulated as a posterior constraint ``q(x_1)=\delta(x_1-5)``.
+Viewing observations as delta-function constraints enables us to interpret them as a specific instance of variational constraints, on par with form and factorization (and other) constraints, all of which shape the variational posterior in constrained VFE minimization.
+
+
+"""
+
+# ╔═╡ b3bb7349-1965-4734-83ed-ba6fef0ccc41
+md"""
+
+## Variational Inference and The Maximum Entropy Principle
+
+In [Caticha (2010)](https://arxiv.org/abs/1011.0723) (based on earlier work by [Shore and Johnson (1980)](https://github.com/bmlip/course/blob/main/assets/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)), the [Principle of Maximum (Relative) Entropy](https://en.wikipedia.org/wiki/Principle_of_maximum_entropy) is developed as a method for rational updating of priors to posteriors when faced with new information in the form of constraints.
+
+
+Caticha's argumentation is as follows:
+
+  * Consider prior beliefs (i.e., a generative model) ``p(x,z)`` about observed and latent variables ``x`` and ``z``. Assume that new information in the form of constraints is obtained, and we are interested in the "best update" to posterior beliefs ``q(x,z)``.
+
   * In order to define what "best update" means, Caticha assumed a ranking function ``S[q]`` that generates a preference score for each candidate posterior ``q`` for a given prior ``p``. The best update from ``p`` to ``q`` is then identified as
 
 ```math
-q^* = \arg\max_q S[q]\,, \quad \text{subject to constraints.} 
+q^* = \arg\max_q S[q]\,, \quad \text{subject to all constraints.} 
 ```
 
-Similarly to [Cox' method](https://en.wikipedia.org/wiki/Cox%27s_theorem) for deriving Probability Theory from a set of sensical assumptions, Caticha then introduced the following axioms, based on a rational principle (the **principle of minimal updating**, see [Caticha 2010](https://arxiv.org/abs/1011.0723)), that the ranking function needs to adhere to: 
+Similarly to [Cox' method](https://en.wikipedia.org/wiki/Cox%27s_theorem) for deriving Probability Theory from a set of sensical axioms, Caticha then introduced the following axioms, based on a rational principle (the **principle of minimal updating**, see [Caticha 2010](https://arxiv.org/abs/1011.0723)), that the ranking function needs to adhere to: 
 
-1. *Locality*: local information has local effects.
-2. *Coordinate invariance*: the system of coordinates carries no information.
-3. *Independence*: When systems are known to be independent, it should not matter whether they are treated separately or jointly.
+  1. *Locality*: local information has local effects.
+  2. *Coordinate invariance*: the system of coordinates carries no information.
+  3. *Independence*: When systems are known to be independent, it should not matter whether they are treated separately or jointly.
 
 It turns out that these three criteria **uniquely identify the Relative Entropy** as the proper ranking function: 
 
@@ -877,44 +941,48 @@ S[q] = - \sum_z q(x,z) \log \frac{q(x,z)}{p(x,z)}
 \end{align*}
 ```
 
-This procedure to find the variational posterior ``q`` is called the Method of Maximum (Relative) Entropy (MRE). Note that, since ``S[q]=-F[q]``, constrained Relative Entropy maximization is equivalent to constrained Free Energy minimization! 
+This procedure for finding the variational posterior ``q`` is called the **Principle of  Maximum (Relative) Entropy** (PME). Note that, since ``S[q]=-F[q]``, constrained Relative Entropy maximization is equivalent to constrained VFE minimization! 
 
-```math
-\Rightarrow
-```
+Therefore, when information is supplied in the form of constraints on the posterior (such as form/factorization constraints and new observations as data constraints), we *should* select the posterior that minimizes the constrained Variational Free Energy. **Constrained FE minimization is the proper method for inference!**
 
-When information is supplied in the form of constraints on the posterior (such as form/factorization constraints and new observations as data constraints), we *should* select the posterior that minimizes the constrained Free Energy. **Constrained FE minimization is the proper method for inference!**
-
-Bayes rule is the global solution of constrained FEM when all constraints are data constraints, ie, delta distributions on ``q(x)``. Hence, Bayes rule is a special case of constrained FEM. Bayes rule only applies to updating belief on the basis of new observations. FE minimization is the best inference method you can do under the given constraints.  
-
+Bayes rule is the global solution of constrained VFEM when all constraints are data constraints, ie, delta distributions on ``q(x)``. Hence, Bayes rule is a special case of constrained VFEM. Bayes rule only applies to updating beliefs on the basis of new observations. 
+ 
 """
 
-# ╔═╡ 26c7f514-d294-11ef-123d-91ccca2b0460
-md"""
-## Interesting Decompositions of the Free Energy Functional
+# ╔═╡ 06170e31-e865-4178-8af0-41d82df95d71
+keyconcept("","Constrained VFE minimization is consistent with the Maximum Entropy Principle, which prescribes how to rationally update beliefs when new information becomes available. In this framework, the updated posterior is the distribution that minimizes VFE (or equivalently, KL divergence to the prior) subject to the imposed constraints. ")
 
-$(HTML("<span id='fe-decompositions'></span>")) In rounding up this lession, we summarize a few interesting decompositions of the FE functional, making use of ``p(x,z) = p(z|x)p(x) = p(x|z)p(z)`` 
+# ╔═╡ bbdca8c2-022f-42be-bcf7-80d86f7f269c
+md"""
+
+## Model Performance Evaluation, Revisited
+
+Let us reconsider the Bound-Evidence decomposition of the VFE for a model ``p(x,z)`` with variational posterior ``q(z)``,
 
 ```math
-\begin{align*}
-\mathrm{F}[q] &\triangleq \sum_z q(z) \log \frac{q(z)}{p(x,z)} \\
-&= \underbrace{\sum_z q(z) \log \frac{1}{p(x,z)}}_{\text{energy}} - \underbrace{\sum_z q(z) \log \frac{1}{q(z)}}_{\text{entropy}} \qquad &&\text{(EE)} \\
-&= \underbrace{\sum_z q(z) \log \frac{q(z)}{p(z|x)}}_{\text{inference bound}\geq 0} - \underbrace{\log p(x)}_{\text{log-evidence}} \qquad &&\text{(BE)} \\
-&= \underbrace{\sum_z q(z)\log\frac{q(z)}{p(z)}}_{\text{complexity}} - \underbrace{\sum_z q(z) \log p(x|z)}_{\text{accuracy}}  \qquad &&\text{(CA)}
-\end{align*}
+\begin{align}
+\mathrm{F}[q] = \underbrace{\sum_z q(z) \log \frac{q(z)}{p(z|x)}}_{\text{inference bound}\geq 0} \underbrace{- \log p(x)}_{\text{surprise}} \tag{BE} 
+\end{align}
 ```
 
-These decompositions are very insightful and we will label them respectively as *energy-entropy* (EE), *bound-evidence* (BE), and *complexity-accuracy* (CA) decompositions. 
+The VFE comprises two cost terms:
 
-In the [Bayesian Machine Learning](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html) lecture, we discussed the CA decomposition of Bayesian model evidence to support the interpretation of evidence as a model performance criterion. Here, we recognize that FE allows a similar CA decomposition: minimizing FE increases data fit and decreases model complexity. Hence, FE is a good model performance criterion.
+  - The **surprise** (or negative log-evidence), ``-\log p(x)``, reflects the cost of predicting the data ``x`` using a model ``p(x, z)``, assuming that (ideal) Bayesian inference can be performed. Specifically, the evidence ``p(x)`` is obtained from the joint model ``p(x, z)`` by marginalizing over the latent variables:
+```math
+p(x) = \sum_z p(x,z)  \,.
+```
 
-The CA decomposition makes use of the prior ``p(z)`` and likelihood ``p(x|z)``, both of which are selected by the engineer, so the FE can be evaluated with this decomposition!
+  - The **inference bound**, given by the Kullback–Leibler divergence
+```math
+\sum_z q(z) \log \frac{q(z)}{p(z |x)} \geq 0 \,,
+``` 
+quantifies the cost of imperfect inference, i.e., the discrepancy between the variational posterior ``q(z)`` and the true Bayesian posterior ``p(z | x)``.
 
-The BE decomposition restates what we derived earlier, namely that the FE is an upperbound on the (negative) log-evidence. The bound is the KL-divergence between the variational posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. Global minimization of FE with only data constraints drives the KL-divergence to zero and results to perfect Bayesian inference.
+In any practical setting, using a model *implies* performing inference within that model. Therefore, the effective cost of applying a model is not merely the surprise but also must include the cost of inference. 
 
-The BE decomposition can also be interpreted as problem representation costs (negative log-evidence) plus solution proposal costs (the KL-divergence bound), see the [Intelligent Agent and Active Inference lesson (slide on Problem and Solution costs)](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html#PS-decomposition) for more details.
+Put more bluntly: a model with very high Bayesian evidence ``p(x)`` may still be practically unusable due to exorbitant inference costs.
 
-The EE decomposition provides a link to the [second law of thermodynamics](https://en.wikipedia.org/wiki/Second_law_of_thermodynamics): Minimizing FE leads to entropy maximization, subject to constraints, where in this case the constraints are imposed by the postulated generative model. 
+In the literature, the VFE is typically interpreted as an approximation (more precisely, an upper-bound) to the surprise, ``-\log p(x)``, which is often regarded as the “true” measure of model performance. However, we argue that this perspective should be reversed: the VFE should be considered the true performance metric in practice, as it accounts for both model fit and the tractability of inference. The surprise can be viewed as a special case of the VFE, corresponding to a zero inference bound, that only applies when ideal Bayesian inference is computationally feasible. 
 
 """
 
@@ -922,17 +990,11 @@ The EE decomposition provides a link to the [second law of thermodynamics](https
 md"""
 ## Variational Inference in Practice
 
-For most interesting models of real-world problems, Bayes rule is not tractible. Therefore, the usage of approximate variational Bayesian inference in real-world settings is rising rapidly.
+For most realistic models of complex real-world problems, Bayes rule is not tractable in closed form. As a result, the use of approximate variational Bayesian inference has seen rapid growth in practical applications.
 
-A toolbox such as [RxInfer](http://rxinfer.com) makes it possible to specify a complex model and automate the inference process by constrained Free Energy minimization. 
+Toolboxes such as [RxInfer](http://rxinfer.com) enable users to define sophisticated probabilistic models and automate the inference process via constrained VFE minimization. Remarkably, specifying even complex models typically requires no more than a single page of code. 
 
-Note that model specification, even for complex models, usually does not take more than 1 page of code. As a result, you can, in principle, solve very complex problems by automated inference in a complex model with less than 1 page of code. 
-
-```math
-\Rightarrow
-```
-
-Compared to writing an application algorithm of, say 40 pages of code, solving problems by automated variational inference is potentially a big deal for the future design of information processing systems. 
+In contrast to traditional algorithm design, where solving a problem might require implementing a custom solution in, say, ``40`` pages of code, automated inference in a probabilistic model offers a radically more efficient and modular approach. This shift has the potential to fundamentally change how we design and deploy information processing systems in the future.
 
 """
 
@@ -944,20 +1006,24 @@ md"""
 
 # ╔═╡ 26c82f16-d294-11ef-0fe1-07326b56282f
 md"""
-## FE Minimization with Mean-field Factorization Constraints: $(HTML("<span id='CAVI'>the CAVI Approach</span>"))
+## VFE Minimization with Mean-field Factorization Constraints: $(HTML("<span id='CAVI'>the CAVI Approach</span>"))
 
-Let's work out FE minimization with additional mean-field constraints (=full factorization) constraints:  
+Let's work out VFE minimization with additional mean-field constraints (=full factorization) constraints:  
 
 ```math
 q(z) = \prod_{j=1}^m q_j(z_j)\,.
 ```
 
-In other words, the posteriors for ``z_j`` are all considered independent. This is a strong constraint but leads often to good solutions.
+In other words, the posteriors for ``z_j`` are all considered independent. This is a strong constraint but often leads to good solutions.
 
 Given the mean-field constraints, it is possible to derive the following expression for the $(HTML("<span id='optimal-solutions'>optimal solutions</span>")) ``q_j^*(z_j)``, for ``j=1,\ldots,m``: 
 
-\begin{equation*} \tag{B-10.9} \boxed{ \begin{aligned} \log q_j^*(z*j) &\propto \mathrm{E}*{q*{-j}^*}\left[ \log p(x,z) \right]  \
-  &= \underbrace{\sum*{z*{-j}} q*{-j}^*(z*{-j}) \underbrace{\log p(x,z)}*{\text{"field"}}}_{\text{"mean field"}}  \end{aligned}} \end{equation*}
+```math
+\begin{align} 
+\log q_j^*(z_j) &\propto \mathrm{E}_{q_{-j}^*}\left[ \log p(x,z) \right]  \\
+  &= \underbrace{\sum_{z_{-j}} q_{-j}^*(z_{-j}) \underbrace{\log p(x,z)}_{\text{"field"}}}_{\text{"mean field"}} 
+\end{align} 
+```
 
 where we defined ``q_{-j}^*(z_{-j}) \triangleq q_1^*(z_1)q_2^*(z_2)\cdots q_{j-1}^*(z_{j-1})q_{j+1}^*(z_{j+1})\cdots q_m^*(z_m)``.
 
@@ -987,7 +1053,7 @@ This algorithm for approximating Bayesian inference is known **Coordinate Ascent
 md"""
 ## $(HTML("<span id='EM-Algorithm'>FE Minimization by the Expectation-Maximization (EM) Algorithm</span>"))
 
-The EM algorithm is a special case of FE minimization that focusses on Maximum-Likelihood estimation for models with latent variables. 
+The EM algorithm is a special case of VFE minimization that focuses on Maximum-Likelihood estimation for models with latent variables. 
 
 Consider a model 
 
@@ -997,7 +1063,7 @@ p(x,z,\theta)
 
 with observations ``x = \{x_n\}``, latent variables ``z=\{z_n\}`` and parameters ``\theta``.
 
-We can write the following FE functional for this model:
+We can write the following VFE functional for this model:
 
 ```math
 \begin{align*}
@@ -1013,19 +1079,19 @@ The EM algorithm makes the following simplifying assumptions:
 p(x,z,\theta) = p(x,z|\theta) p(\theta) \propto p(x,z|\theta)
 ```
 
-A factorization constraint 
+2. A factorization constraint 
 
 ```math
 q(z,\theta) = q(z) q(\theta)
 ```
 
-The posterior for the parameters is a delta function:
+3. The posterior for the parameters is a delta function:
 
 ```math
 q(\theta) = \delta(\theta - \hat{\theta})
 ```
 
-Basically, these three assumptions turn FE minimization into maximum likelihood estimation for the parameters ``\theta`` and the FE simplifies to 
+Basically, these three assumptions turn VFE minimization into maximum likelihood estimation for the parameters ``\theta`` and the VFE simplifies to 
 
 ```math
 \begin{align*}
@@ -1036,10 +1102,9 @@ F[q,\theta] =  \sum_z q(z) \log \frac{q(z)}{p(x,z|\theta)}
 The EM algorithm minimizes this FE by iterating (iteration counter: ``i``) over 
 
 ```math
-\begin{equation*}
-\boxed{ \begin{aligned} \mathcal{L}^{(i)}(\theta) &= \sum*z \overbrace{p(z|x,\theta^{(i-1)})}^{q^{(i)}(z)}  \log p(x,z|\theta) \quad &&\text{the E-step} \
-\theta^{(i)} &= \arg\max*\theta \mathcal{L}^{(i)}(\theta) &&\text{the M-step} \end{aligned}}
-\end{equation*}
+\begin{align} \mathcal{L}^{(i)}(\theta) &= \sum_z \overbrace{p(z|x,\theta^{(i-1)})}^{q^{(i)}(z)}  \log p(x,z|\theta) \tag{the E-step} \\
+\theta^{(i)} &= \arg\max_\theta \mathcal{L}^{(i)}(\theta) \tag{the M-step} \end{align}
+
 ```
 
 These choices are optimal for the given FE functional. In order to see this, consider the two decompositions
@@ -1094,7 +1159,7 @@ Sometimes, the SP update rule is not analytically solvable.
 
 Fortunately, for many well-known Bayesian approximation methods, a message passing update rule can be created, e.g. [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) (VMP) for variational inference. 
 
-In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Latent-Variable-Models-and-VB.ipynb) is the proper way for updating beliefs. 
+In general, all of these message passing algorithms can be interpreted as minimization of a constrained free energy (e.g., see [Senoz et al. (2021)](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-), and hence these message passing schemes comply with [Caticha's Method of Maximum Relative Entropy](https://arxiv.org/abs/1011.0723), which, as discussed in the [variational Bayes lesson](https://bmlip.github.io/course/lectures/Latent%20Variable%20Models%20and%20VB.html) is the proper way for updating beliefs. 
 
 Different message passing updates rules can be combined to get a hybrid inference method in one model. 
 
@@ -1145,7 +1210,7 @@ md"""
 
 Let us now consider the local free energy that is associated with edge corresponding to ``x_j``. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/VMP-two-nodes.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/VMP-two-nodes.png?raw=true)
 
 Apparently (see previous slide), there are three contributions to the free energy for ``x_j``:
 
@@ -1187,7 +1252,7 @@ Note that message ``\nu_a(x_j)`` depends on posterior beliefs over incoming edge
 
 These considerations lead to the [Variational Message Passing](https://en.wikipedia.org/wiki/Variational_message_passing) procedure, which is an iterative free energy minimization procedure that can be executed completely through locally computable messages.  
 
-Procedure VMP, see [Dauwels (2007), section 3](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
+Procedure VMP, see [Dauwels (2007), section 3](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
 
 > 1. Initialize all messages ``q`` and ``ν``, e.g., ``q(\cdot) \propto 1`` and ``\nu(\cdot) \propto 1``. <br/>
 > 2. Select an edge ``z_k`` in the factor graph of ``f(z_1,\ldots,z_m)``.<br/>
@@ -1443,10 +1508,74 @@ begin
 	plot(plots..., layout=(2,3), size=(1100, 600))
 end
 
+# ╔═╡ deba376e-59bd-4b07-814c-8f7937db52a5
+challenge_header(
+	title; 
+	color="green",
+	big::Bool=false,
+	header_level::Int=2,
+	challenge_text="Challenge:",
+) = HypertextLiteral.@htl """
+<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
+	
+<style>
+.ptt-section::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: -25px;
+	right: -6px;
+	top: -4px;
+	height: 200px;
+	border: 4px solid salmon;
+	border-bottom: none;
+	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
+	border-image-slice: 1;
+	opacity: .7;
+	pointer-events: none;
+}
+
+.big.ptt-section::before {
+	height: 500px;
+}
+	
+
+.ptt-section > span {
+	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
+	@media (prefers-color-scheme: dark) {
+		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
+	}
+	font-style: italic;
+}
+</style>
+"""
+
+# ╔═╡ 26c591fc-d294-11ef-0423-b7a854d09bad
+md"""
+
+$(challenge_header("Density Modeling for the Old Faithful Data Set"; challenge_text="Challenge:"))
+
+You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
+
+"""
+
+# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
+md"""
+
+$(challenge_header("VFEM for GMM on Old Faithfull data set"; challenge_text="Code Example:"))
+
+
+Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by VFE minimization, with the constraints as specified above. 
+
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
@@ -1458,6 +1587,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 Distributions = "~0.25.118"
+HypertextLiteral = "~0.9.5"
 PDMats = "~0.11.32"
 Plots = "~1.40.10"
 PlutoTeachingTools = "~0.3.1"
@@ -1470,9 +1600,9 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "806cda2bb9938c3ae4fee0b57f68281a2158a79d"
+project_hash = "59e8044d279caf7d25835d1497116e8f1412478f"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1510,7 +1640,7 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Arpack]]
 deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
@@ -1526,6 +1656,7 @@ version = "3.5.1+1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.AxisAlgorithms]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
@@ -1535,6 +1666,7 @@ version = "1.1.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1549,15 +1681,15 @@ version = "1.0.9+0"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
+git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.4+0"
+version = "1.18.5+0"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "1713c74e00545bfe14605d2a2be1712de8fbcb58"
+git-tree-sha1 = "06ee8d1aa558d2833aa799f6f0b31b30cada405f"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.25.1"
+version = "1.25.2"
 weakdeps = ["SparseArrays"]
 
     [deps.ChainRulesCore.extensions]
@@ -1583,21 +1715,25 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
+git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.29.0"
+version = "3.30.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.5"
+version = "0.12.1"
+weakdeps = ["StyledStrings"]
+
+    [deps.ColorTypes.extensions]
+    StyledStringsExt = "StyledStrings"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
-git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
+git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.10.0"
+version = "0.11.0"
 weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
@@ -1605,19 +1741,24 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
+git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
+git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.16.0"
+version = "4.17.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
     CompatLinearAlgebraExt = "LinearAlgebra"
+
+[[deps.Compiler]]
+git-tree-sha1 = "382d79bfe72a406294faca39ef0c3cef6e6ce1f1"
+uuid = "807dbc54-b67e-4c79-8afb-eafe4df6f2e1"
+version = "0.1.1"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1654,6 +1795,7 @@ version = "1.0.0"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1681,12 +1823,13 @@ weakdeps = ["ChainRulesCore", "SparseArrays"]
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "6d8b535fd38293bc54b88455465a1386f8ac1c3c"
+git-tree-sha1 = "3e6d038b77f22791b8e3472b7c633acea1ecac06"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.119"
+version = "0.25.120"
 
     [deps.Distributions.extensions]
     DistributionsChainRulesCoreExt = "ChainRulesCore"
@@ -1699,9 +1842,9 @@ version = "0.25.119"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
+git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -1740,9 +1883,9 @@ version = "4.4.4+1"
 
 [[deps.FFTW]]
 deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
-git-tree-sha1 = "7de7c78d681078f027389e067864a8d53bd7c3c9"
+git-tree-sha1 = "797762812ed063b9b94f6cc7742bc8883bb5e69e"
 uuid = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
-version = "1.8.1"
+version = "1.9.0"
 
 [[deps.FFTW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1752,6 +1895,7 @@ version = "3.3.11+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1802,27 +1946,27 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "7ffa4049937aeba2e5e1242274dc052b0362157a"
+git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.14"
+version = "0.73.17"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "98fc192b4e4b938775ecd276ce88f539bcec358e"
+git-tree-sha1 = "27299071cc29e409488ada41ec7643e0ab19091f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.14+0"
+version = "0.73.17+0"
 
-[[deps.Gettext_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
-uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
-version = "0.21.0+0"
+[[deps.GettextRuntime_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
+git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
+uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
+version = "0.22.4+0"
 
 [[deps.Glib_jll]]
-deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "b0036b392358c80d2d2124746c2bf3d48d457938"
+deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
+git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.82.4+0"
+version = "2.84.3+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1837,15 +1981,15 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
+git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.16"
+version = "1.10.17"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
-git-tree-sha1 = "55c53be97790242c29031e5cd45e8ac296dadda3"
+git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "8.5.0+0"
+version = "8.5.1+0"
 
 [[deps.HypergeometricFunctions]]
 deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
@@ -1880,6 +2024,7 @@ version = "2025.0.4+0"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.Interpolations]]
 deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
@@ -1933,15 +2078,15 @@ version = "0.10.3"
 
 [[deps.KernelDensity]]
 deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
-git-tree-sha1 = "7d703202e65efa1369de1279c162b915e245eed1"
+git-tree-sha1 = "ba51324b894edaf1df3ab16e2cc6bc3280a2f1a7"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
-version = "0.6.9"
+version = "0.6.10"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
+git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.2+0"
+version = "3.100.3+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1968,23 +2113,26 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
+git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.7"
+version = "0.16.8"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
     SparseArraysExt = "SparseArrays"
     SymEngineExt = "SymEngine"
+    TectonicExt = "tectonic_jll"
 
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+    tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 
 [[deps.LazyArtifacts]]
 deps = ["Artifacts", "Pkg"]
 uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
+version = "1.11.0"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -1994,16 +2142,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -2012,12 +2161,13 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c8da7e6a91781c41a863611c7e966098d783c57a"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+2"
+version = "3.4.7+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -2052,6 +2202,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -2071,6 +2222,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -2079,10 +2231,10 @@ uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
 [[deps.LoweredCodeUtils]]
-deps = ["JuliaInterpreter"]
-git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
+deps = ["Compiler", "JuliaInterpreter"]
+git-tree-sha1 = "bc54ba0681bb71e56043a1b923028d652e78ee42"
 uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
-version = "3.3.0"
+version = "3.4.1"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
@@ -2103,6 +2255,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -2113,7 +2266,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -2128,10 +2281,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.MultivariateStats]]
 deps = ["Arpack", "Distributions", "LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI", "StatsBase"]
@@ -2170,15 +2324,15 @@ weakdeps = ["Adapt"]
     OffsetArraysAdaptExt = "Adapt"
 
 [[deps.Ogg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b6aa4566bb7ae78498a5e68943863fa8b5231b59"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+1"
+version = "1.3.6+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2187,15 +2341,15 @@ version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
+git-tree-sha1 = "f1a7e086c677df53e064e0fdd2c9d0b0833e3f6e"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "9216a80ff3682833ac4b733caa8c00390620ba5d"
+git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.0+0"
+version = "3.5.1+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -2205,14 +2359,14 @@ version = "0.5.6+0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
+git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
 uuid = "91d4177d-7536-5919-b921-800302f37372"
-version = "1.3.3+0"
+version = "1.5.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
+git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2221,15 +2375,15 @@ version = "10.42.0+1"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "0e1340b5d98971513bddaa6bbed470670cebbbfe"
+git-tree-sha1 = "f07c06228a1c670ae4c87d1276b92c7c597fdda0"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.34"
+version = "0.11.35"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
+git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.1+0"
+version = "1.56.3+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -2244,9 +2398,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2262,9 +2420,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "809ba625a00c605f8d00cd2a9ae19ce34fc24d68"
+git-tree-sha1 = "55818b50883d7141bd98cdf5fc2f4ced96ee075f"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.13"
+version = "1.40.16"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2299,10 +2457,10 @@ uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
 version = "0.3.1"
 
 [[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.62"
+version = "0.7.68"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2319,6 +2477,7 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2327,27 +2486,27 @@ version = "1.3.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "492601870742dcd38f233b23c3ec629628c1d724"
+git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
-git-tree-sha1 = "e5dd466bf2569fe08c91a2cc29c1003f4797ac3b"
+git-tree-sha1 = "da7adf145cce0d44e892626e647f9dcbe9cb3e10"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.7.1+2"
+version = "6.8.2+1"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
-git-tree-sha1 = "1a180aeced866700d4bebc3120ea1451201f16bc"
+git-tree-sha1 = "9eca9fc3fe515d619ce004c83c31ffd3f85c7ccf"
 uuid = "ce943373-25bb-56aa-8eca-768745ed7b5a"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
+git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -2362,12 +2521,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.Ratios]]
 deps = ["Requires"]
@@ -2410,9 +2571,9 @@ version = "1.3.1"
 
 [[deps.Revise]]
 deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
-git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
+git-tree-sha1 = "f6f7d30fb0d61c64d0cfe56cf085a7c9e7d5bc80"
 uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "3.7.6"
+version = "3.8.0"
 weakdeps = ["Distributed"]
 
     [deps.Revise.extensions]
@@ -2436,9 +2597,9 @@ version = "0.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
+git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.1"
+version = "1.3.0"
 
 [[deps.SentinelArrays]]
 deps = ["Dates", "Random"]
@@ -2448,10 +2609,12 @@ version = "1.4.8"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.SharedArrays]]
 deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2466,6 +2629,7 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2476,7 +2640,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2511,15 +2675,20 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "1ff449ad350c9c4cbc756624d6f8a8c3ef56d3ed"
+git-tree-sha1 = "9d72a13a3f4dd3795a195ac5a44d7d6ff5f552ff"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -2547,6 +2716,10 @@ git-tree-sha1 = "3b1dcbf62e469a67f6733ae493401e53d92ff543"
 uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
 version = "0.15.7"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2554,7 +2727,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2575,9 +2748,9 @@ version = "1.0.1"
 
 [[deps.Tables]]
 deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
+git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.12.0"
+version = "1.12.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -2593,6 +2766,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2605,16 +2779,18 @@ uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 version = "0.1.10"
 
 [[deps.URIs]]
-git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
+git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.2"
+version = "1.6.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2624,23 +2800,27 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "c0667a8e676c53d390a09dc6870b3d8d6650e2bf"
+git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.22.0"
+version = "1.23.1"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
+    ForwardDiffExt = "ForwardDiff"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+    PrintfExt = "Printf"
 
     [deps.Unitful.weakdeps]
     ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
-git-tree-sha1 = "975c354fcd5f7e1ddcc1f1a23e6e091d99e99bc8"
+git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
-version = "1.6.4"
+version = "1.7.0"
 
 [[deps.Unzip]]
 git-tree-sha1 = "ca0969166a028236229f63514992fc073799bb78"
@@ -2654,16 +2834,10 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "85c7811eddec9e7f22615371c3cc81a504c508ee"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
+git-tree-sha1 = "96478df35bbc2f3e1e791bc7a3d0eeee559e60e9"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.21.0+2"
-
-[[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
-uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.36.0+0"
+version = "1.24.0+0"
 
 [[deps.Widgets]]
 deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
@@ -2676,12 +2850,6 @@ deps = ["LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "c1a7aa6219628fcd757dede0ca95e245c5cd9511"
 uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
 version = "1.0.0"
-
-[[deps.XML2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
-uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.6+1"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2775,39 +2943,39 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "04341cb870f29dcd5e39055f895c39d016e18ccd"
+git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.4+0"
+version = "0.1.5+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "0fab0a40349ba1cba2c1da699243396ff8e94b97"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f4fc02e384b74418679983a97385644b67e1263b"
 uuid = "12413925-8142-5f55-bb0e-6d7ca50bb09b"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxcb_jll"]
-git-tree-sha1 = "e7fd7b2881fa2eaa72717420894d3938177862d1"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll"]
+git-tree-sha1 = "68da27247e7d8d8dafd1fcf0c3654ad6506f5f97"
 uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_keysyms_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "d1151e2c45a544f32441a567d1690e701ec89b00"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "44ec54b0e2acd408b0fb361e1e9244c60c9c3dd4"
 uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_renderutil_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "dfd7a8f38d4613b6a575253b3174dd991ca6183e"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "5b0263b6d080716a02544c55fdff2c8d7f9a16a0"
 uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
-version = "0.3.9+1"
+version = "0.3.10+0"
 
 [[deps.Xorg_xcb_util_wm_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f233c83cad1fa0e70b7771e0e21b061a116f2763"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
-version = "0.4.1+1"
+version = "0.4.2+0"
 
 [[deps.Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
@@ -2839,22 +3007,16 @@ uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
 [[deps.eudev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
-git-tree-sha1 = "431b678a28ebb559d224c0b6b6d01afce87c51ba"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
 uuid = "35ca27e7-8b34-5b7f-bca9-bdc33f59eb06"
-version = "3.2.9+0"
+version = "3.2.14+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "b6a34e0e0960190ac2a4363a1bd003504772d631"
 uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
-
-[[deps.gperf_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "0ba42241cb6809f1a278d0bcb976e0483c3f1f2d"
-uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.1.1+1"
 
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2880,45 +3042,45 @@ uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
 version = "0.2.2+0"
 
 [[deps.libevdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "141fe65dc3efabb0b1d5ba74e91f6ad26f84cc22"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "56d643b57b188d30cccc25e331d416d3d358e557"
 uuid = "2db6ffa8-e38f-5e21-84af-90c45d0032cc"
-version = "1.11.0+0"
+version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a22cf860a7d27e4f3498a0fe0811a7957badb38"
+git-tree-sha1 = "646634dd19587a56ee2f1199563ec056c5f228df"
 uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
-version = "2.0.3+0"
+version = "2.0.4+0"
 
 [[deps.libinput_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "eudev_jll", "libevdev_jll", "mtdev_jll"]
-git-tree-sha1 = "ad50e5b90f222cfe78aa3d5183a20a12de1322ce"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
+git-tree-sha1 = "91d05d7f4a9f67205bd6cf395e488009fe85b499"
 uuid = "36db933b-70db-51c0-b978-0f229ee0e533"
-version = "1.18.0+0"
+version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "068dfe202b0a05b8332f1e8e6b4080684b9c7700"
+git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.47+0"
+version = "1.6.50+0"
 
 [[deps.libvorbis_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
+git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+2"
+version = "1.3.8+0"
 
 [[deps.mtdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "814e154bdb7be91d78b6802843f76b6ece642f11"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
 uuid = "009596ad-96f7-51b1-9f1b-5ce2d5e8a71e"
-version = "1.1.6+0"
+version = "1.1.7+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.oneTBB_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2944,10 +3106,10 @@ uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
 version = "3.5.0+0"
 
 [[deps.xkbcommon_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
-git-tree-sha1 = "c950ae0a3577aec97bfccf3381f66666bc416729"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "fbf139bce07a534df0e699dbb5f5cc9346f95cc1"
 uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
-version = "1.8.1+0"
+version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
@@ -2955,6 +3117,8 @@ version = "1.8.1+0"
 # ╟─ce7d086b-ff20-4da1-a4e8-52b5b7dc9e2b
 # ╟─26c58298-d294-11ef-2a53-2b42b48e0725
 # ╟─26c591fc-d294-11ef-0423-b7a854d09bad
+# ╟─e0d0f3a1-5e00-44f0-9c2b-4308cbd673ce
+# ╟─f8c8013a-3e87-4d01-a3ae-86b39cf1f002
 # ╟─26c59b52-d294-11ef-1eba-d3f235f85eee
 # ╟─26c5a1f6-d294-11ef-3565-39d027843fbb
 # ╟─26c5a93a-d294-11ef-23a1-cbcf0c370fc9
@@ -2968,12 +3132,23 @@ version = "1.8.1+0"
 # ╟─26c6347c-d294-11ef-056f-7b78a9e22272
 # ╟─26c64174-d294-11ef-2bbc-ab1a84532311
 # ╟─26c65092-d294-11ef-39cc-1953a725f285
+# ╟─f1f7407d-86a1-4f24-b78a-61a411d1f371
 # ╟─26c67f04-d294-11ef-03a4-838ae255689d
 # ╟─26c6e002-d294-11ef-15a4-33e30d0d76ec
+# ╟─e6aeee80-9e63-4937-9edf-428d5e3e38d3
+# ╟─baec0494-9557-49d1-b4d8-a8030d3281b7
+# ╟─40ce0abb-a086-4977-9131-10f60ab44152
 # ╟─26c6f63c-d294-11ef-1090-e9238dd6ad3f
+# ╟─aea77d69-9ecd-4be0-b6fd-c944d27d68df
+# ╟─3654551d-5d08-4bb0-8a0d-c7d42225bc69
+# ╟─edb179df-5cff-4e7b-8645-6da4818dceee
+# ╟─757465a4-6a7f-4c8e-98de-6df5ca995b03
 # ╟─26c704f6-d294-11ef-1b3d-d52f0fb1c81d
 # ╟─26c728f0-d294-11ef-0c01-6143abe8c3f0
+# ╟─06512595-bdb7-4adf-88ae-62af20210891
 # ╟─26c73cf0-d294-11ef-297b-354eb9c71f57
+# ╟─3e897a59-e7b5-492c-8a8a-724248513a72
+# ╟─93e7c7d5-a940-4764-8784-07af2f056e49
 # ╟─26c74c9a-d294-11ef-2d31-67bd57d56d7c
 # ╟─26c75b5e-d294-11ef-173e-b3f46a1df536
 # ╟─26c7696e-d294-11ef-25f2-dbc0946c0858
@@ -2987,9 +3162,12 @@ version = "1.8.1+0"
 # ╠═55a1c42b-20d8-47a3-aa00-7af905db537c
 # ╠═4ee377c2-a126-4c40-8053-517d40c5ef9d
 # ╟─26c796c8-d294-11ef-25be-17dcd4a9d315
-# ╟─d4e239be-5ff1-4f96-9c65-8a5a0dda8b1b
+# ╠═0090be18-2453-4ad3-8e2c-6953649b171e
+# ╟─f42a1a65-20ce-452f-9974-bc8146943574
 # ╟─26c7b428-d294-11ef-150a-bb37e37f4b5d
-# ╟─26c7f514-d294-11ef-123d-91ccca2b0460
+# ╟─b3bb7349-1965-4734-83ed-ba6fef0ccc41
+# ╟─06170e31-e865-4178-8af0-41d82df95d71
+# ╟─bbdca8c2-022f-42be-bcf7-80d86f7f269c
 # ╟─26c8068a-d294-11ef-3983-a1be55128b3f
 # ╟─26c8160c-d294-11ef-2a74-6f7009a7c51e
 # ╟─26c82f16-d294-11ef-0fe1-07326b56282f
@@ -3006,5 +3184,7 @@ version = "1.8.1+0"
 # ╠═df171940-eb54-48e2-a2b8-1a8162cabf3e
 # ╠═58bd0d43-743c-4745-b353-4a89b35e85ba
 # ╠═489cbd24-1a69-4a00-a2e9-53c2c57cef65
+# ╠═9d2068d7-db54-460e-930c-b7c3273162ee
+# ╠═deba376e-59bd-4b07-814c-8f7937db52a5
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

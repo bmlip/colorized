@@ -2,7 +2,7 @@
 # v0.20.14
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true"
 #> description = "Introduction to discriminative classification models and Bayesian logistic regression."
 #> 
 #>     [[frontmatter.author]]
@@ -56,7 +56,7 @@ Materials
 
       * Bishop pp. 213 - 217 (Laplace approximation)
       * Bishop pp. 217 - 220 (Bayesian logistic regression)
-      * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
+      * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
 
 """
 
@@ -163,9 +163,9 @@ Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sig
 
 # ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
 md"""
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.9.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true)
 
-(Bishop fig.4.9). The logistic function ``\sigma(a) = 1/(1+e^{-a})`` (red), together with the $(HTML("<span id='scaled-probit'>scaled probit function</span>")) ``\Phi(\lambda a)``, for ``\lambda^2=\pi/8`` (in blue). We will use this approximation later in the [Laplace approximation](#gaussian-cdf).
+(Bishop fig.4.9). The logistic function ``\sigma(a) = 1/(1+e^{-a})`` (red), together with the $(HTML("<span id='scaled-probit'>scaled probit function</span>")) ``\Phi(\lambda a)``, for ``\lambda^2=\pi/8`` (in blue). We will use this approximation later in the [Laplace approximation](https://bmlip.github.io/course/minis/Laplace%20Approximation.html#gaussian-cdf).
 
 """
 
@@ -235,7 +235,7 @@ md"""
 
 Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. In principle, we could have used Bayesian parameter estimation for the generative classification model as well (but the math is not suited for a introductory lesson).  
 
-In the optional paper by [T. Minka (2005)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
+In the optional paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
 
 As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
 
@@ -243,7 +243,7 @@ As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, 
 \frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
 ```
 
-is a straight line, see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Classification.ipynb). 
+is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 
 """
 
@@ -682,7 +682,7 @@ PlutoUI = "~0.7.65"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.10.10"
 manifest_format = "2.0"
 project_hash = "29067c9016216121b98421356e76a1112a503495"
 
@@ -1445,7 +1445,7 @@ version = "0.3.23+4"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]

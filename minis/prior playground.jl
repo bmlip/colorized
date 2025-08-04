@@ -3,7 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://imgur.com/lMbaaSe.gif"
-#> title = "Prior playground"
+#> title = "Mini: Prior playground"
 #> description = "What effect does the prior have on the posterior? Try different priors, with interactive data."
 
 using Markdown

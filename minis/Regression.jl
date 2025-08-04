@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.20.14
 
+#> [frontmatter]
+#> image = "https://i.imgur.com/azbCpRW.png"
+#> title = " Mini: Bayesian regression in 1D"
+#> description = "Simple demo of Bayesian linear regression with one-dimensional data"
+
 using Markdown
 using InteractiveUtils
 
@@ -399,7 +404,7 @@ PlutoUI = "~0.7.65"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.10.10"
 manifest_format = "2.0"
 project_hash = "40758e3e0dd4dc48e7ed8e18028698943d573cfb"
 
@@ -951,7 +956,7 @@ version = "0.3.23+4"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]

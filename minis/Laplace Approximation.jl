@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.20.14
 
+#> [frontmatter]
+#> image = "https://i.imgur.com/AUaQapv.png"
+#> title = "Mini: Laplace Approximation"
+#> description = "Deep-dive into the mathematical technique used to approximate complicated integrals."
+
 using Markdown
 using InteractiveUtils
 
@@ -38,13 +43,19 @@ The Laplace approximation usually serves one or both of the following two purpos
 
 """
 
-# ╔═╡ 52ec1121-d6f6-4fb2-8d3e-ae4fec6a0df7
+# ╔═╡ 3a6633cc-4019-4f3a-a01d-66acb8fb5689
 md"""
-#### $(HTML("<span id='Laplace-example'>Example</span>"))
+### Example
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure4.14a.png?raw=true)
+"""
 
-(Bishop fig.4.14a). Laplace approximation (in red) to the distribution ``p(z)\propto \exp(-z^2/2)\sigma(20z+4)``, where ``\sigma(a)=1/(1+e^{-a})``. The Laplace approximation is centered on the mode of ``p(z)``.
+# ╔═╡ cdcee303-54b0-4038-a4bb-ea6e150613bf
+html"""<img src="https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.14a.png?raw=true" style="max-width: 500px" >"""
+
+# ╔═╡ 908385ad-2705-4d31-9a6a-53a7066818e9
+md"""
+
+_(Bishop fig.4.14a)_ Laplace approximation (in red) to the distribution ``p(z)\propto \exp(-z^2/2)\sigma(20z+4)``, where ``\sigma(a)=1/(1+e^{-a})``. The Laplace approximation is centered on the mode of ``p(z)``.
 
 """
 
@@ -187,7 +198,7 @@ p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \
 md"""
 This looks better but we need two more clever tricks to evaluate this expression. 
 
-1. First, note that ``w`` appears in ``\sigma(w^T x_\bullet)`` as an inner product, so through substitution of ``a:=w^T x_\bullet``, the expression simplifies to an integral over the scalar ``a`` (see Bishop for derivation):
+First, note that ``w`` appears in ``\sigma(w^T x_\bullet)`` as an inner product, so through substitution of ``a:=w^T x_\bullet``, the expression simplifies to an integral over the scalar ``a`` (see Bishop for derivation):
 
 ```math
 \begin{align*}
@@ -240,12 +251,30 @@ md"""
 
 """
 
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.10.10"
+manifest_format = "2.0"
+project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+
+[deps]
+"""
+
 # ╔═╡ Cell order:
 # ╟─9021f1a2-276c-43f7-93c0-cdc1f37761d3
 # ╟─a5c709c9-f2cf-4937-9582-669ebe569077
 # ╟─f7d34f2f-6515-4d50-9896-8663ab03a101
 # ╟─c3c5f458-2658-460a-9efd-b4fa4c2d9d87
-# ╟─52ec1121-d6f6-4fb2-8d3e-ae4fec6a0df7
+# ╟─3a6633cc-4019-4f3a-a01d-66acb8fb5689
+# ╟─cdcee303-54b0-4038-a4bb-ea6e150613bf
+# ╟─908385ad-2705-4d31-9a6a-53a7066818e9
 # ╟─6d3faf15-5377-4b54-ac2b-410ecf868f63
 # ╟─4b7476e4-c67a-4f1d-a7bf-26e49083c93c
 # ╟─1b8a99c7-ea73-4994-a2f1-19952594d9fc
@@ -260,3 +289,5 @@ md"""
 # ╟─ba35f00c-64e6-442d-9bf3-e6571928d694
 # ╟─fba106da-6891-4852-8d9c-ec877b1d0a19
 # ╟─5465e414-7512-4730-97e9-ea6337014d9c
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002

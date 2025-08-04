@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-1.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-1.png?raw=true"
 #> description = "Introduction to Forney-style factor graphs and message passing-based inference."
 #> 
 #>     [[frontmatter.author]]
@@ -43,13 +43,13 @@ Materials
   * Mandatory
 
       * These lecture notes
-      * Loeliger (2007), [The factor graph approach to model based signal processing](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf), pp. 1295-1302 (until section V)
+      * Loeliger (2007), [The factor graph approach to model based signal processing](https://github.com/bmlip/course/blob/main/assets/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf), pp. 1295-1302 (until section V)
   * Optional
 
       * Frederico Wadehn (2015), [Probabilistic graphical models: Factor graphs and more](https://www.youtube.com/watch?v=Fv2YbVg9Frc&t=31) video lecture (**recommended**)
   * References
 
-      * Forney (2001), [Codes on graphs: normal realizations](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf)
+      * Forney (2001), [Codes on graphs: normal realizations](https://github.com/bmlip/course/blob/main/assets/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf)
 
 """
 
@@ -112,13 +112,13 @@ f(x_1,x_2,x_3,x_4,x_5) = f_a(x_1,x_2,x_3) \cdot f_b(x_3,x_4,x_5) \cdot f_c(x_4)
 md"""
 The factorization of this function can be graphically represented by a **Forney-style Factor Graph** (FFG):
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-1.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-1.png?raw=true)
 
 """
 
 # ╔═╡ 9655d360-d294-11ef-0f06-ab58e2ad0e5f
 md"""
-An FFG is an **undirected** graph subject to the following construction rules ([Forney, 2001](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf))
+An FFG is an **undirected** graph subject to the following construction rules ([Forney, 2001](https://github.com/bmlip/course/blob/main/assets/files/Forney-2001-Codes-on-graphs-normal-realizations.pdf))
 
 1. A **node** for every factor;
 2. An **edge** (or **half-edge**) for every variable;
@@ -169,7 +169,7 @@ where
 f_=(x_2,x_2^\prime,x_2^{\prime\prime}) \triangleq \delta(x_2-x_2^\prime)\, \delta(x_2-x_2^{\prime\prime})
 ```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-wEquality-node.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-wEquality-node.png?raw=true)
 
 """
 
@@ -251,7 +251,7 @@ f_c(x_4) &= p(x_4)
 md"""
 This is the graph
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-example-prob-model.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-prob-model.png?raw=true)
 
 """
 
@@ -298,7 +298,7 @@ Due to the factorization and the [Generalized Distributive Law](https://en.wikip
 
 which, in case ``x_i`` has ``10`` values, requires a few hundred additions and is therefore computationally (much!) lighter than executing the full sum ``\sum_{x_1,\ldots,x_7}f(x_1,x_2,\ldots,x_7)``
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-message-passing.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-message-passing.png?raw=true)
 
 """
 
@@ -330,14 +330,14 @@ We drew *directed edges* in the FFG in order to distinguish forward messages ``\
 md"""
 ## Sum-Product Algorithm
 
-Closing-the-box can also be interpreted as a **message update rule** for an outgoing message from a node. For a node ``f(y,x_1,\ldots,x_n)`` with incoming messages ``\overrightarrow{\mu}_{X_1}(x_1), \overrightarrow{\mu}_{X_1}(x_1), \ldots,\overrightarrow{\mu}_{X_n}(x_n)``, the outgoing message is given by ([Loeliger (2007), pg.1299](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf)): 
+Closing-the-box can also be interpreted as a **message update rule** for an outgoing message from a node. For a node ``f(y,x_1,\ldots,x_n)`` with incoming messages ``\overrightarrow{\mu}_{X_1}(x_1), \overrightarrow{\mu}_{X_1}(x_1), \ldots,\overrightarrow{\mu}_{X_n}(x_n)``, the outgoing message is given by ([Loeliger (2007), pg.1299](https://github.com/bmlip/course/blob/main/assets/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf)): 
 
 ```math
  \boxed{
 \underbrace{\overrightarrow{\mu}_{Y}(y)}_{\substack{ \text{outgoing}\\ \text{message}}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\substack{\text{incoming} \\ \text{messages}}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\substack{\text{node}\\ \text{function}}} }
 ```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-sum-product.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-sum-product.png?raw=true)
 
 This is called the **Sum-Product Message** (SPM) update rule. (Look at the formula to understand why it's called the SPM update rule).
 
@@ -390,7 +390,7 @@ md"""
 
 As an example, let´s evaluate the SP messages for the **equality node** ``f_=(x,y,z) = \delta(z-x)\delta(z-y)``: 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-equality-node.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-equality-node.png?raw=true)
 
 ```math
 \begin{align*}
@@ -409,7 +409,7 @@ By symmetry, this also implies (for the same equality node) that
 \end{align*}
 ```
 
-Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_X,\overrightarrow{V}_X)``, ``\overrightarrow{\mu}_{Y}(y) = \mathcal{N}(y| \overrightarrow{m}_Y,\overrightarrow{V}_Y)`` and ``\overrightarrow{\mu}_{Z}(z) = \mathcal{N}(z|\overrightarrow{m}_Z,\overrightarrow{V}_Z)``. Let´s also define the precision matrices ``\overrightarrow{W}_X \triangleq \overrightarrow{V}_X^{-1}`` and similarly for ``Y`` and ``Z``. Then applying the SP update rule leads to multiplication of two Gaussian distributions (see [Roweis notes](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-gaussian-identities.pdf)), resulting in 
+Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_X,\overrightarrow{V}_X)``, ``\overrightarrow{\mu}_{Y}(y) = \mathcal{N}(y| \overrightarrow{m}_Y,\overrightarrow{V}_Y)`` and ``\overrightarrow{\mu}_{Z}(z) = \mathcal{N}(z|\overrightarrow{m}_Z,\overrightarrow{V}_Z)``. Let´s also define the precision matrices ``\overrightarrow{W}_X \triangleq \overrightarrow{V}_X^{-1}`` and similarly for ``Y`` and ``Z``. Then applying the SP update rule leads to multiplication of two Gaussian distributions (see [Roweis notes](https://github.com/bmlip/course/blob/main/assets/files/Roweis-1999-gaussian-identities.pdf)), resulting in 
 
 ```math
 \begin{align*}
@@ -448,7 +448,7 @@ md"""
 
 We can use terminal nodes to represent observations, e.g., add a factor ``f(y)=\delta(y−3)`` to terminate the half-edge for variable ``Y``  if  ``y=3``  is observed.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observation-y-3.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-observation-y-3.png?raw=true)
 
 Terminal nodes that carry observations are denoted by small black boxes.
 
@@ -464,7 +464,7 @@ The message out of a **terminal node** (attached to only 1 edge) is the factor i
 
 since there are no enclosed variables. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-terminal-node-message.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-terminal-node-message.png?raw=true)
 
 """
 
@@ -478,7 +478,7 @@ The message from a half-edge is ``1`` (one). You can verify this by imagining th
 md"""
 ## Automating Bayesian Inference by Message Passing
 
-The foregoing message update rules can be worked out in closed-form and put into tables (e.g., see Tables 1 through 6 in [Loeliger (2007)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf) for many standard factors such as essential probability distributions and operations such as additions, fixed-gain multiplications and branching (equality nodes).
+The foregoing message update rules can be worked out in closed-form and put into tables (e.g., see Tables 1 through 6 in [Loeliger (2007)](https://github.com/bmlip/course/blob/main/assets/files/Loeliger-2007-The-factor-graph-approach-to-model-based-signal-processing.pdf) for many standard factors such as essential probability distributions and operations such as additions, fixed-gain multiplications and branching (equality nodes).
 
 In the optional slides below, we have worked out a few more update rules for the [addition node](#sp-for-addition-node) and the [multiplication node](#sp-for-multiplication-node).
 
@@ -539,7 +539,7 @@ The left figure shows the factor graph for this model.
 
 The right figure shows the message passing scheme. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-bayesian-linear-regression.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-bayesian-linear-regression.png?raw=true)
 
 """
 
@@ -662,7 +662,7 @@ md"""
 
 Next, let us consider a **multiplication** by a fixed (invertible matrix) gain ``f_A(x,y) = \delta(y-Ax)``
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-gain-node.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-gain-node.png?raw=true)
 
 """
 
@@ -721,7 +721,7 @@ where ``\overleftarrow{\xi}_X \triangleq \overleftarrow{W}_X \overleftarrow{m}_X
 md"""
 ## $(HTML("<span id='sp-for-addition-node'>Code example: Gaussian forward and backward messages for the Addition node</span>"))
 
-Let's calculate the Gaussian forward and backward messages for the addition node in RxInfer.  ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-addition-node.png?raw=true)
+Let's calculate the Gaussian forward and backward messages for the addition node in RxInfer.  ![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-addition-node.png?raw=true)
 
 """
 
@@ -741,7 +741,7 @@ md"Backward message on ``X``:"
 md"""
 ## Code Example: forward and backward messages for the Matrix Multiplication node
 
-In the same way we can also investigate the forward and backward messages for the matrix multiplication ("gain") node  ![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-gain-node.png?raw=true)
+In the same way we can also investigate the forward and backward messages for the matrix multiplication ("gain") node  ![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-gain-node.png?raw=true)
 
 """
 
@@ -769,7 +769,7 @@ p(x,y_1,y_2) = p(x)\,p(y_1|x)\,p(y_2|x) .
 
 This model expresses the assumption that ``Y_1`` and ``Y_2`` are independent measurements of ``X``.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observations.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-observations.png?raw=true)
 
 """
 
@@ -777,7 +777,7 @@ This model expresses the assumption that ``Y_1`` and ``Y_2`` are independent mea
 md"""
 Assume that we are interested in the posterior for ``X`` after observing ``Y_1= \hat y_1`` and ``Y_2= \hat y_2``. The posterior for ``X`` can be inferred by applying the sum-product algorithm to the following graph:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-observations-2.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-observations-2.png?raw=true)
 
 """
 

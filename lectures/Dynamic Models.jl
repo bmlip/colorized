@@ -2,7 +2,7 @@
 # v0.20.8
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Faragher-2012-cart-1.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true"
 #> description = "Introduction to dynamic latent variable models, including HMMs and Kalman filters."
 #> 
 #>     [[frontmatter.author]]
@@ -59,8 +59,8 @@ md"""
 
       * [Bishop PRML](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp.605-615 on Hidden Markov Models
       * [Bishop PRML](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp.635-641 on Kalman filters
-      * Faragher (2012), [Understanding the Basis of the Kalman Filter](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf)
-      * Minka (1999), [From Hidden Markov Models to Linear Dynamical Systems](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Minka-1999-from-HMM-to-LDS.pdf)
+      * Faragher (2012), [Understanding the Basis of the Kalman Filter](https://github.com/bmlip/course/blob/main/assets/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf)
+      * Minka (1999), [From Hidden Markov Models to Linear Dynamical Systems](https://github.com/bmlip/course/blob/main/assets/files/Minka-1999-from-HMM-to-LDS.pdf)
 
 """
 
@@ -71,7 +71,7 @@ $(section_outline("Challenge:", "Tracking of Cart Position"; color="red"))
 
 ##### problem 
 
-We consider a one-dimensional cart position tracking problem, see [Faragher (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf).  
+We consider a one-dimensional cart position tracking problem, see [Faragher (2012)](https://github.com/bmlip/course/blob/main/assets/files/Faragher-2012-Understanding-the-Basis-of-the-Kalman-Filter.pdf).  
 
 The equations of motion are given by
 
@@ -84,7 +84,7 @@ x_t &= \begin{bmatrix} z_t \\ \dot{z_t}\end{bmatrix} + \epsilon^{(x)}_t\,, \qqua
 
 The hidden states are the position ``z_t`` and velocity ``\dot z_t`` of the cart. We can apply an external acceleration/breaking force ``u_t``. (Noisy) observations are represented by ``x_t``. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Faragher-2012-cart-1.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true)
 
 Task: Infer the position ``z_t`` after 10 time steps, i.e., infer ``p(z_{10}|x_{1:10})``. 
 
@@ -176,7 +176,7 @@ The condition ``p(z_t\,|\,z^{t-1}) = p(z_t\,|\,z_{t-1})`` (``z_t`` only depends 
 md"""
 The Forney-style factor graph for a state-space model looks as follows:
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space.png?raw=true)
 
 """
 
@@ -247,19 +247,19 @@ Here are some examples of message passing-based inference in dynamic models.
 
 Filtering (also known as state estimation) refers to the estimation of the latent state at time step ``t``, based on all observations up to and including time ``t``. The FFG below shows the needed messages to compute ``p(z_t|x_{1:t})``.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-filtering.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-filtering.png?raw=true)
 
 ##### Smoothing
 
 In contrast to filtering, which uses only past and current observations, smoothing aims to estimate a latent state by incorporating information from both past and future observations. This is achieved by passing backward messages through the factor graph, typically from later time steps toward earlier ones.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-smoothing.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-smoothing.png?raw=true)
 
 ##### Prediction
 
 Prediction involves the estimation of a future state or observation based only on past (and possibly current) observations, without incorporating any future information.
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-state-space-prediction.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-state-space-prediction.png?raw=true)
 
 """
 
@@ -558,7 +558,7 @@ md"""
 
 Using the methods of the previous lessons, it is possible to create your own new models based on stacking Gaussian and categorical distributions in new ways: 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-generative-Gaussian-models.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-generative-Gaussian-models.png?raw=true)
 
 """
 
@@ -618,7 +618,7 @@ result = infer(
 @bind which_timestep Slider(eachindex(result.posteriors[:z]); show_value=true)
 
 # ╔═╡ a0116427-cff8-44e5-b3bb-8dee2ecf73c2
-bg_img_path = download("https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/figures/cart-bg.png?raw=true")
+bg_img_path = download("https://github.com/bmlip/course/blob/v2/assets/figures/cart-bg.png?raw=true")
 
 # ╔═╡ 0b41c9ab-ee04-446e-a3fc-decfeb9d1571
 bg_img = load(bg_img_path)[end:-1:1, :]

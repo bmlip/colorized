@@ -3,7 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://imgur.com/v6BLTI0.png"
-#> title = "Gaussian Inference example"
+#> title = "Mini: Gaussian Inference example"
 #> description = "A simple example of Gaussian inference in practice, using an interactive dataset."
 
 using Markdown
@@ -280,8 +280,8 @@ Materials
   * Optional
 
       * Bishop pp. 85-93
-      * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
-      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
+      * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bmlip/course/blob/main/assets/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
+      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
   * References
 
       * [E.T. Jaynes - 2003 - Probability Theory, The Logic of Science](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf) (best book available on the Bayesian view on probability theory)
@@ -462,7 +462,7 @@ A **linear transformation** ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{
 p(z) = \mathcal{N} \left(z \,|\, A\mu_x+b, A\Sigma_x A^T \right) \tag{SRG-4a}
 ```
 
-In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Probability-Theory-Review.ipynb#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
+In fact, after a linear transformation ``z=Ax+b``, no matter how ``x`` is distributed, the mean and variance of ``z`` are always given by ``\mu_z = A\mu_x + b``  and ``\Sigma_z = A\Sigma_x A^T``, respectively (see   [probability theory review lesson](https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html#linear-transformation)). In case ``x`` is not Gaussian, higher order moments may be needed to specify the distribution for ``z``. 
 
 """
 
@@ -713,7 +713,7 @@ Given independent variables
 x \sim \mathcal{N}(\mu_x,\sigma_x^2)
 ```
 
-and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-The-Gaussian-Distribution.ipynb))
+and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
 
 """
 

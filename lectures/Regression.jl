@@ -1,8 +1,8 @@
 ### A Pluto.jl notebook ###
-# v0.20.11
+# v0.20.14
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-bishop12.png?raw=true"
 #> description = "Introduction to Bayesian linear regression and predictive modeling for continuous data."
 #> 
 #>     [[frontmatter.author]]
@@ -12,11 +12,29 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 5b1e640f-5209-44bc-987a-1495b7adc50e
-using Plots, Distributions, LaTeXStrings, LinearAlgebra
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
 # ╔═╡ f8c69b91-4415-454e-a50d-c4a37ada89d1
 using PlutoUI, PlutoTeachingTools
+
+# ╔═╡ 5f00f990-1c7c-4c78-9d86-2dfc88a90a36
+using HypertextLiteral
+
+# ╔═╡ 33ca4c67-d96f-457f-bc19-171f4b4b03c6
+using LinearAlgebra, Random
+
+# ╔═╡ 3ff2bd04-1490-4be6-8b26-b82d1902bb07
+using Plots, Distributions, LaTeXStrings
 
 # ╔═╡ 234b77a8-d294-11ef-15d5-ff54ed5bec1e
 md"""
@@ -31,55 +49,111 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
-  * Introduction to Bayesian (Linear) Regression
+* Introduction to Bayesian (Linear) Regression
 
-Materials        
+##### Materials        
 
-  * Mandatory
+* Mandatory
 
-      * These lecture notes
-  * Optional
+  * These lecture notes
+  
+* Optional
 
-      * Bishop pp. 152-158
-      * In this and forthcoming lectures, we will make use of some elementary matrix calculus. The most important formulas are summarized at the bottom of this notebook in an [OPTIONAL SLIDE on matrix calculus](#matrix-calculus). For derivations, see Bishop Appendix C.
+  * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf),  pp. 152-158
+
+  * [matrix calculus slide](#matrix-calculus)
+    * In this and forthcoming lectures, we will make use of some elementary matrix calculus. The most important formulas are summarized here. For derivations, see Appendix C in [Bishop (2006)](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf).
+
+  * [RxInfer Bayesian Linear Regression example](https://examples.rxinfer.com/categories/basic_examples/bayesian_linear_regression/)
+     *  A tutorial on Bayesian linear regression with RxInfer.
+
+  * Jaynes (1990), [Straight Line Fitting - A Bayesian Solution](https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf)
+    * A fully Bayesian solution on straight line fitting with uncertainties in both ``x`` and ``y`` coordinates.
+
 
 """
 
 # ╔═╡ 234ba8c2-d294-11ef-36f6-b1f61f65557a
+
+
+section_outline("Challenge:", "Finding a Secret Function" , color= "Red" )
+
+
+
+# ╔═╡ b5a2304d-6a70-42b2-9269-98370680aed8
+secret_function(x) = sin(x * 2π);
+
+# ╔═╡ f1bf64f6-09f9-45a3-acd1-7975ab9e79fc
 md"""
-## Regression - Illustration
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-bishop12.png?raw=true)
+##### Problem
 
-Given a set of (noisy) data measurements, find the 'best' relation between an input variable ``x \in \mathbb{R}^M`` and input-dependent outcomes ``y \in \mathbb{R}``.
+We consider an unknown data-generating process for ``y``,
+
+```math
+y = f(x) = \sin(2 \pi x)\,,
+```
+from which we observe a set of noisy measurements of the function values ``y_n``, for a given set of inputs ``x_n``.
+
+Let's generate some observations from this function. 
+
+![](https://i.imgur.com/8iYoXt5.png)
+"""
+
+# ╔═╡ 2ff8c0d7-30f5-4593-9533-fee6114a3443
+md"""
+The challenge is to uncover the underlying data-generating process and predict responses for future inputs ``x_\bullet``.
+
+##### Solution
+
+To be solved later in this lecture. 
+"""
+
+# ╔═╡ d0b7b1fe-59f8-4618-b8b4-156d2d84f84d
+md"""
+
+_Take a look at the Mini to play with this interactive model yourself! You can change the **number of observations** and the **measurement noise**._
 
 """
 
+# ╔═╡ 390f2359-43cb-4948-bd9c-9406d883f1a9
+NotebookCard(
+	"https://bmlip.github.io/course/minis/Regression.html";
+)
+
 # ╔═╡ 234bb452-d294-11ef-24cb-3d171fe9cb4e
 md"""
-## Regression vs Density Estimation
-
-Observe ``N`` IID data **pairs** ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathbb{R}``.
-
+## Regression as Discriminative Learning
 """
 
 # ╔═╡ 234be90e-d294-11ef-2257-496f155c2b59
 md"""
-Assume that we are interested in (a model for) the responses ``y_n`` for **given inputs** ``x_n``?, I.o.w. we are interested in building a model for the conditional distribution ``p(y|x)``.
 
-"""
+We observe ``N`` IID data **pairs** ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathbb{R}``.
 
-# ╔═╡ 234c27c0-d294-11ef-24c7-1f633aaf02f4
-md"""
-Note that, since ``p(x,y)=p(y|x)\, p(x)``, building a model ``p(y|x)`` is similar to density estimation with the assumption that ``x`` is drawn from a uniform distribution.
+Assume that, based on the data set,  we are interested in predicting the response ``y_\bullet`` for a new **given and fixed** input observation ``x_\bullet = \hat{x}_\bullet``? 
+
+In a Bayesian (generative) modeling context, we should develop a joint model for all variables, i.e., we should develop a model ``p(y_n,x_n)``, but in this case we already know ``p(x_n) = \delta(x_n-\hat{x}_n)``.
+
+Since
+```math
+\begin{align}
+p(y_n,x_n) &= p(y_n|x_n) p(x_n) \\
+  &=  p(y_n|x_n) \delta(x_n-\hat{x}_n) \,,
+\end{align}
+```
+
+we can focus attention on developing a model for the **conditional distribution** ``p(y_n|x_n)`` only. 
+
+Building a conditional model ``p(y_n|x_n)`` directly for outputs ``y`` and given inputs ``x_n``, is called the **discriminative** approach to Bayesian modelling. We will see more of this approach in the [discriminative classification lecture](https://bmlip.github.io/course/lectures/Discriminative%20Classification.html#Discriminative-Classification). 
 
 """
 
 # ╔═╡ 234c3684-d294-11ef-1c08-d9d61fc3d471
 md"""
-## Bayesian Linear Regression
+# Bayesian Linear Regression
 
 Next, we discuss (1) model specification, (2) Inference and (3) a prediction application for a Bayesian linear regression problem. 
 
@@ -87,9 +161,13 @@ Next, we discuss (1) model specification, (2) Inference and (3) a prediction app
 
 # ╔═╡ 234c5394-d294-11ef-1614-c9847412c8fb
 md"""
-#### 1. Model Specification
 
-In a traditional *regression* model, we try to 'explain the data' by a purely deterministic function ``f(x_n,w)``, plus a purely random term ``\epsilon_n`` for 'unexplained noise':
+## Model Specification
+
+
+##### data-generating distribution
+
+In a traditional *regression* model, we try to "explain the data" by a purely deterministic function ``f(x_n,w)``, plus a purely random term ``\epsilon_n`` for 'unexplained noise':
 
 ```math
     y_n  = f(x_n,w) + \epsilon_n
@@ -99,7 +177,7 @@ In a traditional *regression* model, we try to 'explain the data' by a purely de
 
 # ╔═╡ 234c6104-d294-11ef-0a18-15e51a878079
 md"""
-In a *linear regression* model, i.e., linear w.r.t. the parameters ``w``, we assume that 
+In a *linear regression* model, i.e., linear with respect to the parameters ``w``, we assume that 
 
 ```math
 f(x_n,w)= \sum_{j=0}^{M-1} w_j \phi_j(x_n) = w^T \phi(x_n)
@@ -113,7 +191,7 @@ For notational simplicity, from now on we will assume ``f(x_n,w) = w^T x_n``, wi
 
 # ╔═╡ 234c7766-d294-11ef-36fa-1d2beee3dec0
 md"""
-In *ordinary linear regression* , the noise process ``\epsilon_n`` is zero-mean Gaussian with constant variance, i.e.
+In *ordinary linear regression* , it is further assumed that the noise process ``\epsilon_n`` is zero-mean Gaussian with constant variance, i.e.,
 
 ```math
 \epsilon_n \sim \mathcal{N}(0,\beta^{-1}) \,.
@@ -123,26 +201,35 @@ In *ordinary linear regression* , the noise process ``\epsilon_n`` is zero-mean 
 
 # ╔═╡ 234c8850-d294-11ef-3707-6722628bd9dc
 md"""
-Hence, given a data set  ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the likelihood for an ordinary linear regression model is 
+
+##### likelihood function
+
+For the ordinary linear regression model in Eq. B-3.10, we are interested in learning the parameters ``w`` from an observed data set ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}``.
+
+The likelihood function for ``w`` is
 
 ```math
 \begin{align*}
-p(y\,|\,\mathbf{X},w,\beta) &= \mathcal{N}(y\,|\,\mathbf{X} w,\beta^{-1} \mathbf{I}) \\
+p(y\,|\,X,w,\beta) &= \mathcal{N}(y\,|\,X w,\beta^{-1} I) \\
   &= \prod_n \mathcal{N}(y_n\,|\,w^T x_n,\beta^{-1}) \tag{B-3.10}
 \end{align*}
 ```
 
-where ``w = \left(\begin{matrix} w_1 \\ w_2 \\ \vdots \\ w_{M} \end{matrix} \right)``, the ``(N\times M)``-dim matrix ``\mathbf{X}  = \left(\begin{matrix}x_1^T \\ x_2^T \\ \vdots \\ x_N^T \end{matrix} \right) = \left(\begin{matrix}x_{11},x_{12},\dots,x_{1M}\\ x_{21},x_{22},\dots,x_{2M} \\ \vdots \\ x_{N1},x_{N2},\dots,x_{NM} \end{matrix} \right) $  and $y = \left(\begin{matrix} y_1 \\ y_2 \\ \vdots \\ y_N \end{matrix} \right)``.
+where ``w = \left(\begin{matrix} w_1 \\ w_2 \\ \vdots \\ w_{M} \end{matrix} \right)``, and the observed data set is represented by the ``(N\times M)``-dimensional matrix ``X  = \left(\begin{matrix}x_1^T \\ x_2^T \\ \vdots \\ x_N^T \end{matrix} \right) = \left(\begin{matrix}x_{11},x_{12},\dots,x_{1M}\\ x_{21},x_{22},\dots,x_{2M} \\ \vdots \\ x_{N1},x_{N2},\dots,x_{NM} \end{matrix} \right) $  and $y = \left(\begin{matrix} y_1 \\ y_2 \\ \vdots \\ y_N \end{matrix} \right)``.
+
+Note that, if parameter ``\beta`` is given, then Eq. B-3.10 is a proper likelihood function for the parameters ``w``.
 
 """
 
 # ╔═╡ 234cab14-d294-11ef-1e7c-777fc35ddbd9
 md"""
-For full Bayesian learning we should also choose a prior ``p(w)``:
+##### prior
+
+For full Bayesian learning, we should also choose a prior ``p(w)``. Let's choose a Gaussian prior, 
 
 ```math
 \begin{equation}
-p(w\,|\,\alpha) = \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \tag{B-3.52}
+p(w\,|\,\alpha) = \mathcal{N}(w\,|\,0,\alpha^{-1}I) \,.\tag{B-3.52}
 \end{equation}
 ```
 
@@ -152,62 +239,79 @@ For simplicity, we will assume that ``\alpha`` and ``\beta`` are fixed and known
 
 # ╔═╡ 234cdca6-d294-11ef-0ba3-dd5356b65236
 md"""
-#### 2. Inference
+## Inference for ``w``
 
 We'll do Bayesian inference for the parameters ``w``. 
 
 ```math
-\begin{align*}
+\begin{align}
 p(w|D) &\propto p(D|w)\cdot p(w) \\
-   &= \mathcal{N}(y\,|\,\mathbf{X} w,\beta^{-1} \mathbf{I}) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \\
-   &\propto \exp \big( -\frac{\beta}{2} \big( {y - \mathbf{X}w } \big)^T \big( {y - \mathbf{X}w } \big)  - \frac{\alpha}{2}w^T w \big) \qquad \text{(B-3.55)} \\
-   &= \exp\big( -\frac{1}{2} w^T\big(\underbrace{\beta \mathbf{X}^T\mathbf{X} + \alpha \mathbf{I}}_{\Lambda_N}\big)w + \big(\underbrace{\beta \mathbf{X}^Ty}_{\eta_N}\big)^T w - \frac{\beta}{2}y^T y \big) \\
+   &= \mathcal{N}(y\,|\,X w,\beta^{-1} I) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1} I) \\
+   &\propto \exp \big( -\frac{\beta}{2} \big( {y - X w } \big)^T \big( {y - X w } \big)  - \frac{\alpha}{2}w^T w \big) \tag{B-3.55} \\
+   &= \exp\big( -\frac{1}{2} w^T\big(\underbrace{\beta X^T X + \alpha I}_{\Lambda_N}\big)w + \big(\underbrace{\beta X^T y}_{\eta_N}\big)^T w - \frac{\beta}{2}y^T y \big) \\
      &\propto \mathcal{N}_c\left(w\,|\,\eta_N,\Lambda_N \right)
-\end{align*}
+\end{align}
 ```
 
 with natural parameters (see the [natural parameterization of Gaussian](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#natural-parameterization)):
 
 ```math
 \begin{align*}
-\eta_N &= \beta\mathbf{X}^Ty \\
-\Lambda_N &= \beta \mathbf{X}^T\mathbf{X} + \alpha \mathbf{I}
+\eta_N &= \beta X^T y \\
+\Lambda_N &= \beta X^T X + \alpha I
 \end{align*}
 ```
 
-Or equivalently (in the moment parameterization of the Gaussian):
+Or equivalently (in the [moment parameterization of the Gaussian](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#The-Moment-Parameterization)):
 
 ```math
 \begin{align*}
-p(w|D) &= \mathcal{N}\left(w\,|\,m_N,S_N \right) \qquad &&\text{(B-3.49)} \\
-m_N &= \beta S_N \mathbf{X}^T y  \qquad &&\text{(B-3.53)}\\
-S_N &= \left(\alpha \mathbf{I} + \beta \mathbf{X}^T \mathbf{X}\right)^{-1} \qquad &&\text{(B-3.54)}
+p(w|D) &= \mathcal{N}\left(w\,|\,m_N,S_N \right) \tag{B-3.49} \\
+m_N &= \beta S_N X^T y  \tag{B-3.53}\\
+S_N &= \left(\alpha I + \beta X^T X\right)^{-1} \tag{B-3.54}
 \end{align*}
 ```
 
-Note that B-3.53 and B-3.54 combine to
+Note that Eqs. B-3.53 and B-3.54 combine to
 
 ```math
-m_N = \left(\frac{\alpha}{\beta}\mathbf{I} + \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T y\,.
+m_N = \left(\frac{\alpha}{\beta}I + X^T X \right)^{-1} X^T y\,,
 ```
-
-"""
-
-# ╔═╡ 234d143c-d294-11ef-2663-d9753288a3a7
-md"""
-(Bishop Fig.3.7) Illustration of sequential Bayesian learning for a simple linear model of the form ``y(x, w) = w_0 + w_1 x``. (Bishop Fig.3.7, detailed description at Bishop, pg.154.)
-
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.7.png?raw=true)
-
+which comprises only given variables, so ``m_N`` evaluates to a fixed vector.
 """
 
 # ╔═╡ 234d6dd8-d294-11ef-3abf-8d6cb00b1907
 md"""
-#### 3. Application: $(HTML("<span id='predictive-distribution'>Predictive Distribution</span>"))
+## Application: Predicting future data points
 
-Assume we are interested in the distribution ``p(y_\bullet \,|\, x_\bullet, D)`` for a new input ``x_\bullet``. This can be worked out as (exercise B-3.10)
+Assume we are interested in the distribution ``p(y_\bullet \,|\, x_\bullet, D)`` for a new input ``x_\bullet``. This can be worked out to
 
 ```math
+\begin{align*}
+p(y_\bullet \,|\, x_\bullet, D) &= \int p(y_\bullet \,|\, x_\bullet, w) p(w\,|\,D)\,\mathrm{d}w \\
+&= \int \mathcal{N}(y_\bullet \,|\, w^T x_\bullet, \beta^{-1}) \mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w \\
+&= \mathcal{N}\left(y_\bullet\,|\, m_N^T x_\bullet, \sigma_N^2(x_\bullet) \right)
+\end{align*}
+```
+
+where
+
+```math
+\begin{align*}
+m_N &= \beta S_N X^T y  \tag{B-3.53}\\
+S_N &= \left(\alpha I + \beta X^T X\right)^{-1} \tag{B-3.54} \\
+\sigma_N^2(x_\bullet) &= \beta^{-1} + x^T_\bullet S_N x_\bullet \tag{B-3.59}
+\end{align*}
+```
+
+Thus, the uncertainty ``\sigma_N^2(x_\bullet)`` about the output ``y_\bullet`` contains both uncertainty about the generative process (through ``\beta^{-1}``), and uncertainty about the weights (through ``x^T_\bullet S_N x_\bullet``). 
+
+"""
+
+# ╔═╡ ab3baeb4-51d7-4f50-9e06-ed00bb783ebd
+details("details of the derivation",
+md"""	   
+	   ```math
 \begin{align*}
 p(y_\bullet \,|\, x_\bullet, D) &= \int p(y_\bullet \,|\, x_\bullet, w) p(w\,|\,D)\,\mathrm{d}w \\
 &= \int \mathcal{N}(y_\bullet \,|\, w^T x_\bullet, \beta^{-1}) \mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w \\
@@ -218,48 +322,68 @@ p(y_\bullet \,|\, x_\bullet, D) &= \int p(y_\bullet \,|\, x_\bullet, w) p(w\,|\,
 \end{align*}
 ```
 
+where 
+
+		```math
+\begin{align*}
+m_N &= \beta S_N X^T y  \tag{B-3.53}\\
+S_N &= \left(\alpha I + \beta X^T X\right)^{-1} \tag{B-3.54} \\
+\sigma_N^2(x_\bullet) &= \beta^{-1} + x^T_\bullet S_N x_\bullet \tag{B-3.59}
+\end{align*}
+```
+
+In the above derivation, the substitution of ``\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w`` by ``\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z`` is tricky, and depends on the [change-of-variables theorem](https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html#General-Variable-Transformations): 
+
+Since ``z = x^T w`` (drop the bullet for notational simplicity), we have
+
+```math
+p(z) = \mathcal{N}(z|m_z,\Sigma_z)
+```
+
 with
 
 ```math
-\begin{align*}
-\sigma_N^2(x_\bullet) = \beta^{-1} + x^T_\bullet S_N x_\bullet \tag{B-3.59}
-\end{align*}
+\begin{aligned} m_z &:= E[z] = E[x^T w] = x^T E[w] = x^T m_N \\ \Sigma_z &:= E[(z-m_z)(z-m_z)^T] \\   &= E[(x^T w - x^T m_N)(x^T w - x^T m_N)^T] \\   &= x^T E[(w - m_N)(w - m_N)^T]x \\   &= x^T S_N x \end{aligned}
 ```
 
-So, the uncertainty ``\sigma_N^2(x_\bullet)`` about the output ``y_\bullet`` contains both uncertainty about the process (``\beta^{-1}``) and about the model parameters (``x^T_\bullet S_N x_\bullet``).  
-
-(See the [OPTIONAL SLIDE](#change-of-variable-derivation) below for the step in this derivation where ``\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w`` gets replaced ``\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z``.)
-
-"""
-
-# ╔═╡ 234d858e-d294-11ef-0db5-dbc27b2567a8
-md"""
-## Example Predictive Distribution
-
-As an example, let's do Bayesian Linear Regression for a synthetic sinusoidal data set and a model with 9 Gaussian basis functions 
+Then we equate probability masses in both domains:
 
 ```math
-\begin{align*}
-y_n &=\sum_{m=1}^9 w_m \phi_m(x_n) + \epsilon_n \\
-\phi_m(x_n) &= \exp\left( - \frac{(x_n-\mu_m)^2}{\sigma^2}\right) \\
-\epsilon_n &\sim \mathcal{N}(0,\beta^{-1})
-\end{align*}
+ \mathcal{N}(z|m_z,\Sigma_z)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w
 ```
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.1b.png?raw=true)
+```math
+ \Rightarrow \mathcal{N}(z|x^T m_N,x^T S_N x)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w 
+```
+		
+"""   
+	   )
 
-The predictive distributions for ``y`` are shown in the following plots (Bishop, Fig.3.8)
+# ╔═╡ fb113692-f00c-4b48-85cc-d7bba88c7099
+keyconcept("", md"This is a satisfying result: for an ordinary linear regression task, with inputs ``x``, outputs ``y``, and weights ``w``, placing a Gaussian prior on the weights ``w`` leads to both a Gaussian posterior over the weights and a Gaussian predictive distribution for the outputs. Importantly, both distributions can be computed in closed form. ")
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.8.png?raw=true)
-
+# ╔═╡ 6f509800-c726-40c8-92e4-37b77c013452
+md"""
+# Example
 """
 
-# ╔═╡ 234d8fac-d294-11ef-09e6-f522dc9a3a6b
+# ╔═╡ f600c228-e048-42aa-b79a-60592b367dec
+section_outline(
+	"Challenge Revisited:", "Finding a Secret Function" , color= "Green" )
+
+# ╔═╡ c0c57aa6-155a-49a9-9ed2-d568de1b5be2
 md"""
-And some plots of draws of posteriors for the functions ``w^T \phi(x)`` (Bishop, Fig.3.9) 
+We can use this model to approximate the secret function! Let's see it in action:
+"""
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/Figure3.9.png?raw=true) 
+# ╔═╡ 7a585a05-64c5-4d18-8e07-2d5d0beead53
+NotebookCard(
+	"https://bmlip.github.io/course/minis/Regression.html"
+)
 
+# ╔═╡ ec0ccf94-e12e-422d-b4d2-dcb933453146
+md"""
+# Special Cases 
 """
 
 # ╔═╡ 234da212-d294-11ef-1fdc-c38e13cb41db
@@ -269,7 +393,7 @@ md"""
 Recall the posterior mean for the weight vector
 
 ```math
-m_N = \left(\frac{\alpha}{\beta}\mathbf{I} + \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T y
+m_N = \left(\frac{\alpha}{\beta}I + X^T X \right)^{-1} X^T y
 ```
 
 where ``\alpha`` is the prior precision for the weights.
@@ -282,7 +406,7 @@ The Maximum Likelihood solution for ``w`` is obtained by letting ``\alpha \right
 
 ```math
 \begin{equation*}
-\hat w_{\text{ML}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T y
+\hat w_{\text{ML}} = (X^T X)^{-1} X^T y
 \end{equation*}
 ```
 
@@ -290,13 +414,13 @@ The Maximum Likelihood solution for ``w`` is obtained by letting ``\alpha \right
 
 # ╔═╡ 234dbda6-d294-11ef-05fe-bd3d1320470a
 md"""
-The matrix ``\mathbf{X}^\dagger \equiv  (\mathbf{X}^T \mathbf{X})^{-1}\mathbf{X}^T`` is also known as the **Moore-Penrose pseudo-inverse** (which is sort-of-an-inverse for non-square matrices).
+The matrix ``X^\dagger \equiv  (X^T X)^{-1}X^T`` is also known as the **Moore-Penrose pseudo-inverse** (which is sort-of-an-inverse for non-square matrices).
 
 """
 
 # ╔═╡ 234dc704-d294-11ef-158b-a9ae9e157251
 md"""
-Note that if we have fewer training samples than input dimensions, i.e., if ``N<M``, then ``\mathbf{X}^T \mathbf{X}``  will not be invertible and maximum likelihood blows up. The Bayesian solution does not suffer from this problem.
+Note that if we have fewer training samples than input dimensions, i.e., if ``N<M``, then ``X^T X``  will not be invertible and maximum likelihood blows up. The Bayesian solution does not suffer from this problem.
 
 """
 
@@ -304,11 +428,11 @@ Note that if we have fewer training samples than input dimensions, i.e., if ``N<
 md"""
 ## Least-Squares Regression
 
-(You may say that) we don't need to work with probabilistic models. E.g., there's also the deterministic **least-squares** solution: minimize sum of squared errors,
+You may say that we don't need to work with probabilistic models. After all, there's also a deterministic **least-squares** solution, namely, minimize the Sum of Squared Errors (SQE),
 
 ```math
-\begin{align*} \hat w_{\text{LS}} &= \arg\min_{w} \sum_n {\left( {y_n  - w ^T x_n } \right)} ^2 
-  = \arg\min_{w} \left( {y - \mathbf{X}w } \right)^T \left( {y - \mathbf{X} w } \right)
+\begin{align*} \hat w_{\text{LS}} &= \arg\min_{w} \sum_n {\left( {y_n  - w ^T x_n } \right)} ^2 \\
+  &= \arg\min_{w} \left( {y - X w } \right)^T \left( {y - X w } \right) \tag{SQE}
 \end{align*}
 ```
 
@@ -316,12 +440,15 @@ md"""
 
 # ╔═╡ 234df3ca-d294-11ef-08d9-65d1a42b3fcb
 md"""
-Setting the $(HTML("<span id='regression-gradient'>gradient</span>")) 
-
-$ \frac{\partial \left( {y - \mathbf{X}w } \right)^T \left( {y - \mathbf{X}w } \right)}{\partial w} = -2 \mathbf{X}^T \left(y - \mathbf{X} w  \right) $ to zero yields the so-called  **normal equations**  ``\mathbf{X}^T\mathbf{X} \hat w_{\text{LS}} = \mathbf{X}^T y``  and consequently
+Setting the gradient of SQE with respect to ``w`` to ``0``,  
 
 ```math
-\hat w_{\text{LS}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T y
+\frac{\partial \left( {y - X w } \right)^T \left( {y - X w } \right)}{\partial w} = -2 X^T \left(y - X w  \right) \overset{!}= 0 \,,
+```
+yields the so-called  **normal equations**,  ``X^T X \hat w_{\text{LS}} = X^T y``, leading to 
+
+```math
+\hat w_{\text{LS}} = (X^T X)^{-1} X^T y \,,
 ```
 
 which is the same answer as we got for the maximum likelihood weights ``\hat w_{\text{ML}}``.
@@ -330,50 +457,51 @@ which is the same answer as we got for the maximum likelihood weights ``\hat w_{
 
 # ╔═╡ 234e0a18-d294-11ef-1713-1d7ef92d6ba5
 md"""
-```math
-\Rightarrow
-```
 
-Least-squares regression (``\hat w_{\text{LS}}``) corresponds to the (probabilistic) maximum likelihood solution (``\hat w_{\text{ML}}``) if the probabilistic model includes the following assumptions:
+The Least-squares solution (``\hat w_{\text{LS}}``) corresponds to the (probabilistic) maximum likelihood solution (``\hat w_{\text{ML}}``) **if** the probabilistic model includes (both) the following assumptions:
 
-1. The observations are independently and identically distributed (**IID**) (this determines how errors are combined), and
-2. The noise signal ``\epsilon_n \sim \mathcal{N}(0,\,\beta^{-1})`` is **Gaussian** distributed (determines the error metric)
+  1. The observations are independently and identically distributed (**IID**) (this determines how errors are combined)
+  2. The noise signal ``\epsilon_n \sim \mathcal{N}(0,\,\beta^{-1})`` is **Gaussian** distributed (determines the error metric)
 
 """
 
 # ╔═╡ 234e1f6c-d294-11ef-149a-1785e7fd2901
-md"""
-If you use the Least-Squares method, you cannot see (nor modify) these assumptions. The probabilistic method forces you to state all assumptions explicitly! 
+keyconcept("",
+"If you use the Least-Squares method, you cannot see (nor modify) these assumptions. The probabilistic method forces you to state all assumptions explicitly!") 
 
-"""
 
 # ╔═╡ 234e3470-d294-11ef-35f6-bb410b10dfad
 md"""
-## Not Identically Distributed Data
+## Not Identically Distributed Data (Weighted Least Squares)
 
-Let's do an example regarding changing our assumptions. What if we assume that the variance of the measurement error varies with the sampling index,  ``\epsilon_n \sim \mathcal{N}(0,\beta_n^{-1})``?
+Let's do an example regarding changing our assumptions. What if we assume that the variance of the measurement noise varies with the sampling index,  
+
+```math
+\epsilon_n \sim \mathcal{N}(0,\beta_n^{-1})
+```
+
 
 """
 
 # ╔═╡ 234e492e-d294-11ef-327a-2bd72cfeccae
 md"""
-The likelihood is now (using ``\Lambda \triangleq \mathrm{diag}(\beta_n)`` )
+Making use of the diagonal precision matrix ``\Lambda \triangleq \mathrm{diag}(\beta_1, \beta_2, \ldots,\beta_N)``, we can write the likelihood function for ``w`` as
 
 ```math
-p(y\,|\,\mathbf{X},w,\Lambda) = \mathcal{N}(y\,|\,\mathbf{X} w,\Lambda^{-1} ) \,.
+p(y\,|\,X,w,\Lambda) = \mathcal{N}(y\,|\,X w,\Lambda^{-1} ) \,.
 ```
 
 """
 
 # ╔═╡ 234e617a-d294-11ef-1ce4-fd2e1ebf33a1
 md"""
-Combining this likelihood with the prior ``p(w) = \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I})`` leads to a posterior
+Combining this likelihood with the prior ``p(w) = \mathcal{N}(w\,|\,0,\alpha^{-1}I)`` leads to a posterior
 
 ```math
 \begin{align*}
 p(w|D) &\propto p(D|w)\cdot p(w) \\
-   &= \mathcal{N}(y\,|\,\mathbf{X} w,\Lambda^{-1} \mathbf{I}) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1}\mathbf{I}) \\
-   &\propto \exp \left\{ \frac{1}{2} \left( {y - \mathbf{X}w } \right)^T \Lambda \left( {y - \mathbf{X}w } \right)  + \frac{\alpha}{2}w^T w \right\} \\
+   &= \mathcal{N}(y\,|\,X w,\Lambda^{-1} I) \cdot \mathcal{N}(w\,|\,0,\alpha^{-1}I) \\
+   &\propto \exp \left\{ \frac{1}{2} \left( {y - X w } \right)^T \Lambda \left( {y - X w } \right)  + \frac{\alpha}{2}w^T w \right\} \\
    &\propto \mathcal{N}\left(w\,|\,m_N,S_N \right) 
 \end{align*}
 ```
@@ -382,48 +510,57 @@ with
 
 ```math
 \begin{align*}
-m_N &=  S_N \mathbf{X}^T \Lambda y  \\
-S_N &= \left(\alpha \mathbf{I} +  \mathbf{X}^T \Lambda \mathbf{X}\right)^{-1} 
+m_N &=  S_N X^T \Lambda y  \\
+S_N &= \left(\alpha I +  X^T \Lambda X\right)^{-1} \,,
 \end{align*}
 ```
 
-And maximum likelihood solution 
+and maximum likelihood solution 
 
 ```math
-\hat{w}_{\text{ML}} = \left. m_N\right|_{\alpha \rightarrow 0} = \left(\mathbf{X}^T \Lambda \mathbf{X}\right)^{-1} \mathbf{X}^T \Lambda y
+\hat{w}_{\text{ML}} = \left. m_N\right|_{\alpha \rightarrow 0} = \left(X^T \Lambda X\right)^{-1} X^T \Lambda y
 ```
 
 """
 
 # ╔═╡ 234e75c0-d294-11ef-0b53-bb3518de0d77
 md"""
-This maximum likelihood solution is also called the **Weighted Least Squares** (WLS) solution. (Note that we just stumbled upon it, the crucial aspect is appropriate model specification!)
+This maximum likelihood solution is also called the **Weighted Least Squares** (WLS) solution. Note that we just stumbled upon the WLS solution by making a different model assumption. 
+
 
 """
+
+# ╔═╡ c2b63afc-3528-4ea9-af8c-1266f2091256
+keyconcept("", "In the Bayesian framework, we modify the problem specification by making different modeling assumptions, and then proceed with Bayesian inference to derive the corresponding solution. Remarkably, for many well-chosen assumptions, the resulting Bayesian solutions recover well-known algorithms that were previously derived by other means.")
 
 # ╔═╡ 234e89d2-d294-11ef-238a-73aac596dbeb
 md"""
-Note also that the dimension of ``\Lambda`` grows with the number of data points. In general, models for which the number of parameters grow as the number of observations increase are called **non-parametric models**.
+As an aside, note that the dimension of ``\Lambda`` increases with the number of data points ``N``. In general, models in which the number of parameters grows with the number of observations are called **non-parametric models**. In contrast, in a parametric model, the dimension of the parameter set is assumed to remain constant if the data set grows.
 
 """
 
+# ╔═╡ 691429de-2966-485e-8123-cbcb20c7f218
+section_outline("Code Example:", "Least Squares vs Weighted Least Squares" , color= "Green" )
+
 # ╔═╡ 234ec962-d294-11ef-1033-7b1599057825
 md"""
-## Code Example: Least Squares vs Weighted Least Squares
 
-We'll compare the Least Squares and Weighted Least Squares solutions for a simple linear regression model with input-dependent noise:
+Let us do another code example, where we compare the Least Squares and Weighted Least Squares solutions for a simple linear regression model with input-dependent noise. We generate a data set ``D = \{(x_1,y_1),\ldots,(x_N,y_N)\}`` from the following model: 
 
 ```math
 \begin{align*}
-x &\sim \text{Unif}[0,1]\\
-y|x &\sim \mathcal{N}(f(x), v(x))\\
-f(x) &= 5x - 2\\
-v(x) &= 10e^{2x^2}-9.5\\
-\mathcal{D} &= \{(x_1,y_1),\ldots,(x_N,y_N)\}
+p(y|x) &= \mathcal{N}(y|f(x), v(x)) \\
+p(x) &\sim \text{Unif}[0,1]\\
+f(x) &= 5x - 2 \\
+v(x) &= 10e^{2x^2}-9.5
+
 \end{align*}
 ```
 
 """
+
+# ╔═╡ b6443a13-9301-4559-a5c3-396bae2a27b9
+@bindname N Slider(1:50; default=10)
 
 # ╔═╡ 234ef126-d294-11ef-17a9-3da87a7e7d0a
 let
@@ -434,9 +571,8 @@ let
 	plot(x_test, f(x_test), ribbon=sqrt.(v(x_test)), label=L"f(x)") # plot f(x)
 	
 	# Generate N samples (x,y), where x ~ Unif[0,1]
-	N = 50
-	x = rand(N)
-	y = f(x) + sqrt.(v(x)) .* randn(N)
+	x = rand(MersenneTwister(345435), N)
+	y = f(x) + sqrt.(v(x)) .* randn(MersenneTwister(8484893), N)
 	scatter!(x, y, xlabel="x", ylabel="y", label=L"y") # Plot samples
 	
 	# Add constant to input so we can estimate both the offset and the slope
@@ -451,21 +587,20 @@ let
 	W = Diagonal(1 ./ v(x)) # weight matrix
 	w_wls = inv(_x'*W*_x) * _x' * W * y
 	plot!(x_test, _x_test*w_wls, color=:green, label="WLS") # plot WLS solution
+
+	plot!(legend=:topleft, ylim=(-12,16))
 end
-
-# ╔═╡ 234f0d8c-d294-11ef-2dc6-b310db2cb027
-md"""
-## Some Final Remarks
-
-"""
 
 # ╔═╡ 234f5d32-d294-11ef-279f-f331396e47ad
 md"""
-Aside from the above example, we also recommend that you read through the [RxInfer Bayesian Linear Regression example](https://examples.rxinfer.com/categories/basic_examples/bayesian_linear_regression/). 
 
-In this lesson, we focussed on modelling the map from given inputs ``x`` to uncertain outputs ``y``, or more formally, on the distribution ``p(y|x)``. What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
+## Uncertainty about Inputs?
 
-While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
+In this lesson, we focused on modelling the map from given inputs ``x`` to uncertain outputs ``y``, or more formally, on the distribution ``p(y|x)``. 
+
+What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
+
+While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
 
 """
 
@@ -509,56 +644,75 @@ The following formulas are useful (see Bishop App.-C)
 
 """
 
-# ╔═╡ 234fbf72-d294-11ef-3e1f-87a06cbdb0c1
-md"""
-## $(HTML("<span id='change-of-variable-derivation'>Derivation Predictive Distribution</span>"))
-
-In the [derivation of the predictive distribution](#predictive-distribution), we replaced ``\mathcal{N}(w\,|\,m_N,S_N)\,\mathrm{d}w`` with ``\mathcal{N}(z\,|\,x_\bullet^T m_N,x_\bullet^T S_N x_\bullet)\,\mathrm{d}z``. Here we discuss why that is allowed. 
-
-Since ``z = x^T w`` (drop the bullet for notational simplicity), we have
-
-```math
-p(z) = \mathcal{N}(z|m_z,\Sigma_z)
-```
-
-with
-
-```math
-\begin{aligned} m_z &:= E[z] = E[x^T w] = x^T E[w] = x^T m_N \\ \Sigma_z &:= E[(z-m_z)(z-m_z)^T] \\   &= E[(x^T w - x^T m_N)(x^T w - x^T m_N)^T] \\   &= x^T E[(w - m_N)(w - m_N)^T]x \\   &= x^T S_N x \end{aligned}
-```
-
-Then we equate probability masses in both domains:
-
-```math
- \mathcal{N}(z|m_z,\Sigma_z)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w
-```
-
-```math
- \Rightarrow \mathcal{N}(z|x^T m_N,x^T S_N x)\mathrm{d}z = \mathcal{N}(w|m_N,S_N)\mathrm{d}w 
-```
-
-"""
-
 # ╔═╡ c6532830-3161-4b2a-97c4-6d27d24762c9
 md"""
 # Appendix
+"""
+
+# ╔═╡ 3b2ca3c2-ada2-447f-818d-e3cc7c52facb
+md"""
+# scratchbook (to be removed in final version)
+
+"""
+
+# ╔═╡ 234d143c-d294-11ef-2663-d9753288a3a7
+md"""
+
+## Illustration of sequential Bayesian learning for a simple linear model
+(Bishop Fig.3.7) Illustration of sequential Bayesian learning for a simple linear model of the form ``y(x, w) = w_0 + w_1 x``. (Bishop Fig.3.7, detailed description at Bishop, pg.154.)
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.7.png?raw=true)
+
+"""
+
+# ╔═╡ 234d858e-d294-11ef-0db5-dbc27b2567a8
+md"""
+## Example Predictive Distribution
+
+As an example, let's do Bayesian Linear Regression for a synthetic sinusoidal data set and a model with 9 Gaussian basis functions 
+
+```math
+\begin{align*}
+y_n &=\sum_{m=1}^9 w_m \phi_m(x_n) + \epsilon_n \\
+\phi_m(x_n) &= \exp\left( - \frac{(x_n-\mu_m)^2}{\sigma^2}\right) \\
+\epsilon_n &\sim \mathcal{N}(0,\beta^{-1})
+\end{align*}
+```
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.1b.png?raw=true)
+
+The predictive distributions for ``y`` are shown in the following plots (Bishop, Fig.3.8)
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.8.png?raw=true)
+
+"""
+
+# ╔═╡ 234d8fac-d294-11ef-09e6-f522dc9a3a6b
+md"""
+And some plots of draws of posteriors for the functions ``w^T \phi(x)`` (Bishop, Fig.3.9) 
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure3.9.png?raw=true) 
+
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 Distributions = "~0.25.120"
+HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
-Plots = "~1.40.13"
-PlutoTeachingTools = "~0.3.1"
+Plots = "~1.40.17"
+PlutoTeachingTools = "~0.4.4"
 PlutoUI = "~0.7.62"
 """
 
@@ -566,9 +720,9 @@ PlutoUI = "~0.7.62"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.10.10"
 manifest_format = "2.0"
-project_hash = "3ed5fe64b2c6c159540053db6c55c1be8bff519e"
+project_hash = "e6b1e3e2537ab310f4539868a428d84091660dbf"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -605,15 +759,9 @@ version = "1.0.9+0"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
+git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.4+0"
-
-[[deps.CodeTracking]]
-deps = ["InteractiveUtils", "UUIDs"]
-git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
-uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
-version = "1.3.9"
+version = "1.18.5+0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -623,21 +771,27 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
+git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.29.0"
+version = "3.30.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.5"
+version = "0.12.1"
+
+    [deps.ColorTypes.extensions]
+    StyledStringsExt = "StyledStrings"
+
+    [deps.ColorTypes.weakdeps]
+    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
-git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
+git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.10.0"
+version = "0.11.0"
 weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
@@ -645,15 +799,15 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
+git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.16.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -719,9 +873,9 @@ version = "0.25.120"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
+git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -748,15 +902,15 @@ version = "2.6.5+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
-git-tree-sha1 = "53ebe7511fa11d33bec688a9178fac4e49eeee00"
+git-tree-sha1 = "83dc665d0312b41367b7263e8a4d172eac1897f4"
 uuid = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.FFMPEG_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "PCRE2_jll", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
-git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
+git-tree-sha1 = "3a948313e7a41eb1db7a1e733e6335f17b4ab3c4"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
-version = "4.4.4+1"
+version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -810,27 +964,27 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "7ffa4049937aeba2e5e1242274dc052b0362157a"
+git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.14"
+version = "0.73.17"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "98fc192b4e4b938775ecd276ce88f539bcec358e"
+git-tree-sha1 = "27299071cc29e409488ada41ec7643e0ab19091f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.14+0"
+version = "0.73.17+0"
 
-[[deps.Gettext_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
-uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
-version = "0.21.0+0"
+[[deps.GettextRuntime_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
+git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
+uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
+version = "0.22.4+0"
 
 [[deps.Glib_jll]]
-deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "b0036b392358c80d2d2124746c2bf3d48d457938"
+deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
+git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.82.4+0"
+version = "2.84.3+0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -845,15 +999,15 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
+git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.16"
+version = "1.10.17"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
-git-tree-sha1 = "55c53be97790242c29031e5cd45e8ac296dadda3"
+git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "8.5.0+0"
+version = "8.5.1+0"
 
 [[deps.HypergeometricFunctions]]
 deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
@@ -896,9 +1050,9 @@ version = "0.1.11"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
-git-tree-sha1 = "a007feb38b422fbdab534406aeca1b86823cb4d6"
+git-tree-sha1 = "0533e564aae234aff59ab625543145446d8b6ec2"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -912,17 +1066,11 @@ git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
 
-[[deps.JuliaInterpreter]]
-deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
-git-tree-sha1 = "6ac9e4acc417a5b534ace12690bc6973c25b862f"
-uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
-version = "0.10.3"
-
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
+git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.2+0"
+version = "3.100.3+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -949,19 +1097,21 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
+git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.7"
+version = "0.16.8"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
     SparseArraysExt = "SparseArrays"
     SymEngineExt = "SymEngine"
+    TectonicExt = "tectonic_jll"
 
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+    tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -991,10 +1141,10 @@ version = "1.11.0+1"
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[deps.Libffi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c8da7e6a91781c41a863611c7e966098d783c57a"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+2"
+version = "3.4.7+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -1055,12 +1205,6 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
-[[deps.LoweredCodeUtils]]
-deps = ["JuliaInterpreter"]
-git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
-uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
-version = "3.3.0"
-
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
@@ -1115,10 +1259,10 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
 [[deps.Ogg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b6aa4566bb7ae78498a5e68943863fa8b5231b59"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+1"
+version = "1.3.6+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1128,19 +1272,19 @@ version = "0.3.23+4"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
+git-tree-sha1 = "f1a7e086c677df53e064e0fdd2c9d0b0833e3f6e"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "9216a80ff3682833ac4b733caa8c00390620ba5d"
+git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.0+0"
+version = "3.5.1+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1150,14 +1294,14 @@ version = "0.5.6+0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
+git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
 uuid = "91d4177d-7536-5919-b921-800302f37372"
-version = "1.3.3+0"
+version = "1.5.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
+git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1172,9 +1316,9 @@ version = "0.11.35"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
+git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.1+0"
+version = "1.56.3+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1207,9 +1351,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "809ba625a00c605f8d00cd2a9ae19ce34fc24d68"
+git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.13"
+version = "1.40.17"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1225,29 +1369,17 @@ version = "1.40.13"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PlutoHooks]]
-deps = ["InteractiveUtils", "Markdown", "UUIDs"]
-git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
-version = "0.0.5"
-
-[[deps.PlutoLinks]]
-deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
-git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
-version = "0.1.6"
-
 [[deps.PlutoTeachingTools]]
-deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
-git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.3.1"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.62"
+version = "0.7.68"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1272,27 +1404,27 @@ version = "1.3.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "492601870742dcd38f233b23c3ec629628c1d724"
+git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
-git-tree-sha1 = "e5dd466bf2569fe08c91a2cc29c1003f4797ac3b"
+git-tree-sha1 = "da7adf145cce0d44e892626e647f9dcbe9cb3e10"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.7.1+2"
+version = "6.8.2+1"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
-git-tree-sha1 = "1a180aeced866700d4bebc3120ea1451201f16bc"
+git-tree-sha1 = "9eca9fc3fe515d619ce004c83c31ffd3f85c7ccf"
 uuid = "ce943373-25bb-56aa-8eca-768745ed7b5a"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
+git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -1343,18 +1475,6 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
-[[deps.Revise]]
-deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
-git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
-uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "3.7.6"
-
-    [deps.Revise.extensions]
-    DistributedExt = "Distributed"
-
-    [deps.Revise.weakdeps]
-    Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
@@ -1373,9 +1493,9 @@ version = "0.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
+git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.1"
+version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -1430,9 +1550,9 @@ version = "1.10.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "1ff449ad350c9c4cbc756624d6f8a8c3ef56d3ed"
+git-tree-sha1 = "9d72a13a3f4dd3795a195ac5a44d7d6ff5f552ff"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -1489,14 +1609,14 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.11"
 
 [[deps.URIs]]
-git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
+git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.2"
+version = "1.6.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -1513,23 +1633,27 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d62610ec45e4efeabf7032d67de2ffdea8344bed"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.22.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
+    ForwardDiffExt = "ForwardDiff"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+    PrintfExt = "Printf"
 
     [deps.Unitful.weakdeps]
     ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
-git-tree-sha1 = "975c354fcd5f7e1ddcc1f1a23e6e091d99e99bc8"
+git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
-version = "1.6.4"
+version = "1.7.0"
 
 [[deps.Unzip]]
 git-tree-sha1 = "ca0969166a028236229f63514992fc073799bb78"
@@ -1543,22 +1667,10 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "85c7811eddec9e7f22615371c3cc81a504c508ee"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
+git-tree-sha1 = "96478df35bbc2f3e1e791bc7a3d0eeee559e60e9"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.21.0+2"
-
-[[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
-uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.36.0+0"
-
-[[deps.XML2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
-uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.6+1"
+version = "1.24.0+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1652,39 +1764,39 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "04341cb870f29dcd5e39055f895c39d016e18ccd"
+git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.4+0"
+version = "0.1.5+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "0fab0a40349ba1cba2c1da699243396ff8e94b97"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f4fc02e384b74418679983a97385644b67e1263b"
 uuid = "12413925-8142-5f55-bb0e-6d7ca50bb09b"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxcb_jll"]
-git-tree-sha1 = "e7fd7b2881fa2eaa72717420894d3938177862d1"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll"]
+git-tree-sha1 = "68da27247e7d8d8dafd1fcf0c3654ad6506f5f97"
 uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_keysyms_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "d1151e2c45a544f32441a567d1690e701ec89b00"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "44ec54b0e2acd408b0fb361e1e9244c60c9c3dd4"
 uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_renderutil_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "dfd7a8f38d4613b6a575253b3174dd991ca6183e"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "5b0263b6d080716a02544c55fdff2c8d7f9a16a0"
 uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
-version = "0.3.9+1"
+version = "0.3.10+0"
 
 [[deps.Xorg_xcb_util_wm_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f233c83cad1fa0e70b7771e0e21b061a116f2763"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
-version = "0.4.1+1"
+version = "0.4.2+0"
 
 [[deps.Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
@@ -1716,10 +1828,10 @@ uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
 [[deps.eudev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
-git-tree-sha1 = "431b678a28ebb559d224c0b6b6d01afce87c51ba"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
 uuid = "35ca27e7-8b34-5b7f-bca9-bdc33f59eb06"
-version = "3.2.9+0"
+version = "3.2.14+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1727,23 +1839,17 @@ git-tree-sha1 = "b6a34e0e0960190ac2a4363a1bd003504772d631"
 uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
 
-[[deps.gperf_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "0ba42241cb6809f1a278d0bcb976e0483c3f1f2d"
-uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.1.1+1"
-
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "522c1df09d05a71785765d19c9524661234738e9"
+git-tree-sha1 = "4bba74fa59ab0755167ad24f98800fe5d727175b"
 uuid = "a4ae2306-e953-59d6-aa16-d00cac43593b"
-version = "3.11.0+0"
+version = "3.12.1+0"
 
 [[deps.libass_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "e17c115d55c5fbb7e52ebedb427a0dca79d4484e"
+git-tree-sha1 = "125eedcb0a4a0bba65b657251ce1d27c8714e9d6"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
-version = "0.15.2+0"
+version = "0.17.4+0"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1757,40 +1863,40 @@ uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
 version = "0.2.2+0"
 
 [[deps.libevdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "141fe65dc3efabb0b1d5ba74e91f6ad26f84cc22"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "56d643b57b188d30cccc25e331d416d3d358e557"
 uuid = "2db6ffa8-e38f-5e21-84af-90c45d0032cc"
-version = "1.11.0+0"
+version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a22cf860a7d27e4f3498a0fe0811a7957badb38"
+git-tree-sha1 = "646634dd19587a56ee2f1199563ec056c5f228df"
 uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
-version = "2.0.3+0"
+version = "2.0.4+0"
 
 [[deps.libinput_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "eudev_jll", "libevdev_jll", "mtdev_jll"]
-git-tree-sha1 = "ad50e5b90f222cfe78aa3d5183a20a12de1322ce"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
+git-tree-sha1 = "91d05d7f4a9f67205bd6cf395e488009fe85b499"
 uuid = "36db933b-70db-51c0-b978-0f229ee0e533"
-version = "1.18.0+0"
+version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "002748401f7b520273e2b506f61cab95d4701ccf"
+git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.48+0"
+version = "1.6.50+0"
 
 [[deps.libvorbis_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
+git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+2"
+version = "1.3.8+0"
 
 [[deps.mtdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "814e154bdb7be91d78b6802843f76b6ece642f11"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
 uuid = "009596ad-96f7-51b1-9f1b-5ce2d5e8a71e"
-version = "1.1.6+0"
+version = "1.1.7+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1803,22 +1909,22 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 version = "17.4.0+2"
 
 [[deps.x264_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "4fea590b89e6ec504593146bf8b988b2c00922b2"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "14cc7083fc6dff3cc44f2bc435ee96d06ed79aa7"
 uuid = "1270edf5-f2f9-52d2-97e9-ab00b5d0237a"
-version = "2021.5.5+0"
+version = "10164.0.1+0"
 
 [[deps.x265_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "ee567a171cce03570d77ad3a43e90218e38937a9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "e7b67590c14d487e734dcb925924c5dc43ec85f3"
 uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
-version = "3.5.0+0"
+version = "4.1.0+0"
 
 [[deps.xkbcommon_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
-git-tree-sha1 = "c950ae0a3577aec97bfccf3381f66666bc416729"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "fbf139bce07a534df0e699dbb5f5cc9346f95cc1"
 uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
-version = "1.8.1+0"
+version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
@@ -1826,9 +1932,13 @@ version = "1.8.1+0"
 # ╟─66998cd5-78d6-4b22-a9c9-886436cba4dd
 # ╟─234b8c8e-d294-11ef-296a-3b38564babc4
 # ╟─234ba8c2-d294-11ef-36f6-b1f61f65557a
+# ╠═b5a2304d-6a70-42b2-9269-98370680aed8
+# ╟─f1bf64f6-09f9-45a3-acd1-7975ab9e79fc
+# ╟─2ff8c0d7-30f5-4593-9533-fee6114a3443
+# ╟─d0b7b1fe-59f8-4618-b8b4-156d2d84f84d
+# ╟─390f2359-43cb-4948-bd9c-9406d883f1a9
 # ╟─234bb452-d294-11ef-24cb-3d171fe9cb4e
 # ╟─234be90e-d294-11ef-2257-496f155c2b59
-# ╟─234c27c0-d294-11ef-24c7-1f633aaf02f4
 # ╟─234c3684-d294-11ef-1c08-d9d61fc3d471
 # ╟─234c5394-d294-11ef-1614-c9847412c8fb
 # ╟─234c6104-d294-11ef-0a18-15e51a878079
@@ -1836,10 +1946,14 @@ version = "1.8.1+0"
 # ╟─234c8850-d294-11ef-3707-6722628bd9dc
 # ╟─234cab14-d294-11ef-1e7c-777fc35ddbd9
 # ╟─234cdca6-d294-11ef-0ba3-dd5356b65236
-# ╟─234d143c-d294-11ef-2663-d9753288a3a7
 # ╟─234d6dd8-d294-11ef-3abf-8d6cb00b1907
-# ╟─234d858e-d294-11ef-0db5-dbc27b2567a8
-# ╟─234d8fac-d294-11ef-09e6-f522dc9a3a6b
+# ╟─ab3baeb4-51d7-4f50-9e06-ed00bb783ebd
+# ╟─fb113692-f00c-4b48-85cc-d7bba88c7099
+# ╟─6f509800-c726-40c8-92e4-37b77c013452
+# ╟─f600c228-e048-42aa-b79a-60592b367dec
+# ╟─c0c57aa6-155a-49a9-9ed2-d568de1b5be2
+# ╟─7a585a05-64c5-4d18-8e07-2d5d0beead53
+# ╟─ec0ccf94-e12e-422d-b4d2-dcb933453146
 # ╟─234da212-d294-11ef-1fdc-c38e13cb41db
 # ╟─234dab5e-d294-11ef-30b4-39c5e05dfb31
 # ╟─234dbda6-d294-11ef-05fe-bd3d1320470a
@@ -1852,16 +1966,23 @@ version = "1.8.1+0"
 # ╟─234e492e-d294-11ef-327a-2bd72cfeccae
 # ╟─234e617a-d294-11ef-1ce4-fd2e1ebf33a1
 # ╟─234e75c0-d294-11ef-0b53-bb3518de0d77
+# ╟─c2b63afc-3528-4ea9-af8c-1266f2091256
 # ╟─234e89d2-d294-11ef-238a-73aac596dbeb
+# ╟─691429de-2966-485e-8123-cbcb20c7f218
 # ╟─234ec962-d294-11ef-1033-7b1599057825
-# ╠═5b1e640f-5209-44bc-987a-1495b7adc50e
+# ╟─b6443a13-9301-4559-a5c3-396bae2a27b9
 # ╟─234ef126-d294-11ef-17a9-3da87a7e7d0a
-# ╟─234f0d8c-d294-11ef-2dc6-b310db2cb027
 # ╟─234f5d32-d294-11ef-279f-f331396e47ad
 # ╟─234f7254-d294-11ef-316a-05ef2edb9699
 # ╟─234f8a6e-d294-11ef-175e-f316d6b39583
-# ╟─234fbf72-d294-11ef-3e1f-87a06cbdb0c1
 # ╟─c6532830-3161-4b2a-97c4-6d27d24762c9
 # ╠═f8c69b91-4415-454e-a50d-c4a37ada89d1
+# ╠═5f00f990-1c7c-4c78-9d86-2dfc88a90a36
+# ╠═33ca4c67-d96f-457f-bc19-171f4b4b03c6
+# ╠═3ff2bd04-1490-4be6-8b26-b82d1902bb07
+# ╟─3b2ca3c2-ada2-447f-818d-e3cc7c52facb
+# ╟─234d143c-d294-11ef-2663-d9753288a3a7
+# ╟─234d858e-d294-11ef-0db5-dbc27b2567a8
+# ╟─234d8fac-d294-11ef-09e6-f522dc9a3a6b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

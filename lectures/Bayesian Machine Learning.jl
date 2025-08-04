@@ -2,7 +2,7 @@
 # v0.20.13
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
 #> description = "Introduction to Bayesian modeling, parameter estimation, and model evaluation."
 #> 
 #>     [[frontmatter.author]]
@@ -59,7 +59,7 @@ md"""
   * Optional
 
       * Bishop pp. 68-74 (on the coin toss example)
-      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.35-44 (section 2.9, on deriving Bayes rule for updating probabilities)
+      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.35-44 (section 2.9, on deriving Bayes rule for updating probabilities)
 
     
 
@@ -514,7 +514,7 @@ md"""
 
 The Bayesian modeling approach provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
 
 """
 

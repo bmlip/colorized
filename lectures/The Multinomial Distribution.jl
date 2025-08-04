@@ -264,7 +264,7 @@ We insert this slide only to alert you to the difference between using outcomes 
 
 # ╔═╡ d8443e38-d294-11ef-25db-b16df87850f4
 md"""
-##### Home [Exercise](http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-The-Multinomial-Distribution.ipynb)
+##### Home [Exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Multinomial-Distribution.ipynb)
 
 Verify for yourself that
 
