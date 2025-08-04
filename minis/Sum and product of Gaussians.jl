@@ -3,6 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://imgur.com/wszfn6M.gif"
+#> title = "Mini: Sum and product of Gaussians"
 #> description = "Interactive playground to discover the behaviour of the sum and product of two Gaussian variables."
 
 using Markdown

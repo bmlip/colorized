@@ -3,6 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://imgur.com/mFH19GB.png"
+#> title = "Mini: Distributions in Julia"
 #> description = "Introduction to working with Distributions and Plots in Julia."
 
 using Markdown
