@@ -255,7 +255,7 @@ You can read the full lecture here:
 """
 
 # ╔═╡ dcfc2adb-6f11-472f-b291-2099856391e1
-NotebookCard("https://bmlip.github.io/colorized/lectures/Regression.html"; link_text="Read full lecture")
+NotebookCard("https://bmlip.github.io/course/lectures/Regression.html"; link_text="Read full lecture")
 
 # ╔═╡ 7049ee1c-cdae-473f-a3ef-339bde7f0ee9
 md"""

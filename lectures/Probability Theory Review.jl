@@ -68,7 +68,7 @@ md"""
   - [Aubrey Clayton, Bernoulli's Fallacy–Statistical Illogic and the Crisis of Modern Science (2021)](https://aubreyclayton.com/bernoulli)
     - A very readable account of the history of statistics and probability theory. Discusses why most popular statistics recipes are very poor scientific analysis tools. Use probability theory instead!
 
-  - [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
+  - [Ariel Caticha, Entropic Inference and the Foundations of Physics (2012)](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-56 (ch.2: probability)
     - Great introduction to probability theory, in particular w.r.t. its correct interpretation as a state-of-knowledge.
     - Absolutely worth your time to read the whole chapter, even if you skip section 2.2.4 (pp.15-18) on Cox's proof.
 
@@ -191,7 +191,7 @@ In developing this calculus, only some very agreeable assumptions were made, inc
 
 # ╔═╡ 3e18d2ea-d294-11ef-35e9-2332dd31dbf0
 md"""
-Under these assumptions, Cox showed that any consistent system of reasoning about uncertainty must obey the **rules of probability theory** (see [Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26). These rules are the sum and product rules:
+Under these assumptions, Cox showed that any consistent system of reasoning about uncertainty must obey the **rules of probability theory** (see [Cox theorem, 1946](https://en.wikipedia.org/wiki/Cox%27s_theorem), and [Caticha, 2012](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.7-26). These rules are the sum and product rules:
 
 ##### The sum rule
 
@@ -790,7 +790,7 @@ $(section_outline("Inference Exercise:", "Bag Counter"))
 
 ##### Solution 
 
-- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 ``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
 
@@ -809,7 +809,7 @@ $(section_outline("Inference Exercise:", "Causality?"))
 
 ##### Solution 
 
-- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
 
 
 ``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
@@ -918,7 +918,7 @@ Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\
 Z = A X + b \,.
 ```
 
-No matter the specification of ``p(X)``, we can derive that (see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook)
+No matter the specification of ``p(X)``, we can derive that (see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb) notebook)
 
 ```math
 \begin{align*}
@@ -927,7 +927,7 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 \end{align*}
 ```
 
-(The tag (SRG-3a) refers to the corresponding eqn number in Sam Roweis' [Gaussian identities](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Roweis-1999-gaussian-identities.pdf) notes.)
+(The tag (SRG-3a) refers to the corresponding eqn number in Sam Roweis' [Gaussian identities](https://github.com/bmlip/course/blob/main/assets/files/Roweis-1999-gaussian-identities.pdf) notes.)
 
 """
 
@@ -935,7 +935,7 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 md"""
 ## PDF for the Sum of Two Variables
 
-Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
+Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb))
 
 ```math
 \begin{align*}
@@ -986,6 +986,16 @@ md"""
 [Wikipedia's List of convolutions of probability distributions](https://en.wikipedia.org/wiki/List_of_convolutions_of_probability_distributions) shows how these convolutions work out for a few common probability distributions. 
 
 """
+
+# ╔═╡ e5902178-6df2-4eb4-ac13-7370b3d00c9c
+md"""
+## Working with Distributions in code
+
+Take a look at this mini lecture to see some simple examples of using distributions in Julia:
+"""
+
+# ╔═╡ 6bc443b4-1a07-4f56-99fb-c30a4370da92
+NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.html")
 
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
@@ -1080,7 +1090,7 @@ For proof, see [https://en.wikipedia.org/wiki/Product_distribution](https://en.w
 md"""
 Generally, this integral does not lead to an analytical expression for ``p_z(z)``. 
 
-As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/colorized/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
+As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
 
   * Exception: the distribution of the product of two variables that both have [log-normal distributions](https://en.wikipedia.org/wiki/Log-normal_distribution) is again a lognormal distribution. (If ``X`` has a normal distribution, then ``Y=\exp(X)`` has a log-normal distribution.)
 
@@ -1203,7 +1213,7 @@ For a variable ``X`` with distribution ``p(X)`` with mean ``\mu_x`` and variance
 
 # ╔═╡ 3e2009e2-d294-11ef-255d-8d4a44865663
 md"""
-That's really about all you need to know about probability theory, but you need to *really* know it, so do the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb)!
+That's really about all you need to know about probability theory, but you need to *really* know it, so do the [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Probability-Theory-Review.ipynb)!
 
 """
 
@@ -2520,6 +2530,8 @@ version = "1.9.2+0"
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
+# ╟─e5902178-6df2-4eb4-ac13-7370b3d00c9c
+# ╟─6bc443b4-1a07-4f56-99fb-c30a4370da92
 # ╟─3e1f225a-d294-11ef-04c6-f3ca018ab286
 # ╟─98fa17a6-7c8b-46e4-b32d-52db183d88f8
 # ╠═27ec154a-a4c3-4d71-b2a0-45f2b456a8e4

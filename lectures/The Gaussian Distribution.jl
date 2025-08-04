@@ -1,8 +1,8 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.14
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-linear-system.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true"
 #> description = "Review of information processing with Gaussian distributions in linear systems."
 #> 
 #>     [[frontmatter.author]]
@@ -80,8 +80,8 @@ md"""
 
       * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 85-93
 
-      * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
-      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
+      * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bmlip/course/blob/main/assets/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
+      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
   * References
 
       * [E.T. Jaynes - 2003 - Probability Theory, The Logic of Science](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf) (best book available on the Bayesian view on probability theory)
@@ -225,7 +225,7 @@ md"""
 md"""
 ## Linear Transformations of Gaussian Variables
 
-As shown in the [probability theory lecture](https://bmlip.github.io/colorized/lectures/Probability%20Theory%20Review.html#linear-transformation), under the linear transformation 
+As shown in the [probability theory lecture](https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html#linear-transformation), under the linear transformation 
 
 ```math
 z = Ax + b \,,
@@ -319,7 +319,7 @@ A common mistake is to confuse the *sum of two Gaussian-distributed variables*, 
 md"""
 ##### Gaussian Signals in a Linear System
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/fig-linear-system.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true)
 
 Given independent variables ``x \sim \mathcal{N}(\mu_x,\sigma_x^2)`` and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for 
 ```math
@@ -688,7 +688,7 @@ begin
 	s2_prod = (d1.σ^-2 + d2.σ^-2)^-1
 	m_prod = s2_prod * ((d1.σ^-2)*d1.μ + (d2.σ^-2)*d2.μ)
 	d_prod = Normal(m_prod, sqrt(s2_prod)) # (Note that we neglect the normalization constant.)
-end
+end;
 
 # ╔═╡ df8867ed-0eff-4a52-8f5e-2472467e1aa2
 let
@@ -819,7 +819,7 @@ p(\theta) &= \mathcal{N}(\theta\,|\,\mu_0,\sigma_0^2)
 
 # ╔═╡ b9a9f98e-d294-11ef-193a-0dbdbfffa86f
 md"""
-Let ``z = \begin{bmatrix} x \\ \theta \end{bmatrix}``. The distribution for ``z`` is then given by (see [Gaussian distribution Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-The-Gaussian-Distribution.ipynb))
+Let ``z = \begin{bmatrix} x \\ \theta \end{bmatrix}``. The distribution for ``z`` is then given by (see [Gaussian distribution Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
 
 ```math
 p(z) = p\left(\begin{bmatrix} x \\ \theta \end{bmatrix}\right) = \mathcal{N} \left( \begin{bmatrix} x\\ 
@@ -1142,19 +1142,20 @@ Let's implement the Kalman filter described above. We'll use it to recursively e
 
 """
 
-# ╔═╡ ffa570a9-ceda-4a21-80a7-a193de12fa2c
-TODO("Fons: Can we make it optional to view the code?")
-
-# ╔═╡ 115eabf2-c476-40f8-8d7b-868a7359c1b6
-function perform_kalman_step(prior :: Normal, x :: Float64, noise_σ2 :: Float64)
-    K = prior.σ / (noise_σ2 + prior.σ)          # compute the Kalman gain
-    posterior_μ = prior.μ + K*(x - prior.μ)     # update the posterior mean
-    posterior_σ = prior.σ * (1.0 - K)           # update the posterior standard deviation
-    return Normal(posterior_μ, posterior_σ)     # return the posterior
-end;
-
 # ╔═╡ 3a53f67c-f291-4530-a2ba-f95a97b27960
 @bindname N_data_kalman Slider(1:100; default=100, show_value=true)
+
+# ╔═╡ b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
+md"""
+The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. The variance of the posterior is guaranteed to decrease monotonically for the standard Kalman filter.
+
+"""
+
+# ╔═╡ ffa570a9-ceda-4a21-80a7-a193de12fa2c
+md"""
+### Implementation
+Here is the implementation, but feel free to skip this part.
+"""
 
 # ╔═╡ 85b15f0a-650f-44be-97ab-55d52cb817ed
 begin
@@ -1162,6 +1163,14 @@ begin
 	θ = 2.0            # true value of the parameter we would like to estimate
 	noise_σ2 = 0.3     # variance of observation noise
 	observations = noise_σ2 * randn(MersenneTwister(1), n) .+ θ	
+end;
+
+# ╔═╡ 115eabf2-c476-40f8-8d7b-868a7359c1b6
+function perform_kalman_step(prior :: Normal, x :: Float64, noise_σ2 :: Float64)
+    K = prior.σ / (noise_σ2 + prior.σ)          # compute the Kalman gain
+    posterior_μ = prior.μ + K*(x - prior.μ)     # update the posterior mean
+    posterior_σ = prior.σ * (1.0 - K)           # update the posterior standard deviation
+    return Normal(posterior_μ, posterior_σ)     # return the posterior
 end;
 
 # ╔═╡ 61764e4a-e5ef-4744-8c71-598b2155f4d9
@@ -1201,12 +1210,6 @@ let
 	# plot the true value of θ
 	plot!(post_scale, θ*ones(n + 1), linewidth=2, label=L"θ")
 end
-
-# ╔═╡ b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
-md"""
-The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. The variance of the posterior is guaranteed to decrease monotonically for the standard Kalman filter.
-
-"""
 
 # ╔═╡ b9ac7486-d294-11ef-13e5-29b7ffb440bc
 md"""
@@ -1317,7 +1320,7 @@ p(\lambda\,|\,a,b) = \mathrm{Gam}\left( \lambda\,|\,a,b \right) \triangleq \frac
 
 where ``a>0`` and ``b>0`` are known as the *shape* and *rate* parameters, respectively. 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/B-fig-2.13.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/B-fig-2.13.png?raw=true)
 
 (Bishop fig.2.13). Plots of the Gamma distribution ``\mathrm{Gam}\left( \lambda\,|\,a,b \right)`` for different values of ``a`` and ``b``.
 
@@ -1462,9 +1465,9 @@ SpecialFunctions = "~2.5.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.10.10"
 manifest_format = "2.0"
-project_hash = "3af7b7a1e24ddf3753ac4474e9b19716a9f90072"
+project_hash = "c43ebafcf5853a51001aaadfb0fc3a4445e037f3"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1480,15 +1483,13 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.2"
+version = "1.1.1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
-version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1524,10 +1525,12 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
-weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
+
+    [deps.ColorTypes.weakdeps]
+    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -1590,7 +1593,6 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
-version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1662,7 +1664,6 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
-version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1791,7 +1792,6 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
-version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1877,17 +1877,16 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.6.0+0"
+version = "8.4.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
-version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.7.2+0"
+version = "1.6.4+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1896,7 +1895,6 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
-version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1937,7 +1935,6 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1957,7 +1954,6 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
-version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1978,7 +1974,6 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
-version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1989,7 +1984,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.6+0"
+version = "2.28.2+1"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -2004,11 +1999,10 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
-version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.12.12"
+version = "2023.1.10"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -2029,12 +2023,12 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.27+1"
+version = "0.3.23+4"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2095,13 +2089,9 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.11.0"
-weakdeps = ["REPL"]
-
-    [deps.Pkg.extensions]
-    REPLExt = "REPL"
+version = "1.10.0"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2162,7 +2152,6 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2206,14 +2195,12 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
-version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2268,7 +2255,6 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
-version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2283,7 +2269,6 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
-version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -2294,7 +2279,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.11.0"
+version = "1.10.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2334,14 +2319,9 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
+deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.11.1"
-weakdeps = ["SparseArrays"]
-
-    [deps.Statistics.extensions]
-    SparseArraysExt = ["SparseArrays"]
+version = "1.10.0"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2369,10 +2349,6 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
-[[deps.StyledStrings]]
-uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
-version = "1.11.0"
-
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2380,7 +2356,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.7.0+0"
+version = "7.2.1+1"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2401,7 +2377,6 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2421,11 +2396,9 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
-version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
-version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2703,7 +2676,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.59.0+0"
+version = "1.52.0+1"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2792,7 +2765,7 @@ version = "1.9.2+0"
 # ╟─b9aa3950-d294-11ef-373f-d5d330694bfd
 # ╟─b426f9c8-4506-43ef-92fa-2ee30be621ca
 # ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
-# ╠═9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
+# ╟─9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
 # ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
 # ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
 # ╟─b9ac5190-d294-11ef-0a99-a9d369b34045
@@ -2810,14 +2783,14 @@ version = "1.9.2+0"
 # ╟─b9ab0b46-d294-11ef-13c5-8314655f7867
 # ╟─b9ab1dd4-d294-11ef-2e86-31c4a4389475
 # ╟─b9ab2e32-d294-11ef-2ccc-9760ead59972
+# ╟─3a53f67c-f291-4530-a2ba-f95a97b27960
+# ╟─661082eb-f0c9-49a9-b046-8705f4342b37
+# ╟─b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
 # ╟─ffa570a9-ceda-4a21-80a7-a193de12fa2c
 # ╠═9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
 # ╠═85b15f0a-650f-44be-97ab-55d52cb817ed
 # ╠═115eabf2-c476-40f8-8d7b-868a7359c1b6
 # ╠═61764e4a-e5ef-4744-8c71-598b2155f4d9
-# ╟─3a53f67c-f291-4530-a2ba-f95a97b27960
-# ╟─661082eb-f0c9-49a9-b046-8705f4342b37
-# ╟─b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
 # ╟─b9ac7486-d294-11ef-13e5-29b7ffb440bc
 # ╟─6dfc31a0-d0d7-4901-a876-890df9ab4258
 # ╟─b9acd5d4-d294-11ef-1ae5-ed4e13d238ef

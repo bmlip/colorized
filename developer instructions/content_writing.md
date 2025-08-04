@@ -37,38 +37,11 @@ Read more: [https://plutojl.org/en/docs/packages/](https://plutojl.org/en/docs/p
 
 ## LaTeX and Math
 
-You can use LaTeX in Markdown! Because of conflicts with interpolation, we recommend using backticks:
-
-```julia
-md"""
-Here is some ``\srt{inline}`` math.
-
-```math
-This = \frac{block}{math}
-```
-"""
-```
-
-You can also use `\begin{align}` etc inside a math block.
+Check out https://plutojl.org/en/docs/latex/
 
 ## Adding Images
 
-The best method is to use GitHub's Issues feature:
-
-1. Open a new issue in any public GitHub repository
-2. Drag your image into the writing box
-3. Copy the generated image URL
-4. Use it in your Markdown:
-
-```julia
-md"""
-My image:
-
-![some description](https://github.com/user-attachments/assets/your-image-id)
-"""
-```
-
-5. Close the issue (no need to post it)
+Check out https://plutojl.org/en/docs/images/
 
 ## HTML in Notebooks
 
@@ -98,7 +71,7 @@ Go to the **course website**, find the lecture you want to link, and use that UR
 
 ```julia
 md"""
-Take a look at [the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html).
+Take a look at [the Bayesian Machine Learning lecture](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html).
 """
 ```
 
@@ -123,63 +96,23 @@ If you want to link to an element **inside another notebook**, you can use the f
 
 ```julia
 md"""
-Take a look at [the beta prior from the Bayesian Machine Learning lecture](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#beta-prior).
+Take a look at [the beta prior from the Bayesian Machine Learning lecture](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#beta-prior).
 """
 ```
 
 Here the URL consists of two parts, joined together:
 ```
 # the URL
-https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html
+https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html
 
 # the ID
 #beta-prior
 ```
 
 
-### Adding IDs to elements
 
-Some elements have IDs by default, but most don't. These have **IDs by default**:
-- (since [Pluto 0.20.11, July 2025](https://github.com/fonsp/Pluto.jl/releases/tag/v0.20.11)) Markdown headers: you can click on the 🔗 button next to header text to copy a link to the header. When editing a notebook, it gives just the hash: `#Header-text`, and when clicked on a website, it gives the full URL with hash: `https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html#Header-text`.
-- Global variables: a cell that defines `example` will get a linkable ID of `example`. (More on this below.)
-- Pluto cells: *(not recommended)* each cell has a unique ID, like `f2a42c4d-9607-4f50-bbda-9a9a4942faab`. You can find it by right-clicking the cell and selecting "Inspect", or you can see it in the Julia source code of the notebook. But this is not the easiest way to do it.
-
-These elements do **not** have IDs by default:
-- Markdown headers: `# Dynamic Models` ☹️
-- Markdown paragraphs ☹️
-- Markdown LaTeX equations ☹️
-- Markdown images ☹️
-
-Because you often do not get an ID by default, you need to add one yourself. There are two easy ways to do this:
-
-#### ID method 1: Global variable
-The easiest way to create an ID in Pluto is to define a global variable. In Pluto: If a cell defines a variable `example`, then you can link to it by using `#example` in the URL.
-
-For example:
-
-```julia
-function remove_last_element(xs)
-    return xs[1:end-1]
-end
-```
-
-Now you can link to this cell using `#remove_last_element`.
-
-
-#### ID method 2: Markdown headers
-Create a Markdown header (of any level, so `#` or `######` are all valid) and click on the 🔗 button next to the header text. Requires Pluto 0.20.11 or later.
-
-#### ID method 3: HTML spans
-Use HTML spans with IDs for linking:
-
-```julia
-md"""
-# $(html"<span id=my-header>") My header
-This is a paragraph.
-"""
-```
-
-
+### Getting the ID
+Take a look at https://plutojl.org/en/docs/linking/ to learn how to get the ID of an element on a web page.
 
 
 ## Code in Pluto

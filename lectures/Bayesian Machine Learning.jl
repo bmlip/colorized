@@ -2,7 +2,7 @@
 # v0.20.13
 
 #> [frontmatter]
-#> image = "https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
+#> image = "https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
 #> description = "Introduction to Bayesian modeling, parameter estimation, and model evaluation."
 #> 
 #>     [[frontmatter.author]]
@@ -11,6 +11,18 @@
 
 using Markdown
 using InteractiveUtils
+
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
 # ╔═╡ df312e6a-503f-486f-b7ec-15404070960c
 using Distributions, StatsPlots, SpecialFunctions
@@ -47,7 +59,7 @@ md"""
   * Optional
 
       * Bishop pp. 68-74 (on the coin toss example)
-      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.35-44 (section 2.9, on deriving Bayes rule for updating probabilities)
+      * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.35-44 (section 2.9, on deriving Bayes rule for updating probabilities)
 
     
 
@@ -500,9 +512,9 @@ Put somewhat provocatively, this point underscores that the common machine learn
 md"""
 ## Bayesian Modeling and the Scientific Method Revisited
 
-The Bayesian modeling approach provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/colorized/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
+The Bayesian modeling approach provides a unified framework for the Scientific Inquiry method. We can now add equations to the design loop. (Trial design to be discussed in [Intelligent Agent lesson](https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html).) 
 
-![](https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true)
 
 """
 
@@ -753,6 +765,11 @@ If we were to assume zero pseudo-counts, i.e. ``\alpha=\beta \rightarrow 0``, th
 
 """
 
+# ╔═╡ 48fd2dff-796d-48bc-b5a8-bee270d119fd
+md"""
+Note the following decomposition
+"""
+
 # ╔═╡ 6a2a9faa-d294-11ef-1284-cfccb1da444e
 md"""
 Let's interpret this decomposition of the posterior prediction. Before the data ``D`` was observed, our model generated a *prior prediction* ``p(x*\bullet=1) = \frac{\alpha}{\alpha+\beta}``. Next, the degree to which the actually observed data matches this prediction is represented by the *prediction error* ``\frac{n}{N} - \frac{\alpha}{\alpha-\beta}``. The prior prediction is then updated to a _posterior prediction_ ``p(x_\bullet=1|D)`` by adding a fraction of the prediction error to the prior prediction. Hence, the data plays the role of "correcting" the prior prediction. 
@@ -772,7 +789,7 @@ section_outline("Code Example:", "Bayesian Evolution for the Coin Toss")
 
 # ╔═╡ 6a2acb7e-d294-11ef-185c-9d49ce79c31b
 md"""
-Next, we code an example for a sequence of coin tosses, where we assume that the true coin generates data ``x_n \in \{0,1\}`` by a Bernoulli distribution:
+Let's code an example for a sequence of coin tosses, where we assume that the true coin generates data ``x_n \in \{0,1\}`` by a Bernoulli distribution:
 
 ```math
 p(x_n|\mu=0.4)=0.4^{x_n} \cdot 0.6^{1-x_n}
@@ -780,9 +797,7 @@ p(x_n|\mu=0.4)=0.4^{x_n} \cdot 0.6^{1-x_n}
 
 So, this coin is biased!
 
-To predict the outcomes of future coin tosses, we'll compare two models.
-
-Both models have the same data-generating distribution (also Bernoulli)
+To predict the outcomes of future coin tosses, we'll compare **two models**. Both models have the same data-generating distribution (also Bernoulli):
 
 ```math
 p(x_n|\mu,m_k) = \mu^{x_n} (1-\mu)^{1-x_n} \quad \text{for }k=1,2 \,,
@@ -793,7 +808,7 @@ but they have different priors:
 ```math
 \begin{aligned}
 p(\mu|m_1) &= \mathrm{Beta}(\mu|\alpha=100,\beta=500) \\
-p(\mu|m_2) &= \mathrm{Beta}(\mu|\alpha=8,\beta=13) \\
+p(\mu|m_2) &= \mathrm{Beta}(\mu|\alpha=8,\beta=13). \\
 \end{aligned}
 ```
 
@@ -811,6 +826,9 @@ p(x_n=1|m_2) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_2} = 8/21 \approx 0.
 Let's run ``500`` tosses:
 
 """
+
+# ╔═╡ 8bfc4f37-4bf8-42a3-bd55-f046c8d2624a
+TODO("What code do we want to show, and what do we want to hide? We might want to move cells with hidden code to the end of this section.")
 
 # ╔═╡ 51829800-1781-49ae-8ee7-ac15c0bfcb88
 # computes log10 of Gamma function
@@ -884,23 +902,21 @@ p(\mu|D_n,m_\bullet)
 
 """
 
+# ╔═╡ d484c41d-9834-4528-bf47-93ab4e35ebaa
+md"""
+Select iteration: $(@bind toss_index_1 Slider(1:n_tosses; show_value=true))
+"""
+
 # ╔═╡ 6a2b1106-d294-11ef-0d64-dbc26ba3eb44
 # Animate posterior distributions over time in a gif
 
-@gif for i in 1:n_tosses
+let i = toss_index_1
     p = plot(title=string("n = ", i))
     for j in 1:n_models
         plot!(posterior_distributions[j][i+1], xlims = (0, 1), fill=(0, .2,), label=string("Posterior m", j), linewidth=2, ylims=(0,28), xlabel="μ")
     end
+	p
 end
-
-# gif(anim, "figures/anim_bay_ct.gif", show_msg = false)
-
-# ╔═╡ 6a2b1f5a-d294-11ef-25d0-e996c07958b9
-md"""
-(If the GIF animation is not rendered, you can try to [view it here](https://bmlip.github.io/colorized/lectures/Bayesian%20Machine%20Learning.html)).
-
-"""
 
 # ╔═╡ 6a2b2d44-d294-11ef-33ba-15db357708b1
 md"""
@@ -923,12 +939,20 @@ We have an intuition that ``m_2`` is superior over ``m_1``. Let's check this by 
 # ╔═╡ c69c591f-1947-4b07-badb-3882fd097785
 evidences = map(model -> exp.(model), log_evidences)
 
+# ╔═╡ ebcfcd1b-7fc8-42b7-a35e-4530f798cfdf
+md"""
+Select iteration: $(@bind toss_index_2 Slider(1:n_tosses; show_value=true))
+"""
+
 # ╔═╡ 188b5bea-6765-4dcf-9369-3b1fdbe94494
-@gif for i in 1:n_tosses
-    p = plot(title=string(L"\frac{p_i(\mathbf{x}_{1:n})}{\sum_i p_i(\mathbf{x}_{1:n})}","   n = ", i), ylims=(0, 1), legend=:topleft)
+let i = toss_index_2
+	p = plot(title=string(L"\frac{p_i(\mathbf{x}_{1:n})}{\sum_i p_i(\mathbf{x}_{1:n})}","   n = ", i), ylims=(0, 1), legend=:topleft)
     total = sum([evidences[j][i] for j in 1:n_models])
     bar!([(evidences[j][i] / total) for j in 1:n_models], group=["Model $i" for i in 1:n_models])
 end
+
+# ╔═╡ 84e7ff22-e232-4ab7-a206-ccdd943043dd
+
 
 # ╔═╡ 6a2b9676-d294-11ef-241a-89ff7aa676f9
 md"""
@@ -1101,6 +1125,16 @@ md"""
 
 """
 
+# ╔═╡ 1edae118-dcc7-4169-95cf-f36025f2c336
+md"""
+## Working with Distributions in code
+
+Take a look at this mini lecture to see some simple examples of using distributions in Julia:
+"""
+
+# ╔═╡ 275a9a69-3135-4cbd-8a35-b1abee4af83f
+NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.html")
+
 # ╔═╡ 6a2ccd16-d294-11ef-22ee-a5cff62ccd9c
 md"""
 ## The Kullback-Leibler Divergence
@@ -1148,8 +1182,11 @@ end
 # ╔═╡ 9a58bf5d-f072-4572-bb90-9b860133dce8
 p = Normal(μ_p, σ_p)
 
+# ╔═╡ 635e4f4c-5274-4bd4-a940-b2f3819426ec
+@bind KL_animation_step Slider(1:100)
+
 # ╔═╡ 7bf0fde7-b201-4646-9934-ec93e661cf22
-@gif for i in 1:100
+let i = KL_animation_step
 	# sequence of means tested so far (to compute sequence of KL divergences)
     μ_seq = [(j / 10.) - 5. + μ_p for j in 1:i]
 	# KL divergence data
@@ -1241,10 +1278,8 @@ p(\mu&|D) \cdot p(D) = p(D|\mu)\cdot p(\mu)  \\
 
 """ |> wideq
 
-# ╔═╡ 6a2a5496-d294-11ef-0f1a-e9a70c44288a
+# ╔═╡ e3f9e571-2248-403c-8ab8-f6b99597f595
 md"""
-Note the following decomposition
-
 ```math
 \begin{align*}
     p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
@@ -2800,11 +2835,13 @@ version = "1.9.2+0"
 # ╟─6a2a2af2-d294-11ef-0072-bdc3c6f95bb3
 # ╟─6a2a389e-d294-11ef-1b8c-b55de794b65c
 # ╟─6a2a465e-d294-11ef-2aa0-43c954a6439e
-# ╟─6a2a5496-d294-11ef-0f1a-e9a70c44288a
+# ╟─48fd2dff-796d-48bc-b5a8-bee270d119fd
+# ╟─e3f9e571-2248-403c-8ab8-f6b99597f595
 # ╟─6a2a9faa-d294-11ef-1284-cfccb1da444e
 # ╟─6a2aad42-d294-11ef-3129-3be5be8c82d6
 # ╟─6a2abb16-d294-11ef-0243-d376e8a39bb0
 # ╟─6a2acb7e-d294-11ef-185c-9d49ce79c31b
+# ╟─8bfc4f37-4bf8-42a3-bd55-f046c8d2624a
 # ╟─51829800-1781-49ae-8ee7-ac15c0bfcb88
 # ╟─de7a1b82-f1c4-4eff-b372-ac76cf11c015
 # ╟─d1d2bb84-7083-435a-9c19-4c02074143e3
@@ -2813,12 +2850,14 @@ version = "1.9.2+0"
 # ╟─7a624d2f-812a-47a0-a609-9fe299de94f5
 # ╟─3a903a4d-1fb0-4566-8151-9c86dfc40ceb
 # ╟─6a2af90a-d294-11ef-07bd-018326577791
-# ╠═6a2b1106-d294-11ef-0d64-dbc26ba3eb44
-# ╟─6a2b1f5a-d294-11ef-25d0-e996c07958b9
+# ╟─6a2b1106-d294-11ef-0d64-dbc26ba3eb44
+# ╟─d484c41d-9834-4528-bf47-93ab4e35ebaa
 # ╟─6a2b2d44-d294-11ef-33ba-15db357708b1
 # ╟─6a2b3ba4-d294-11ef-3c28-176be260cb15
 # ╠═c69c591f-1947-4b07-badb-3882fd097785
-# ╠═188b5bea-6765-4dcf-9369-3b1fdbe94494
+# ╟─188b5bea-6765-4dcf-9369-3b1fdbe94494
+# ╟─ebcfcd1b-7fc8-42b7-a35e-4530f798cfdf
+# ╟─84e7ff22-e232-4ab7-a206-ccdd943043dd
 # ╟─6a2b9676-d294-11ef-241a-89ff7aa676f9
 # ╟─9c5d7c89-f65c-4f52-9e49-14692bed2452
 # ╟─6a2bb18a-d294-11ef-23bb-99082caf6e01
@@ -2837,13 +2876,16 @@ version = "1.9.2+0"
 # ╟─6a2c8f4a-d294-11ef-213c-dfa929a403bc
 # ╟─6a2ca496-d294-11ef-0043-1f350b36773e
 # ╟─6a2cb25e-d294-11ef-1d88-1fc784b33df0
+# ╟─1edae118-dcc7-4169-95cf-f36025f2c336
+# ╟─275a9a69-3135-4cbd-8a35-b1abee4af83f
 # ╟─6a2ccd16-d294-11ef-22ee-a5cff62ccd9c
 # ╟─6a2cd9be-d294-11ef-33cf-4b23b92e1cbf
 # ╠═10306ea6-6092-463c-9315-7a216c83606e
 # ╠═ff20449d-1489-430a-aeee-a3a66bece706
 # ╠═b47a2e71-48bb-4cc7-9a14-c0e654c5d2f8
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
-# ╠═7bf0fde7-b201-4646-9934-ec93e661cf22
+# ╟─7bf0fde7-b201-4646-9934-ec93e661cf22
+# ╟─635e4f4c-5274-4bd4-a940-b2f3819426ec
 # ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
