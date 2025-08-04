@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.14
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true"
@@ -24,20 +24,17 @@ macro bind(def, element)
     #! format: on
 end
 
+# ╔═╡ 5638c1d0-db95-49e4-bd80-528f79f2947e
+using HCubature, LinearAlgebra# Numerical integration package
+
+# ╔═╡ 9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
+using Random
+
 # ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
 using PlutoUI, PlutoTeachingTools
 
 # ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
 using Distributions, Plots, LaTeXStrings
-
-# ╔═╡ 69d951b6-58b3-4ce2-af44-4cb799e453ff
-using HypertextLiteral
-
-# ╔═╡ 9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
-using Random
-
-# ╔═╡ 5638c1d0-db95-49e4-bd80-528f79f2947e
-using HCubature, LinearAlgebra# Numerical integration package
 
 # ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
 begin
@@ -54,6 +51,9 @@ begin
   end
 end
 
+# ╔═╡ 00482666-0772-4e5d-bb35-df7b6fb67a1b
+using HypertextLiteral
+
 # ╔═╡ b9a38e20-d294-11ef-166b-b5597125ed6d
 md"""
 # Continuous Data and the Gaussian Distribution
@@ -67,18 +67,19 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Review of information processing with Gaussian distributions in linear systems
 
-Materials        
+##### Materials        
 
   * Mandatory
 
       * These lecture notes
   * Optional
 
-      * Bishop pp. 85-93
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 85-93
+
       * [MacKay - 2006 - The Humble Gaussian Distribution](https://github.com/bmlip/course/blob/main/assets/files/Mackay-2006-The-humble-Gaussian-distribution.pdf) (highly recommended!)
       * [Ariel Caticha - 2012 - Entropic Inference and the Foundations of Physics](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf), pp.30-34, section 2.8, the Gaussian distribution
   * References
@@ -87,9 +88,11 @@ Materials
 
 """
 
+# ╔═╡ 82025c2f-a21f-4080-b301-3ffe3715442d
+section_outline("Challenge:", "Classify a Gaussian Sample" , color= "red" )
+
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
-## Challenge: Classify a Gaussian Sample Point
 
 Consider a data set as shown in the figure below
 
@@ -197,9 +200,8 @@ Why is the Gaussian distribution so ubiquitously used in science and engineering
 
 1. Operations on probability distributions tend to lead to Gaussian distributions:
 
-    * Any smooth function with a single rounded maximum goes into a Gaussian function, if raised to higher and higher powers. (useful in sequential Bayesian inference).
+    * Any smooth function with a single rounded maximum goes into a Gaussian function, if raised to higher and higher powers. This is particularly useful in sequential Bayesian inference where repeated updates leads to Gaussian posteriors. (See also this [tweet](https://twitter.com/almost_sure/status/1745480056288186768?s=12&t=mJsWj_B9ZbEtlxFO_jK-HQ)). 
     * The [Gaussian distribution has higher entropy](https://en.wikipedia.org/wiki/Differential_entropy#Maximization_in_the_normal_distribution) than any other with the same variance. 
-
         * Therefore, any operation on a probability distribution that discards information but preserves variance gets us closer to a Gaussian.
         * As an example, see [Jaynes, section 7.1.4](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf#page=250) for how this leads to the [Central Limit Theorem](https://en.wikipedia.org/wiki/Central_limit_theorem), which results from performing convolution operations on distributions.
 
@@ -217,7 +219,6 @@ See also [Jaynes, section 7.14](http://www.med.mcgill.ca/epidemiology/hanley/bio
 # ╔═╡ 9501922f-b928-46e2-8f23-8eb9c64f6198
 md"""
 # Computing with Gaussians
-
 """
 
 # ╔═╡ b9a5889c-d294-11ef-266e-d90225222e10
@@ -229,7 +230,7 @@ As shown in the [probability theory lecture](https://bmlip.github.io/course/lect
 ```math
 z = Ax + b \,,
 ```
-for given ``A`` and ``b``, the mean and covariance of ``z`` are given by ``\mu_z = A\mu_x + b`` and ``\Sigma_z = A\Sigma_x A^\top``, regardless of the distribution of x.
+for given ``A`` and ``b``, the mean and covariance of ``z`` are given by ``\mu_z = A\mu_x + b`` and ``\Sigma_z = A\Sigma_x A^\top``, regardless of the distribution of ``x``.
 
 Since a Gaussian distribution is fully specified by its mean and covariance matrix, it follows that a linear transformation ``z=Ax+b`` of a Gaussian variable ``x \sim \mathcal{N}(\mu_x,\Sigma_x)`` is Gaussian distributed as
 
@@ -242,51 +243,121 @@ In case ``x`` is not Gaussian, higher order moments may be needed to specify the
 
 """
 
+# ╔═╡ 56510a09-073c-4fc8-b0b7-17b20dbb95f0
+section_outline("Exercises:", "Linear Transformations" , color= "yellow" )
+
 # ╔═╡ a82378ae-d1be-43f9-b63a-2f897767d1fb
 md"""
-## Example: The Sum of Gaussian Variables 
+##### The Sum of Gaussian Variables 
 
 A commonly occurring example of a linear transformation is the *sum of two independent Gaussian variables*:
 
-
-##### Problem
-
-Let ``x \sim \mathcal{N} \left(\mu_x, \sigma_x^2 \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \sigma_y^2 \right)``. What is the PDF for ``z=x+y\, ``?
-
-##### Solution
-
-First, recognize that ``z=x+y`` can be written as a linear transformation ``z = A w``, where
+Let ``x \sim \mathcal{N} \left(\mu_x, \sigma_x^2 \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \sigma_y^2 \right)``. Proof that the PDF for ``z=x+y`` is given by
 
 ```math
-A = \begin{bmatrix} 1 & 1 \end{bmatrix} \text{ ,  and } w = \begin{bmatrix} x \\ y \end{bmatrix} \,.
+p(z) = \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 \right) \tag{SRG-8}
 ```
 
-Using the above formula for linear transformations, it follows that
+
+"""
+
+# ╔═╡ 36eff7bc-72f2-4b48-a109-1861af6834aa
+details("Click for proof",
+md"""	   
+First, recognize that ``z=x+y`` can be written as a linear transformation ``z=A w``, where
+```math
+A = \begin{bmatrix} 1 & 1\end{bmatrix}
+```	
+and
+```math
+w = \begin{bmatrix} x \\ y\end{bmatrix} \sim \mathcal{N}\left( \begin{bmatrix} x \\ y\end{bmatrix}, \begin{bmatrix} \sigma_x^2 & 0 \\ 0 & \sigma_y^2\end{bmatrix}\right) \,.
+```		
+
+Making use of the above formula for linear transformations, it follows that
 ```math
 \begin{align*}
 p(z) &= \mathcal{N}\big(z\,\big|\,A \mu_w, A \Sigma_w A^T \big) \\
   &= \mathcal{N}\bigg(z\, \bigg|\,\begin{bmatrix} 1 & 1 \end{bmatrix}  \begin{bmatrix} \mu_x \\ \mu_y \end{bmatrix}, \begin{bmatrix} 1 & 1 \end{bmatrix}  \begin{bmatrix} \sigma_x^2 & 0 \\ 0 & \sigma_y^2 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \end{bmatrix} \bigg) \\
-  &= \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 \right) \tag{SRG-8}
+  &= \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 \right) 
 \end{align*}
 ```
+		"""	   
+	   )
+
+# ╔═╡ 87f400ac-36f2-4778-a3ba-06dd7652e279
+md"""
+Following the example above, now compute the PDF for ``z`` if ``x`` and ``y`` were *dependent* Gaussian variables?
+"""
+
+# ╔═╡ 9c2bf0a2-4bb6-4769-b47b-6a02c4e73044
+details("Click for answer",
+md"""	   
+In this case, we assume that 
+```math
+w = \begin{bmatrix} x \\ y\end{bmatrix} \sim \mathcal{N}\Big( \begin{bmatrix} x \\ y\end{bmatrix}, \begin{bmatrix} \sigma_x^2 & \sigma_{xy} \\ \sigma_{xy} & \sigma_y^2\end{bmatrix}\Big) \,.
+```
+This leads to 		
+```math
+\begin{align*}
+p(z) &= \mathcal{N}\big(z\,\big|\,A \mu_w, A \Sigma_w A^T \big) \\
+ 
+  &= \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 + 2\sigma_{xy} \right) 
+\end{align*}
+```
+		"""	   
+	   )
+
+# ╔═╡ 8f7ecb91-d251-4ac9-bb32-0dd7215382e3
+md"""
 
 Consequently, the sum of two independent Gaussian random variables remains Gaussian, with its mean given by the sum of the means and its variance given by the sum of the variances.
 
-Home exercise: Following the example above, can you compute the PDF for ``z`` if ``x`` and ``y`` were *dependent* Gaussian variables?
-
 A common mistake is to confuse the *sum of two Gaussian-distributed variables*, which remains Gaussian-distributed (see above), with the *sum of two Gaussian distributions*, which is typically not a Gaussian distribution.
-
 """
 
 # ╔═╡ b9a5a82c-d294-11ef-096f-ffee478aca20
 md"""
-## Example: Gaussian Signals in a Linear System
+##### Gaussian Signals in a Linear System
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true)
 
-Given independent variables ``x \sim \mathcal{N}(\mu_x,\sigma_x^2)`` and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
-
+Given independent variables ``x \sim \mathcal{N}(\mu_x,\sigma_x^2)`` and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for 
+```math
+z = a\cdot(x -y) + b \,?
+```
+ 
 """
+
+# ╔═╡ 673360e8-27ed-471c-a866-15af550df5e7
+details("click for answer",
+md"""
+
+		
+Let ``z \sim \mathcal{N}(\mu_z, \sigma_z^2)``. We proceed by working out the mean and variance for ``z`` explicitly, yielding
+
+
+```math
+\begin{align}
+\mu_z &= \mathrm{E}\left[ z\right] \\
+&= \mathrm{E}\left[ a\cdot(x -y) + b\right] \\ 
+&= a\cdot\mathrm{E}\left[ (x -y)\right] + b \\ 
+&= a\cdot(\mu_x -\mu_y) + b
+\end{align}
+```
+and
+```math
+\begin{align}
+\sigma_z^2 &= \mathrm{E}\left[ (z-\mu_z)(z-\mu_z)^T\right] \\
+&= \mathrm{E}\left[ a\cdot \big( (x - \mu_x) - (y - \mu_y) \big) \big( (x - \mu_x) - (y - \mu_y) \big)^T \cdot a^T\right] \\ 
+&= a\cdot(\sigma_x^2 - 2 \underbrace{\sigma_{xy}}_{-0} + \sigma_y^2) \cdot a^T \\ 
+&= a^2\cdot(\sigma_x^2 + \sigma_y^2)
+\end{align}
+```
+
+		
+		
+		"""		
+	   )
 
 # ╔═╡ b9a5b7e0-d294-11ef-213e-4b72b8c88db7
 md"""
@@ -294,9 +365,125 @@ Think about the role of the Gaussian distribution for stochastic linear systems 
 
 """
 
+# ╔═╡ 9eb3e920-fab5-4a6a-8fe1-5734ebc6b25c
+md"""
+# Maximum Likelihood Estimation
+"""
+
+# ╔═╡ 883e8244-270e-4c6c-874b-b69d8989c24c
+
+md"""
+
+## MLE for a Gaussian
+
+We are given an IID data set ``D = \{x_1,x_2,\ldots,x_N\}``, where ``x_n \in \mathbb{R}^M``. Assume that the data were drawn from a multivariate Gaussian (MVG) 
+
+```math 
+p(x_n|\theta) = \mathcal{N}(x_n|\,\mu,\Sigma) \,.
+```
+
+Let us derive the maximum likelihood estimates for the parameters ``\mu`` and ``\Sigma``.
+"""
+
+# ╔═╡ f02aa0b1-2261-4f65-9bd0-3be33230e0d6
+md"""
+
+##### Evaluation of log-likelihood function
+Let ``\theta =\{\mu,\Sigma\}``. Proof that the log-likelihood (LLH) function ``\log p(D|\theta)`` can be worked out to
+
+```math
+\log p(D|\theta) =
+ \frac{N}{2}\log  |\Sigma|^{-1} - \frac{1}{2}\sum_n (x_n-\mu)^T \Sigma^{-1}(x_n-\mu)
+
+```
+			
+"""
+
+# ╔═╡ f008a742-6900-4e18-ab4e-b5da53fb64a6
+details("click to see proof",
+		
+		md" ```math
+\begin{align*}
+\log p(D|\theta) &= \log \prod_n p(x_n|\theta) \\
+ &= \log \prod_n \mathcal{N}(x_n|\mu, \Sigma) \\
+&= \log \prod_n (2\pi)^{-M/2} |\Sigma|^{-1/2} \exp\left\{ -\frac{1}{2}(x_n-\mu)^T \Sigma^{-1}(x_n-\mu)\right\} \\
+&= \sum_n \left( \log (2\pi)^{-M/2} + \log  |\Sigma|^{-1/2} -\frac{1}{2}(x_n-\mu)^T \Sigma^{-1}(x_n-\mu)\right) \\
+&\propto \frac{N}{2}\log  |\Sigma|^{-1} - \frac{1}{2}\sum_n (x_n-\mu)^T \Sigma^{-1}(x_n-\mu)
+\end{align*}
+```
+"	   )
+
+# ╔═╡ 75e35350-af22-42b1-bb55-15e16cb9c375
+md"""
+##### Maximum likelihood estimate of mean
+
+Proof that the maximum likelihood estimate of the mean is given by
+```math
+\hat{\mu} = \frac{1}{N}\sum_n x_n \,.
+```
+
+"""
+
+# ╔═╡ 8d2732e8-479f-4744-9b1f-d0364f0c6488
+details("click to see proof",		
+md""" 
+```math
+\begin{align*}
+\nabla_{\mu} \log p(D|\theta) &\propto - \sum_n \nabla_{\mu} \left(x_n-\mu \right)^T\Sigma^{-1}\left(x_n-\mu \right)  \\
+&= - \sum_n \nabla_{\mu} \left(-2 \mu^T\Sigma^{-1}x_n + \mu^T \Sigma^{-1}\mu \right) \\
+&= - \sum_n \left(-2 \Sigma^{-1}x_n + 2\Sigma^{-1}\mu \right) \\
+&= -2 \Sigma^{-1} \sum_n (x_n - \mu) \\
+&= -2 \Sigma^{-1} \Big( \sum_n x_n - N \mu	\Big) 	
+\end{align*}
+```	
+
+Since the map ``Ax=0`` for general ``A`` can only be true if ``x=0``, it follows that setting the gradient to ``0`` leads to 
+```math
+		\hat{\mu} = \frac{1}{N}\sum_n x_n \,.
+```		
+		
+""")
+
+# ╔═╡ 0f9feb8d-971e-4a94-8c70-3e1f0d284314
+md"""
+##### Maximum likelihood estimate of variance
+
+The gradient of the LLH with respect to the variance ``\Sigma`` is a bit more involved. It's actually easier to estimate ``\Sigma`` by taking the derivative to the precision. Compute ``\nabla_{\Sigma^{-1}} \log p(D|\theta)``, and show that the maximum likelihood estimate for ``\Sigma`` is given by
+
+```math
+\hat{\Sigma} = \frac{1}{N}\sum_n (x_n-\hat{\mu}) (x_n-\hat{\mu})^T
+```
+"""
+
+
+# ╔═╡ 2767b364-6f9a-413d-aa9e-88741cd2bbb1
+details("click to see proof",		
+md""" 
+```math
+\begin{align*}
+\nabla_{\Sigma^{-1}} \log p(D|\theta) &= \nabla_{\Sigma^{-1}} \left( \frac{N}{2} \log |\Sigma| ^{-1} -\frac{1}{2}\sum_n (x_n-\mu)^T
+\Sigma^{-1} (x_n-\mu)\right)  \\
+&= \nabla_{\Sigma^{-1}} \left( \frac{N}{2} \log |\Sigma| ^{-1} - \frac{1}{2}\sum_n \mathrm{Tr}\left[(x_n-\mu)
+(x_n-\mu)^T \Sigma^{-1} \right]\right) \\
+&=\frac{N}{2}\Sigma - \frac{1}{2}\sum_n (x_n-\mu)
+(x_n-\mu)^T
+\end{align*}
+```	
+
+Setting the derivative to zero leads to ``\hat{\Sigma} = \frac{1}{N}\sum_n (x_n-\hat{\mu})
+(x_n-\hat{\mu})^T``.
+		
+""")
+
+
+# ╔═╡ c6753ff3-7b5e-45b8-8adc-e0bbaa6be7d3
+md"""
+# Simple Bayesian Inference
+"""
+
 # ╔═╡ b9a5cbc2-d294-11ef-214a-c71fb1272326
 md"""
-## Bayesian Inference for the Gaussian
+## Bayesian Inference for Estimation of a Constant
 
 ##### Problem
 
@@ -339,7 +526,7 @@ Note that you can rewrite these specifications in probabilistic notation as foll
 
 """
 
-# ╔═╡ b9a6557e-d294-11ef-0a90-d74c337ade25
+# ╔═╡ 7b415578-10fa-4eb1-ab1f-ce3ff57dcf45
 md"""
 #### Inference
 """
@@ -478,13 +665,13 @@ md"""
 It is important to distinguish between two concepts: the *product of Gaussian distributions*, which results in a (possibly unnormalized) Gaussian distribution, and the *product of Gaussian-distributed variables*, which generally does not yield a Gaussian-distributed variable. See the [optional slides below](#OPTIONAL-SLIDES) for further discussion.
 """
 
-# ╔═╡ 5a642cf4-ccd8-4881-a191-224859a50a7b
+# ╔═╡ 93361b31-022f-46c0-b80d-b34f3ed61d5f
 md"""
 ## Gaussian Distributions in Julia
 Take a look at this mini lecture to see some simple examples of using distributions in Julia:
 """
 
-# ╔═╡ d8c2e4b6-d78a-4870-ad32-08c818daef2d
+# ╔═╡ bbf3a1e7-9f25-434c-95c7-898648b5bc90
 NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.html")
 
 # ╔═╡ b9a7073a-d294-11ef-2330-49ffa7faff21
@@ -494,40 +681,14 @@ $(section_outline("Code Example:", "Product of Two Gaussian PDFs"))
 Let's plot the exact product of two Gaussian PDFs as well as the normalized product according to the above derivation.
 """
 
-# ╔═╡ 73e64014-ceb3-4d18-a0f6-816064df2bcf
+# ╔═╡ 45c2fb37-a078-4284-9e04-176156cffb1e
 begin
-	d1d2_input = @htl """
-	<p>
-	<code><strong>d1</strong> = Normal(μ=$(@bind(d1μ, Scrubbable(0.0))), σ=$(@bind(d1σ, Scrubbable(1.0))))</code>
-	
-	<p>
-	<code><strong>d2</strong> = Normal(μ=$(@bind(d2μ, Scrubbable(2.5))), σ=$(@bind(d2σ, Scrubbable(2.0))))</code>
-	
-	"""
-end
-
-# ╔═╡ 14fd14db-26da-4f0b-81d0-59ee4ab1a35c
-md"""
-We can calculate the parameters of the product `d1*d2`.
-"""
-
-# ╔═╡ e9b6f917-8fc6-40dc-bf76-969ecb489402
-d1d2_input
-
-# ╔═╡ a51c9d87-8e4c-4a3c-a6ca-36668d804679
-begin
-	d1 = Normal(d1μ, d1σ)
-	d2 = Normal(d2μ, d2σ)
+	d1 = Normal(0.0, 1); # μ=0, σ^2=1
+	d2 = Normal(2.5, 2); # μ=2.5, σ^2=4
+	s2_prod = (d1.σ^-2 + d2.σ^-2)^-1
+	m_prod = s2_prod * ((d1.σ^-2)*d1.μ + (d2.σ^-2)*d2.μ)
+	d_prod = Normal(m_prod, sqrt(s2_prod)) # (Note that we neglect the normalization constant.)
 end;
-
-# ╔═╡ f9cf453a-6369-4d38-9dad-fb3412497635
-s2_prod = (d1.σ^-2 + d2.σ^-2)^-1
-
-# ╔═╡ 9f939dd4-18e8-464c-a12e-eb320d5fd88b
-m_prod = s2_prod * ((d1.σ^-2)*d1.μ + (d2.σ^-2)*d2.μ)
-
-# ╔═╡ 6cbf7a96-9e73-4289-9970-88e30cea28a5
-d_prod = Normal(m_prod, sqrt(s2_prod)) # (Note that we neglect the normalization constant.)
 
 # ╔═╡ df8867ed-0eff-4a52-8f5e-2472467e1aa2
 let
@@ -547,12 +708,12 @@ let
 	plot!(x, pdf.(d_prod,x); label=L"Z^{-1} \mathcal{N}(0,1) \mathcal{N}(3,4)", fill)
 end
 
-# ╔═╡ c0ebebde-d509-49c7-a93f-f7350b3264d2
+# ╔═╡ 3a0f7324-0955-4c1c-8acc-0d33ebd16f78
 md"""
 Check out this mini lecture to learn more about this topic!
 """
 
-# ╔═╡ d2b44bb9-9652-47ee-b388-a4ea428ff77a
+# ╔═╡ db730ca7-4850-49c7-a93d-746d393b509b
 NotebookCard("https://bmlip.github.io/course/minis/Sum%20and%20product%20of%20Gaussians.html")
 
 # ╔═╡ b9a885a8-d294-11ef-079e-411d3f1cda03
@@ -635,9 +796,6 @@ let
 	plot(plot_1, plot_2, plot_3, layout=(1,3), size=(1200,300))
 end
 
-# ╔═╡ f4ce24c7-7d03-4574-81e0-d4cbb818a897
-TODO("Fons can you let the student play with some parameter values?")
-
 # ╔═╡ b9a9b8e0-d294-11ef-348d-c197c4ce2b8c
 md"""
 As is clear from the plots, the conditional distribution is a renormalized slice from the joint distribution.
@@ -703,15 +861,17 @@ K &= \frac{\sigma_0^2}{\sigma_0^2+\sigma^2} \qquad \text{($K$ is called: Kalman 
 keyconcept("", md"For jointly Gaussian systems, inference can be performed in a single step using closed-form expressions for conditioning and marginalization of (multivariate) Gaussian distributions.")
 
 
-# ╔═╡ 0072e73e-1569-4ce4-bffb-280823499f0d
+# ╔═╡ b426f9c8-4506-43ef-92fa-2ee30be621ca
 md"""
-# Advanced Bayesian Inference
+# Inference with Multiple Observations
 """
 
-# ╔═╡ b9a80522-d294-11ef-39d8-53a536d66bf9
-md"""
-## Bayesian Inference with Multiple Observations
 
+# ╔═╡ b9a80522-d294-11ef-39d8-53a536d66bf9
+
+md"""
+
+## Estimation of a Constant
 
 #### model specification
 
@@ -784,36 +944,102 @@ To follow the above derivation of ``p(x_{N+1}|D)``, note that transition ``1`` r
 and transition ``2`` derives from using the multiplication rule for Gaussians.
 """
 
+# ╔═╡ 9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
+section_outline("Challenge Revisited:", "Classify a Gaussian Sample", header_level=2, color="red")
+
+# ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
+md"""
+
+Let's solve the challenge from the beginning of the lecture. We apply maximum likelihood estimation to fit a 2-dimensional Gaussian model (``m``) to data set ``D``. Next, we evaluate ``p(x_\bullet \in S | m)`` by (numerical) integration of the Gaussian pdf over ``S``: ``p(x_\bullet \in S | m) = \int_S p(x|m) \mathrm{d}x``.
+
+"""
+
+# ╔═╡ b9ac5190-d294-11ef-0a99-a9d369b34045
+let
+	# Maximum likelihood estimation of 2D Gaussian
+	N = length(sum(D,dims=1))
+	μ = 1/N * sum(D,dims=2)[:,1]
+	D_min_μ = D - repeat(μ, 1, N)
+	Σ = Hermitian(1/N * D_min_μ*D_min_μ')
+	m = MvNormal(μ, convert(Matrix, Σ));
+	
+	contour(range(-3, 4, length=100), range(-3, 4, length=100), (x, y) -> pdf(m, [x, y]))
+	
+	# Numerical integration of p(x|m) over S:
+	(val,err) = hcubature((x)->pdf(m,x), [0., 1.], [2., 2.])
+	@debug("p(x⋅∈S|m) ≈ $(val)")
+	
+	scatter!(D[1,:], D[2,:]; marker=:x, markerstrokewidth=3, label=L"D")
+	scatter!([x_dot[1]], [x_dot[2]]; label=L"x_\bullet")
+	plot!(range(0, 2), [1., 1., 1.]; fillrange=2, alpha=0.4, color=:gray, label=L"S")
+end
+
 # ╔═╡ b9a85716-d294-11ef-10e0-a7b08b800a98
 md"""
-## Maximum Likelihood Estimation for the Gaussian
+## Maximum Likelihood Estimation (MLE) Revisited
 
-In order to determine the *maximum likelihood* estimate of ``\theta``, we let ``\sigma_0^2 \rightarrow \infty`` (leads to uniform prior for ``\theta``), yielding ``\frac{1}{\sigma_N^2} = \frac{N}{\sigma^2}`` and consequently
+##### MLE as a special case of Bayesian Inference
+
+To determine the MLE of ``\mu`` as a special case of Bayesian inference, we let ``\sigma_0^2 \rightarrow \infty`` in the Bayesian posterior for ``\mu`` (Eq. B-2.141) to get a uniform prior for ``\mu``. This yields
 
 ```math
-\begin{align*}
-  \mu_{\text{ML}}  = \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \sigma_N^2 \, \left(   \frac{1}{\sigma^2}\sum_n  x_n  \right) = \frac{1}{N} \sum_{n=1}^N x_n 
-  \end{align*}
+\begin{align}
+ \mu_{\text{ML}} &= \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \Bigg.  \underbrace{\left(\frac{1}{\sigma_0^2} + \sum_n \frac{1}{\sigma^2}\right)^{-1}}_{\text{Eq. B-2.142}} \cdot \underbrace{\left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right)}_{\text{Eq. B-2.141 }} \Bigg\vert_{\sigma_0^2 \rightarrow \infty}  \\
+&=  \left(\sum_n \frac{1}{\sigma^2}\right)^{-1} \cdot \left( \sum_n \frac{1}{\sigma^2} x_n  \right)  \\
+&= \left(\frac{N}{\sigma^2}\right)^{-1} \cdot \left( \frac{1}{\sigma^2} \sum_n  x_n  \right) \\
+&= \frac{1}{N} \sum_{n=1}^N x_n 
+\end{align}
+```
+This is a reassuring result: it matches the maximum likelihood estimate for ``\mu`` that we [previously derived by setting the gradient of the log-likelihood function to zero](#Maximum-Likelihood-Estimation).
+
+Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.
+
+
+"""
+
+# ╔═╡ 50d90759-8e7f-4da5-a741-89b997eae40b
+md"""
+##### A prediction-correction decomposition 
+
+Having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\mu`` as the combination of a prior-based prediction and likelihood-based (data-based) correction. 
+
+Proof that 
+
+```math
+\underbrace{\mu_N}_{\substack{\text{posterior} \\ \text{mean}}}= \overbrace{\underbrace{\mu_0}_{\substack{\text{prior} \\ \text{mean}}}}^{\substack{\text{prior-based} \\ \text{prediction}}} + \overbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}^{\text{data-based correction}}\tag{B-2.141}
 ```
 
-As expected, having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\theta`` as the combination of a prior-based prediction and likelihood-based correction:
 
+"""
+
+# ╔═╡ d05975bb-c5cc-470a-a6f3-60bc43c51e89
+details("proof:", 
+md"""		
 ```math
 \begin{align*}
-  \underbrace{\mu_N}_{\text{posterior}}   &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
-  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \\
+\mu_N  &= \sigma_N^2 \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \tag{B-2.141 } \\
+  &= \frac{\sigma_0^2 \sigma^2}{N\sigma_0^2 + \sigma^2} \, \left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right) \tag{used B-2.142}\\
   &= \frac{ \sigma^2}{N\sigma_0^2 + \sigma^2}   \mu_0 + \frac{N \sigma_0^2}{N\sigma_0^2 + \sigma^2} \mu_{\text{ML}}   \\
-  &= \underbrace{\mu_0}_{\text{prior}} + \underbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}_{\text{correction}}\tag{B-2.141}
+  &= \mu_0 + \frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}\cdot \left(\mu_{\text{ML}} - \mu_0 \right)
 \end{align*}
 ```
+""")		
+
+# ╔═╡ e8e26e57-ae94-478a-8bb2-2868de5d99e0
+md"""
+
 Hence, the posterior mean always lies somewhere between the prior mean ``\mu_0`` and the maximum likelihood estimate (the "data" mean) ``\mu_{\text{ML}}``.
 
-(Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.)
+"""
+
+# ╔═╡ cfa0d29a-ffd8-4e14-b3fd-03c824db395f
+md"""
+# Recursive Bayesian Inference
 """
 
 # ╔═╡ b9aa930a-d294-11ef-37ec-8d17be226c74
 md"""
-## Recursive Bayesian Estimation for Adaptive Signal Processing
+## Kalman Filtering (simple case)
 
 ##### Problem
 
@@ -916,30 +1142,38 @@ Let's implement the Kalman filter described above. We'll use it to recursively e
 
 """
 
-# ╔═╡ c940a43a-0980-4c15-a7ea-9dfe95ccc4f2
-θ = 2.0         # true value of the parameter we would like to estimate
+# ╔═╡ 3a53f67c-f291-4530-a2ba-f95a97b27960
+@bindname N_data_kalman Slider(1:100; default=100, show_value=true)
 
-# ╔═╡ 25db91d0-69b3-4909-ab74-1414817575e9
-noise_σ2 = 0.3  # variance of observation noise
+# ╔═╡ b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
+md"""
+The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. The variance of the posterior is guaranteed to decrease monotonically for the standard Kalman filter.
+
+"""
+
+# ╔═╡ ffa570a9-ceda-4a21-80a7-a193de12fa2c
+md"""
+### Implementation
+Here is the implementation, but feel free to skip this part.
+"""
+
+# ╔═╡ 85b15f0a-650f-44be-97ab-55d52cb817ed
+begin
+	n = N_data_kalman  # number of observations
+	θ = 2.0            # true value of the parameter we would like to estimate
+	noise_σ2 = 0.3     # variance of observation noise
+	observations = noise_σ2 * randn(MersenneTwister(1), n) .+ θ	
+end;
 
 # ╔═╡ 115eabf2-c476-40f8-8d7b-868a7359c1b6
 function perform_kalman_step(prior :: Normal, x :: Float64, noise_σ2 :: Float64)
     K = prior.σ / (noise_σ2 + prior.σ)          # compute the Kalman gain
     posterior_μ = prior.μ + K*(x - prior.μ)     # update the posterior mean
     posterior_σ = prior.σ * (1.0 - K)           # update the posterior standard deviation
-    return Normal(posterior_μ, posterior_σ)     # return the posterior distribution
-end
+    return Normal(posterior_μ, posterior_σ)     # return the posterior
+end;
 
-# ╔═╡ 3a53f67c-f291-4530-a2ba-f95a97b27960
-@bindname N_data_kalman Slider(1:100; default=100, show_value=true)
-
-# ╔═╡ 85b15f0a-650f-44be-97ab-55d52cb817ed
-n = N_data_kalman  # number of observations
-
-# ╔═╡ 929a01f6-9eaf-4c9d-ae0c-c23eee2a5205
-observations = noise_σ2 * randn(MersenneTwister(1), n) .+ θ
-
-# ╔═╡ d37f14bb-8f88-4635-90d6-c6ca17669b33
+# ╔═╡ 61764e4a-e5ef-4744-8c71-598b2155f4d9
 begin
 	post_μ = fill!(Vector{Float64}(undef,n + 1), NaN)     # means of p(θ|D) over time
 	post_σ2 = fill!(Vector{Float64}(undef,n + 1), NaN)    # variances of p(θ|D) over time
@@ -976,43 +1210,6 @@ let
 	# plot the true value of θ
 	plot!(post_scale, θ*ones(n + 1), linewidth=2, label=L"θ")
 end
-
-# ╔═╡ b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
-md"""
-The shaded area represents 2 standard deviations of posterior ``p(\theta|D)``. The variance of the posterior is guaranteed to decrease monotonically for the standard Kalman filter.
-
-"""
-
-# ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
-md"""
-$(section_outline("Challenge Revisited:", "Classify a Gaussian Sample"; header_level=1))
-
-Let's solve the challenge from the beginning of the lecture. We apply maximum likelihood estimation to fit a 2-dimensional Gaussian model (``m``) to data set ``D``. Next, we evaluate ``p(x_\bullet \in S | m)`` by (numerical) integration of the Gaussian pdf over ``S``: ``p(x_\bullet \in S | m) = \int_S p(x|m) \mathrm{d}x``.
-
-"""
-
-# ╔═╡ b9ac5190-d294-11ef-0a99-a9d369b34045
-let
-	# Maximum likelihood estimation of 2D Gaussian
-	N = length(sum(D,dims=1))
-	μ = 1/N * sum(D,dims=2)[:,1]
-	D_min_μ = D - repeat(μ, 1, N)
-	Σ = Hermitian(1/N * D_min_μ*D_min_μ')
-	m = MvNormal(μ, convert(Matrix, Σ));
-	
-	contour(range(-3, 4, length=100), range(-3, 4, length=100), (x, y) -> pdf(m, [x, y]))
-	
-	# Numerical integration of p(x|m) over S:
-	(val,err) = hcubature((x)->pdf(m,x), [0., 1.], [2., 2.])
-	@debug("p(x⋅∈S|m) ≈ $(val)")
-	
-	scatter!(D[1,:], D[2,:]; marker=:x, markerstrokewidth=3, label=L"D")
-	scatter!([x_dot[1]], [x_dot[2]]; label=L"x_\bullet")
-	plot!(range(0, 2), [1., 1., 1.]; fillrange=2, alpha=0.4, color=:gray, label=L"S")
-end
-
-# ╔═╡ 7a57afce-f325-4e14-815d-ec74eeee7d08
-TODO("in general, I dont like 16 decimals, in particular when the answer is approximate. Let's make it 2 decimals.")
 
 # ╔═╡ b9ac7486-d294-11ef-13e5-29b7ffb440bc
 md"""
@@ -1061,10 +1258,9 @@ Here's a nice [summary of Gaussian calculations](https://github.com/bertdv/AIP-5
 
 """
 
-# ╔═╡ b9aca5b6-d294-11ef-2178-456126c0a874
+# ╔═╡ 6dfc31a0-d0d7-4901-a876-890df9ab4258
 md"""
-#  OPTIONAL SLIDES
-
+# Optional
 """
 
 # ╔═╡ b9acd5d4-d294-11ef-1ae5-ed4e13d238ef
@@ -1077,13 +1273,10 @@ md"""
 
 
 
-# ╔═╡ 72e9420c-80da-48ef-8849-71988a4f8dda
-TODO("Bert to update this")
-
 # ╔═╡ b9acf7a8-d294-11ef-13d9-81758355cb1e
 md"""
 
-##### Problem
+#### Problem
 
 
 
@@ -1238,6 +1431,11 @@ In short, Gaussian-distributed variables remain Gaussian in linear systems, but 
 
 """
 
+# ╔═╡ f78bc1f5-cf7b-493f-9c5c-c2fbd6788616
+md"""
+# Code
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1258,7 +1456,7 @@ HCubature = "~1.7.0"
 HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.2"
+PlutoTeachingTools = "~0.4.4"
 PlutoUI = "~0.7.68"
 SpecialFunctions = "~2.5.1"
 """
@@ -1267,9 +1465,9 @@ SpecialFunctions = "~2.5.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.10.10"
 manifest_format = "2.0"
-project_hash = "f244e3b4ec7fe807f855c2366c4f5ec629157650"
+project_hash = "c43ebafcf5853a51001aaadfb0fc3a4445e037f3"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1357,9 +1555,9 @@ version = "1.0.3"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.17.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1830,7 +2028,7 @@ version = "0.3.23+4"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1929,9 +2127,9 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "ce33e4fd343e43905a8416e6148de8c630101909"
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -2186,9 +2384,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.11"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2210,9 +2408,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.23.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -2506,13 +2704,11 @@ version = "1.9.2+0"
 
 # ╔═╡ Cell order:
 # ╟─b9a38e20-d294-11ef-166b-b5597125ed6d
-# ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
-# ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
-# ╠═69d951b6-58b3-4ce2-af44-4cb799e453ff
-# ╠═5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
+# ╟─5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
 # ╟─b9a46c3e-d294-11ef-116f-9b97e0118e5b
+# ╟─82025c2f-a21f-4080-b301-3ffe3715442d
 # ╟─b9a48c60-d294-11ef-3b90-03053fcd82fb
-# ╠═ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
+# ╟─ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
 # ╟─02853a5c-f6aa-4af8-8a25-bfffd4b96afc
 # ╟─71f1c8ee-3b65-4ef8-b36f-3822837de410
 # ╟─b9a4eb62-d294-11ef-06fa-af1f586cbc15
@@ -2521,12 +2717,27 @@ version = "1.9.2+0"
 # ╟─b9a5589a-d294-11ef-3fc3-0552a69df7b2
 # ╟─9501922f-b928-46e2-8f23-8eb9c64f6198
 # ╟─b9a5889c-d294-11ef-266e-d90225222e10
+# ╟─56510a09-073c-4fc8-b0b7-17b20dbb95f0
 # ╟─a82378ae-d1be-43f9-b63a-2f897767d1fb
+# ╟─36eff7bc-72f2-4b48-a109-1861af6834aa
+# ╟─87f400ac-36f2-4778-a3ba-06dd7652e279
+# ╟─9c2bf0a2-4bb6-4769-b47b-6a02c4e73044
+# ╟─8f7ecb91-d251-4ac9-bb32-0dd7215382e3
 # ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
+# ╟─673360e8-27ed-471c-a866-15af550df5e7
 # ╟─b9a5b7e0-d294-11ef-213e-4b72b8c88db7
+# ╟─9eb3e920-fab5-4a6a-8fe1-5734ebc6b25c
+# ╟─883e8244-270e-4c6c-874b-b69d8989c24c
+# ╟─f02aa0b1-2261-4f65-9bd0-3be33230e0d6
+# ╟─f008a742-6900-4e18-ab4e-b5da53fb64a6
+# ╟─75e35350-af22-42b1-bb55-15e16cb9c375
+# ╟─8d2732e8-479f-4744-9b1f-d0364f0c6488
+# ╟─0f9feb8d-971e-4a94-8c70-3e1f0d284314
+# ╟─2767b364-6f9a-413d-aa9e-88741cd2bbb1
+# ╟─c6753ff3-7b5e-45b8-8adc-e0bbaa6be7d3
 # ╟─b9a5cbc2-d294-11ef-214a-c71fb1272326
 # ╟─b9a5dcc0-d294-11ef-2c85-657a460db5cd
-# ╟─b9a6557e-d294-11ef-0a90-d74c337ade25
+# ╟─7b415578-10fa-4eb1-ab1f-ce3ff57dcf45
 # ╟─b9a67d06-d294-11ef-297b-eb9039786ea7
 # ╟─b9a68d3a-d294-11ef-2335-093a39648007
 # ╟─b9a697fa-d294-11ef-3a57-7b7ba1f4fd70
@@ -2537,31 +2748,32 @@ version = "1.9.2+0"
 # ╟─b9a6ecd2-d294-11ef-02af-37c977f2814b
 # ╟─b9a6f916-d294-11ef-38cb-b78c0c448550
 # ╟─d2bedf5f-a0ea-4604-b5da-adf9f11e80be
-# ╟─5a642cf4-ccd8-4881-a191-224859a50a7b
-# ╟─d8c2e4b6-d78a-4870-ad32-08c818daef2d
+# ╟─93361b31-022f-46c0-b80d-b34f3ed61d5f
+# ╟─bbf3a1e7-9f25-434c-95c7-898648b5bc90
 # ╟─b9a7073a-d294-11ef-2330-49ffa7faff21
-# ╟─73e64014-ceb3-4d18-a0f6-816064df2bcf
-# ╟─14fd14db-26da-4f0b-81d0-59ee4ab1a35c
-# ╠═f9cf453a-6369-4d38-9dad-fb3412497635
-# ╠═9f939dd4-18e8-464c-a12e-eb320d5fd88b
-# ╠═6cbf7a96-9e73-4289-9970-88e30cea28a5
+# ╟─45c2fb37-a078-4284-9e04-176156cffb1e
 # ╟─df8867ed-0eff-4a52-8f5e-2472467e1aa2
-# ╟─e9b6f917-8fc6-40dc-bf76-969ecb489402
-# ╟─a51c9d87-8e4c-4a3c-a6ca-36668d804679
-# ╟─c0ebebde-d509-49c7-a93f-f7350b3264d2
-# ╟─d2b44bb9-9652-47ee-b388-a4ea428ff77a
+# ╟─3a0f7324-0955-4c1c-8acc-0d33ebd16f78
+# ╟─db730ca7-4850-49c7-a93d-746d393b509b
 # ╟─b9a885a8-d294-11ef-079e-411d3f1cda03
 # ╟─b9a9565c-d294-11ef-1b67-83d1ab18035b
-# ╠═b9a99fcc-d294-11ef-3de4-5369d9796de7
-# ╟─f4ce24c7-7d03-4574-81e0-d4cbb818a897
+# ╟─b9a99fcc-d294-11ef-3de4-5369d9796de7
 # ╟─b9a9b8e0-d294-11ef-348d-c197c4ce2b8c
 # ╟─b9a9dca8-d294-11ef-04ec-a9202c319f89
 # ╟─b9a9f98e-d294-11ef-193a-0dbdbfffa86f
 # ╟─b9aa27da-d294-11ef-0780-af9d89f9f599
 # ╟─b9aa3950-d294-11ef-373f-d5d330694bfd
-# ╟─0072e73e-1569-4ce4-bffb-280823499f0d
+# ╟─b426f9c8-4506-43ef-92fa-2ee30be621ca
 # ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
+# ╟─9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
+# ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
+# ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
+# ╟─b9ac5190-d294-11ef-0a99-a9d369b34045
 # ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
+# ╟─50d90759-8e7f-4da5-a741-89b997eae40b
+# ╟─d05975bb-c5cc-470a-a6f3-60bc43c51e89
+# ╟─e8e26e57-ae94-478a-8bb2-2868de5d99e0
+# ╟─cfa0d29a-ffd8-4e14-b3fd-03c824db395f
 # ╟─b9aa930a-d294-11ef-37ec-8d17be226c74
 # ╟─b9aabe9a-d294-11ef-2489-e9fc0dbb760a
 # ╟─b9aad50e-d294-11ef-23d2-8d2bb3b47574
@@ -2571,24 +2783,17 @@ version = "1.9.2+0"
 # ╟─b9ab0b46-d294-11ef-13c5-8314655f7867
 # ╟─b9ab1dd4-d294-11ef-2e86-31c4a4389475
 # ╟─b9ab2e32-d294-11ef-2ccc-9760ead59972
-# ╠═85b15f0a-650f-44be-97ab-55d52cb817ed
-# ╠═c940a43a-0980-4c15-a7ea-9dfe95ccc4f2
-# ╠═25db91d0-69b3-4909-ab74-1414817575e9
-# ╠═929a01f6-9eaf-4c9d-ae0c-c23eee2a5205
-# ╠═9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
-# ╠═115eabf2-c476-40f8-8d7b-868a7359c1b6
-# ╠═d37f14bb-8f88-4635-90d6-c6ca17669b33
 # ╟─3a53f67c-f291-4530-a2ba-f95a97b27960
-# ╠═661082eb-f0c9-49a9-b046-8705f4342b37
+# ╟─661082eb-f0c9-49a9-b046-8705f4342b37
 # ╟─b9ab9e28-d294-11ef-3a73-1f5cefdab3d8
-# ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
-# ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
-# ╠═b9ac5190-d294-11ef-0a99-a9d369b34045
-# ╠═7a57afce-f325-4e14-815d-ec74eeee7d08
+# ╟─ffa570a9-ceda-4a21-80a7-a193de12fa2c
+# ╠═9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
+# ╠═85b15f0a-650f-44be-97ab-55d52cb817ed
+# ╠═115eabf2-c476-40f8-8d7b-868a7359c1b6
+# ╠═61764e4a-e5ef-4744-8c71-598b2155f4d9
 # ╟─b9ac7486-d294-11ef-13e5-29b7ffb440bc
-# ╟─b9aca5b6-d294-11ef-2178-456126c0a874
+# ╟─6dfc31a0-d0d7-4901-a876-890df9ab4258
 # ╟─b9acd5d4-d294-11ef-1ae5-ed4e13d238ef
-# ╠═72e9420c-80da-48ef-8849-71988a4f8dda
 # ╟─b9acf7a8-d294-11ef-13d9-81758355cb1e
 # ╟─b9ad0842-d294-11ef-2035-31bceab4ace1
 # ╟─b9ad1b70-d294-11ef-3931-d1dcd2343ac9
@@ -2601,5 +2806,9 @@ version = "1.9.2+0"
 # ╟─b9abdc7e-d294-11ef-394a-a708c96c86fc
 # ╟─b9abf984-d294-11ef-1eaa-3358379f8b44
 # ╟─b9ac09c4-d294-11ef-2cb8-270289d01f25
+# ╟─f78bc1f5-cf7b-493f-9c5c-c2fbd6788616
+# ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
+# ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
+# ╠═00482666-0772-4e5d-bb35-df7b6fb67a1b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
