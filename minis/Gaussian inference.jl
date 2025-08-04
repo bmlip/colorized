@@ -3,7 +3,7 @@
 
 #> [frontmatter]
 #> image = "https://imgur.com/v6BLTI0.png"
-#> title = "Gaussian Inference example"
+#> title = "Mini: Gaussian Inference example"
 #> description = "A simple example of Gaussian inference in practice, using an interactive dataset."
 
 using Markdown
