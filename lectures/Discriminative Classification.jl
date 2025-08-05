@@ -81,7 +81,7 @@ md"""
 md"""
 ## Framework
 
-Again, a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
+A data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
 
 """
 
@@ -117,8 +117,7 @@ Similarly to regression, we will assume that the inputs ``x`` are given, so we w
 
 # ╔═╡ 25efd6b6-d294-11ef-3b21-6363ef531eb5
 md"""
-## Model Specification for Bayesian Logistic Regression
-
+## Model Specification 
 We will work this idea out for a 2-class problem. Assume a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \{0,1\}``.
 
 """
@@ -131,7 +130,7 @@ What model should we use for the posterior distribution ``p(y_n \in \mathcal{C}_
 
 # ╔═╡ 25f0adde-d294-11ef-353e-4b4773df9ff5
 md"""
-#### Likelihood
+#### Data-generating distribution
 
 We will take inspiration from the [generative classification](https://bmlip.github.io/course/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
 
@@ -159,6 +158,9 @@ Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sig
 
 """
 
+# ╔═╡ 7d8f376c-b43f-46f4-87bc-c4d7f94d60e1
+TODO("can we make a mini on the softmax function and its special case, the logistic function? The graph below, including its approximation should be generated in Julia, not taken as an png from Bishop.")
+
 # ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
 md"""
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true)
@@ -185,25 +187,26 @@ Each of these three models in B-4.89 are **equivalent**. We mention all three no
 
 """
 
-# ╔═╡ 25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╔═╡ b94644f8-725d-49bf-9641-3dad8b647f45
 md"""
-For the data set ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the **likelihood function** for the parameters ``w`` is then given by
+As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
 
 ```math
-p(D|w) = \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)
+\frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
 ```
 
+is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 """
 
 # ╔═╡ 25f14226-d294-11ef-369f-e545d5fe2700
 md"""
-This choice for the class posterior is called **logistic regression**, in analogy to **linear regression**:
+This choice for the class posterior is called **logistic regression**, in analogy to [linear regression](https://bmlip.github.io/course/lectures/Regression.html#likelihood-function):
 
 ```math
-\begin{align*}
-p(y_n|x_n,w) &= \mathcal{N}(y_n|w^T x_n,\beta^{-1}) \quad &&\text{for linear regression} \\
-p(y_n|x_n,w) &= \sigma\left( (2y_n-1) w^T x_n\right) &&\text{for logistic regression}
-\end{align*}
+\begin{align}
+p(y_n|x_n,w) &= \mathcal{N}(y_n|w^T x_n,\beta^{-1}) \tag{for linear regression} \\
+p(y_n|x_n,w) &= \sigma\left( (2y_n-1) w^T x_n\right) \tag{for logistic regression}
+\end{align}
 ```
 
 """
@@ -227,31 +230,34 @@ p(w) = \mathcal{N}(w \,|\, m_0, S_0) \tag{B-4.140}
 ```
 """
 
-# ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
+# ╔═╡ 25f19ed8-d294-11ef-3298-efa16dda1dde
 md"""
-## Some Notes on the Model
+## Parameter Inference
 
-Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. In principle, we could have used Bayesian parameter estimation for the generative classification model as well (but the math is not suited for a introductory lesson).  
+Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. We could have used Bayesian parameter estimation for the generative classification model but the math is not suited for an introductory lesson. 
 
-In the optional paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
+In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. 
 
-As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
+As before, once the model is specified, everything else follows directly from the rules of probability theory.
 
-```math
-\frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
-```
-
-is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 
 """
 
-# ╔═╡ 25f19ed8-d294-11ef-3298-efa16dda1dde
+# ╔═╡ 25f1390c-d294-11ef-364d-17e4c93b9a57
 md"""
-## $(HTML("<span id='logistic-regression-posterior'>Parameter Inference</span>"))
+For the data set ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the **likelihood function** for the parameters ``w`` is given by
 
-After model specification, the rest follows by application of probability theory.
+```math
+p(D|w) = \prod_{n=1}^N p(y_n|x_n,w) = \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)
+```
 
-The posterior for the weights follows by Bayes rule
+"""
+
+# ╔═╡ bda07a2e-3769-4ffe-9bc5-2b8a515247f6
+md"""
+
+
+The posterior for the weights follows by Bayes rule,
 
 ```math
 \begin{align*}
@@ -259,22 +265,21 @@ The posterior for the weights follows by Bayes rule
 \end{align*}
 ```
 
-In principle, Bayesian inference is done now! 
+In principle, Bayesian learning of the parameters is done now! 
 
-Unfortunately, the posterior ``p(w \,|\, D)`` is not Gaussian and the evidence ``p(D)`` is also not analytically computable. (We will deal with this later).
-
+Unfortunately, the posterior ``p(w | D)`` is not Gaussian, and the evidence ``p(D)`` is also not analytically computable. (We will deal with this later).
 """
 
 # ╔═╡ 25f1ab08-d294-11ef-32ed-493792e121b7
 md"""
 ## Application: the predictive distribution
 
-For a new data point ``x_\bullet``, the predictive distribution for ``y_\bullet`` is given by 
+For a new data point ``x_\bullet``, the predictive distribution for ``y_\bullet=1`` is given by 
 
 ```math
 \begin{align*}
-p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \, p(w\,|\, D) \,\mathrm{d}w \\
-  &= \int \sigma(w^T x_\bullet) \, p(w\,|\, D) \,\mathrm{d}w \tag{B-4.145}
+p(y_\bullet = 1 | x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \, p(w| D) \,\mathrm{d}w \\
+  &= \int \sigma(w^T x_\bullet) \, p(w| D) \,\mathrm{d}w \tag{B-4.145}
 \end{align*}
 ```
 
@@ -282,86 +287,176 @@ p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \
 
 # ╔═╡ 25f1b404-d294-11ef-1c3a-a5a8142bb202
 md"""
-After substitution of ``p(w | D)`` from B-4.142, we have closed-form expressions for both the posterior ``p(w|D)`` and the predictive distribution ``p(y_\bullet = 1 \mid x_\bullet, D)``. Unfortunately, these expressions contain integrals that are not analytically computable. 
+While Eq. B-4.145 gives the expression for the Bayesian predictive class distribution, the integral becomes analytically intractable when we substitute the posterior distribution over weights, ``p(w | D)`` (from Eq. B-4.142), into it :(
 
 """
 
 # ╔═╡ 25f1c2a0-d294-11ef-009c-69b64e87e5fb
 md"""
-Many methods have been developed to approximate the integrals in order to get analytical or numerical solutions. Here, we present the **Laplace approximation**, which is one of the simplest methods with broad applicability to Bayesian calculations.
+Many methods have been developed to approximate these types of Bayesian integrals. Here, we present the **Laplace approximation**, which is one of the simplest methods with broad applicability to Bayesian calculations.
 
+"""
+
+# ╔═╡ 3422dd29-6da9-4e0f-a4ab-646f223c2244
+md"""
+## Working out Numerics with Laplace Approximation
+"""
+
+# ╔═╡ 8b0bb225-bdc1-45ec-bd34-68d674d6f08d
+md"""
+The **Laplace Approximation** approximates a function by a Gaussian-shaped function. In this case, we will approximate the weight posterior ``p(w|D)`` by a Gaussian distribution
+
+```math
+q(w) = \mathcal{N}\left(w\,|\, w_{N}, S_N\right) \tag{B-4.144}
+```
+
+with
+
+```math
+\begin{align}
+w_N &= \arg\max_w \log p(w|D) \\
+S_N^{-1} &= S_0^{-1} + \sum_n \sigma_n (1-\sigma_n) x_n x_n^T \tag{B-4.143}
+\end{align}
+```
+where we used short-hand ``\sigma_n = \sigma\left((2y_n-1) w^T x_n\right)``.
+
+If we substitute the Gaussian approximation from Eq. B-4.143 into the expression for the predictive class distribution (Eq. B-4.145), we obtain (after some additional approximations):
+
+```math
+\begin{align*}
+p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \cdot p(w\,|\, D) \,\mathrm{d}w \\
+  &\approx  \int \sigma(w^T x_\bullet) \cdot \mathcal{N}\left(w \,|\, w_N, S_N\right) \,\mathrm{d}w \tag{B-4.145} \\
+&\approx \Phi\left( \frac{\mu_a}{\sqrt(\lambda^{-2} +\sigma_a^2)}\right) \tag{B-4.152}
+\end{align*}
+```
+
+where 
+
+```math
+\begin{align}
+\lambda^2 &= \pi / 8 \\
+\mu_a  &= w^T_{N} x_\bullet \tag{B-4.149} \\
+\sigma_a^2 &= x^T_\bullet S_N x_\bullet \tag{B-4.150}
+\end{align}
+```
+and ``\Phi(x)= \frac{1}{\sqrt(2\pi)}\int_{-\infty}^{x}e^{-t^2/2}\mathrm{d}t`` is the Gaussian cumulative distribution function (CDF) . The Gaussian CDF closely approximates the logistic sigmoid function, with 
+``\Phi(\sqrt{\pi/8} a) \approx \sigma(a)``. 
+
+
+"""
+
+# ╔═╡ ae2b23f0-853e-4237-aab2-81c961f52cf6
+md"""
+Although the intermediate equations may look intimidating, the final result for the predictive distribution Eq. B-4.152 has a simple closed-form expression.
+
+"""
+
+# ╔═╡ e4cc517b-d3b5-4517-a28b-efb8aba24496
+md"""
+The numerical issues associated with the Laplace approximation and the evaluation of the predictive class distribution are discussed in detail in the following mini-lecture.
 """
 
 # ╔═╡ 33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
 NotebookCard("https://bmlip.github.io/course/minis/Laplace%20Approximation.html")
 
-# ╔═╡ 25f356b0-d294-11ef-17b9-8583928f7829
+# ╔═╡ 38b4854f-be02-4696-802f-2106481e3aea
 md"""
-## ML Estimation for Discriminative Classification
+## Bayesian Processing of Uncertainties
 
-Rather than the computationally involved Laplace approximation for Bayesian inference, in practice, discriminative classification is often executed through maximum likelihood estimation. 
+We now make an important observation: According to Eq. B-4.143, the posterior covariance matrix ``S_N`` of the weight vector depends on both the prior variance ``S_0`` and the distribution of the training data ``\{(x_n, y_n)\}_{n=1}^N``. In regions with limited training data and/or an uninformative prior (i.e., large ``S_0``), the posterior uncertainty about the weights remains high. This increased uncertainty raises ``\sigma_a^2`` in Eq. B-4.150, **causing the posterior class probability in Eq. B-4.152 to approach ``0.5``** (since ``\Phi(0) = 0.5``, see [Gaussian CDF image](https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_CDF.svg)), thereby reflecting greater uncertainty in the prediction.
+
+In other words, if you draw a new feature ``x_\bullet`` from a region with little training data, then the predictive class probability ``p(y_\bullet | x_\bullet, D)`` naturally tends toward ``0.5``, a built-in expression of uncertainty, courtesy of the Bayesian framework.
+
+In contrast, if you eliminate uncertainty by representing the weights as fixed-point estimates (i.e., as mere numbers), then the model becomes overconfident. It will still produce sharp predictions, even in regions where it has seen no data, exactly when it should be most uncertain. 
+
+"""
+
+# ╔═╡ 0045e569-dc3c-4998-86da-9d96f599c599
+md"""
+# Maximum Likelihood Estimation
 
 """
 
 # ╔═╡ 25f365e2-d294-11ef-300e-9914333b1233
 md"""
-With the usual 1-of-K encoding scheme for classes (``y_{nk}=1`` if ``x_n \in \mathcal{C}_k``, otherwise ``y_{nk}=0``), the log-likelihood for a ``K``-dimensional discriminative classifier is 
+
+## MLE Parameter Estimation
+
+Rather than the computationally involved Laplace approximation, in practice, discriminative classification is often executed through maximum likelihood estimation. 
+
+With the usual 1-of-K encoding scheme for classes,
+
+```math 
+y_{nk} = \begin{cases} 1 & \text{if } x_n \in \mathcal{C}_k \\ 
+  0 & \text{otherwise}  \,,\end{cases}
+```
+
+the log-likelihood for a ``K``-dimensional discriminative classifier evaluates to
 
 ```math
 \begin{align*}
-    \mathrm{L}(\theta) &= \log \prod_n \prod_k {p(\mathcal{C}_k|x_n,\theta)}^{y_{nk}} \\
-    &= \log \prod_n \prod_k \Bigg(\underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{softmax function}}\Bigg)^{y_{nk}} \\
-    &= \sum_n \sum_k y_{kn} \log \big( \frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}} \big)
+    \mathrm{L}(w) &= \log \prod_n \prod_k {p(\mathcal{C}_k|x_n,w)}^{y_{nk}} \\
+    &= \sum_n \sum_k y_{kn} \log \bigg( \underbrace{\frac{e^{w_k^T x_n}}{ \sum_j e^{w_j^T x_n}}}_{=\text{softmax}(w_k^T x_n)} \bigg)
      \end{align*}
 ```
 
-"""
-
-# ╔═╡ 25f3741a-d294-11ef-1418-f11326406eb6
-md"""
-Computing the gradient ``\nabla_{\theta_k} \mathrm{L}(\theta)`` leads to (for [proof, see optional slide below](#ML-for-LG)) 
-
+The gradient ``\nabla_{w_k} \mathrm{L}(w)`` to the weight  ``w_k`` can be worked out to
 ```math
-\nabla_{\theta_k} \mathrm{L}(\theta) = \sum_n \underbrace{\big( \underbrace{y_{nk}}_{\text{target}} - \underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{prediction}} \big)}_{\text{prediction error}}\cdot x_n 
+\nabla_{w_k} \mathrm{L}(w) = \sum_n \underbrace{\big( \underbrace{y_{nk}}_{\text{target}} - \underbrace{\frac{e^{w_k^T x_n}}{ \sum_j e^{w_j^T x_n}}}_{\text{prediction}} \big)}_{\text{prediction error}}\cdot x_n  .
 ```
 
 """
 
-# ╔═╡ 25f386e4-d294-11ef-2cec-f56f4a6feb19
-md"""
-Compare this to the [gradient for *linear* regression](https://bmlip.github.io/course/lectures/Regression.html#regression-gradient):
+# ╔═╡ 3b24b142-2239-4951-9177-ff87b5da4b68
+details("Click for proof", 
+	   md"""
+The Log-likelihood is 
 
 ```math
-\nabla_\theta \mathrm{L}(\theta) =  \sum_n \left(y_n - \theta^T x_n \right)  x_n
+\mathrm{L}(w) = \log \prod_n \prod_k {\underbrace{p(y_{nk}=1|x_n,w)}_{p_{nk}}}^{y_{nk}} = \sum_{n,k} y_{nk} \log p_{nk}
 ```
+
+Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative,
+
+```math
+ \begin{align*}
+ \frac{\partial \phi_k}{\partial a_j} &= \frac{(\sum_j e^{a_j})e^{a_k}\delta_{kj}-e^{a_j}e^{a_k}}{(\sum_j e^{a_j})^2} = \frac{e^{a_k}}{\sum_j e^{a_j}}\delta_{kj} - \frac{e^{a_j}}{\sum_j e^{a_j}} \frac{e^{a_k}}{\sum_j e^{a_j}}\\
+     &= \phi_k \cdot(\delta_{kj}-\phi_j) \,.
+ \end{align*}
+```
+
+Take the derivative of ``\mathrm{L}(w)`` (or: how to spend an hour ...)
+
+```math
+\begin{align*} 
+\nabla_{w_j} \mathrm{L}(w) &= \sum_{n,k} \frac{\partial \mathrm{L}_{nk}}{\partial p_{nk}} \cdot\frac{\partial p_{nk}}{\partial a_{nj}}\cdot\frac{\partial a_{nj}}{\partial w_j} \\
+  &= \sum_{n,k} \frac{y_{nk}}{p_{nk}} \cdot p_{nk} (\delta_{kj}-p_{nj}) \cdot x_n \\
+  &= \sum_n \Big( y_{nj} (1-p_{nj}) -\sum_{k\neq j} y_{nk} p_{nj} \Big) \cdot x_n \\
+  &= \sum_n \left( y_{nj} - p_{nj} \right)\cdot x_n \\
+  &= \sum_n \Big( \underbrace{y_{nj}}_{\text{target}} - \underbrace{\frac{e^{w_j^T x_n}}{\sum_{j^\prime} e^{w_{j^\prime}^T x_n}}}_{\text{prediction}} \Big)\cdot x_n 
+\end{align*}
+```
+
+		
+		""")
+
+# ╔═╡ ff31d8c1-db35-4c85-a609-67fc40e9e78d
+md"""
+
+The parameter vector ``w`` for logistic regression can then be estimated through iterative gradient-based adaptation. For instance, start with a random weight ``\hat{w} = w_0``, and iterate through
+
+```math
+\hat{w}^{(i+1)} =  \hat{w}^{(i)} + \eta \cdot \left. \nabla_w   \mathrm{L}(w)  \right|_{w = \hat{w}^{(i)}}
+```
+until convergence. 
 
 """
 
-# ╔═╡ 25f3965c-d294-11ef-11b8-af605b86f188
-md"""
-In both cases
-
-```math
-\nabla_\theta \mathrm{L} =  \sum_n \left( \text{target}_n - \text{prediction}_n \right) \cdot \text{input}_n 
-```
-
-"""
-
-# ╔═╡ 25f3a638-d294-11ef-0cd5-c3a46aa780c6
-md"""
-The parameter vector ``\theta`` for logistic regression can be estimated through iterative gradient-based adaptation. E.g. (with iteration index ``i``),
-
-```math
-\hat{\theta}^{(i+1)} =  \hat{\theta}^{(i)} + \eta \cdot \left. \nabla_\theta   \mathrm{L}(\theta)  \right|_{\theta = \hat{\theta}^{(i)}}
-```
-
-Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
-
-"""
+# ╔═╡ 7932fff4-0568-49de-b34c-711e51487ae3
+section_outline("Challenge Revisited:", "Bayesian Logistic Regression for Difficult Class-conditional Data Distributions" , color= "green" )
 
 # ╔═╡ 25f3bef2-d294-11ef-1438-e9f7e469336f
 md"""
-## Code Example: ML Estimation for Discriminative Classification
 
 Let us perform ML estimation of ``w`` on the data set from the introduction. To allow an offset in the discrimination boundary, we add a constant 1 to the feature vector ``x``. We only have to specify the (negative) log-likelihood and the gradient w.r.t. ``w``. Then, we use an off-the-shelf optimisation library to minimize the negative log-likelihood.
 
@@ -377,6 +472,11 @@ The discriminative approach does not suffer from this problem because it makes n
 
 """
 
+# ╔═╡ 1f2bfcf4-fef4-4612-8683-d5c86a326eef
+md"""
+# Closing Thoughts
+"""
+
 # ╔═╡ 25f3ff84-d294-11ef-0031-63b23d23324d
 md"""
 ## Why be Bayesian?
@@ -385,15 +485,20 @@ Why should you embrace the Bayesian approach to logistic regression? After all, 
 
 Still, consider the following:
 
-  * Bayesian logistic regression with the Laplace approximation ultimately leads to very simple analytic rules. Moreover, modern probabilistic programming languages and packages are able to automate the above inference derivations. (We just do them here to gain insight in difficult inference processes.)
-  * Bayesian logistic regression offers the option to compute model evidence.
-  * Bayesian logistic regression processes uncertainties, e.g., in places where almost no data is observed, the posterior class probability will pull back to the prior class probability rather than predicting some arbitrary probability.
+  * Bayesian logistic regression with the Laplace approximation ultimately leads to very simple analytic rules. Moreover, modern probabilistic programming languages and packages are able to automate the above inference derivations. (We just do them here to gain insight into a difficult inference process.)
+
+  * Bayesian logistic regression allows for the computation of model evidence, enabling principled comparison of model performance across alternative models.
+
+  * Perhaps most importantly, Bayesian logistic regression processes uncertainties, e.g., in places where almost no data is observed, the posterior class probability will pull back to the prior class probability rather than predicting some arbitrary probability.
 
 """
 
 # ╔═╡ 25f41118-d294-11ef-13a8-3fa6587c1bf3
 @mdx """
 ## Recap Classification
+
+Let us recapitulate the differences between the generative and discriminative approaches to classification in a table:
+
 
 <table> <tr> <td></td><td style="text-align:center"><b>Generative</b></td> <td style="text-align:center"><b>Discriminative (ML)</b></td> </tr> 
 
@@ -446,84 +551,21 @@ For Gaussian ``p(x|\\mathcal{C}_k)`` and multinomial priors,
 
 """
 
+# ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
+md"""
+## Discriminative Training or Discriminative Models?
+
+In this lecture series, we presented two approaches to classification, namely the generative and the discriminative approach.  
+
+While the discriminative approach is intuitive and effective for many tasks, it sits somewhat uncomfortably with the [Bayesian modeling approach](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#The-Bayesian-Modeling-Approach) outlined in the Bayesian Machine Learning lecture. Specifically, the discriminative approach does not define a full joint model over all variables in the system. Instead, it focuses only on modeling the conditional distribution ``p(y | x)``, effectively ignoring the input distribution ``p(x)`` that would normally be part of a fully generative Bayesian model.
+
+In a short paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), the model assumptions underlying discriminative classification are reinterpreted as arising from a special case of a generative model. This effectively restores discriminative approaches as fully compatible with the Bayesian modeling framework. (Note: the Minka paper is not required reading for the exam.)
+
+"""
+
 # ╔═╡ 6eee35ee-fd55-498f-9441-f18c2508de19
 md"""
 # Appendix
-"""
-
-# ╔═╡ 25f42e98-d294-11ef-1f51-8b6b81987cc4
-md"""
-## $(HTML("<span id='gradient-hessian'>Proof of gradient and Hessian for Laplace Approximation of Posterior</span>"))
-
-We will start with the posterior
-
-```math
-\begin{align*}
-\underbrace{p(w | D)}_{\text{posterior}} \propto  \underbrace{\mathcal{N}(w \,|\, m_0, S_0)}_{\text{prior}} \cdot \underbrace{\prod_{n=1}^N \sigma\big( \underbrace{(2y_n-1) w^T x_n}_{a_n}\big)}_{\text{likelihood}}  \tag{B-4.142}
-\end{align*}
-```
-
-from which it follows that
-
-```math
-\begin{align*}
-\log p(w | D) \propto  -\frac{1}{2}\log |S_0| -\frac{1}{2} (w-m_0)^T S_0^{-1} (w-m_0) +\sum_n \log \sigma\left( a_n\right) 
-\end{align*}
-```
-
-and the gradient
-
-```math
-\begin{align*}
-\nabla_{w}\log p(w | D) &\propto   \underbrace{S_0^{-1} (m_0-w)}_{\text{SRM-5b}} +\sum_n \underbrace{\frac{1}{\sigma(a_n)}}_{\frac{\partial \log \sigma(a_n)}{\partial \sigma(a_n)}} \cdot \underbrace{\sigma(a_n) \cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)}{\partial a_n}} \cdot \underbrace{(2y_n-1)x_n}_{\frac{\partial a_n}{\partial w} \text{ (see SRM-5a)}}    \\
-&=   S_0^{-1} (m_0-w) + \sum_n (2y_n-1) (1-\sigma(a_n)) x_n \quad \text{(gradient)}
- \end{align*}
-```
-
-where we used  ``\sigma^\prime(a) = \sigma(a)\cdot (1-\sigma(a))``.
-
-For the Hessian, we continue to differentiate the transpose of the gradient, leading to
-
-```math
-\begin{align*}
-\nabla\nabla_{w}\log p(w | D) &=  \nabla_{w} \left(S_0^{-1} (m_0-w)\right)^T - \sum_n (2y_n-1) x_n \nabla_{w}\sigma(a_n)^T \\ &=  -S_0^{-1} - \sum_n (2y_n-1) x_n \cdot \underbrace{\sigma(a_n)\cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)^T}{\partial a_n^T}}\cdot \underbrace{(2y_n-1) x_n^T}_{\frac{\partial a_n^T}{\partial w}} \\
-&= -S_0^{-1} - \sum_n \sigma(a_n)\cdot (1-\sigma(a_n))\cdot x_n x_n^T \quad \text{(Hessian)}
-\end{align*}
-```
-
-since ``(2y_n-1)^2=1`` for ``y_n \in \{0,1\}``.
-
-"""
-
-# ╔═╡ 25f461c2-d294-11ef-2e85-6f1acc16cf3b
-md"""
-## $(HTML("<span id='ML-for-LG'>Proof of Derivative of Log-likelihood for Logistic Regression</span>"))
-
-The Log-likelihood is ``\mathrm{L}(\theta) = \log \prod*n \prod*k {\underbrace{p(\mathcal{C}*k|x*n,\theta)}*{p*{nk}}}^{y*{nk}} = \sum*{n,k} y*{nk} \log p*{nk}``
-
-Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative:
-
-```math
- \begin{align*}
- \frac{\partial \phi_k}{\partial a_j} &= \frac{(\sum_j e^{a_j})e^{a_k}\delta_{kj}-e^{a_j}e^{a_k}}{(\sum_j e^{a_j})^2} = \frac{e^{a_k}}{\sum_j e^{a_j}}\delta_{kj} - \frac{e^{a_j}}{\sum_j e^{a_j}} \frac{e^{a_k}}{\sum_j e^{a_j}}\\
-     &= \phi_k \cdot(\delta_{kj}-\phi_j)
- \end{align*}
-```
-
-
-
-Take the derivative of ``\mathrm{L}(\theta)`` (or: how to spend a hour ...)
-
-```math
-\begin{align*} 
-\nabla_{\theta_j} \mathrm{L}(\theta) &= \sum_{n,k} \frac{\partial \mathrm{L}_{nk}}{\partial p_{nk}} \cdot\frac{\partial p_{nk}}{\partial a_{nj}}\cdot\frac{\partial a_{nj}}{\partial \theta_j} \\
-  &= \sum_{n,k} \frac{y_{nk}}{p_{nk}} \cdot p_{nk} (\delta_{kj}-p_{nj}) \cdot x_n \\
-  &= \sum_n \Big( y_{nj} (1-p_{nj}) -\sum_{k\neq j} y_{nk} p_{nj} \Big) \cdot x_n \\
-  &= \sum_n \left( y_{nj} - p_{nj} \right)\cdot x_n \\
-  &= \sum_n \Big( \underbrace{y_{nj}}_{\text{target}} - \underbrace{\frac{e^{\theta_j^T x_n}}{\sum_{j^\prime} e^{\theta_{j^\prime}^T x_n}}}_{\text{prediction}} \Big)\cdot x_n 
-\end{align*}
-```
-
 """
 
 # ╔═╡ 1128cb07-68c8-4b80-8fb4-ee9fcc76c050
@@ -2184,31 +2226,37 @@ version = "1.9.2+0"
 # ╟─d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
 # ╠═432065e4-8553-4c1d-9c92-bb8ecc3c0c87
 # ╟─d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
-# ╠═25ef6ece-d294-11ef-270a-999c8d457b24
+# ╟─25ef6ece-d294-11ef-270a-999c8d457b24
 # ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
 # ╟─25efa2fe-d294-11ef-172f-9bb09277f59e
 # ╟─25efbe42-d294-11ef-3e4e-cfea366757da
 # ╟─25efd6b6-d294-11ef-3b21-6363ef531eb5
 # ╟─25f02ac6-d294-11ef-26c4-f142b8ac4b5f
 # ╟─25f0adde-d294-11ef-353e-4b4773df9ff5
+# ╟─7d8f376c-b43f-46f4-87bc-c4d7f94d60e1
 # ╟─25f0f618-d294-11ef-0d94-bf80c8e2957b
 # ╟─25f12528-d294-11ef-0c65-97c61935e9c2
-# ╟─25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╟─b94644f8-725d-49bf-9641-3dad8b647f45
 # ╟─25f14226-d294-11ef-369f-e545d5fe2700
 # ╟─25f14f82-d294-11ef-02fb-2dc632b8f118
 # ╟─25f15e0a-d294-11ef-3737-79a68c9b3c61
-# ╟─25f19230-d294-11ef-2dfd-6d4927e86f57
 # ╟─25f19ed8-d294-11ef-3298-efa16dda1dde
+# ╟─25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╟─bda07a2e-3769-4ffe-9bc5-2b8a515247f6
 # ╟─25f1ab08-d294-11ef-32ed-493792e121b7
 # ╟─25f1b404-d294-11ef-1c3a-a5a8142bb202
 # ╟─25f1c2a0-d294-11ef-009c-69b64e87e5fb
-# ╠═33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
-# ╟─25f356b0-d294-11ef-17b9-8583928f7829
+# ╟─3422dd29-6da9-4e0f-a4ab-646f223c2244
+# ╟─8b0bb225-bdc1-45ec-bd34-68d674d6f08d
+# ╟─ae2b23f0-853e-4237-aab2-81c961f52cf6
+# ╟─e4cc517b-d3b5-4517-a28b-efb8aba24496
+# ╟─33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
+# ╟─38b4854f-be02-4696-802f-2106481e3aea
+# ╟─0045e569-dc3c-4998-86da-9d96f599c599
 # ╟─25f365e2-d294-11ef-300e-9914333b1233
-# ╟─25f3741a-d294-11ef-1418-f11326406eb6
-# ╟─25f386e4-d294-11ef-2cec-f56f4a6feb19
-# ╟─25f3965c-d294-11ef-11b8-af605b86f188
-# ╟─25f3a638-d294-11ef-0cd5-c3a46aa780c6
+# ╟─3b24b142-2239-4951-9177-ff87b5da4b68
+# ╟─ff31d8c1-db35-4c85-a609-67fc40e9e78d
+# ╟─7932fff4-0568-49de-b34c-711e51487ae3
 # ╟─25f3bef2-d294-11ef-1438-e9f7e469336f
 # ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
 # ╠═56598859-2824-4242-a894-684bf1ad1f6e
@@ -2217,11 +2265,11 @@ version = "1.9.2+0"
 # ╠═a75d69e1-c1e9-45b4-9924-4c2fe59413dc
 # ╠═7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╟─25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
+# ╟─1f2bfcf4-fef4-4612-8683-d5c86a326eef
 # ╟─25f3ff84-d294-11ef-0031-63b23d23324d
 # ╟─25f41118-d294-11ef-13a8-3fa6587c1bf3
+# ╟─25f19230-d294-11ef-2dfd-6d4927e86f57
 # ╟─6eee35ee-fd55-498f-9441-f18c2508de19
-# ╟─25f42e98-d294-11ef-1f51-8b6b81987cc4
-# ╟─25f461c2-d294-11ef-2e85-6f1acc16cf3b
 # ╟─1128cb07-68c8-4b80-8fb4-ee9fcc76c050
 # ╠═ad196ae6-c65e-4aaa-b0cc-bd72daa41952
 # ╠═616e84d7-063d-4d9d-99e4-56aecf3c7ee4
