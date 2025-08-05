@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.14
+# v0.20.13
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true"
@@ -13,10 +13,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-using Random
-
-# ╔═╡ ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-using Plots, LaTeXStrings
+using Random, Plots, LaTeXStrings
 
 # ╔═╡ 6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
 using Optim # Optimization library
@@ -43,45 +40,46 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Introduction to discriminative classification models
 
-Materials        
+##### Materials        
 
   * Mandatory
 
       * These lecture notes
   * Optional
 
-      * Bishop pp. 213 - 217 (Laplace approximation)
-      * Bishop pp. 217 - 220 (Bayesian logistic regression)
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 213 - 217 (Laplace approximation)
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 217 - 220 (Bayesian logistic regression)
       * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
 
 """
 
+# ╔═╡ fe66a986-2f55-4417-a71d-b3b99f6369cc
+section_outline("Challenge:", "difficult class-conditional data distributions" , color= "red" )
+
 # ╔═╡ 25ef2806-d294-11ef-3cb6-0f3e76b9177e
 md"""
-## Challenge: difficult class-conditional data distributions
-
 Our task will be the same as in the preceding class on (generative) classification. But this time, the class-conditional data distributions look very non-Gaussian, yet the linear discriminative boundary looks easy enough:
 
 """
 
-# ╔═╡ ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# Generate dataset {(x1,y1),...,(xN,yN)}
-# x is a 2-d feature vector [x_1;x_2]
-# y ∈ {false,true} is a binary class label
-# p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
+# ╔═╡ 4ceede48-a4d5-446b-bb34-26cec4af357a
+    N = 200
 
-N = 200;
+# ╔═╡ 432065e4-8553-4c1d-9c92-bb8ecc3c0c87
+TODO("Fons: can yo introduce a slider for N here?")
 
-# ╔═╡ c5777ae3-e499-46a6-998a-05b97693b3e1
-X_test = [3.75; 1.0] # Features of 'new' data point
+# ╔═╡ d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
+md"""
+# Bayesian Logistic Regression
+"""
 
 # ╔═╡ 25ef6ece-d294-11ef-270a-999c8d457b24
 md"""
-## Main Idea of Discriminative Classification
+## Framework
 
 Again, a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
 
@@ -559,13 +557,14 @@ function generate_dataset(N::Int64)
     return (X, y)
 end
 
-# ╔═╡ d908270d-81b4-4c97-8298-2ba66bccc45b
-X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
-
 # ╔═╡ c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
+begin
+	X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
+	X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
+	X_test = [3.75; 1.0] # Features of 'new' data point
+end
 
-# ╔═╡ 476f1aef-fb9b-42a6-a0cb-f0f3da1385da
+# ╔═╡ a65ca01a-0e9a-42cb-b1d7-648102a77eb5
 function plot_dataset()
     result = scatter(X_c1[:,1], X_c1[:,2],markersize=4, label=L"y=0", xlabel=L"x_1", ylabel=L"x_2", xlims=(-1.6, 9), ylims=(-2, 7))
     scatter!(X_c2[:,1], X_c2[:,2],markersize=4, label=L"y=1")
@@ -573,8 +572,8 @@ function plot_dataset()
     return result  
 end
 
-# ╔═╡ cc016a47-5c5f-4361-85b9-f6f4141e58d3
-plot_dataset()
+# ╔═╡ d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
+	plot_dataset()
 
 # ╔═╡ 56598859-2824-4242-a894-684bf1ad1f6e
 y_1 = map(y) do val
@@ -682,9 +681,9 @@ PlutoUI = "~0.7.69"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.10"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "4fcc2c5847ff1427f3a86ebc4837f0179fbdac22"
+project_hash = "3af9d070de921b89310e964c2b511252864a26e8"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "7927b9af540ee964cc5d1b73293f1eb0b761a3a1"
@@ -729,7 +728,7 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra"]
@@ -765,9 +764,11 @@ version = "7.19.0"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -803,12 +804,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -893,6 +892,7 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -971,6 +971,7 @@ version = "0.7.4"
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
@@ -1035,6 +1036,7 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1110,6 +1112,7 @@ version = "1.0.17+0"
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+version = "1.11.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
@@ -1191,6 +1194,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1276,16 +1280,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1294,6 +1299,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1340,6 +1346,7 @@ version = "7.4.0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1359,6 +1366,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1379,6 +1387,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MarkdownLiteral]]
 deps = ["CommonMark", "HypertextLiteral"]
@@ -1395,7 +1404,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1410,10 +1419,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NLSolversBase]]
 deps = ["ADTypes", "DifferentiationInterface", "Distributed", "FiniteDiff", "ForwardDiff"]
@@ -1440,12 +1450,12 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1524,9 +1534,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1593,6 +1607,7 @@ version = "1.4.3"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -1636,12 +1651,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1696,6 +1713,7 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Setfield]]
 deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
@@ -1716,6 +1734,7 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
@@ -1726,7 +1745,7 @@ version = "1.2.1"
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -1752,9 +1771,14 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -1782,6 +1806,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -1789,7 +1817,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1810,6 +1838,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -1829,6 +1858,7 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.UnPack]]
 git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
@@ -1837,6 +1867,7 @@ version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2114,7 +2145,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2144,16 +2175,16 @@ version = "1.9.2+0"
 # ╟─25eefb10-d294-11ef-0734-2daf18636e8e
 # ╟─e7c45ff8-9fa2-4ea3-a06f-5769d877540e
 # ╟─25ef12bc-d294-11ef-1557-d98ba829a804
+# ╟─fe66a986-2f55-4417-a71d-b3b99f6369cc
 # ╟─25ef2806-d294-11ef-3cb6-0f3e76b9177e
 # ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-# ╠═ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-# ╠═ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# ╠═d908270d-81b4-4c97-8298-2ba66bccc45b
-# ╠═c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-# ╠═c5777ae3-e499-46a6-998a-05b97693b3e1
-# ╠═cc016a47-5c5f-4361-85b9-f6f4141e58d3
-# ╠═476f1aef-fb9b-42a6-a0cb-f0f3da1385da
-# ╟─25ef6ece-d294-11ef-270a-999c8d457b24
+# ╠═a65ca01a-0e9a-42cb-b1d7-648102a77eb5
+# ╠═4ceede48-a4d5-446b-bb34-26cec4af357a
+# ╟─c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
+# ╟─d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
+# ╠═432065e4-8553-4c1d-9c92-bb8ecc3c0c87
+# ╟─d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
+# ╠═25ef6ece-d294-11ef-270a-999c8d457b24
 # ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
 # ╟─25efa2fe-d294-11ef-172f-9bb09277f59e
 # ╟─25efbe42-d294-11ef-3e4e-cfea366757da
