@@ -119,7 +119,7 @@ md"""
 md"""
 ## What drives Intelligent Behavior?
 
-We begin with a motivating example that requires "intelligent" goal-directed decision making: assume that you are an owl and that you're hungry. What are you going to do?
+We begin with a motivating example that requires "intelligent" decision-making. Assume that you are an owl and that you're hungry. What are you going to do?
 
 Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
 
@@ -127,9 +127,9 @@ Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-fre
 
 In his answer, he emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
 
-This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s;u)``, where ``s`` might encode how hungry the agent is, and ``u`` represents the agent's actions. However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but rather of *beliefs* over states, which are expressed as probability distributions.
+This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s,u)``, where ``s`` might encode how hungry the agent is, and ``u`` represents the agent's actions (that affect future states). However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but of *beliefs* over states, which are expressed as probability distributions.
 
-Therefore, Friston argues that intelligent behavior requires us to optimize  a functional ``F[q(s|u)]``, where ``q(s|u)`` is a probability distribution over (future) states ``s`` for a given action sequence ``u``, and ``F`` evaluates the quality of this belief.
+Therefore, Friston argues that intelligent behavior requires us to optimize a functional ``F[q(s|u)]``, where ``q(s|u)`` is a probability distribution over (future) states ``s`` for a given action sequence ``u``, and ``F`` evaluates the quality of this belief.
 
 Later in his lectures and papers, Friston goes further to identify this belief-based objective ``F`` as a **variational free energy** functional, thus providing a unifying framework that links decision-making and action to Bayesian inference.
 
@@ -165,17 +165,17 @@ md"""
 
 # ╔═╡ f9b241fd-d853-433e-9996-41d8a60ed9e8
 md"""
-## Setup
+## Setup of Prior Beliefs
 
-Let's make the above notions more concrete. We consider an agent that interacts with its environment. At the current time ``t``, the agent holds a generative model to predict future observations, 
+Let's make the above notions more concrete. We consider an agent that interacts with its environment. At the current time ``t``, the agent holds a generative model to predict its future observations, 
 
 ```math
 \begin{align}
-p(y,x,\theta,u) \,, \tag{1}
+p(y,x,\theta,u) \,, \tag{P1}
 \end{align}
 ```
 
-where ``y`` denotes future observations, ``x`` refers to internal (hidden) states, ``u`` represents future actions, and ``\theta`` are model parameters.
+where ``y`` denotes future observations, ``x`` refers to internal (hidden) states, ``u`` represents the agent's future actions, and ``\theta`` are model parameters.
 
 A typical example of such a model is
 
@@ -183,63 +183,172 @@ A typical example of such a model is
 p(y,x,\theta,u) = p(x_t) \prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)\,.
 ```
 
-Since model ``(1)`` aims to predict the future as accurately as possible, we call ``(1)`` the **predictive model**. 
+Since model ``(\mathrm{P}1)`` aims to predict the future as accurately as possible, we call ``(P1)`` the **predictive model**. 
 
 In addition to the predictive model, we assume that the agent holds beliefs ``\hat{p}(x)`` about the *desired* future states. For example, the owl in our earlier example holds the belief that it will not be hungry in the future. We refer to ``\hat{p}(x)`` as the **goal prior**.
 
 Finally, we assume that the agent also holds **epistemic** (information-seeking) beliefs, represented by ``\tilde{p}(u)``, ``\tilde{p}(x)`` and ``\tilde{p}(y,x)``.
 
-Consider the following variational free energy (VFE) functional:
 
-```math
-\begin{align}
-F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{2}
-\end{align}
-```
-Note that the denominator in Eq. ``(2)`` reflects all current prior beliefs held by the agent about latent variables and parameters. 
 
 
 """
 
 
-# ╔═╡ afa862ce-049d-4c46-9d71-64b6c9e1e16d
+# ╔═╡ 97136f81-3468-439a-8a22-5aae96725937
 md"""
+
 ## The Expected Free Energy Theorem
 
-We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7):
-
-If the epistemic priors are chosen as
+We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7).  Let the agent’s epistemic priors be defined as
 
 ```math
 \begin{align}
-\tilde{p}(u) &= \exp\left( H[q(x|u)]\right) \\ 
-\tilde{p}(x) &= \exp\left( -H[q(y|x)]\right) \\  
-\tilde{p}(y,x) &= \exp\left( D[q(\theta|y,x) , q(\theta|x)]\right)
+\tilde{p}(u) &= \exp\left( H[q(x|u)]\right) \tag{E1}\\ 
+\tilde{p}(x) &= \exp\left( -H[q(y|x)]\right) \tag{E2} \\  
+\tilde{p}(y,x) &= \exp\left( D[q(\theta|y,x) , q(\theta|x)]\right) \tag{E3}
+\end{align}
+```
+where ``H[q] = \mathbb{E}_q\left[ -\log q\right]`` is the entropy functional, and ``D[q,p] = \mathbb{E}_q\left[ \log q - \log p\right]`` is the Kullback–Leibler divergence.
+
+Let the variational free energy functional ``F[q]`` be defined as
+```math
+\begin{align}
+F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{F1}
 \end{align}
 ```
 
-then ``F[q]``, as defined in ``(2)``, decomposes as
+Then, under epistemic priors ``(\mathrm{E}1)``– ``(\mathrm{E}3)``, the variational free energy ``F[q]`` decomposes as
 
 ```math
 \begin{align}
-F[q] = \underbrace{\mathbb{E}_{q(u)}\left[ G(u)\right]}_{\substack{ \text{expected policy} \\ \text{costs}} } + \underbrace{ \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right]}_{\text{complexity}} \,,
+F[q] = \underbrace{\mathbb{E}_{q(u)}\left[ G(u)\right]}_{\substack{ \text{expected policy} \\ \text{costs}} } + \underbrace{ \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right]}_{\text{complexity}} \tag{F2}\,,
 \end{align}
 ```
-where
+where the function ``G(u)``, known as the **Expected Free Energy** (EFE) cost function, is given by 
 ```math
 \begin{align}
-G(u) = \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}} + \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}} \,.
+G(u) = \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}} + \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}} \,. \tag{G1}
 \end{align}
 ```
-is the **Expected Free Energy** (EFE) cost function.
+
+
 """
 
 # ╔═╡ 4e990b76-a2fa-49e6-8392-11f98d769ca8
-details("Click for proof","")
+details("Click for proof of the EFE Theorem",
+md"""
+
+For the following proof, see also Appendix A in [De Vries et.al., Expected Free Energy-based Planning as Variational Inference (2025)](https://arxiv.org/pdf/2504.14898#page=15).
+		
+```math
+\begin{flalign}
+    F[q] &= E_{q(y x \theta u )}\bigg[ \log \frac{q(y x \theta u )}{p(y x \theta u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)} \bigg] \\
+    &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
+    + \underbrace{E_{q(yx\theta | u)}\big[ \log \frac{q(y x \theta | u)}{p(yx \theta|u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)}\big]}_{C(u)}  
+     \bigg] \; &&\text{(C1)}\\
+     &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
+    + \underbrace{G(u) +E_{q(yx\theta | u)} \big[\log \frac{q(yx\theta|u)}{p(yx\theta|u)}\big]}_{=C(u) \text{ if conditions (E1), (E2) and (E3) hold}}  
+     \bigg] &&\text{(C2)} \\
+    &= E_{q(u)}\big[ G(u)\big]+ E_{q(yx\theta u)}\bigg[\log \frac{q(yx\theta u)}{p(yx\theta u)}\bigg]\,,   
+\end{flalign}
+```		
+if the conditions in Eqs. ``(\mathrm{E}1)``, ``(\mathrm{E}2)``, and ``(\mathrm{E}3)`` hold.
+	
+In the above derivation, we still need to prove the equivalence of ``C(u)`` in
+Eqs. ``(\mathrm{C}1)`` and ``(\mathrm{C}2)``, which we address next. 
+In the following, all expectations are with respect to ``q(y,x,\theta|u)`` unless otherwise indicated. 
+
+```math
+\begin{flalign}
+C(&u) = E\bigg[ \log \frac{ \overbrace{q(yx\theta|u)}^{\text{posterior}} }{ \underbrace{p(yx\theta|u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goals}} \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)}_{\text{epistemic priors}}} \bigg]  \; &&\text{(C3)} \\
+&= \underbrace{ E\bigg[\log\bigg( \underbrace{\frac{q(x|u)}{\hat{p}(x)}}_{\text{risk}}\cdot \underbrace{\frac{1}{q(y|x  )}}_{\text{ambiguity}} \cdot \underbrace{\frac{ q(\theta|x)}{ q(\theta|yx )}}_{-\text{novelty}} \bigg) \bigg] }_{G(u) = \text{Expected Free Energy}} +   \\
+&\quad + E\bigg[ \log\bigg( \underbrace{\frac{\hat{p}(x) q(y|x ) q(\theta| yx)}{q(x|u) q(\theta|x)}}_{\text{inverse factors from }G(u)} \cdot \underbrace{\frac{q(yx\theta|u)}{p(yx\theta|u) \hat{p}(x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx) }}_{\text{leftover factors from (C3)}} \bigg)\bigg] \notag \\
+&= G(u) + \underbrace{E\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg]}_{=B(u)} + \underbrace{E\bigg[ \log  \frac{q(y|x ) q(\theta|yx)}{q(x|u) q(\theta|x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)} \bigg]}_{\text{choose epistemic priors to let this vanish}} \\
+&= G(u) + B(u) +  \\
+&\quad + E\bigg[\log \frac{1}{q(x|u) \tilde{p}(u)} \bigg] + E\bigg[ \log  \frac{q(y|x)}{\tilde{p}(x)} \bigg] + E\bigg[ \log  \frac{q(\theta|yx)}{q(\theta|x) \tilde{p}(yx) } \bigg] \notag \\
+&= G(u) + B(u) +  \\
+&\qquad + \sum_{y\theta} q(y\theta|x) \bigg( \underbrace{\underbrace{-\sum_x q(x|u) \log q(x|u)}_{= H[q(x|u)]} - \sum_x q(x|u) \log \tilde{p}(u)}_{=0 \text{ if }\tilde{p}(u) = \exp(H[q(x|u)])}\bigg) \\
+&\qquad + \sum_{x} q(x|u) \bigg( \underbrace{\underbrace{\sum_{y} q(y|x) \log q(y|x)}_{= -H[q(y|x)]} - \sum_{y} q(y|x) \log \tilde{p}(x)}_{=0 \text{ if }\tilde{p}(x) = \exp(-H[q(y|x)])} \bigg)   \notag \\
+&\qquad + \sum_{yx} q(yx|u) \bigg( \underbrace{\underbrace{\sum_\theta q(\theta|yx) \log \frac{q(\theta|yx)}{q(\theta|x)}}_{D[q(\theta|yx),q(\theta|x)]} - \sum_\theta q(\theta|yx) \log \tilde{p}(yx)}_{=0 \text{ if } \tilde{p}(yx) = \exp(D[q(\theta|yx),q(\theta|x)])} \bigg) \notag \\
+&= G(u) + E_{q(yx\theta|u)}\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg] \,,
+\end{flalign}
+```
+if Eqs. (E1), (E2), and (E3) hold.
+
+""")
+
+# ╔═╡ 08464e1b-3174-4def-8fa1-86878cb8d6e3
+md"""
+Next, we analyze the EFE Theorem and its consequences in detail.
+"""
+
+# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
+md"""
+## Interpretation of Expected Free Energy ``G(u)``
+
+``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{t+T})``, commonly referred to as a **policy**. 
+
+``G(u)`` decomposes into three distinct components:
+
+- risk
+  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). It penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
+
+- ambiguity
+  - The ambiguity term can be written as 
+
+- novelty
+
+
+``
+"""
+
+# ╔═╡ bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
+md"""
+# Active Inference
+"""
+
+# ╔═╡ f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+md"""
+## Interpretation of the Variational Free Energy ``F[q]``
+
+Let us first interpret the variational free energy functional ``F[q]`` as given in Eq. ``(\mathrm{F}1)``. The denominator of the integrand contains all the current prior beliefs held by the agent — this includes the predictive prior (i.e., the generative model), the goal prior over preferred future states, and the epistemic priors that encode preferences for resolving uncertainty.
+
+The product of these prior beliefs effectively fuses the agent’s predictive, goal-directed, and epistemic beliefs via Bayes rule. Ideally, the agent would compute the normalized posterior distribution,
+```math
+q'(y,x,\theta,u) = \frac{p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}{\int\cdots\int p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x) \mathrm{d}y \mathrm{d}x \mathrm{d}\theta \mathrm{d}u} \,,
+```
+as ``q'(y,x,\theta,u)`` would reflect the optimal (Bayesian) beliefs held by the agent. However, computing this posterior exactly is typically intractable due to the high-dimensional integrals involved. Therefore, the agent approximates the posterior with a tractable distribution ``q(y,x,\theta,u)``, obtained by minimizing the variational free energy ``F[q]`` instead.
+
+
+
+
+"""
 
 # ╔═╡ ef54a162-d0ba-47ef-af75-88c92276ed66
 md"""
-## Optimal Planning by Variation Inference
+## Optimal Planning by Variational Inference
+"""
+
+# ╔═╡ 07c48a8b-522b-4c26-a177-e8d0611f7b59
+md"""
+## Realization of Active Inference by Reactive Message Passing
+"""
+
+# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
+md"""
+## Comparison Reinforcement Learning vs Active Inference
+"""
+
+# ╔═╡ 9329c67d-93d3-4384-9455-b15d521df027
+md"""
+## Refelctions
+
+how far are we?
+
+scaling
+
+
 """
 
 # ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
@@ -3098,9 +3207,16 @@ version = "1.9.2+0"
 # ╟─29592915-cadf-4674-958b-5743a8f73a8b
 # ╟─9708215c-72c9-408f-bd10-68ae02e17243
 # ╟─f9b241fd-d853-433e-9996-41d8a60ed9e8
-# ╟─afa862ce-049d-4c46-9d71-64b6c9e1e16d
+# ╟─97136f81-3468-439a-8a22-5aae96725937
 # ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
-# ╠═ef54a162-d0ba-47ef-af75-88c92276ed66
+# ╟─08464e1b-3174-4def-8fa1-86878cb8d6e3
+# ╠═aaa07dc5-9105-4f70-b924-6e51e5c36600
+# ╠═bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
+# ╠═f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+# ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
+# ╠═07c48a8b-522b-4c26-a177-e8d0611f7b59
+# ╠═d823599e-a87f-4586-999f-fbbd99d0db65
+# ╠═9329c67d-93d3-4384-9455-b15d521df027
 # ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
 # ╟─7128f91d-f3f3-41fe-a491-ede27921a822
 # ╠═2783dc14-d294-11ef-2df0-1b7474f85e29
