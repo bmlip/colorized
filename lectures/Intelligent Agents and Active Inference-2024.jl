@@ -16,7 +16,7 @@ using InteractiveUtils
 using LinearAlgebra, Plots, RxInfer
 
 # ╔═╡ 97a0384a-0596-4714-a3fc-bf422aed4474
-using PlutoUI, PlutoTeachingTools, HypertextLiteral
+using PlutoUI, PlutoTeachingTools
 
 # ╔═╡ 278382c0-d294-11ef-022f-0d78e9e2d04c
 md"""
@@ -31,11 +31,11 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-##### Goal 
+Goal 
 
   * Introduction to Active Inference and application to the design of synthetic intelligent agents
 
-##### Materials        
+Materials        
 
   * Mandatory
 
@@ -44,18 +44,17 @@ md"""
   * Optional
 
       * Bert de Vries, Tim Scarfe and Keith Duggar - 2023 - Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
+
           * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
-
       * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bmlip/course/blob/main/assets/files/WIRED-Friston.pdf).
+
           * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
-
       * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
+
           * Friston's vision on the future of AI.
+      * Van de Laar and De Vries (2019), [Simulating Active Inference Processes by Message Passing](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full)
 
-      * De Vries et al. (2025), [Expected Free Energy-based Planning as Variational Inference](https://arxiv.org/pdf/2504.14898)
-          * On minimizing expected free energy by variational free energy minimization.
-
-    * Noumenal labs (2025), [WTF is the FEP? A short explainer on the free energy principle](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle)
+          * How to implement active inference by message passing in a Forney-style factor graph.
 
     
 
@@ -65,34 +64,31 @@ md"""
 md"""
 ## Agents
 
-In the previous lessons, we assumed that a data set was given. 
+In the previous lessons we assumed that a data set was given. 
 
-In this lesson, we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
+In this lesson we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
 
-Crucially, by acting on the environment, the agent is able to affect the data that it will sense in the future.
+Crucially, by acting onto the environment, the agent is able to affect the data that it will sense in the future.
 
   * As an example, by changing the direction where I look, I can affect the (visual) data that will be sensed by my retina.
 
 With this definition of an agent, (biological) organisms are agents, and so are robots, self-driving cars, etc.
 
-In an engineering context, we are particularly interested in agents that behave with a *purpose*, that is, with a specific goal in mind, such as driving a car or trading in financial markets.
+In an engineering context, we are particularly interesting in agents that behave with a *purpose* (with a goal in mind), e.g., to drive a car or to design a speech recognition algorithm.
 
-In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as the minimization of a free energy functional. 
+In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as minimization of a free energy functional. 
 
 """
 
-# ╔═╡ aed436fd-6773-4932-a5d8-d01cf99c10ec
-section_outline("Challenge:", "The Mountain Car Problem", color="red")
-
 # ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
 md"""
-##### Problem
+## Illustrative Example: the Mountain Car Problem
 
-In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem), which is a classical benchmark problem in the reinforcement learning literature.
+In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem) which is a classical benchmark problem in the reinforcement learning literature.
 
-The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill and subsequently use its momentum to overcome the steep incline towards the goal position. 
+The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill, and subsequently use its momentum to overcome the steep incline towards the goal position. 
 
-We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) is known up to some additive Gaussian noise.
+We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) are known up to some additive Gaussian noise.
 
 Your challenge is to design an agent that guides the car to the goal position. (The agent should be specified as a probabilistic model and the control signal should be formulated as a Bayesian inference task).  
 
@@ -102,50 +98,23 @@ Your challenge is to design an agent that guides the car to the goal position. (
 md"""
 ![](https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true)
 
-"""
+Solution at the end of this lesson.
 
-# ╔═╡ 939e74b0-8ceb-4214-bbc0-407c8f0b2f26
-md"""
-##### Solution 
-At the end of this lesson
-"""
-
-# ╔═╡ e3d5786b-49e0-40f7-9056-13e26e09a4cf
-md"""
-# The Free Energy Principle
 """
 
 # ╔═╡ 2783c686-d294-11ef-3942-c75d2b559fb3
 md"""
-## What drives Intelligent Behavior?
+## Karl Friston and the Free Energy Principle
 
 We begin with a motivating example that requires "intelligent" goal-directed decision making: assume that you are an owl and that you're hungry. What are you going to do?
 
 Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
 
-![image Friston presentation at CCN-2016](https://github.com/bmlip/course/blob/v2/assets/figures/Friston-2016-presentation.png)
-
-In his answer, he emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
-
-This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s;u)``, where ``s`` might encode how hungry the agent is, and ``u`` represents the agent's actions. However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but rather of *beliefs* over states, which are expressed as probability distributions.
-
-Therefore, Friston argues that intelligent behavior requires us to optimize  a functional ``F[q(s|u)]``, where ``q(s|u)`` is a probability distribution over (future) states ``s`` for a given action sequence ``u``, and ``F`` evaluates the quality of this belief.
-
-Later in his lectures and papers, Friston goes further to identify this belief-based objective ``F`` as a **variational free energy** functional, thus providing a unifying framework that links decision-making and action to Bayesian inference.
-
-"""
-
-# ╔═╡ 29592915-cadf-4674-958b-5743a8f73a8b
-md"""
-
-## The Free Energy Principle
-
-
 Friston argues that intelligent decision making (behavior, action making) by an agent requires *minimization of a functional of beliefs*. 
 
 Friston further argues (later in the lecture and his papers) that this functional is a (variational) free energy (to be defined below), thus linking decision-making and acting to Bayesian inference. 
 
-In fact, Friston's [**Free Energy Principle**](https://youtu.be/NIu_dJGyIQI?si=MCJvgOBkweYOeF-C) (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
+In fact, Friston's **Free Energy Principle** (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
 
   * This includes perception, learning, attention mechanisms, recall, acting and decision making, etc.
 
@@ -156,90 +125,6 @@ Taking inspiration from FEP, if we want to develop synthetic "intelligent" agent
 
 Agents that follow the FEP are said to be involved in **Active Inference** (AIF). An AIF agent updates its states and parameters (and ultimately its model structure) solely by FE minimization, and selects its actions through (expected) FE minimization (to be explained below).    
 
-"""
-
-# ╔═╡ 9708215c-72c9-408f-bd10-68ae02e17243
-md"""
-# The Expected Free Energy Theorem
-"""
-
-# ╔═╡ f9b241fd-d853-433e-9996-41d8a60ed9e8
-md"""
-## Setup
-
-Let's make the above notions more concrete. We consider an agent that interacts with its environment. At the current time ``t``, the agent holds a generative model to predict future observations, 
-
-```math
-\begin{align}
-p(y,x,\theta,u) \,, \tag{1}
-\end{align}
-```
-
-where ``y`` denotes future observations, ``x`` refers to internal (hidden) states, ``u`` represents future actions, and ``\theta`` are model parameters.
-
-A typical example of such a model is
-
-```math
-p(y,x,\theta,u) = p(x_t) \prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)\,.
-```
-
-Since model ``(1)`` aims to predict the future as accurately as possible, we call ``(1)`` the **predictive model**. 
-
-In addition to the predictive model, we assume that the agent holds beliefs ``\hat{p}(x)`` about the *desired* future states. For example, the owl in our earlier example holds the belief that it will not be hungry in the future. We refer to ``\hat{p}(x)`` as the **goal prior**.
-
-Finally, we assume that the agent also holds **epistemic** (information-seeking) beliefs, represented by ``\tilde{p}(u)``, ``\tilde{p}(x)`` and ``\tilde{p}(y,x)``.
-
-Consider the following variational free energy (VFE) functional:
-
-```math
-\begin{align}
-F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{2}
-\end{align}
-```
-Note that the denominator in Eq. ``(2)`` reflects all current prior beliefs held by the agent about latent variables and parameters. 
-
-
-"""
-
-
-# ╔═╡ afa862ce-049d-4c46-9d71-64b6c9e1e16d
-md"""
-## The Expected Free Energy Theorem
-
-We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7):
-
-If the epistemic priors are chosen as
-
-```math
-\begin{align}
-\tilde{p}(u) &= \exp\left( H[q(x|u)]\right) \\ 
-\tilde{p}(x) &= \exp\left( -H[q(y|x)]\right) \\  
-\tilde{p}(y,x) &= \exp\left( D[q(\theta|y,x) , q(\theta|x)]\right)
-\end{align}
-```
-
-then ``F[q]``, as defined in ``(2)``, decomposes as
-
-```math
-\begin{align}
-F[q] = \underbrace{\mathbb{E}_{q(u)}\left[ G(u)\right]}_{\substack{ \text{expected policy} \\ \text{costs}} } + \underbrace{ \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right]}_{\text{complexity}} \,,
-\end{align}
-```
-where
-```math
-\begin{align}
-G(u) = \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}} + \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}} \,.
-\end{align}
-```
-is the **Expected Free Energy** (EFE) cost function.
-"""
-
-# ╔═╡ 4e990b76-a2fa-49e6-8392-11f98d769ca8
-details("Click for proof","")
-
-# ╔═╡ ef54a162-d0ba-47ef-af75-88c92276ed66
-md"""
-## Optimal Planning by Variation Inference
 """
 
 # ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
@@ -1098,7 +983,6 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
@@ -1107,9 +991,8 @@ RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
 HypergeometricFunctions = "~0.3.28"
-HypertextLiteral = "~0.9.5"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.4.4"
+PlutoTeachingTools = "~0.3.1"
 PlutoUI = "~0.7.62"
 RxInfer = "~4.4.2"
 """
@@ -1120,7 +1003,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "011199c8023b6f8ac4406f6c30e2d15f624a3762"
+project_hash = "3f693e23898dd5e5331d626a7b75858da8dd63a2"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "7927b9af540ee964cc5d1b73293f1eb0b761a3a1"
@@ -1285,6 +1168,12 @@ git-tree-sha1 = "05ba0d07cd4fd8b7a39541e31a7b0254704ea581"
 uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
 version = "0.1.13"
 
+[[deps.CodeTracking]]
+deps = ["InteractiveUtils", "UUIDs"]
+git-tree-sha1 = "5ac098a7c8660e217ffac31dc2af0964a8c3182a"
+uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
+version = "2.0.0"
+
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "962834c22b66e32aa10f7611c08c8ca4e20749a9"
@@ -1348,6 +1237,11 @@ weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
     CompatLinearAlgebraExt = "LinearAlgebra"
+
+[[deps.Compiler]]
+git-tree-sha1 = "382d79bfe72a406294faca39ef0c3cef6e6ce1f1"
+uuid = "807dbc54-b67e-4c79-8afb-eafe4df6f2e1"
+version = "0.1.1"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1893,6 +1787,12 @@ git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
 
+[[deps.JuliaInterpreter]]
+deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
+git-tree-sha1 = "e09121f4c523d8d8d9226acbed9cb66df515fcf2"
+uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
+version = "0.10.4"
+
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
@@ -2080,6 +1980,12 @@ version = "0.12.172"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[[deps.LoweredCodeUtils]]
+deps = ["CodeTracking", "Compiler", "JuliaInterpreter"]
+git-tree-sha1 = "73b98709ad811a6f81d84e105f4f695c229385ba"
+uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
+version = "3.4.3"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
@@ -2306,11 +2212,23 @@ version = "1.40.17"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoHooks]]
+deps = ["InteractiveUtils", "Markdown", "UUIDs"]
+git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
+version = "0.0.5"
+
+[[deps.PlutoLinks]]
+deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
+git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
+version = "0.1.6"
+
 [[deps.PlutoTeachingTools]]
-deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
+git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.4"
+version = "0.3.1"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
@@ -2461,6 +2379,16 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
+[[deps.Revise]]
+deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
+git-tree-sha1 = "20ccb7e2501e9da93fe8450d01aeabf16a5f0c82"
+uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
+version = "3.8.1"
+weakdeps = ["Distributed"]
+
+    [deps.Revise.extensions]
+    DistributedExt = "Distributed"
+
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
@@ -2556,9 +2484,9 @@ version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
+git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.2"
+version = "1.2.1"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
@@ -2637,9 +2565,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
+git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.6"
+version = "0.34.5"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -3089,21 +3017,12 @@ version = "1.9.2+0"
 # ╟─9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
 # ╟─27839788-d294-11ef-30a2-8ff6357aa68b
 # ╟─2783a99e-d294-11ef-3163-bb455746bf52
-# ╟─aed436fd-6773-4932-a5d8-d01cf99c10ec
 # ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
-# ╠═2783b9ca-d294-11ef-0bf7-e767fbfad74a
-# ╟─939e74b0-8ceb-4214-bbc0-407c8f0b2f26
-# ╟─e3d5786b-49e0-40f7-9056-13e26e09a4cf
+# ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
 # ╟─2783c686-d294-11ef-3942-c75d2b559fb3
-# ╟─29592915-cadf-4674-958b-5743a8f73a8b
-# ╟─9708215c-72c9-408f-bd10-68ae02e17243
-# ╟─f9b241fd-d853-433e-9996-41d8a60ed9e8
-# ╟─afa862ce-049d-4c46-9d71-64b6c9e1e16d
-# ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
-# ╠═ef54a162-d0ba-47ef-af75-88c92276ed66
 # ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
 # ╟─7128f91d-f3f3-41fe-a491-ede27921a822
-# ╠═2783dc14-d294-11ef-2df0-1b7474f85e29
+# ╟─2783dc14-d294-11ef-2df0-1b7474f85e29
 # ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
 # ╟─2784529a-d294-11ef-3b0e-c5a60644fa53
 # ╟─27846c9e-d294-11ef-0a86-2527c96da2c3
