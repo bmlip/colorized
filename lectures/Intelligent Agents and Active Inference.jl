@@ -125,7 +125,7 @@ Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-fre
 
 ![image Friston presentation at CCN-2016](https://github.com/bmlip/course/blob/main/assets/figures/Friston-2016-presentation.png?raw=true)
 
-In his answer, he emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
+In his answer, Friston emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
 
 This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s)``, where ``s`` might encode how hungry the agent is. However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but of *beliefs* over states, which are expressed as probability distributions.
 
@@ -140,7 +140,7 @@ md"""
 
 ## The Free Energy Principle
 
-The Free Energy Principle (FEP) is not a model nor a theory. Instead, it is a principle, that is, a *method* for describing the processes that must unfold in living systems to keep them within viable (i.e., livable) states over extended periods of time.
+The Free Energy Principle (FEP) is neither a model nor a theory. Rather, it is a principle, that is, a **methodological framework** for describing the information-processing dynamics that *must* unfold in living systems to keep them within viable (i.e., livable) states over extended periods of time.
   - Think of the processes that must be ongoing in our bodies to keep the internal temperature between (roughly) ``36 ^{\circ}``C and ``37 ^{\circ}``C. 
 
 The literature on the FEP is widely regarded as difficult to access. It was first formally derived by Friston in his monograph [Friston (2019), A Free Energy Principle for a Particular Physics (2019)](https://arxiv.org/abs/1906.10184), and later presented in a more accessible form in [Friston et al. (2023), The Free Energy Principle Made Simpler but Not Too Simple](https://doi.org/10.1016/j.physrep.2023.07.001). For a concise and approachable introduction, the explainer by [Noumenal Labs (2025), WTF is the FEP?](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle) is currently the most accessible resource I am aware of.
@@ -176,22 +176,19 @@ p(y,x,\theta,u) \,, \tag{P1}
 \end{align}
 ```
 
-where ``y`` denotes future observations, ``x`` refers to internal (hidden) states, ``u`` represents the agent's future actions, and ``\theta`` are model parameters.
+where ``y`` denotes future observations, ``x`` refers to internal (hidden) future states, ``u`` represents the agent's future actions, and ``\theta`` are model parameters.
 
-A typical example of such a model is
+Since model (P1) is designed to predict how the future is expected to unfold, we refer to (P1) as the **predictive model**. A typical example is a rollout to the future of a state-space model,
 
 ```math
-p(y,x,\theta,u) = p(x_t) \prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)\,.
+p(y,x,\theta,u) = p(x_t) \underbrace{\prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)}_{\text{rollout to the future}}\,.
 ```
-
-Since model ``(\mathrm{P}1)`` aims to predict the future as accurately as possible, we call ``(P1)`` the **predictive model**. 
 
 In addition to the predictive model, we assume that the agent holds beliefs ``\hat{p}(x)`` about the *desired* future states. For example, the owl in our earlier example holds the belief that it will not be hungry in the future. We refer to ``\hat{p}(x)`` as the **goal prior**.
 
-Finally, we assume that the agent also holds **epistemic** (information-seeking) beliefs, represented by ``\tilde{p}(u)``, ``\tilde{p}(x)`` and ``\tilde{p}(y,x)``.
+Finally, we assume that the agent also maintains **epistemic** (= information-seeking) prior beliefs, denoted by ``\tilde{p}(u)``, ``\tilde{p}(x)``, and ``\tilde{p}(y,x)``, which will be further specified below.
 
-
-
+The predictive model, together with the goal and epistemic priors, constitutes the agent’s complete set of prior beliefs (about the future).
 
 """
 
@@ -201,7 +198,14 @@ md"""
 
 ## The Expected Free Energy Theorem
 
-We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7).  Let the agent’s epistemic priors be defined as
+We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7). Let the variational free energy functional ``F[q]`` be defined as
+```math
+\begin{align}
+F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{F1}
+\end{align}
+```
+
+Let the agent’s epistemic priors be defined as
 
 ```math
 \begin{align}
@@ -212,14 +216,7 @@ We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898
 ```
 where ``H[q] = \mathbb{E}_q\left[ -\log q\right]`` is the entropy functional, and ``D[q,p] = \mathbb{E}_q\left[ \log q - \log p\right]`` is the Kullback–Leibler divergence.
 
-Let the variational free energy functional ``F[q]`` be defined as
-```math
-\begin{align}
-F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{F1}
-\end{align}
-```
-
-Then, under epistemic priors ``(\mathrm{E}1)``– ``(\mathrm{E}3)``, the variational free energy ``F[q]`` decomposes as
+Then, the variational free energy ``F[q]`` decomposes as
 
 ```math
 \begin{align}
@@ -278,11 +275,6 @@ C(&u) = E\bigg[ \log \frac{ \overbrace{q(yx\theta|u)}^{\text{posterior}} }{ \und
 if Eqs. (E1), (E2), and (E3) hold.
 
 """)
-
-# ╔═╡ 08464e1b-3174-4def-8fa1-86878cb8d6e3
-md"""
-Next, we analyze the EFE Theorem and its consequences in detail.
-"""
 
 # ╔═╡ bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 md"""
@@ -365,42 +357,13 @@ The figure shows the state of the system at time ``t``, after having executed ac
 
 """
 
-# ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
+# ╔═╡ 6ef5a268-81bb-4418-a54b-a1e37a089381
 md"""
-## The Generative Model in an AIF agent
-
-What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
-
-Conant and Ashley state: "The theorem has the interesting corollary that the living brain, so far as it is to be successful and efficient as a regulator for survival, **must** proceed, in learning, by the formation of a model (or models) of its environment."
-
-Indeed, perception in brains is clearly affected by predictions about sensory inputs by the brain's own generative model.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/the-gardener.png?raw=true)
-
-In the above picture (The Gardener, by Giuseppe Arcimboldo, ca 1590), on the left you will likely see a bowl of vegetables, while the same picture upside down elicits with most people the perception of a gardener's face rather than an upside-down vegetable bowl. 
-
-The reason is that the brain's model predicts to see straight-up faces with much higher probability than upside-down vegetable bowls. 
-
-So the $(HTML("<span id='model-specification'></span>")) agent's model ``p`` will be a model that aims to explain how environmental causes (latent states) lead to sensory observations.
-
-"""
-
-# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
-md"""
-## The Brain's Action-Perception Loop by FE Minimization
-
-The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
-
-Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
-
-The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
-
+# Implementation
 """
 
 # ╔═╡ 64474167-bf52-456c-9099-def288bd17bf
-section_outline("Challenge Revisited:", "The Mountain Car Problem", color="green", header_level=1)
+section_outline("Challenge Revisited:", "The Mountain Car Problem", color="green")
 
 # ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
 md"""
@@ -571,6 +534,20 @@ Note that the AIF agent **explores** other options, like going first in the oppo
 # ╔═╡ f4509603-36be-4d24-8933-eb7a705eb933
 md"""
 # Discussion
+"""
+
+# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
+md"""
+## The Brain's Action-Perception Loop by FE Minimization
+
+The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+
+Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
+
+The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
+
 """
 
 # ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
@@ -975,7 +952,7 @@ end
 begin
 	
 	ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy", 
-	md"""
+	md""" Starting from Eq.(G1),
 	```math										
 	\begin{align}
 	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
@@ -985,7 +962,7 @@ begin
 	""");
 	
 	novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information", 
-	md"""
+	md""" Starting from Eq.(G1), 
 	```math
 	\begin{align}
 	\mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
@@ -3015,7 +2992,7 @@ version = "1.9.2+0"
 # ╔═╡ Cell order:
 # ╟─278382c0-d294-11ef-022f-0d78e9e2d04c
 # ╟─9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
-# ╠═27839788-d294-11ef-30a2-8ff6357aa68b
+# ╟─27839788-d294-11ef-30a2-8ff6357aa68b
 # ╟─2783a99e-d294-11ef-3163-bb455746bf52
 # ╟─aed436fd-6773-4932-a5d8-d01cf99c10ec
 # ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
@@ -3028,15 +3005,13 @@ version = "1.9.2+0"
 # ╟─f9b241fd-d853-433e-9996-41d8a60ed9e8
 # ╟─97136f81-3468-439a-8a22-5aae96725937
 # ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
-# ╟─08464e1b-3174-4def-8fa1-86878cb8d6e3
 # ╟─aaa07dc5-9105-4f70-b924-6e51e5c36600
 # ╟─bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 # ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
 # ╟─94391132-dee6-4b22-9900-ba394f4ad66b
 # ╟─a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
 # ╟─07c48a8b-522b-4c26-a177-e8d0611f7b59
-# ╠═2783dc14-d294-11ef-2df0-1b7474f85e29
-# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
+# ╟─6ef5a268-81bb-4418-a54b-a1e37a089381
 # ╟─64474167-bf52-456c-9099-def288bd17bf
 # ╟─2784f45e-d294-11ef-0439-1903016c1f14
 # ╠═2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
@@ -3057,10 +3032,11 @@ version = "1.9.2+0"
 # ╠═27858c46-d294-11ef-28aa-7744a577e6e5
 # ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
 # ╟─f4509603-36be-4d24-8933-eb7a705eb933
+# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
 # ╠═d823599e-a87f-4586-999f-fbbd99d0db65
 # ╟─f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
 # ╟─5b66f8e5-4f01-4448-82e3-388bc8ea31de
-# ╠═0d192591-6560-435d-a81f-4aede2203b18
+# ╟─0d192591-6560-435d-a81f-4aede2203b18
 # ╠═2785b056-d294-11ef-1415-49b1508736ba
 # ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
 # ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
