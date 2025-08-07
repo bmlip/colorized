@@ -19,6 +19,7 @@ const mock_browser_headers = [
 
 const impossible_domains = [
     "research.tue.nl",
+    "doi.org",
 ]
 
 
