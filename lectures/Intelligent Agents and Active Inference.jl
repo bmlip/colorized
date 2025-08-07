@@ -117,21 +117,21 @@ md"""
 
 # ╔═╡ 2783c686-d294-11ef-3942-c75d2b559fb3
 md"""
-## What drives Intelligent Behavior?
+## What Drives Intelligent Behavior?
 
 We begin with a motivating example that requires "intelligent" decision-making. Assume that you are an owl and that you're hungry. What are you going to do?
 
 Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
 
-![image Friston presentation at CCN-2016](https://github.com/bmlip/course/blob/v2/assets/figures/Friston-2016-presentation.png)
+![image Friston presentation at CCN-2016](https://github.com/bmlip/course/blob/main/assets/figures/Friston-2016-presentation.png?raw=true)
 
 In his answer, he emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
 
-This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s,u)``, where ``s`` might encode how hungry the agent is, and ``u`` represents the agent's actions (that affect future states). However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but of *beliefs* over states, which are expressed as probability distributions.
+This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s)``, where ``s`` might encode how hungry the agent is. However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but of *beliefs* over states, which are expressed as probability distributions.
 
 Therefore, Friston argues that intelligent behavior requires us to optimize a functional ``F[q(s|u)]``, where ``q(s|u)`` is a probability distribution over (future) states ``s`` for a given action sequence ``u``, and ``F`` evaluates the quality of this belief.
 
-Later in his lectures and papers, Friston goes further to identify this belief-based objective ``F`` as a **variational free energy** functional, thus providing a unifying framework that links decision-making and action to Bayesian inference.
+Later in his lectures and papers, Friston expands on this belief-based objective ``F`` and formalizes it as a variational free energy functional—laying the foundation for the **Free Energy Principle**. This principle offers a unifying framework that connects biological (or “intelligent”) decision-making and behavior directly to Bayesian inference.
 
 """
 
@@ -140,21 +140,22 @@ md"""
 
 ## The Free Energy Principle
 
+The Free Energy Principle (FEP) is not a model nor a theory. Instead, it is a principle, that is, a *method* for describing the processes that must unfold in living systems to keep them within viable (i.e., livable) states over extended periods of time.
+  - Think of the processes that must be ongoing in our bodies to keep the internal temperature between (roughly) ``36 ^{\circ}``C and ``37 ^{\circ}``C. 
 
-Friston argues that intelligent decision making (behavior, action making) by an agent requires *minimization of a functional of beliefs*. 
+The literature on the FEP is widely regarded as difficult to access. It was first formally derived by Friston in his monograph [Friston (2019), A Free Energy Principle for a Particular Physics (2019)](https://arxiv.org/abs/1906.10184), and later presented in a more accessible form in [Friston et al. (2023), The Free Energy Principle Made Simpler but Not Too Simple](https://doi.org/10.1016/j.physrep.2023.07.001). For a concise and approachable introduction, the explainer by [Noumenal Labs (2025), WTF is the FEP?](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle) is currently the most accessible resource I am aware of.
 
-Friston further argues (later in the lecture and his papers) that this functional is a (variational) free energy (to be defined below), thus linking decision-making and acting to Bayesian inference. 
+In this lecture, we present only a simplified account. According to the FEP, the brain is a generative model for its sensory inputs, such as visual and auditory signals, and **continuously minimizes variational free energy** in that model to stay aligned with these observations. Crucially, VFE minimization is the only ongoing process, and it underlies perception, learning, attention, emotions, consciousness, intelligent decision-making, etc. 
 
-In fact, Friston's [**Free Energy Principle**](https://youtu.be/NIu_dJGyIQI?si=MCJvgOBkweYOeF-C) (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
+To illustrate the idea that perception arises from a (variational) inference process—driven by top-down predictions from the brain and corrected by bottom-up sensory inputs—consider the following figure: "The Gardener" by Giuseppe Arcimboldo (ca. 1590).
 
-  * This includes perception, learning, attention mechanisms, recall, acting and decision making, etc.
+![](https://github.com/bmlip/course/blob/v2/assets/figures/the-gardener.png?raw=true)
 
-Taking inspiration from FEP, if we want to develop synthetic "intelligent" agents, we have (only) two issues to consider:
+On the left, you’ll likely perceive a bowl of vegetables. However, when the same image is turned upside down, most people experience a striking shift: they no longer see vegetables, but instead perceive a gardener’s face.
 
-1. Specification of the FE functional.
-2. *How* to minimize the FE functional (often in real-time under situated conditions).
+This perceptual flip arises because the brain’s generative model assigns a much higher probability to being in an environment with upright human faces than with inverted bowls of vegetables. While the sensory input is consistent with both interpretations, the brain’s prior beliefs drive our perception toward seeing upright faces (and upright bowls of vegetables).
 
-Agents that follow the FEP are said to be involved in **Active Inference** (AIF). An AIF agent updates its states and parameters (and ultimately its model structure) solely by FE minimization, and selects its actions through (expected) FE minimization (to be explained below).    
+In short, the FEP describes "intelligent" behavior as a VFE minimization process. The focus of this lecture is to show that VFE minimization in a generative model is a sufficient mechanism to generate intelligent behavior. 
 
 """
 
@@ -228,7 +229,7 @@ F[q] = \underbrace{\mathbb{E}_{q(u)}\left[ G(u)\right]}_{\substack{ \text{expect
 where the function ``G(u)``, known as the **Expected Free Energy** (EFE) cost function, is given by 
 ```math
 \begin{align}
-G(u) = \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}} + \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}} \,. \tag{G1}
+G(u) = \underbrace{\underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}}}_{\text{scores goal-driven behavior}} + \underbrace{\underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}}}_{\text{scores information-seeking behavior}} \,. \tag{G1}
 \end{align}
 ```
 
@@ -283,114 +284,85 @@ md"""
 Next, we analyze the EFE Theorem and its consequences in detail.
 """
 
-# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
-md"""
-## Interpretation of Expected Free Energy ``G(u)``
-
-``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{t+T})``, commonly referred to as a **policy**. 
-
-``G(u)`` decomposes into three distinct components:
-
-- risk
-  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). It penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
-
-- ambiguity
-  - The ambiguity term can be written as 
-
-- novelty
-
-
-``
-"""
-
 # ╔═╡ bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 md"""
 # Active Inference
 """
 
-# ╔═╡ f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+# ╔═╡ ef54a162-d0ba-47ef-af75-88c92276ed66
 md"""
-## Interpretation of the Variational Free Energy ``F[q]``
+## Optimal Planning by Variational Inference
 
-Let us first interpret the variational free energy functional ``F[q]`` as given in Eq. ``(\mathrm{F}1)``. The denominator of the integrand contains all the current prior beliefs held by the agent — this includes the predictive prior (i.e., the generative model), the goal prior over preferred future states, and the epistemic priors that encode preferences for resolving uncertainty.
+Assume that our agent is continually engaged in minimizing its variational free energy ``F[q]``, defined in Eq. (F2). This process tracks the following optimal posterior beliefs over policies,
 
-The product of these prior beliefs effectively fuses the agent’s predictive, goal-directed, and epistemic beliefs via Bayes rule. Ideally, the agent would compute the normalized posterior distribution,
 ```math
-q'(y,x,\theta,u) = \frac{p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}{\int\cdots\int p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x) \mathrm{d}y \mathrm{d}x \mathrm{d}\theta \mathrm{d}u} \,,
+\begin{align}
+q^*(u) &\triangleq \arg\min_q F[q]  \\ 
+&= \sigma\left( -P(u) - G(u) -B(u)\right) \,, \tag{Q*}
+\end{align}
 ```
-as ``q'(y,x,\theta,u)`` would reflect the optimal (Bayesian) beliefs held by the agent. However, computing this posterior exactly is typically intractable due to the high-dimensional integrals involved. Therefore, the agent approximates the posterior with a tractable distribution ``q(y,x,\theta,u)``, obtained by minimizing the variational free energy ``F[q]`` instead.
-
-
+where
+- ``\sigma(\cdot)`` denotes the softmax function,
+- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
+- ``G(u)`` is the expected free energy, defined in Eq. (G1), scoring both goal-directed and epistemic value of each policy,
+- ``B(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.
 
 
 """
 
-# ╔═╡ ef54a162-d0ba-47ef-af75-88c92276ed66
+# ╔═╡ 94391132-dee6-4b22-9900-ba394f4ad66b
+details(md"""Click for proof of ``q^*(u)``""",
 md"""
-## Optimal Planning by Variational Inference
+Starting from Eq. (F2), 
+```math
+\begin{align}
+F[q] &=\mathbb{E}_{q(u)}\left[ G(u)\right] + \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right] \tag{F2} \\  
+&=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{B(u)}	\bigg]	\\
+&=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-B(u))}\Big]	\bigg]	\\
+&= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - B(u))}\bigg]	
+\end{align}
+```
+which is (proportional to) a Kullback-Leibler divergence that is minimized for 
+```math
+\begin{align}
+q^*(u) = \sigma\left(-P(u) -G(u) - B(u) \right)	\,.
+\end{align}
+```	
+""")
+
+# ╔═╡ a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
+md"""
+## An Active Inference Agent!
+
+We have arrived at a central result: an agent that minimizes the variational free energy ``F[q]``, as defined in Eq. (F2), selects policies that are simultaneously goal-directed, epistemically valuable, and efficiently representable.
+- Goal-directed policies **minimize risk** by aligning predicted future states with desired outcomes.
+- Epistemically valuable policies reduce uncertainty by favoring informative observations (**low ambiguity**) and supporting model learning (**high novelty**).
+- Efficiently representable policies are those that induce **low complexity**, meaning the resulting posterior beliefs remain close to prior knowledge and require minimal update, avoiding unnecessary representational burden.
+
+The process of minimizing ``F[q]`` is called an **Active Inference** (AIF) process, and an agent that realizes this process is referred to as an **active inference agent**.
+
+The “active” aspect highlights that an AIF agent does not passively consume a fixed data set, but instead actively selects its own data set through purposeful interaction with the environment.
+
 """
 
 # ╔═╡ 07c48a8b-522b-4c26-a177-e8d0611f7b59
 md"""
-## Realization of Active Inference by Reactive Message Passing
-"""
+## Realization by Reactive Message Passing
 
-# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
-md"""
-## Comparison Reinforcement Learning vs Active Inference
-"""
+An AIF agent can be efficiently realized by an autonomous reactive message passing process in a Forney-style Factor Graph (FFG) representation of (a rollout to the future of) the generative model, augmented with goal and epistemic priors.
 
-# ╔═╡ 9329c67d-93d3-4384-9455-b15d521df027
-md"""
-## Refelctions
+![FFG for an AIF agent](https://github.com/bmlip/course/blob/main/assets/figures/AIF-generative-model-as-FFG.png?raw=true)
 
-how far are we?
+In the above figure, the agent's generative (predictive) model
+```math
+\prod_{k=1}^T p(y_k|x_k) p(x_k|x_{k-1},u_k)\,,
+```
+is represented by the white nodes in the factor graph. The initial and desired final states are constrained by initial and goal priors ``\hat{p}(x_0|x^+)`` and ``\hat{p}(x_T|x^+)``, which are typically generated by a higher-level state ``x^+`` and shown here as orange and blue nodes, respectively.
 
-scaling
+At time ``k = 0``, the agent is tasked to infer a future action sequence (a "policy") ``u_{1:T}`` such that the posterior ``q(x_T|y_{1:T})`` matches the goal prior ``\hat{p}(x_T|x^+)`` as closely as possible. Inference proceeds entirely via reactive message passing in the factor graph, with no external control.
 
+The figure shows the state of the system at time ``t``, after having executed actions ``u_{1:t}`` and having observed ``y_{1:t}``. The future rollout for steps ``t+1`` to ``T`` terminates the predictive model (white) with both epistemic priors (green and red nodes) and the goal prior (blue node). As new actions are selected and new observations are sensed, the epistemic priors are replaced by posteriors (small black boxes), enabling an ongoing free energy minimization process.
 
-"""
-
-# ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
-md"""
-## Execution of an AIF Agent
-
-Consider an AIF agent with observations (sensory states) ``x_t``, latent internal states ``s_t`` and latent control states ``u_t`` for ``t=1,2,\ldots``. 
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/AIF-agent.png?raw=true)
-
-The agent is embedded in an environment with "external states" ``\tilde{s}_t``. The dynamics of the environment are driven by actions. 
-
-Actions ``a_t`` are selected by the agent. Actions affect the environment and consequently affect future observations. 
-
-In pseudo-code, an AIF agent executes the $(HTML("<span id='AIF-algorithm'></span>"))following algorithm:
-
-> **ACTIVE INFERENCE (AIF) AGENT ALGORITHM**    
->
-> SPECIFY generative model ``p(x,s,u)``     ASSUME/SPECIFY environmental process ``R``
->
-> FORALL t DO    
->
-> 1. ``(x_t, \tilde{s}_t) = R(a_t, \tilde{s}_{t-1})``   % environment generates new observation
-> 2. ``q(s_t) = \arg\min_q F[q]``            % update agent's internal states ("perception")
-> 3. ``q(u_{t+1}) = \arg\min_q F_>[q]``      % update agent's control states ("actions")
-> 4. ``a_{t+1} \sim q(u_{t+1})``             % sample next action and push to environment
->
-> END
-
-
-In the above algorithm, ``F[q]`` and ``F_>[q]`` are appropriately defined Free Energy functionals, to be discussed below. Next, we discuss these steps in more details.
-
-"""
-
-# ╔═╡ 7128f91d-f3f3-41fe-a491-ede27921a822
-html"""
-<style>
-pluto-output img {
-	background: white;
-	border-radius: 3px;
-}
-</style>
 """
 
 # ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
@@ -413,204 +385,6 @@ So the $(HTML("<span id='model-specification'></span>")) agent's model ``p`` wil
 
 """
 
-# ╔═╡ 2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-md"""
-## Specification of AIF Agent's model and Environmental Dynamics
-
-In this notebook, for illustrative purposes, we specify the **generative model** at time step ``t`` of an AIF agent as 
-
-```math
-p(x_t,s_t,u_t|s_{t-1}) = \underbrace{p(x_t|s_t)}_{\text{observations}} \cdot \underbrace{p(s_t|s_{t-1},u_t)}_{\substack{\text{state} \\ \text{transition}}} \cdot \underbrace{p(u_t)}_{\substack{\text{action} \\ \text{prior}}}
-```
-
-We will assume that the agent interacts with an environment, which we represent by a dynamic model ``R`` as
-
-```math
-(x_t,\tilde{s}_t) = R\left( a_t,\tilde{s}_{t-1}\right)
-```
-
-where ``a_t`` are *actions* (by the agent), ``x_t`` are *outcomes* (the agent's observations) and ``\tilde{s}_t`` holds the environmental latent *states*. 
-
-Note that ``R`` only needs to be specified for simulated environments. If we were to deploy the agent in a real-world environment, we would not need to specify ``R``. 
-
-The agent's knowledge about environmental process ``R`` is expressed by its generative model ``p(x_t,s_t,u_t|s_{t-1})``. 
-
-Note that we distinguish between *control states* and *actions*. Control states ``u_t`` are latent variables in the agent's generative model. An action ``a_t`` is a realization of a control state as observed by the environment. 
-
-Observations ``x_t`` are generated by the environment and observed by the agent. Vice versa, actions ``a_t`` are generated by the agent and observed by the environment. 
-
-"""
-
-# ╔═╡ 2784529a-d294-11ef-3b0e-c5a60644fa53
-md"""
-## State Updating in the AIF Agent
-
-After the agent makes a new observation ``x_t``, it will update beliefs over its latent variables. First the internal state variables ``s``. 
-
-Assume the following at time step ``t``:
-
-  * the state of the agent's model has already been updated to ``q(s_{t-1}| x_{1:t-1})``.
-  * the agent has selected a new action ``a_t``.
-  * the agent has recorded a new observation ``x_t``.
-
-The **state updating** task is to infer ``q(s_{t}|x_{1:t})``, based on the previous estimate ``q(s_{t-1}| x_{1:t-1})``, the new data ``\{a_t,x_t\}``, and the agent's generative model. 
-
-Technically, this is a Bayesian filtering task. In a real brain, this process is called **perception**.   
-
-We specify the following FE functional
-
-```math
-F[q] = \sum_{s_t} q(s_t| x_{1:t}) \log \frac{\overbrace{q(s_t| x_{1:t})}^{\text{state posterior}}}{\underbrace{p( x_t|s_t) p(s_t|s_{t-1},a_t)}_{\text{generative model w new data}} \underbrace{q(s_{t-1}|x_{1:t-1})}_{\text{state prior}}}
-```
-
-The state updating task can be formulated as minimization of the above FE (see also [AIF Algorithm](#AIF-algorithm), step 2):
-
-```math
-q(s_t|x_{1:t}) = \arg\min_q F[q]
-```
-
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://bmlip.github.io/course/lectures/Dynamic%20Models.html#kalman-filter). 
-
-In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
-
-Our toolbox [RxInfer](http://rxinfer.com) specializes in automated execution of  this minimization task. 
-
-"""
-
-# ╔═╡ 27846c9e-d294-11ef-0a86-2527c96da2c3
-md"""
-## Policy Updating in an AIF Agent
-
-Once the agent has updated its internal states, it will turn to inferring the next action. 
-
-In order to select a **good** next action, we need to investigate and compare consequences of a *sequence* of future actions. 
-
-A sequence of future actions ``a= (a_{t+1}, a_{t+2}, \ldots, a_{t+T})`` is called a **policy**. Since relevant consequences are usually the result of an future action sequence rather than a single action, we will be interested in updating beliefs over policies. 
-
-In order to assess the consequences of a selected policy, we will, as a function of that policy, run the generative model forward-in-time to make predictions about future observations ``x_{t+1:t+T}``. 
-
-Note that perception (state updating) preceeds policy updating. In order to accurately predict the future, the agent first needs to understand the current state of the world.  
-
-Consider an AIF agent at time step ``t`` with (future) observations ``x = (x_{t+1}, x_{t+2}, \ldots, x_{t+T})``,  latent future internal states ``s= (s_t, s_{t+1}, \ldots, s_{t+T})``, and latent future control variables ``u= (u_{t+1}, u_{t+2}, \ldots, u_{t+T})``. 
-
-From the agent's viewpoint, the evolution of these future variables are constrained by its generative model, rolled out into the future:
-
-```math
-\begin{align*}
-p(x,s,u) &= \underbrace{q(s_{t})}_{\substack{\text{current}\\ \text{state}}} \cdot \underbrace{\prod_{k=t+1}^{t+T} p(x_k|s_k) \cdot p(s_k | s_{k-1}, u_k) p(u_k)}_{\text{GM roll-out to future}}
-\end{align*}
-```
-
-Consider the Free Energy functional for estimating posterior beliefs ``q(s,u)`` over latent *future* states and latent *future* control signals: 
-
-```math
-\begin{align*}
-F_>[q] &= \overbrace{\sum_{x,s} q(x|s)}^{\text{marginalize }x} \bigg( \overbrace{\sum_u q(s,u) \log \frac{q(s,u)}{p(x,s,u)} }^{\text{"regular" variational Free Energy}}\bigg) \\
-&= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)}
-\end{align*}
-```
-
-In principle, this is a regular FE functional, with one difference to previous versions: since future observations ``x`` have not yet occurred, ``F_>[q]`` marginalizes not only over latent states ``s`` and policies ``u``, but also over future observations ``x``.
-
-We will update the beliefs over policies by minimization of Free Energy functional ``F_>[q]``. In the [optional slides below, we prove that the solution to this optimization task](#q-star) is given by (see [AIF Algorithm](#AIF-algorithm), step 3, above)
-
-```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&\propto p(u)\exp(-G(u))\,,
-\end{aligned}
-```
-
-$(HTML("<span id='q-star-main-cell'></span>")) where the factor ``p(u)`` is a prior over admissible policies, and the factor ``\exp(-G(u))`` updates the prior with information about future consequences of a selected policy ``u``. 
-
-The function 
-
-```math
-G(u) = \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}
-```
-
-is called the **Expected Free Energy** (EFE) for policy ``u``. 
-
-The FEP takes the following stance: if FE minimization is all that an agent does, then the only consistent and appropriate behavior for an agent is to select actions that minimize the **expected** Free Energy in the future (where expectation is taken over current beliefs about future observations). 
-
-Note that, since ``q^*(u) \propto p(u)\exp(-G(u))``, the probability ``q^*(u)`` for selecting a policy ``u`` increases when EFE ``G(u)`` gets smaller. 
-
-Once the policy (control) variables have been updated, in simulated environments, it is common to assume that the next action ``a_{t+1}`` (an action is the *observed* control variable by the environment) gets selected in proportion to the probability of the related control variable (see [AIF Agent Algorithm](#AIF-algorithm), step 4, above), i.e., the environment samples the action from the control posterior:
-
-```math
-a_{t+1} \sim q(u_{t+1}) 
-```
-
-Next, we analyze some properties of the EFE.
-
-"""
-
-# ╔═╡ 278491ec-d294-11ef-305a-41b583d12d5a
-md"""
-## Active Inference Analysis: exploitation-exploration dilemma
-
-Consider the following decomposition of EFE:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)} \\
-&= \sum_{x,s} q(x,s|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(s|x,u)}\frac{q(s|x)}{q(s|x)} \\
-&= \sum_x q(x|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{q(s|x)} + \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x,u)}}_{E\left[ D_{\text{KL}}[q(s|x),p(s|x,u)] \right]\geq 0} \\
-&\geq \underbrace{\sum_x q(x|u) \log \frac{1}{p(x)}}_{\substack{\text{goal-seeking behavior} \\ \text{(exploitation)}}} - \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}}_{\substack{\text{information-seeking behavior}\\ \text{(exploration)}}} 
-\end{aligned}
-```
-
-Apparently, minimization of EFE leads to selection of policies that balances the following two imperatives: 
-
-1. minimization of the first term of ``G(u)``, i.e. minimizing ``\sum_x q(x|u) \log \frac{1}{p(x)}``, leads to policies (``u``) that align the inferred observations ``q(x|u)`` under policy ``u`` (i.e., predicted future observations under policy ``u``) with a prior ``p(x)`` on future observations. We are in control to choose any prior ``p(x)`` and usually we choose a prior that aligns with desired (goal) observations. Hence, policies with low EFE leads to **$(HTML("<span id='goal-seeking'>goal-seeking behavior</span>"))** (a.k.a. pragmatic behavior or exploitation). [In the OPTIONAL SLIDES](#ambiguity-plus-risk), we derive an alternative (perhaps clearer) expression to support this interpretation].
-2. minimization of ``G(u)`` maximizes the second term
-
-```math
-\begin{aligned}
-  \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)} &= \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}\frac{q(x|u)}{q(x|u)} \\
-  &= \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(x,s|u)}{q(x|u)q(s|u)}}_{\text{(conditional) mutual information }I[x,s|u]}
-  \end{aligned}
-```
-
-which is the (conditional) [**mutual information**](https://en.wikipedia.org/wiki/Mutual_information) between (posteriors on) future observations and states, for a given policy ``u``. Thus, maximizing this term leads to actions that maximize statistical dependency between future observations and states. In other words, a policy with low EFE also leads to **information-seeking behavior** (a.k.a. epistemic behavior or exploration). 
-
-(The third term ``\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x)}`` is an (expected) KL divergence between posterior and prior on the states. This can be interpreted as a complexity/regularization term and ``G(u)`` minimization will drive this term to zero.)   
-
-Seeking actions that balance goal-seeking behavior (exploitation) and information-seeking behavior (exploration) is a [fundamental problem in the Reinforcement Learning literature](https://en.wikipedia.org/wiki/Exploration-exploitation_dilemma). 
-
-**Active Inference solves the exploration-exploitation dilemma**. Both objectives are served by EFE minimization without any need for tuning parameters. 
-
-"""
-
-# ╔═╡ 2784b474-d294-11ef-1305-ef0f0771d28f
-md"""
-## $(HTML("<span id='PS-decomposition'></span>")) AIF Agents learn both the Problem and Solution
-
-We highlight another great feature of FE minimizing agents. Consider an AIF agent (``m``) with generative model ``p(x,s,u|m)``.
-
-Consider the Divergence-Evidence decomposition of the FE again:
-
-```math
-\begin{aligned}
-F[q] &= \sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(x,s,u|m)} \\
-&= \underbrace{-\log p(x|m)}_{\substack{\text{problem} \\ \text{representation costs}}} + \underbrace{\sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(s,u|x,m)}}_{\text{solution costs}}
-\end{aligned}
-```
-
-The first term, ``-\log p(x|m)``, is the (negative log-) evidence for model ``m``, given recorded data ``x``. 
-
-Minimization of FE maximizes the evidence for the given model. The model captures the  **problem representation**. A model with high evidence predicts the data well and therefore "understands the world".  
-
-The second term scores the cost of inference. In almost all cases, the solution to a problem can be phrased as an inference task on the generative model. Hence, the second term **scores the accuracy of the inferred solution**, for the given model. 
-
-FE minimization optimizes a balanced trade-off between a good-enough problem representation and a good-enough solution proposal for that model. Since FE comprises both a cost for solution *and* problem representation, it is a neutral criterion that applies across a very wide set of problems. 
-
-A good solution to the wrong problem is not good enough. A poor solution to a great problem statement is not sufficient either.  In order to solve a problem well, we need both to represent the problem correctly (high model evidence) and we need to solve it well (low inference costs). 
-
-
-
-"""
-
 # ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
 md"""
 ## The Brain's Action-Perception Loop by FE Minimization
@@ -625,69 +399,11 @@ The current FEP theory claims that minimization of FE (and EFE) is all that brai
 
 """
 
-# ╔═╡ 2784cf9a-d294-11ef-2284-a507f840ea99
-md"""
-## The Engineering Challenge: Synthetic AIF Agents
-
-We have here a framework (the FEP) for emergent intelligent behavior in self-organizing biological systems that
-
-  * leads to optimal (Bayesian) information processing, including balancing accuracy vs complexity.
-  * leads to balanced and continual learning of both problem representation and solution proposal
-  * actively selects data in-the-field under situated conditions (no dependency on large data base)
-  * pursues a optimal trade-off between exploration (information-seeking) and exploitation (goal-seeking) behavior
-  * needs no external tuning parameters (such as step sizes, thresholds, etc.)
-
-Clearly, the FEP, and synthetic AIF agents as a realization of FEP, comprise a very attractive framework for all things relating to AI and AI agents. 
-
-A current big AI challenge is to design synthetic AIF agents based solely on FE/EFE minimization.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/Synthetic-FEP-agent.png?raw=true) 
-
-Executing a synthetic AIF agent often poses a large computational problem because of the following reasons: 
-
-1. For interesting problems (e.g. speech recognition, scene analysis), generative models may contain thousands of latent variables.
-2. The FE function is a time-varying function, since it is also a function of observable variables.
-3. An AIF agent must execute inference in real-time if it is engaged and embedded in a real world environment.
-
-So, in practice, executing a synthetic AIF agent may lead to a **task of minimizing a time-varying FE function of thousands of variables in real-time**!!
-
-"""
-
-# ╔═╡ 2784e0fc-d294-11ef-360c-f14e94324770
-md"""
-## Factor Graph Approach to Modeling of an Active Inference Agent
-
-How to specify and execute a synthetic AIF agent is an active area of research. 
-
-There is no definitive solution approach to AIF agent modeling yet; we ([BIASlab](http://biaslab.org)) think that (reactive) message passing in a factor graph representation provides a promising path. 
-
-After selecting an action ``a_t`` and making an observation ``x_t``, the FFG for the rolled-out generative model is given by the following FFG:
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-active-inference-model-specification.png?raw=true)
-
-The open red nodes for ``p(x_{t+k})`` specify **desired future observations**, whereas the open black boxes for ``p(s_k|s_{k-1},u_k)`` and ``p(x_k|s_k)`` reflect the agent's beliefs about how the world actually evolves (ie, the **veridical model**). 
-
-The (brown) dashed box is the agent's Markov blanket. Given the states on the Markov blanket, the internal states of the agent are independent of the state of the world.   
-
-"""
-
-# ╔═╡ 2784e908-d294-11ef-1c3d-ff9c59696590
-md"""
-## How to minimize FE: Online Active Inference
-
-[Online active inference proceeds by iteratively executing three stages](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full): 
-
-1. act-execute-observe
-2. infer: update the latent variables and select an action
-3. slide forward
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-online-active-inference.png?raw=true)
-
-"""
+# ╔═╡ 64474167-bf52-456c-9099-def288bd17bf
+section_outline("Challenge Revisited:", "The Mountain Car Problem", color="green", header_level=1)
 
 # ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
 md"""
-## The Mountain car Problem Revisited
 
 Here we solve the mountain car problem as stated at the beginning of this lesson. Before implementing the active inference agent, let's first perform a naive approach that executes the engine's maximum power to reach the goal. As can be seen in the results, this approach fails since the car's engine is not strong enough to reach the goal directly. 
 
@@ -852,9 +568,61 @@ Note that the AIF agent **explores** other options, like going first in the oppo
 
 """
 
+# ╔═╡ f4509603-36be-4d24-8933-eb7a705eb933
+md"""
+# Discussion
+"""
+
+# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
+md"""
+## Comparison Reinforcement Learning vs Active Inference
+"""
+
+# ╔═╡ f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+md"""
+## Interpretation of the Variational Free Energy ``F[q]``
+
+Let us first interpret the variational free energy functional ``F[q]`` as given in Eq. ``(\mathrm{F}1)``. The denominator of the integrand contains all the current prior beliefs held by the agent — this includes the predictive prior (i.e., the generative model), the goal prior over preferred future states, and the epistemic priors that encode preferences for resolving uncertainty.
+
+The product of these prior beliefs effectively fuses the agent’s predictive, goal-directed, and epistemic beliefs via Bayes rule. Ideally, the agent would compute the normalized posterior distribution,
+```math
+q'(y,x,\theta,u) = \frac{p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}{\int\cdots\int p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x) \mathrm{d}y \mathrm{d}x \mathrm{d}\theta \mathrm{d}u} \,,
+```
+as ``q'(y,x,\theta,u)`` would reflect the optimal (Bayesian) beliefs held by the agent. However, computing this posterior exactly is typically intractable due to the high-dimensional integrals involved. Therefore, the agent approximates the posterior with a tractable distribution ``q(y,x,\theta,u)``, obtained by minimizing the variational free energy ``F[q]`` instead.
+
+
+
+
+"""
+
+# ╔═╡ 5b66f8e5-4f01-4448-82e3-388bc8ea31de
+md"""
+## Interpretation of the Epistemic Priors
+
+
+The epistemic prior ``\tilde{p}(u) = \exp(H[q(x|u)])``, introduced in (E1), imposes a
+bias toward selecting policies that maximize the entropy over future states
+``x``. This reflects an information-seeking preference, as high entropy states
+indicate that the agent is maintaining flexibility—keeping future states open
+for adaptation. 
+
+Additionally, the epistemic prior ``\tilde{p}(x) = \exp(−H[q(y|x)])``
+in (E2), favors policies that reduce uncertainty about future states by
+selecting observations that are informative about them. Together, ``\tilde{p}(u)`` and ``\tilde{p}(x)`` induce a **bias toward ambiguity-minimizing behavior**.
+
+Similarly, the epistemic priors ``\tilde{p}(u)`` and ``\tilde{p}(y,x)`` from (E1) and (E3), jointly shape a **preference for policies that maximize novelty**, i.e., that are expected to be informative about the parameters of the generative model.
+
+"""
+
+# ╔═╡ 0d192591-6560-435d-a81f-4aede2203b18
+md"""
+Different researchers have different opinions, but I’ll be blunt about mine. If you’re willing to dive deep and grapple with the elegant foundations of the Free Energy Principle and active inference, the rewards can be profound. This isn’t just another theory—it’s a powerful lens that can reshape your understanding of life, science, and engineering at the most fundamental level. And when it comes to designing the intelligent systems of the future, the potential impact of the FEP is nothing short of transformative.
+"""
+
 # ╔═╡ 2785b056-d294-11ef-1415-49b1508736ba
 md"""
 ## Extensions and Comments
+
 
 Just to be sure, you don't need to memorize all FE/EFE decompositions nor are you expected to derive them on-the-spot. We present these decompositions only to provide insight into the multitude of forces that underlie FEM-based action selection.
 
@@ -1202,6 +970,57 @@ end
 @meta function car_meta()
     dzdt() -> DeltaMeta(method = Linearization())
 end
+
+# ╔═╡ 39127d53-7050-47fb-8ca5-428991598f25
+begin
+	
+	ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy", 
+	md"""
+	```math										
+	\begin{align}
+	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
+	\end{align}		
+	```										
+	""");
+	
+	novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information", 
+	md"""
+	```math
+	\begin{align}
+	\mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
+	\end{align}
+	```		
+	""");
+
+
+	
+end
+
+# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
+md"""
+## Interpretation of Expected Free Energy ``G(u)``
+
+``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{T})``, commonly referred to as a **policy**. ``G(u)`` decomposes into three distinct components:
+
+###### risk
+  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). As a result, ``G(u)`` penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
+
+###### ambiguity
+  - Ambiguity can be expressed as ``\mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]``, which quantifies the expected entropy of future observations ``y``, under policy ``u``. It measures how ambiguous or noisy the relationship is between hidden states ``x`` and observations ``y``. Policies with low ambiguity are preferable because they lead to observations that are more informative about the hidden state, thus facilitating more accurate inference and better decision-making.
+  - $(ambiguity_as_expected_entropy)
+
+
+###### novelty
+  - The novelty term can be worked out to ``\mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]``, where ``I[\theta,y\,|x]`` is the [mutual information](https://en.wikipedia.org/wiki/Mutual_information) between parameters ``\theta`` and observations ``y``, given states ``x``. Novelty complements the ambiguity term. While ambiguity scores information-seeking behavior aimed at reducing uncertainty about hidden states ``x``, the novelty term extends this idea to parameters ``\theta`` of the generative model. It encourages policies that are expected to lead to observations that reduce uncertainty about ``\theta``, i.e., learning about the structure or dynamics of the environment itself.
+  - $(novelty_as_mutual_information)
+
+Clearly, policies with lower Expected Free Energy are preferred. Such policies strike a balance between goal-directed behavior—by minimizing risk—and information-seeking behavior—by minimizing ambiguity (to infer hidden states) and maximizing novelty (to learn about model parameters). This unified objective naturally promotes both exploitation and exploration.
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -3196,11 +3015,11 @@ version = "1.9.2+0"
 # ╔═╡ Cell order:
 # ╟─278382c0-d294-11ef-022f-0d78e9e2d04c
 # ╟─9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
-# ╟─27839788-d294-11ef-30a2-8ff6357aa68b
+# ╠═27839788-d294-11ef-30a2-8ff6357aa68b
 # ╟─2783a99e-d294-11ef-3163-bb455746bf52
 # ╟─aed436fd-6773-4932-a5d8-d01cf99c10ec
 # ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
-# ╠═2783b9ca-d294-11ef-0bf7-e767fbfad74a
+# ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
 # ╟─939e74b0-8ceb-4214-bbc0-407c8f0b2f26
 # ╟─e3d5786b-49e0-40f7-9056-13e26e09a4cf
 # ╟─2783c686-d294-11ef-3942-c75d2b559fb3
@@ -3210,25 +3029,15 @@ version = "1.9.2+0"
 # ╟─97136f81-3468-439a-8a22-5aae96725937
 # ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
 # ╟─08464e1b-3174-4def-8fa1-86878cb8d6e3
-# ╠═aaa07dc5-9105-4f70-b924-6e51e5c36600
-# ╠═bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
-# ╠═f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+# ╟─aaa07dc5-9105-4f70-b924-6e51e5c36600
+# ╟─bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 # ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
-# ╠═07c48a8b-522b-4c26-a177-e8d0611f7b59
-# ╠═d823599e-a87f-4586-999f-fbbd99d0db65
-# ╠═9329c67d-93d3-4384-9455-b15d521df027
-# ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
-# ╟─7128f91d-f3f3-41fe-a491-ede27921a822
+# ╟─94391132-dee6-4b22-9900-ba394f4ad66b
+# ╟─a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
+# ╟─07c48a8b-522b-4c26-a177-e8d0611f7b59
 # ╠═2783dc14-d294-11ef-2df0-1b7474f85e29
-# ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-# ╟─2784529a-d294-11ef-3b0e-c5a60644fa53
-# ╟─27846c9e-d294-11ef-0a86-2527c96da2c3
-# ╟─278491ec-d294-11ef-305a-41b583d12d5a
-# ╟─2784b474-d294-11ef-1305-ef0f0771d28f
 # ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
-# ╟─2784cf9a-d294-11ef-2284-a507f840ea99
-# ╟─2784e0fc-d294-11ef-360c-f14e94324770
-# ╟─2784e908-d294-11ef-1c3d-ff9c59696590
+# ╟─64474167-bf52-456c-9099-def288bd17bf
 # ╟─2784f45e-d294-11ef-0439-1903016c1f14
 # ╠═2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
 # ╠═f43d3264-f88e-42bf-8147-92b4225807f4
@@ -3247,7 +3056,12 @@ version = "1.9.2+0"
 # ╠═278573d4-d294-11ef-36a2-19eba9a07c1b
 # ╠═27858c46-d294-11ef-28aa-7744a577e6e5
 # ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
-# ╟─2785b056-d294-11ef-1415-49b1508736ba
+# ╟─f4509603-36be-4d24-8933-eb7a705eb933
+# ╠═d823599e-a87f-4586-999f-fbbd99d0db65
+# ╟─f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
+# ╟─5b66f8e5-4f01-4448-82e3-388bc8ea31de
+# ╠═0d192591-6560-435d-a81f-4aede2203b18
+# ╠═2785b056-d294-11ef-1415-49b1508736ba
 # ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
 # ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
 # ╟─27861ca6-d294-11ef-3a75-ff797da3cf44
@@ -3260,5 +3074,6 @@ version = "1.9.2+0"
 # ╟─7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
 # ╟─0c12e2dc-15a0-45ca-bade-30ed49bf1cad
 # ╟─74181be4-02d3-4049-882c-04d64152dad8
+# ╠═39127d53-7050-47fb-8ca5-428991598f25
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
