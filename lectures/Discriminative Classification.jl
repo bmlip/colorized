@@ -83,6 +83,19 @@ begin
 	N_bond = @bindname N Slider(9:200; default=120, show_value=true)
 end
 
+# ╔═╡ cf829697-6283-4d2f-b0dd-bbfbd689a145
+md"""
+### Implementation
+"""
+
+# ╔═╡ b5bc379c-5a0e-4b13-99fe-92632250a35e
+md"""
+Split X based on class label:
+"""
+
+# ╔═╡ ddb2dc0d-3ef9-4add-93e9-ee575aabd81a
+X_test = [3.75; 1.0] # Features of 'new' data point
+
 # ╔═╡ d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
 md"""
 # Bayesian Logistic Regression
@@ -613,12 +626,14 @@ function generate_dataset(N::Int64)
     return (X, y)
 end
 
-# ╔═╡ c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-begin
-	X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
-	X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
-	X_test = [3.75; 1.0] # Features of 'new' data point
-end
+# ╔═╡ e3474a09-11ec-43e8-900f-f4fb31283f46
+X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
+
+# ╔═╡ 48c200f1-9363-4ae4-ab9c-b000071aa9d6
+X_c1 = X[:,findall(.!y)]'
+
+# ╔═╡ 47ee9e9f-427c-42e1-867a-b6d2c9438d76
+X_c2 = X[:,findall(y)]'
 
 # ╔═╡ a65ca01a-0e9a-42cb-b1d7-648102a77eb5
 function plot_dataset()
@@ -633,9 +648,7 @@ end
 	plot_dataset()
 
 # ╔═╡ 56598859-2824-4242-a894-684bf1ad1f6e
-y_1 = map(y) do val
-	val == true ? 1.0 : 0.0
-end # class 1 indicator vector
+y_1 = ifelse.(y, 1.0, 0.0)
 
 # ╔═╡ 6f483978-29f0-4165-bd8f-650c403e3512
 # Extend X with a row of ones to allow an offset in the discrimination boundary
@@ -2202,11 +2215,16 @@ version = "1.9.2+0"
 # ╟─25ef12bc-d294-11ef-1557-d98ba829a804
 # ╟─fe66a986-2f55-4417-a71d-b3b99f6369cc
 # ╟─25ef2806-d294-11ef-3cb6-0f3e76b9177e
-# ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
 # ╟─4ceede48-a4d5-446b-bb34-26cec4af357a
 # ╟─d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
+# ╟─cf829697-6283-4d2f-b0dd-bbfbd689a145
 # ╟─a65ca01a-0e9a-42cb-b1d7-648102a77eb5
-# ╟─c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
+# ╠═e3474a09-11ec-43e8-900f-f4fb31283f46
+# ╟─b5bc379c-5a0e-4b13-99fe-92632250a35e
+# ╠═48c200f1-9363-4ae4-ab9c-b000071aa9d6
+# ╠═47ee9e9f-427c-42e1-867a-b6d2c9438d76
+# ╠═ddb2dc0d-3ef9-4add-93e9-ee575aabd81a
+# ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
 # ╟─d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
 # ╟─25ef6ece-d294-11ef-270a-999c8d457b24
 # ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
@@ -2240,14 +2258,14 @@ version = "1.9.2+0"
 # ╟─ff31d8c1-db35-4c85-a609-67fc40e9e78d
 # ╟─7932fff4-0568-49de-b34c-711e51487ae3
 # ╟─25f3bef2-d294-11ef-1438-e9f7e469336f
-# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
+# ╠═aaf764da-cf1b-4bc7-83ea-6d25a80ca3ab
+# ╟─7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╠═56598859-2824-4242-a894-684bf1ad1f6e
 # ╠═6f483978-29f0-4165-bd8f-650c403e3512
 # ╠═a89af0df-c39b-406e-a30a-4706ad2ea043
 # ╠═a75d69e1-c1e9-45b4-9924-4c2fe59413dc
-# ╟─aaf764da-cf1b-4bc7-83ea-6d25a80ca3ab
-# ╠═7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╟─25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
+# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
 # ╟─1f2bfcf4-fef4-4612-8683-d5c86a326eef
 # ╟─25f3ff84-d294-11ef-0031-63b23d23324d
 # ╟─25f41118-d294-11ef-13a8-3fa6587c1bf3
