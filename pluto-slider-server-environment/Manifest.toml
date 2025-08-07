@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "6381b945b1536fdf458147bc457c8ff5eb88cd20"
+project_hash = "be8102b3bf40dd356d54a753e9d1430f08f25b69"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -379,7 +379,9 @@ version = "0.20.13"
 
 [[deps.PlutoDependencyExplorer]]
 deps = ["ExpressionExplorer", "InteractiveUtils", "Markdown"]
-git-tree-sha1 = "9071bfe6d1c3c51f62918513e8dfa0705fbdef7e"
+git-tree-sha1 = "bd268076ee9283e3c736458b365095ea9df5689c"
+repo-rev = "pretransform-exception"
+repo-url = "https://github.com/JuliaPluto/PlutoDependencyExplorer.jl.git"
 uuid = "72656b73-756c-7461-726b-72656b6b696b"
 version = "1.2.1"
 
