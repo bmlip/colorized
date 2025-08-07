@@ -200,7 +200,7 @@ Why is the Gaussian distribution so ubiquitously used in science and engineering
 
 1. Operations on probability distributions tend to lead to Gaussian distributions:
 
-    * Any smooth function with a single rounded maximum goes into a Gaussian function, if raised to higher and higher powers. This is particularly useful in sequential Bayesian inference where repeated updates leads to Gaussian posteriors. (See also this [tweet](https://twitter.com/almost_sure/status/1745480056288186768?s=12&t=mJsWj_B9ZbEtlxFO_jK-HQ)). 
+    * Any smooth function with a single rounded maximum goes into a Gaussian function, if raised to higher and higher powers. This is particularly useful in sequential Bayesian inference where repeated updates leads to Gaussian posteriors. (See also this [tweet](https://x.com/Almost_Sure/status/1745480056288186768)). 
     * The [Gaussian distribution has higher entropy](https://en.wikipedia.org/wiki/Differential_entropy#Maximization_in_the_normal_distribution) than any other with the same variance. 
         * Therefore, any operation on a probability distribution that discards information but preserves variance gets us closer to a Gaussian.
         * As an example, see [Jaynes, section 7.1.4](http://www.med.mcgill.ca/epidemiology/hanley/bios601/GaussianModel/JaynesProbabilityTheory.pdf#page=250) for how this leads to the [Central Limit Theorem](https://en.wikipedia.org/wiki/Central_limit_theorem), which results from performing convolution operations on distributions.

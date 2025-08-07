@@ -4,6 +4,25 @@ using Memoization
 using URIs
 import HTTP
 
+
+# Set headers to mimic a real browser
+const mock_browser_headers = [
+    "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language" => "en-US,en;q=0.9",
+    "Accept-Encoding" => "gzip, deflate, br",
+    "DNT" => "1",
+    "Connection" => "keep-alive",
+    "Upgrade-Insecure-Requests" => "1",
+]
+
+
+const impossible_domains = [
+    "research.tue.nl",
+    "doi.org",
+]
+
+
 struct DramaBrokenLink <: AbstractDrama end
 
 
@@ -39,7 +58,9 @@ The types:
 @memoize function check_url(s::String)
     without_fragment = URI(s; fragment=@view("absent"[1:0]))
     
-    if without_fragment.host == "bmlip.github.io"
+    if without_fragment.host in impossible_domains
+        @info "The domain $(without_fragment.host) cannot be checked, skipping."
+    elseif without_fragment.host == "bmlip.github.io"
         path_web = without_fragment.path
         path = replace(URIs.unescapeuri(path_web), r".html$" => ".jl")
         
@@ -51,14 +72,18 @@ The types:
             @assert isfile(source_path) "The URL does not resolve:\n\n\t$s\n\ndoes not resolve. It refers to the local notebook file\n\n\t$source_path\n\nwhich was not found."
         end
     elseif without_fragment.host == ""
-        @assert without_fragment.path == "" "Checking relative URLs is not yet implemented. But Fons recommends to not use relative URLs, as they do not work consistently in all situations."
+        if without_fragment.uri == ""
+            # relative hash link, TODO
+        else
+            error("Checking relative URLs is not yet implemented. But Fons recommends to not use relative URLs, as they do not work consistently in all situations. The URL was: $s")
+        end
     else
-        response = HTTP.head(without_fragment; status_exception=false, cookies=false)
+        response = HTTP.head(without_fragment; status_exception=false, cookies=false, headers=mock_browser_headers)
         if response.status ∉ 200:299
             # oh no!
             # let's check one last thing before erroring
             # this might be a "CloudFlare challenge", a sort of captcha that you need to fill in before you are allowed to access the page.
-            response = HTTP.get(without_fragment; status_exception=false)
+            response = HTTP.get(without_fragment; status_exception=false, headers=mock_browser_headers)
             is_challenge = occursin("challenge", String(response.body))
             @assert response.status ∈ 200:299 || is_challenge "The URL does not resolve:\n\n\t$s\n\nThe server responded with status $(response.status)."
         end
