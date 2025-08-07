@@ -470,7 +470,7 @@ TODO("Can you do a foldable box here that shows the code below for executing the
 md"""
 #####  Inference by Message Passing
 
-Let's now solve the cart tracking problem by sum-product message passing in a factor graph. All we have to do is create factor nodes for the state-transition model ``p(z_t|z_{t-1})`` and the observation model ``p(x_t|z_t)``. Then we let [RxInfer](rxinfer.com) execute the message passing schedule. 
+Let's now solve the cart tracking problem by sum-product message passing in a factor graph. All we have to do is create factor nodes for the state-transition model ``p(z_t|z_{t-1})`` and the observation model ``p(x_t|z_t)``. Then we let [RxInfer](https://rxinfer.com) execute the message passing schedule. 
 
 """
 

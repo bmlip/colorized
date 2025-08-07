@@ -79,7 +79,7 @@ $$\begin{aligned} p(X_1, \theta) =&\ p(X_1 \mid \theta) \cdot p(\theta) \\ =&\ \
 
 The factor graph for this model is:
 
-![](figures/PP2-singleobs.png)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/PP2-singleobs.png?raw=true)
 
 We are now going to construct this factor graph / probabilistic model in RxInfer.
 """
@@ -286,7 +286,7 @@ messageBB_3 = prod(ClosedProd(), messageBB_1, messageBB_2)
 
 # ╔═╡ fd6317e2-b787-433d-aa16-0cc6e8b99551
 md"""
-This product of messages is the result of passing the two likelihood-based messages through an equality node (see [Bert's lecture](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Factor-Graphs.ipynb#Equality-Nodes-for-Branching-Points)):
+This product of messages is the result of passing the two likelihood-based messages through an equality node (see [Bert's lecture](https://bmlip.github.io/course/lectures/Factor%20Graphs.html#Equality-Nodes-for-Branching-Points)):
 
 $$\begin{aligned} \mu_3(\theta) &= \int_{\theta'} \int_{\theta''} \overrightarrow{\mu}(\theta'')\ f_{=}(\theta, \theta', \theta'') \ \overleftarrow{\mu}(\theta') \mathrm{d}\theta' \, \mathrm{d}\theta'' \\
  &= \mu'(\theta) \cdot \mu''(\theta) \, . \end{aligned}$$
