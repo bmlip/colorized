@@ -56,8 +56,7 @@ md"""
           * On minimizing expected free energy by variational free energy minimization.
 
     * Noumenal labs (2025), [WTF is the FEP? A short explainer on the free energy principle](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle)
-
-    
+         *  A concise, accessible introduction to the Free Energy Principle, aimed at demystifying it for a broader audience—matching the tone and intent suggested by the playful but clear title.    
 
 """
 
@@ -141,22 +140,21 @@ md"""
 ## The Free Energy Principle
 
 The Free Energy Principle (FEP) is neither a model nor a theory. Rather, it is a principle, that is, a **methodological framework** for describing the information-processing dynamics that *must* unfold in living systems to keep them within viable (i.e., livable) states over extended periods of time.
-  - Think of the processes that must be ongoing in our bodies to keep the internal temperature between (roughly) ``36 ^{\circ}``C and ``37 ^{\circ}``C. 
+  -  Think of the processes continuously occurring in our bodies to maintain an internal temperature between approximately ``36^{\circ}\text{C}`` and ``37^{\circ}\text{C}``, regardless of the surrounding ambient temperature.
 
 The literature on the FEP is widely regarded as difficult to access. It was first formally derived by Friston in his monograph [Friston (2019), A Free Energy Principle for a Particular Physics (2019)](https://arxiv.org/abs/1906.10184), and later presented in a more accessible form in [Friston et al. (2023), The Free Energy Principle Made Simpler but Not Too Simple](https://doi.org/10.1016/j.physrep.2023.07.001). For a concise and approachable introduction, the explainer by [Noumenal Labs (2025), WTF is the FEP?](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle) is currently the most accessible resource I am aware of.
 
-In this lecture, we present only a simplified account. According to the FEP, the brain is a generative model for its sensory inputs, such as visual and auditory signals, and **continuously minimizes variational free energy** in that model to stay aligned with these observations. Crucially, VFE minimization is the only ongoing process, and it underlies perception, learning, attention, emotions, consciousness, intelligent decision-making, etc. 
+In this lecture, we present only a simplified account. According to the FEP, the brain is a generative model for its sensory inputs, such as visual and auditory signals, and **continuously minimizes variational free energy** (VFE) in that model to stay aligned with these observations. Crucially, VFE minimization is the *only* ongoing process, and it underlies perception, learning, attention, emotions, consciousness, intelligent decision-making, etc. 
 
 To illustrate the idea that perception arises from a (variational) inference process—driven by top-down predictions from the brain and corrected by bottom-up sensory inputs—consider the following figure: "The Gardener" by Giuseppe Arcimboldo (ca. 1590).
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/the-gardener.png?raw=true)
 
-On the left, you’ll likely perceive a bowl of vegetables. However, when the same image is turned upside down, most people experience a striking shift: they no longer see vegetables, but instead perceive a gardener’s face.
+On the left, you’ll likely perceive a bowl of vegetables. However, when the same image is turned upside down, most people first see a gardener’s face.
 
 This perceptual flip arises because the brain’s generative model assigns a much higher probability to being in an environment with upright human faces than with inverted bowls of vegetables. While the sensory input is consistent with both interpretations, the brain’s prior beliefs drive our perception toward seeing upright faces (and upright bowls of vegetables).
 
-In short, the FEP describes "intelligent" behavior as a VFE minimization process. The focus of this lecture is to show that VFE minimization in a generative model is a sufficient mechanism to generate intelligent behavior. 
-
+In short, the FEP characterizes “intelligent” behavior as the outcome of a VFE minimization process. Next, we derive the dynamics of an *Active Inference* agent—an agent whose behavior is entirely governed by VFE minimization. We will demonstrate that minimizing VFE within a generative model constitutes a sufficient mechanism for producing basic intelligent behavior.
 """
 
 # ╔═╡ 9708215c-72c9-408f-bd10-68ae02e17243
@@ -188,7 +186,7 @@ In addition to the predictive model, we assume that the agent holds beliefs ``\h
 
 Finally, we assume that the agent also maintains **epistemic** (= information-seeking) prior beliefs, denoted by ``\tilde{p}(u)``, ``\tilde{p}(x)``, and ``\tilde{p}(y,x)``, which will be further specified below.
 
-The predictive model, together with the goal and epistemic priors, constitutes the agent’s complete set of prior beliefs (about the future).
+The predictive model, together with the goal and epistemic priors, constitutes the agent’s complete set of prior beliefs about the future.
 
 """
 
@@ -326,14 +324,31 @@ q^*(u) = \sigma\left(-P(u) -G(u) - B(u) \right)	\,.
 md"""
 ## An Active Inference Agent!
 
-We have arrived at a central result: an agent that minimizes the variational free energy ``F[q]``, as defined in Eq. (F2), selects policies that are simultaneously goal-directed, epistemically valuable, and efficiently representable.
-- Goal-directed policies **minimize risk** by aligning predicted future states with desired outcomes.
+Eq. (Q*) marks a central result: an agent that minimizes the variational free energy ``F[q]``, as defined in Eq.(F2), naturally selects policies that are goal-directed, epistemically valuable, and computationally parsimonious.
+- Goal-directed policies **minimize risk** by steering predicted future states toward preferred or desired outcomes.
 - Epistemically valuable policies reduce uncertainty by favoring informative observations (**low ambiguity**) and supporting model learning (**high novelty**).
-- Efficiently representable policies are those that induce **low complexity**, meaning the resulting posterior beliefs remain close to prior knowledge and require minimal update, avoiding unnecessary representational burden.
+- Computationally parsimonious policies **minimize complexity**, ensuring that posterior beliefs remain close to prior expectations. This limits the extent of belief updating, thereby *conserving computational resources* and reducing inference overhead.
 
-The process of minimizing ``F[q]`` is called an **Active Inference** (AIF) process, and an agent that realizes this process is referred to as an **active inference agent**.
+The process of minimizing ``F[q]`` is called an **Active Inference** (AIF) process, and an agent that realizes this process is referred to as an **active inference agent**. The “active” aspect highlights that an AIF agent does not passively consume a fixed data set, but instead actively selects its own data set through purposeful interaction with the environment.
 
-The “active” aspect highlights that an AIF agent does not passively consume a fixed data set, but instead actively selects its own data set through purposeful interaction with the environment.
+From an engineering perspective, if one accepts that effective decision-making systems should exhibit goal-directed behavior, epistemic exploration, and computational efficiency, then an AIF agent can be viewed as an "intelligent" controller. Given a well-defined set of predictive, goal-oriented, and epistemic prior beliefs, the agent’s behavior follows directly from the minimization of variational free energy. In this sense, the agent acts rationally—or Bayes-optimally—with respect to its design objectives and internal model.
+
+"""
+
+# ╔═╡ 5b66f8e5-4f01-4448-82e3-388bc8ea31de
+md"""
+## Interpretation of the Epistemic Priors
+
+Where do the epistemic costs (ambiguity and novelty) in the EFE function come from? In the formulation introduced in Eq. (E1), the epistemic prior
+``\tilde{p}(u) = \exp\big(H[q(x | u)]\big)`` biases the agent toward selecting policies ``u`` that maximize the entropy of the predicted future states ``x``.
+
+This reflects an information-seeking preference: high entropy over future states implies that the agent is actively maintaining flexibility and postponing premature commitment. Rather than treating uncertainty as something to avoid, this formulation encourages the agent to seek out policies that enable adaptation as new observations arrive.
+
+Additionally, the epistemic prior ``\tilde{p}(x) = \exp(−H[q(y|x)])``
+in (E2), favors policies that reduce uncertainty about future states by
+selecting observations that are informative about them. Together, ``\tilde{p}(u)`` and ``\tilde{p}(x)`` induce a **bias toward ambiguity-minimizing behavior**.
+
+Similarly, the epistemic priors ``\tilde{p}(u)`` and ``\tilde{p}(y,x)`` from (E1) and (E3), jointly shape a **preference for policies that maximize novelty**, i.e., that are expected to be informative about the parameters of the generative model.
 
 """
 
@@ -536,11 +551,77 @@ md"""
 # Discussion
 """
 
+# ╔═╡ 8d7058c4-0e13-4d05-b131-32b1f118129f
+md"""
+The Free Energy Principle and active inference are deep and fast-moving areas of research. They bring fresh ideas to intelligent reasoning, control, and AI, with exciting applications in robotics, adaptive systems, cognitive modeling, and more. There’s a lot to unpack, but in this lecture, we’ve only had time to scratch the surface. To wrap up, we’ll end with a few closing thoughts.
+"""
+
+# ╔═╡ 1c53d48b-6950-4921-bf03-292b5ed8980e
+md"""
+## Comparison Decision-theoretic vs Active Inference Agents
+
+The idea of framing decision-making and planning as the minimization of expected cost over future states has become foundational across many disciplines, including machine learning (e.g., reinforcement learning), control theory (e.g., model-predictive and optimal control), and economics (e.g., utility theory and operations research). In what follows, we will refer to such systems collectively as *decision-theoretic* (DT) agents.
+
+AIF agents fundamentally differ from DT agents in that variational free energy (VFE) minimization is the sole underlying process. As a result, policies are evaluated based on a function of beliefs about states, rather than directly on the states themselves. The FEP formally captures this distinction.
+
+From an engineering perspective, what is gained by moving from DT to AIF agents? While our treatment here is necessarily brief and not intended as a comprehensive academic assessment, several key advantages already stand out:
+
+- A principled grounding in fundamental physics
+  - If we aim to understand how brains—human or animal—give rise to intelligent behavior, we must start from the premise that they operate entirely within the laws of physics. The FEP is consistent with this physical grounding.
+
+- Balanced goal-directed and information-seeking behavior
+  - The epistemic components that emerge naturally from the EFE functional often need to be added through ad hoc mechanisms in decision-theoretic frameworks that do not explicitly score beliefs about future states.
+
+- No need for task-specific reward (or value) functions
+  - In DT agents, a recurring question is: where do the reward functions come from? These functions are typically hand-crafted. In an AIF agent, preferences are encoded as prior distributions over desired outcomes. These priors can be parameterized and updated through hyper-priors and Bayesian learning at higher levels of the generative model, allowing agents to adapt their preferences on the fly, rather than relying on externally specified reward functions.
+
+- AIF agents are explainable and trustworthy by nature
+  - Explainability and trustworthiness are critical concerns in AI, for instance in medical AI applications. An AIF agent’s reasoning process is Bayes-optimal, and therefore logically consistent and inherently *trustworthy*. Crucially, domain-specific knowledge and inference are cleanly separated: all domain-specific assumptions reside in the model. As a result, the agent’s behavior can be *explained* as the logical (Bayesian) consequence of its generative model.
+
+- Robustness by realization as a reactive message passing process!
+  - In contrast to decision-theoretic (DT) agents, an active inference (AIF) agent can be fully realized as a reactive variational message passing (RMP) process, since variational free energy (VFE) minimization is the only ongoing process. RMP is an event-driven, fully distributed process—both in time and space—that exhibits robustness to fluctuating computational resources. It “lands softly” when resources such as power, data, or time become limited. As a result, an AIF agent continues to function during power dips, handles missing or noisy observations gracefully, and can be interrupted at any time during decision-making without catastrophic failure, making it naturally suited for real-world, resource-constrained environments.
+
+- Easy to code! 
+  - Since VFE minimization can be automated by a toolbox, the engineer’s primary task is to specify the generative model and priors, which typically fits within a single page of code. 
+
+- Other advantages
+  - Additional advantages include the potential for scalability, particularly in real-time applications. Realizing this potential will require further research into efficient, real-time message passing, capabilities that are difficult to match in frameworks that cannot be implemented as reactive message passing processes.
+
+While the advantages listed above hold great promise for the future of synthetic AIF agents in solving complex engineering problems, it’s important to acknowledge current limitations. The vast majority of engineers and scientists have been trained within DT frameworks, and the **tooling and methodologies for DT agents are far more mature**. For many practical problems, several of the above-mentioned advantages of AIF agents have yet to be conclusively demonstrated in real-world applications.
+
+
+"""
+
+# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
+md"""
+## The FEP: A New Frontier for Understanding Intelligent Behavior
+
+
+The FEP is often misunderstood as a scientific theory that counterexamples can falsify. In reality, the **FEP is a principle**, a general modeling framework for describing the dynamics of systems that exhibit ("life-like") attractor dynamics, repeatedly returning to states that preserve their functional organization and structural integrity. According to the FEP, such systems can be interpreted as performing variational Bayesian inference in a generative model, where the goal priors correspond to the system’s attractors.
+
+In this lecture, we’ve seen how the FEP can be used to describe the dynamics of rational AI agents, but its reach goes far beyond AI and control. As a unifying framework for understanding adaptive self-organization, the FEP touches neuroscience, biology, cognition, and even physics. 
+
+For example, the Expected Free Energy used to evaluate policies is not just an arbitrary cost function—it follows naturally from common assumptions in fundamental physics. EFE-based policy scoring also makes sense from a philosophical standpoint: if minimizing variational free energy is the only process driving the system, then it is a logical consequence to rank policies by how much VFE we expect them to minimize in the future. 
+
+It will be clear from this and previous lectures that I am an unapologetic supporter of the Bayesian modeling framework and the Free Energy Principle as a foundation for AI. Of course, different researchers may hold differing views—and rightly so—but for those willing to seriously engage with the foundational ideas of the FEP and active inference, I can promise you that the intellectual rewards are substantial. This framework offers a powerful and unifying lens through which to understand life, cognition, and intelligent systems at their most fundamental level.
+
+Looking ahead to the future of artificial intelligence, adaptive robotics, and agentic AI, the Free Energy Principle stands out as a framework with the potential to transform not only how we build intelligent systems, but how we fundamentally understand their nature, purpose, and place within the broader landscape of self-organizing life.
+
+"""
+
+# ╔═╡ 6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
+md"""
+# Optional Slides
+"""
+
+# ╔═╡ eccea480-1eda-47b0-bfbf-e9e406898606
+TODO("The slide below needs work")
+
 # ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
 md"""
 ## The Brain's Action-Perception Loop by FE Minimization
 
-The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+In the Machine Learning Overview lecture, we introduced a picture illustrating the [scientific inquiry loop](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html#Machine-Learning-and-the-Scientific-Inquiry-Loop). that The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
 
 Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
 
@@ -548,193 +629,13 @@ The current FEP theory claims that minimization of FE (and EFE) is all that brai
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
 
-"""
-
-# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
-md"""
-## Comparison Reinforcement Learning vs Active Inference
-"""
-
-# ╔═╡ f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
-md"""
-## Interpretation of the Variational Free Energy ``F[q]``
-
-Let us first interpret the variational free energy functional ``F[q]`` as given in Eq. ``(\mathrm{F}1)``. The denominator of the integrand contains all the current prior beliefs held by the agent — this includes the predictive prior (i.e., the generative model), the goal prior over preferred future states, and the epistemic priors that encode preferences for resolving uncertainty.
-
-The product of these prior beliefs effectively fuses the agent’s predictive, goal-directed, and epistemic beliefs via Bayes rule. Ideally, the agent would compute the normalized posterior distribution,
-```math
-q'(y,x,\theta,u) = \frac{p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}{\int\cdots\int p(y,x,\theta,u) \hat{p}(x)\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x) \mathrm{d}y \mathrm{d}x \mathrm{d}\theta \mathrm{d}u} \,,
-```
-as ``q'(y,x,\theta,u)`` would reflect the optimal (Bayesian) beliefs held by the agent. However, computing this posterior exactly is typically intractable due to the high-dimensional integrals involved. Therefore, the agent approximates the posterior with a tractable distribution ``q(y,x,\theta,u)``, obtained by minimizing the variational free energy ``F[q]`` instead.
-
-
-
-
-"""
-
-# ╔═╡ 5b66f8e5-4f01-4448-82e3-388bc8ea31de
-md"""
-## Interpretation of the Epistemic Priors
-
-
-The epistemic prior ``\tilde{p}(u) = \exp(H[q(x|u)])``, introduced in (E1), imposes a
-bias toward selecting policies that maximize the entropy over future states
-``x``. This reflects an information-seeking preference, as high entropy states
-indicate that the agent is maintaining flexibility—keeping future states open
-for adaptation. 
-
-Additionally, the epistemic prior ``\tilde{p}(x) = \exp(−H[q(y|x)])``
-in (E2), favors policies that reduce uncertainty about future states by
-selecting observations that are informative about them. Together, ``\tilde{p}(u)`` and ``\tilde{p}(x)`` induce a **bias toward ambiguity-minimizing behavior**.
-
-Similarly, the epistemic priors ``\tilde{p}(u)`` and ``\tilde{p}(y,x)`` from (E1) and (E3), jointly shape a **preference for policies that maximize novelty**, i.e., that are expected to be informative about the parameters of the generative model.
-
-"""
-
-# ╔═╡ 0d192591-6560-435d-a81f-4aede2203b18
-md"""
-Different researchers have different opinions, but I’ll be blunt about mine. If you’re willing to dive deep and grapple with the elegant foundations of the Free Energy Principle and active inference, the rewards can be profound. This isn’t just another theory—it’s a powerful lens that can reshape your understanding of life, science, and engineering at the most fundamental level. And when it comes to designing the intelligent systems of the future, the potential impact of the FEP is nothing short of transformative.
-"""
-
-# ╔═╡ 2785b056-d294-11ef-1415-49b1508736ba
-md"""
-## Extensions and Comments
-
-
-Just to be sure, you don't need to memorize all FE/EFE decompositions nor are you expected to derive them on-the-spot. We present these decompositions only to provide insight into the multitude of forces that underlie FEM-based action selection.
-
-In a sense, the FEP is an umbrella for describing the mechanics and self-organization of intelligent behavior, in man and machines. Lots of sub-fields in AI, such as reinforcement learning, can be interpreted as a special case of active inference under the FEP, see e.g., [Friston et al., 2009](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421). 
-
-Is EFE minimization really different from "regular" FE minimization? Not really, it appears that [EFE minimization can be reformulated as a special case of FE minimization](https://link.springer.com/article/10.1007/s00422-019-00805-w). In other words, FE minimization is still the only game in town.
-
 Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-complete.png?raw=true)
 
-Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, **AIF is an automated Bayes-optimal engineering design loop**!!
+Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, AIF is an automated Bayes-optimal engineering design loop!!
 
-The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.    
-
-
-
-"""
-
-# ╔═╡ 2785c0f8-d294-11ef-2529-0b340c00b8ab
-md"""
-## Final Thoughts
-
-In the end, all the state inference, parameter estimation, etc., in this lecture series could have been implemented by FE minimization in an appropriately specified generative probabilistic model. However, the Free Energy Principle extends beyond state and parameter estimation. Driven by FE minimization, brains change their structure as well over time. In fact, the FEP extends beyond brains to a general theory for biological self-organization, e.g., [Darwin's natural selection process](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5857288/) may be interpreted as a FE minimization-driven model optimization process, and here's an article on [FEP for predictive processing in plants](https://royalsocietypublishing.org/doi/10.1098/rsif.2017.0096). Moreover, Constrained-FE minimization (rephrased as the Principle of Maximum Relative Entropy) provides an elegant framework to derive most (if not all) physical laws, as Caticha exposes in his [brilliant monograph](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf) on Entropic Physics. Indeed, the framework of FE minimization is known in the physics community as the very fundamental [Principle of Least Action](https://en.wikipedia.org/wiki/Stationary-action_principle) that governs the equations-of-motion in nature. 
-
-So, the FEP is very fundamental and extends way beyond applications to machine learning. At [our research lab](http://biaslab.org) at TU/e, we work on developing FEP-based intelligent agents that go out into the world and autonomously learn to accomplish a pre-determined task, such as learning-to-walk or learning-to-process-noisy-speech-signals. Free free to approach us if you want to know more about that effort.    
-
-"""
-
-# ╔═╡ 2785cdc8-d294-11ef-0592-5945c1e39d5f
-md"""
-# OPTIONAL SLIDES
-
-"""
-
-# ╔═╡ 27861ca6-d294-11ef-3a75-ff797da3cf44
-md"""
-## In an AIF Agent, Actions fulfill Desired Expectations about the Future
-
-In the [derivations above](#goal-seeking), we decomposed the EFE into an upperbound on the sum of a goal-seeking and information-seeking term. Here, we derive an alternative (exact) decomposition that more clearly reveals the goal-seeking objective.
-
-We consider again the EFE and factorize the generative model ``p(x,s|u) = p^\prime(x) p(s|x,u)`` as a product of a **goal prior** ``p^\prime(x)`` on observations and a **veridical** state model ``p(s|x,u)``. 
-
-Through the **goal prior** ``p^\prime(x)``, the agent declares which observations it **wants** to observe in the future. (The prime is just to distinguish the semantics of a desired future from the model for the actual future).
-
-Through the **veridical** state model ``p(s|x,u)`` , the agent implicitly declares its beliefs about how the world will **actually** generate observations.
-
-  * In particular, note that through the equality (by Bayes rule)
-
-```math
-p(s|x,u) = \frac{p(x|s)p(s|u)}{p(x|u)} = \frac{p(x|s)p(s|u)}{\sum_s p(x|s)p(s|u)}\,,
-```
-
-it follows that in practice the agent may specify ``p(s|x,u)`` implicitly by explicitly specifying a state transition model ``p(s|u)`` and observation model ``p(x|s)``. 
-
-Hence, an AIF agent holds both a model for its beliefs about how the world will actually evolve AND a model for its beliefs about how it desires the world to evolve!! 
-
-$(HTML("<span id='ambiguity-plus-risk'></span>")) To highlight the role of these two models in the EFE, consider the following alternative EFE decomposition:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)p(s|x,u)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{1}{p(s|x,u)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{p(x|u)}{p(x|s)p(s|u)} \quad \text{(use Bayes)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} q(x,s|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  p(s|u) p(x|s) \log \frac{p(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} p(s|u) p(x|s) \log \frac{p(x|u)}{p^\prime(x)} \quad \text{( assume }q(x,s|u)=p(x|s)p(s|u)\text{ )}\\
-&= \sum_{s}  p(s|u) \sum_x p(x|s) \log \frac{1}{p(x|s)} + \sum_x p(x|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \underbrace{E_{p(s|u)}\left[ H[p(x|s)]\right]}_{\text{ambiguity}} + \underbrace{D_{\text{KL}}\left[ p(x|u), p^\prime(x)\right]}_{\text{risk}}
-\end{aligned}
-```
-
-In this derivation, we have assumed that we can use the generative model to make inferences in the "forward" direction. Hence, ``q(s|u)=p(s|u)`` and ``q(x|s)=p(x|s)``.  
-
-The terms "ambiguity" and "risk" have their origin in utility theory for behavioral ecocomics. Minimization of EFE leads to minimizing both ambiguity and risk.
-
-Ambiguous (future) states are states that map to large uncertainties about (future) observations. We want to avoid those ambiguous states since it implies that the model is not capable to predict how the world evolves. Ambiguity can be resolved by selecting information-seeking (epistemic) actions. 
-
-Minimization of the second term (risk) leads to choosing actions (``u``) that align **predicted** future observations (represented by ``p(x|u)``) with **desired** future observations (represented by ``p^\prime(x)``). Agents minimize risk by selecting pragmatic (goal-seeking) actions.
-
-```math
-\Rightarrow
-```
-
-**Actions fulfill desired expectations about the future!**
-
-([return to related cell in main text](#goal-seeking)).
-
-"""
-
-# ╔═╡ 27862b56-d294-11ef-1f0b-c72293441005
-md"""
-## Proof ``q^*(u) = \arg\min_q F_>[q] \propto p(u)\exp(-G(u))``
-
-$(HTML("<span id='q-star'></span>"))Consider the following decomposition:
-
-```math
-\begin{aligned}
-F_>[q] &= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)} \\
-&= \sum_{x,s,u} q(x,s|u) q(u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)} \\
-&= \sum_{u} q(u) \bigg(\sum_{x,s} q(x,s|u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)}\bigg) \\
-&= \sum_{u} q(u) \bigg( \log q(u) + \log \frac{1}{p(u)}+ \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}}_{G(u)}\bigg) \\
-&= \sum_{u} q(u) \log \frac{q(u)}{p(u)\exp\left(- G(u)\right) }
-\end{aligned}
-```
-
-This is a KL-divergence. Minimization of ``F_>[q]`` leads to the following posterior for the policy:
-
-```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&= \frac{1}{Z}p(u)\exp(-G(u))
-\end{aligned}
-```
-
-[(click to return to linked cell in the main text.)](#q-star-main-cell)
-
-"""
-
-# ╔═╡ 27863dee-d294-11ef-3709-955340e17547
-md"""
-## What Makes a Good Agent? [The Good Regulator Theorem](https://en.wikipedia.org/wiki/Good_regulator)
-
-$(HTML("<span id='good-regulator-theorem'></span>")) According to Friston, an "intelligent" agent like a brain minimizes a variational free energy functional, which, in general, is a functional of a probability distribution ``p`` and a variational posterior ``q``. 
-
-What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
-
-A Quote from Conant and Ashby's paper (this statement was later finessed by [Friston (2013)](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2013.0475)): 
-
-> "The theory has the interesting corollary that the living brain, insofar as it is successful and efficient as a regulator for survival, *must* proceed, in learning, by the formation of a model (or models) of its environment."
-
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/good-regulator.png?raw=true)
-
-([Return to related cell in main text](#model-specification)).
+The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.
 
 """
 
@@ -3010,6 +2911,7 @@ version = "1.9.2+0"
 # ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
 # ╟─94391132-dee6-4b22-9900-ba394f4ad66b
 # ╟─a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
+# ╟─5b66f8e5-4f01-4448-82e3-388bc8ea31de
 # ╟─07c48a8b-522b-4c26-a177-e8d0611f7b59
 # ╟─6ef5a268-81bb-4418-a54b-a1e37a089381
 # ╟─64474167-bf52-456c-9099-def288bd17bf
@@ -3032,17 +2934,12 @@ version = "1.9.2+0"
 # ╠═27858c46-d294-11ef-28aa-7744a577e6e5
 # ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
 # ╟─f4509603-36be-4d24-8933-eb7a705eb933
+# ╟─8d7058c4-0e13-4d05-b131-32b1f118129f
+# ╟─1c53d48b-6950-4921-bf03-292b5ed8980e
+# ╟─d823599e-a87f-4586-999f-fbbd99d0db65
+# ╟─6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
+# ╠═eccea480-1eda-47b0-bfbf-e9e406898606
 # ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
-# ╠═d823599e-a87f-4586-999f-fbbd99d0db65
-# ╟─f94664ac-ecdb-4c50-8c47-bfdf2eb2828d
-# ╟─5b66f8e5-4f01-4448-82e3-388bc8ea31de
-# ╟─0d192591-6560-435d-a81f-4aede2203b18
-# ╠═2785b056-d294-11ef-1415-49b1508736ba
-# ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
-# ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
-# ╟─27861ca6-d294-11ef-3a75-ff797da3cf44
-# ╟─27862b56-d294-11ef-1f0b-c72293441005
-# ╟─27863dee-d294-11ef-3709-955340e17547
 # ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
 # ╠═97a0384a-0596-4714-a3fc-bf422aed4474
 # ╠═0652eab9-f472-4dc5-89ed-66787c6bd49e
