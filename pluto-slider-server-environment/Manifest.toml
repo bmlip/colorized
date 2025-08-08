@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "6381b945b1536fdf458147bc457c8ff5eb88cd20"
+project_hash = "506d7f7b30984248227d9d8c3d9d1978e3f9bbd3"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -151,9 +151,11 @@ version = "1.3.1"
 
 [[deps.GracefulPkg]]
 deps = ["Compat", "Pkg", "TOML"]
-git-tree-sha1 = "eee0ecee0391689c354c03aadc77018ee7bb85fc"
+git-tree-sha1 = "84cfee44f4962fb6d857ef05b8431f6387966b4c"
+repo-rev = "fix-stdlibs-correct-env"
+repo-url = "https://github.com/JuliaPluto/GracefulPkg.jl.git"
 uuid = "828d9ff0-206c-6161-646e-6576656f7244"
-version = "2.2.1"
+version = "2.2.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
