@@ -1,4 +1,5 @@
 [deps]
+GracefulPkg = "828d9ff0-206c-6161-646e-6576656f7244"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 LoggingExtras = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 LoggingFormats = "98105f81-4425-4516-93fd-1664fb551ab6"
