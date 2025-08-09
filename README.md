@@ -26,11 +26,11 @@ News and Announcements
 - [Prof.dr.ir. Bert de Vries](http://bertdv.nl) (email: bert.de.vries@tue.nl) is the responsible instructor for this course and teaches the [lectures with label B](#lectures).
 - [Dr. Wouter Kouw](https://biaslab.github.io/member/wouter/) (w.m.kouw@tue.nl) teaches the probabilistic programming [lectures with label W](#lectures).
 - [Fons van der Plas](https://biaslab.github.io/member/fons/) is our educational advisor who is responsible for all Pluto-related issues. If you have ideas on making the course more interactive, contact Fons.
-- [Wouter Nuijten](https://biaslab.github.io/member/woutern) and [Thijs Jeneskens](https://biaslab.github.io/member/thijsJ/) are the teaching assistants.
+- [Wouter Nuijten](https://biaslab.github.io/member/woutern) and [Thijs Jenneskens](https://biaslab.github.io/member/thijsJ/) are the teaching assistants.
 
 ## Materials
 
-In principle, you can download all needed materials from the links below. This course is based on [Pluto.jl](https://plutojl.org/).
+In principle, all the necessary materials can be downloaded from the links below. This course is based on [Pluto.jl](https://plutojl.org/).
 
 <!--
 
@@ -63,7 +63,7 @@ Please follow the [software installation instructions]() TODO ADD URL. If you en
 ### <a name="lectures">Lecture notes, exercises, assignment and video recordings</a>
 
 
-You can access all lecture notes, assignments, videos and exercises online through the links below:
+You can access all lecture notes, assignments, videos, and exercises online through the links below:
 
 <table border = "1">
          <tr>
