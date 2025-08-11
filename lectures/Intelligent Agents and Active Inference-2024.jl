@@ -173,7 +173,7 @@ pluto-output img {
 md"""
 ## The Generative Model in an AIF agent
 
-What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
+What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://doi.org/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
 
 Conant and Ashley state: "The theorem has the interesting corollary that the living brain, so far as it is to be successful and efficient as a regulator for survival, **must** proceed, in learning, by the formation of a model (or models) of its environment."
 
@@ -756,7 +756,7 @@ md"""
 
 $(HTML("<span id='good-regulator-theorem'></span>")) According to Friston, an "intelligent" agent like a brain minimizes a variational free energy functional, which, in general, is a functional of a probability distribution ``p`` and a variational posterior ``q``. 
 
-What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://www.tandfonline.com/doi/abs/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
+What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://doi.org/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
 
 A Quote from Conant and Ashby's paper (this statement was later finessed by [Friston (2013)](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2013.0475)): 
 
