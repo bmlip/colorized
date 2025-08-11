@@ -1,14 +1,13 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.13
 
 #> [frontmatter]
-#> description = "Introduction to Active Inference and application to the design of synthetic intelligent agents"
 #> image = "https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true"
+#> description = "Introduction to Active Inference and application to the design of synthetic intelligent agents"
 #> 
 #>     [[frontmatter.author]]
 #>     name = "BMLIP"
 #>     url = "https://github.com/bmlip"
-
 
 using Markdown
 using InteractiveUtils
@@ -17,7 +16,7 @@ using InteractiveUtils
 using LinearAlgebra, Plots, RxInfer
 
 # ╔═╡ 97a0384a-0596-4714-a3fc-bf422aed4474
-using PlutoUI, PlutoTeachingTools
+using PlutoUI, PlutoTeachingTools, HypertextLiteral
 
 # ╔═╡ 278382c0-d294-11ef-022f-0d78e9e2d04c
 md"""
@@ -32,11 +31,11 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Introduction to Active Inference and application to the design of synthetic intelligent agents
 
-Materials        
+##### Materials        
 
   * Mandatory
 
@@ -45,19 +44,19 @@ Materials
   * Optional
 
       * Bert de Vries, Tim Scarfe and Keith Duggar - 2023 - Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
-
           * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
+
       * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bmlip/course/blob/main/assets/files/WIRED-Friston.pdf).
-
           * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
+
       * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
-
           * Friston's vision on the future of AI.
-      * Van de Laar and De Vries (2019), [Simulating Active Inference Processes by Message Passing](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full)
 
-          * How to implement active inference by message passing in a Forney-style factor graph.
+      * De Vries et al. (2025), [Expected Free Energy-based Planning as Variational Inference](https://arxiv.org/pdf/2504.14898)
+          * On minimizing expected free energy by variational free energy minimization.
 
-    
+    * Noumenal labs (2025), [WTF is the FEP? A short explainer on the free energy principle](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle)
+         *  A concise, accessible introduction to the Free Energy Principle, aimed at demystifying it for a broader audience—matching the tone and intent suggested by the playful but clear title.    
 
 """
 
@@ -65,31 +64,34 @@ Materials
 md"""
 ## Agents
 
-In the previous lessons we assumed that a data set was given. 
+In the previous lessons, we assumed that a data set was given. 
 
-In this lesson we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
+In this lesson, we consider *agents*. An agent is a system that *interacts* with its environment through both sensors and actuators.
 
-Crucially, by acting onto the environment, the agent is able to affect the data that it will sense in the future.
+Crucially, by acting on the environment, the agent is able to affect the data that it will sense in the future.
 
   * As an example, by changing the direction where I look, I can affect the (visual) data that will be sensed by my retina.
 
 With this definition of an agent, (biological) organisms are agents, and so are robots, self-driving cars, etc.
 
-In an engineering context, we are particularly interesting in agents that behave with a *purpose* (with a goal in mind), e.g., to drive a car or to design a speech recognition algorithm.
+In an engineering context, we are particularly interested in agents that behave with a *purpose*, that is, with a specific goal in mind, such as driving a car or trading in financial markets.
 
-In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as minimization of a free energy functional. 
+In this lesson, we will describe how **goal-directed behavior** by biological (and synthetic) agents can also be interpreted as the minimization of a free energy functional. 
 
 """
 
+# ╔═╡ aed436fd-6773-4932-a5d8-d01cf99c10ec
+section_outline("Challenge:", "The Mountain Car Problem", color="red")
+
 # ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
 md"""
-## Illustrative Example: the Mountain Car Problem
+##### Problem
 
-In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem) which is a classical benchmark problem in the reinforcement learning literature.
+In this example, we consider [the mountain car problem](https://en.wikipedia.org/wiki/Mountain_car_problem), which is a classical benchmark problem in the reinforcement learning literature.
 
-The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill, and subsequently use its momentum to overcome the steep incline towards the goal position. 
+The car aims to drive up a steep hill and park at a designated location. However, its engine is too weak to climb the hill directly. Therefore, a successful agent should first climb a neighboring hill and subsequently use its momentum to overcome the steep incline towards the goal position. 
 
-We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) are known up to some additive Gaussian noise.
+We will assume that the agent's knowledge about the car's process dynamics (i.e., its equations of motion) is known up to some additive Gaussian noise.
 
 Your challenge is to design an agent that guides the car to the goal position. (The agent should be specified as a probabilistic model and the control signal should be formulated as a Bayesian inference task).  
 
@@ -99,372 +101,287 @@ Your challenge is to design an agent that guides the car to the goal position. (
 md"""
 ![](https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true)
 
-Solution at the end of this lesson.
+"""
 
+# ╔═╡ 939e74b0-8ceb-4214-bbc0-407c8f0b2f26
+md"""
+##### Solution 
+At the end of this lesson
+"""
+
+# ╔═╡ e3d5786b-49e0-40f7-9056-13e26e09a4cf
+md"""
+# The Free Energy Principle
 """
 
 # ╔═╡ 2783c686-d294-11ef-3942-c75d2b559fb3
 md"""
-## Karl Friston and the Free Energy Principle
+## What Drives Intelligent Behavior?
 
-We begin with a motivating example that requires "intelligent" goal-directed decision making: assume that you are an owl and that you're hungry. What are you going to do?
+We begin with a motivating example that requires "intelligent" decision-making. Assume that you are an owl and that you're hungry. What are you going to do?
 
 Have a look at [Prof. Karl Friston](https://www.wired.com/story/karl-friston-free-energy-principle-artificial-intelligence/)'s answer in this  [video segment on the cost function for intelligent behavior](https://youtu.be/L0pVHbEg4Yw). (**Do watch the video!**)
 
-Friston argues that intelligent decision making (behavior, action making) by an agent requires *minimization of a functional of beliefs*. 
+![image Friston presentation at CCN-2016](https://github.com/bmlip/course/blob/main/assets/figures/Friston-2016-presentation.png?raw=true)
 
-Friston further argues (later in the lecture and his papers) that this functional is a (variational) free energy (to be defined below), thus linking decision-making and acting to Bayesian inference. 
+In his answer, Friston emphasizes that the first step is to search for food, for instance, a mouse. You cannot eat the mouse unless you know where it is, so the first imperative is to reduce your uncertainty about the location of the mouse. In other words, purposeful behavior begins with [epistemic](https://www.merriam-webster.com/dictionary/epistemic) behavior: searching to resolve uncertainty.
 
-In fact, Friston's **Free Energy Principle** (FEP) claims that all [biological self-organizing processes (including brain processes) can be described as Free Energy minimization in a probabilistic model](https://arxiv.org/abs/2201.06387).
+This stands in contrast to more traditional approaches to intelligent behavior, such as [reinforcement learning](https://en.wikipedia.org/wiki/Reinforcement_learning), where the objective is to maximize a value function of future states, e.g., ``V(s)``, where ``s`` might encode how hungry the agent is. However, this paradigm falls short in scenarios where the optimal next action is to gather information, because uncertainty is not an attribute of states themselves, but of *beliefs* over states, which are expressed as probability distributions.
 
-  * This includes perception, learning, attention mechanisms, recall, acting and decision making, etc.
+Therefore, Friston argues that intelligent behavior requires us to optimize a functional ``F[q(s|u)]``, where ``q(s|u)`` is a probability distribution over (future) states ``s`` for a given action sequence ``u``, and ``F`` evaluates the quality of this belief.
 
-Taking inspiration from FEP, if we want to develop synthetic "intelligent" agents, we have (only) two issues to consider:
-
-1. Specification of the FE functional.
-2. *How* to minimize the FE functional (often in real-time under situated conditions).
-
-Agents that follow the FEP are said to be involved in **Active Inference** (AIF). An AIF agent updates its states and parameters (and ultimately its model structure) solely by FE minimization, and selects its actions through (expected) FE minimization (to be explained below).    
+Later in his lectures and papers, Friston expands on this belief-based objective ``F`` and formalizes it as a variational free energy functional—laying the foundation for the **Free Energy Principle**. This principle offers a unifying framework that connects biological (or “intelligent”) decision-making and behavior directly to Bayesian inference.
 
 """
 
-# ╔═╡ 2783d22a-d294-11ef-3f2c-b1996df7e1aa
+# ╔═╡ 29592915-cadf-4674-958b-5743a8f73a8b
 md"""
-## Execution of an AIF Agent
 
-Consider an AIF agent with observations (sensory states) ``x_t``, latent internal states ``s_t`` and latent control states ``u_t`` for ``t=1,2,\ldots``. 
+## The Free Energy Principle
 
-![](https://github.com/bmlip/course/blob/v2/assets/figures/AIF-agent.png?raw=true)
+The Free Energy Principle (FEP) is neither a model nor a theory. Rather, it is a principle, that is, a **methodological framework** for describing the information-processing dynamics that *must* unfold in living systems to keep them within viable (i.e., livable) states over extended periods of time.
+  -  Think of the processes continuously occurring in our bodies to maintain an internal temperature between approximately ``36^{\circ}\text{C}`` and ``37^{\circ}\text{C}``, regardless of the surrounding ambient temperature.
 
-The agent is embedded in an environment with "external states" ``\tilde{s}_t``. The dynamics of the environment are driven by actions. 
+The literature on the FEP is widely regarded as difficult to access. It was first formally derived by Friston in his monograph [Friston (2019), A Free Energy Principle for a Particular Physics (2019)](https://arxiv.org/abs/1906.10184), and later presented in a more accessible form in [Friston et al. (2023), The Free Energy Principle Made Simpler but Not Too Simple](https://doi.org/10.1016/j.physrep.2023.07.001). For a concise and approachable introduction, the explainer by [Noumenal Labs (2025), WTF is the FEP?](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle) is currently the most accessible resource I am aware of.
 
-Actions ``a_t`` are selected by the agent. Actions affect the environment and consequently affect future observations. 
+In this lecture, we present only a simplified account. According to the FEP, the brain is a generative model for its sensory inputs, such as visual and auditory signals, and **continuously minimizes variational free energy** (VFE) in that model to stay aligned with these observations. Crucially, VFE minimization is the *only* ongoing process, and it underlies perception, learning, attention, emotions, consciousness, intelligent decision-making, etc. 
 
-In pseudo-code, an AIF agent executes the $(HTML("<span id='AIF-algorithm'></span>"))following algorithm:
-
-> **ACTIVE INFERENCE (AIF) AGENT ALGORITHM**    
->
-> SPECIFY generative model ``p(x,s,u)``     ASSUME/SPECIFY environmental process ``R``
->
-> FORALL t DO    
->
-> 1. ``(x_t, \tilde{s}_t) = R(a_t, \tilde{s}_{t-1})``   % environment generates new observation
-> 2. ``q(s_t) = \arg\min_q F[q]``            % update agent's internal states ("perception")
-> 3. ``q(u_{t+1}) = \arg\min_q F_>[q]``      % update agent's control states ("actions")
-> 4. ``a_{t+1} \sim q(u_{t+1})``             % sample next action and push to environment
->
-> END
-
-
-In the above algorithm, ``F[q]`` and ``F_>[q]`` are appropriately defined Free Energy functionals, to be discussed below. Next, we discuss these steps in more details.
-
-"""
-
-# ╔═╡ 7128f91d-f3f3-41fe-a491-ede27921a822
-html"""
-<style>
-pluto-output img {
-	background: white;
-	border-radius: 3px;
-}
-</style>
-"""
-
-# ╔═╡ 2783dc14-d294-11ef-2df0-1b7474f85e29
-md"""
-## The Generative Model in an AIF agent
-
-What should the agent's model ``p(x,s,u)`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://doi.org/10.1080/00207727008920220) as the [*good regulator theorem*](https://en.wikipedia.org/wiki/Good_regulator ): **every good regulator of a system must be a model of that system**. See the [OPTIONAL SLIDE for more information](#good-regulator-theorem). 
-
-Conant and Ashley state: "The theorem has the interesting corollary that the living brain, so far as it is to be successful and efficient as a regulator for survival, **must** proceed, in learning, by the formation of a model (or models) of its environment."
-
-Indeed, perception in brains is clearly affected by predictions about sensory inputs by the brain's own generative model.
+To illustrate the idea that perception arises from a (variational) inference process—driven by top-down predictions from the brain and corrected by bottom-up sensory inputs—consider the following figure: "The Gardener" by Giuseppe Arcimboldo (ca. 1590).
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/the-gardener.png?raw=true)
 
-In the above picture (The Gardener, by Giuseppe Arcimboldo, ca 1590), on the left you will likely see a bowl of vegetables, while the same picture upside down elicits with most people the perception of a gardener's face rather than an upside-down vegetable bowl. 
+On the left, you’ll likely perceive a bowl of vegetables. However, when the same image is turned upside down, most people first see a gardener’s face.
 
-The reason is that the brain's model predicts to see straight-up faces with much higher probability than upside-down vegetable bowls. 
+This perceptual flip arises because the brain’s generative model assigns a much higher probability to being in an environment with upright human faces than with inverted bowls of vegetables. While the sensory input is consistent with both interpretations, the brain’s prior beliefs drive our perception toward seeing upright faces (and upright bowls of vegetables).
 
-So the $(HTML("<span id='model-specification'></span>")) agent's model ``p`` will be a model that aims to explain how environmental causes (latent states) lead to sensory observations.
-
+In short, the FEP characterizes “intelligent” behavior as the outcome of a VFE minimization process. Next, we derive the dynamics of an *Active Inference* agent—an agent whose behavior is entirely governed by VFE minimization. We will demonstrate that minimizing VFE within a generative model constitutes a sufficient mechanism for producing basic intelligent behavior.
 """
 
-# ╔═╡ 2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
+# ╔═╡ 9708215c-72c9-408f-bd10-68ae02e17243
 md"""
-## Specification of AIF Agent's model and Environmental Dynamics
-
-In this notebook, for illustrative purposes, we specify the **generative model** at time step ``t`` of an AIF agent as 
-
-```math
-p(x_t,s_t,u_t|s_{t-1}) = \underbrace{p(x_t|s_t)}_{\text{observations}} \cdot \underbrace{p(s_t|s_{t-1},u_t)}_{\substack{\text{state} \\ \text{transition}}} \cdot \underbrace{p(u_t)}_{\substack{\text{action} \\ \text{prior}}}
-```
-
-We will assume that the agent interacts with an environment, which we represent by a dynamic model ``R`` as
-
-```math
-(x_t,\tilde{s}_t) = R\left( a_t,\tilde{s}_{t-1}\right)
-```
-
-where ``a_t`` are *actions* (by the agent), ``x_t`` are *outcomes* (the agent's observations) and ``\tilde{s}_t`` holds the environmental latent *states*. 
-
-Note that ``R`` only needs to be specified for simulated environments. If we were to deploy the agent in a real-world environment, we would not need to specify ``R``. 
-
-The agent's knowledge about environmental process ``R`` is expressed by its generative model ``p(x_t,s_t,u_t|s_{t-1})``. 
-
-Note that we distinguish between *control states* and *actions*. Control states ``u_t`` are latent variables in the agent's generative model. An action ``a_t`` is a realization of a control state as observed by the environment. 
-
-Observations ``x_t`` are generated by the environment and observed by the agent. Vice versa, actions ``a_t`` are generated by the agent and observed by the environment. 
-
+# The Expected Free Energy Theorem
 """
 
-# ╔═╡ 2784529a-d294-11ef-3b0e-c5a60644fa53
+# ╔═╡ f9b241fd-d853-433e-9996-41d8a60ed9e8
 md"""
-## State Updating in the AIF Agent
+## Setup of Prior Beliefs
 
-After the agent makes a new observation ``x_t``, it will update beliefs over its latent variables. First the internal state variables ``s``. 
-
-Assume the following at time step ``t``:
-
-  * the state of the agent's model has already been updated to ``q(s_{t-1}| x_{1:t-1})``.
-  * the agent has selected a new action ``a_t``.
-  * the agent has recorded a new observation ``x_t``.
-
-The **state updating** task is to infer ``q(s_{t}|x_{1:t})``, based on the previous estimate ``q(s_{t-1}| x_{1:t-1})``, the new data ``\{a_t,x_t\}``, and the agent's generative model. 
-
-Technically, this is a Bayesian filtering task. In a real brain, this process is called **perception**.   
-
-We specify the following FE functional
+Let's make the above notions more concrete. We consider an agent that interacts with its environment. At the current time ``t``, the agent holds a generative model to predict its future observations, 
 
 ```math
-F[q] = \sum_{s_t} q(s_t| x_{1:t}) \log \frac{\overbrace{q(s_t| x_{1:t})}^{\text{state posterior}}}{\underbrace{p( x_t|s_t) p(s_t|s_{t-1},a_t)}_{\text{generative model w new data}} \underbrace{q(s_{t-1}|x_{1:t-1})}_{\text{state prior}}}
+\begin{align}
+p(y,x,\theta,u) \,, \tag{P1}
+\end{align}
 ```
 
-The state updating task can be formulated as minimization of the above FE (see also [AIF Algorithm](#AIF-algorithm), step 2):
+where ``y`` denotes future observations, ``x`` refers to internal (hidden) future states, ``u`` represents the agent's future actions, and ``\theta`` are model parameters.
+
+Since model (P1) is designed to predict how the future is expected to unfold, we refer to (P1) as the **predictive model**. A typical example is a rollout to the future of a state-space model,
 
 ```math
-q(s_t|x_{1:t}) = \arg\min_q F[q]
+p(y,x,\theta,u) = p(x_t) \underbrace{\prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)}_{\text{rollout to the future}}\,.
 ```
 
-In case the generative model is a *Linear Gaussian Dynamical System*, minimization of the FE can be solved analytically in closed-form and [leads to the standard Kalman filter](https://bmlip.github.io/course/lectures/Dynamic%20Models.html#kalman-filter). 
+In addition to the predictive model, we assume that the agent holds beliefs ``\hat{p}(x)`` about the *desired* future states. For example, the owl in our earlier example holds the belief that it will not be hungry in the future. We refer to ``\hat{p}(x)`` as the **goal prior**.
 
-In case these (linear Gaussian) conditions are not met, we can still minimize the FE by other means and arrive at some approximation of the Kalman filter, see for example [Baltieri and  Isomura (2021)](https://arxiv.org/abs/2111.10530) for a Laplace approximation to variational Kalman filtering.
+Finally, we assume that the agent also maintains **epistemic** (= information-seeking) prior beliefs, denoted by ``\tilde{p}(u)``, ``\tilde{p}(x)``, and ``\tilde{p}(y,x)``, which will be further specified below.
 
-Our toolbox [RxInfer](http://rxinfer.com) specializes in automated execution of  this minimization task. 
+The predictive model, together with the goal and epistemic priors, constitutes the agent’s complete set of prior beliefs about the future.
 
 """
 
-# ╔═╡ 27846c9e-d294-11ef-0a86-2527c96da2c3
+
+# ╔═╡ 97136f81-3468-439a-8a22-5aae96725937
 md"""
-## Policy Updating in an AIF Agent
 
-Once the agent has updated its internal states, it will turn to inferring the next action. 
+## The Expected Free Energy Theorem
 
-In order to select a **good** next action, we need to investigate and compare consequences of a *sequence* of future actions. 
-
-A sequence of future actions ``a= (a_{t+1}, a_{t+2}, \ldots, a_{t+T})`` is called a **policy**. Since relevant consequences are usually the result of an future action sequence rather than a single action, we will be interested in updating beliefs over policies. 
-
-In order to assess the consequences of a selected policy, we will, as a function of that policy, run the generative model forward-in-time to make predictions about future observations ``x_{t+1:t+T}``. 
-
-Note that perception (state updating) preceeds policy updating. In order to accurately predict the future, the agent first needs to understand the current state of the world.  
-
-Consider an AIF agent at time step ``t`` with (future) observations ``x = (x_{t+1}, x_{t+2}, \ldots, x_{t+T})``,  latent future internal states ``s= (s_t, s_{t+1}, \ldots, s_{t+T})``, and latent future control variables ``u= (u_{t+1}, u_{t+2}, \ldots, u_{t+T})``. 
-
-From the agent's viewpoint, the evolution of these future variables are constrained by its generative model, rolled out into the future:
-
+We now state the [Expected Free Energy theorem](https://arxiv.org/pdf/2504.14898#page=7). Let the variational free energy functional ``F[q]`` be defined as
 ```math
-\begin{align*}
-p(x,s,u) &= \underbrace{q(s_{t})}_{\substack{\text{current}\\ \text{state}}} \cdot \underbrace{\prod_{k=t+1}^{t+T} p(x_k|s_k) \cdot p(s_k | s_{k-1}, u_k) p(u_k)}_{\text{GM roll-out to future}}
-\end{align*}
+\begin{align}
+F[q] = \mathbb{E}_{q(y,x,\theta,u)} \bigg[ \log \frac{q(y,x,\theta,u)}{\underbrace{p(y,x,\theta,u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goal}}  \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(y,x)}_{\text{epistemics}}} \bigg] \,. \tag{F1}
+\end{align}
 ```
 
-Consider the Free Energy functional for estimating posterior beliefs ``q(s,u)`` over latent *future* states and latent *future* control signals: 
+Let the agent’s epistemic priors be defined as
 
 ```math
-\begin{align*}
-F_>[q] &= \overbrace{\sum_{x,s} q(x|s)}^{\text{marginalize }x} \bigg( \overbrace{\sum_u q(s,u) \log \frac{q(s,u)}{p(x,s,u)} }^{\text{"regular" variational Free Energy}}\bigg) \\
-&= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)}
-\end{align*}
+\begin{align}
+\tilde{p}(u) &= \exp\left( H[q(x|u)]\right) \tag{E1}\\ 
+\tilde{p}(x) &= \exp\left( -H[q(y|x)]\right) \tag{E2} \\  
+\tilde{p}(y,x) &= \exp\left( D[q(\theta|y,x) , q(\theta|x)]\right) \tag{E3}
+\end{align}
 ```
+where ``H[q] = \mathbb{E}_q\left[ -\log q\right]`` is the entropy functional, and ``D[q,p] = \mathbb{E}_q\left[ \log q - \log p\right]`` is the Kullback–Leibler divergence.
 
-In principle, this is a regular FE functional, with one difference to previous versions: since future observations ``x`` have not yet occurred, ``F_>[q]`` marginalizes not only over latent states ``s`` and policies ``u``, but also over future observations ``x``.
-
-We will update the beliefs over policies by minimization of Free Energy functional ``F_>[q]``. In the [optional slides below, we prove that the solution to this optimization task](#q-star) is given by (see [AIF Algorithm](#AIF-algorithm), step 3, above)
+Then, the variational free energy ``F[q]`` decomposes as
 
 ```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&\propto p(u)\exp(-G(u))\,,
-\end{aligned}
+\begin{align}
+F[q] = \underbrace{\mathbb{E}_{q(u)}\left[ G(u)\right]}_{\substack{ \text{expected policy} \\ \text{costs}} } + \underbrace{ \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right]}_{\text{complexity}} \tag{F2}\,,
+\end{align}
 ```
-
-$(HTML("<span id='q-star-main-cell'></span>")) where the factor ``p(u)`` is a prior over admissible policies, and the factor ``\exp(-G(u))`` updates the prior with information about future consequences of a selected policy ``u``. 
-
-The function 
-
+where the function ``G(u)``, known as the **Expected Free Energy** (EFE) cost function, is given by 
 ```math
-G(u) = \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}
+\begin{align}
+G(u) = \underbrace{\underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(x|u)}{\hat{p}(x)}\bigg]}_{\text{risk}}}_{\text{scores goal-driven behavior}} + \underbrace{\underbrace{\mathbb{E}_{q}\bigg[ \log \frac{1}{q(y|x)}\bigg]}_{\text{ambiguity}} - \underbrace{\mathbb{E}_{q}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg]}_{\text{novelty}}}_{\text{scores information-seeking behavior}} \,. \tag{G1}
+\end{align}
 ```
 
-is called the **Expected Free Energy** (EFE) for policy ``u``. 
-
-The FEP takes the following stance: if FE minimization is all that an agent does, then the only consistent and appropriate behavior for an agent is to select actions that minimize the **expected** Free Energy in the future (where expectation is taken over current beliefs about future observations). 
-
-Note that, since ``q^*(u) \propto p(u)\exp(-G(u))``, the probability ``q^*(u)`` for selecting a policy ``u`` increases when EFE ``G(u)`` gets smaller. 
-
-Once the policy (control) variables have been updated, in simulated environments, it is common to assume that the next action ``a_{t+1}`` (an action is the *observed* control variable by the environment) gets selected in proportion to the probability of the related control variable (see [AIF Agent Algorithm](#AIF-algorithm), step 4, above), i.e., the environment samples the action from the control posterior:
-
-```math
-a_{t+1} \sim q(u_{t+1}) 
-```
-
-Next, we analyze some properties of the EFE.
 
 """
 
-# ╔═╡ 278491ec-d294-11ef-305a-41b583d12d5a
+# ╔═╡ 4e990b76-a2fa-49e6-8392-11f98d769ca8
+details("Click for proof of the EFE Theorem",
 md"""
-## Active Inference Analysis: exploitation-exploration dilemma
 
-Consider the following decomposition of EFE:
+For the following proof, see also Appendix A in [De Vries et.al., Expected Free Energy-based Planning as Variational Inference (2025)](https://arxiv.org/pdf/2504.14898#page=15).
+		
+```math
+\begin{flalign}
+    F[q] &= E_{q(y x \theta u )}\bigg[ \log \frac{q(y x \theta u )}{p(y x \theta u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)} \bigg] \\
+    &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
+    + \underbrace{E_{q(yx\theta | u)}\big[ \log \frac{q(y x \theta | u)}{p(yx \theta|u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)}\big]}_{C(u)}  
+     \bigg] \; &&\text{(C1)}\\
+     &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
+    + \underbrace{G(u) +E_{q(yx\theta | u)} \big[\log \frac{q(yx\theta|u)}{p(yx\theta|u)}\big]}_{=C(u) \text{ if conditions (E1), (E2) and (E3) hold}}  
+     \bigg] &&\text{(C2)} \\
+    &= E_{q(u)}\big[ G(u)\big]+ E_{q(yx\theta u)}\bigg[\log \frac{q(yx\theta u)}{p(yx\theta u)}\bigg]\,,   
+\end{flalign}
+```		
+if the conditions in Eqs. ``(\mathrm{E}1)``, ``(\mathrm{E}2)``, and ``(\mathrm{E}3)`` hold.
+	
+In the above derivation, we still need to prove the equivalence of ``C(u)`` in
+Eqs. ``(\mathrm{C}1)`` and ``(\mathrm{C}2)``, which we address next. 
+In the following, all expectations are with respect to ``q(y,x,\theta|u)`` unless otherwise indicated. 
 
 ```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)} \\
-&= \sum_{x,s} q(x,s|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(s|x,u)}\frac{q(s|x)}{q(s|x)} \\
-&= \sum_x q(x|u) \log \frac{1}{p(x)} + \sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{q(s|x)} + \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x,u)}}_{E\left[ D_{\text{KL}}[q(s|x),p(s|x,u)] \right]\geq 0} \\
-&\geq \underbrace{\sum_x q(x|u) \log \frac{1}{p(x)}}_{\substack{\text{goal-seeking behavior} \\ \text{(exploitation)}}} - \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}}_{\substack{\text{information-seeking behavior}\\ \text{(exploration)}}} 
-\end{aligned}
+\begin{flalign}
+C(&u) = E\bigg[ \log \frac{ \overbrace{q(yx\theta|u)}^{\text{posterior}} }{ \underbrace{p(yx\theta|u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goals}} \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)}_{\text{epistemic priors}}} \bigg]  \; &&\text{(C3)} \\
+&= \underbrace{ E\bigg[\log\bigg( \underbrace{\frac{q(x|u)}{\hat{p}(x)}}_{\text{risk}}\cdot \underbrace{\frac{1}{q(y|x  )}}_{\text{ambiguity}} \cdot \underbrace{\frac{ q(\theta|x)}{ q(\theta|yx )}}_{-\text{novelty}} \bigg) \bigg] }_{G(u) = \text{Expected Free Energy}} +   \\
+&\quad + E\bigg[ \log\bigg( \underbrace{\frac{\hat{p}(x) q(y|x ) q(\theta| yx)}{q(x|u) q(\theta|x)}}_{\text{inverse factors from }G(u)} \cdot \underbrace{\frac{q(yx\theta|u)}{p(yx\theta|u) \hat{p}(x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx) }}_{\text{leftover factors from (C3)}} \bigg)\bigg] \notag \\
+&= G(u) + \underbrace{E\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg]}_{=B(u)} + \underbrace{E\bigg[ \log  \frac{q(y|x ) q(\theta|yx)}{q(x|u) q(\theta|x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)} \bigg]}_{\text{choose epistemic priors to let this vanish}} \\
+&= G(u) + B(u) +  \\
+&\quad + E\bigg[\log \frac{1}{q(x|u) \tilde{p}(u)} \bigg] + E\bigg[ \log  \frac{q(y|x)}{\tilde{p}(x)} \bigg] + E\bigg[ \log  \frac{q(\theta|yx)}{q(\theta|x) \tilde{p}(yx) } \bigg] \notag \\
+&= G(u) + B(u) +  \\
+&\qquad + \sum_{y\theta} q(y\theta|x) \bigg( \underbrace{\underbrace{-\sum_x q(x|u) \log q(x|u)}_{= H[q(x|u)]} - \sum_x q(x|u) \log \tilde{p}(u)}_{=0 \text{ if }\tilde{p}(u) = \exp(H[q(x|u)])}\bigg) \\
+&\qquad + \sum_{x} q(x|u) \bigg( \underbrace{\underbrace{\sum_{y} q(y|x) \log q(y|x)}_{= -H[q(y|x)]} - \sum_{y} q(y|x) \log \tilde{p}(x)}_{=0 \text{ if }\tilde{p}(x) = \exp(-H[q(y|x)])} \bigg)   \notag \\
+&\qquad + \sum_{yx} q(yx|u) \bigg( \underbrace{\underbrace{\sum_\theta q(\theta|yx) \log \frac{q(\theta|yx)}{q(\theta|x)}}_{D[q(\theta|yx),q(\theta|x)]} - \sum_\theta q(\theta|yx) \log \tilde{p}(yx)}_{=0 \text{ if } \tilde{p}(yx) = \exp(D[q(\theta|yx),q(\theta|x)])} \bigg) \notag \\
+&= G(u) + E_{q(yx\theta|u)}\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg] \,,
+\end{flalign}
 ```
+if Eqs. (E1), (E2), and (E3) hold.
 
-Apparently, minimization of EFE leads to selection of policies that balances the following two imperatives: 
+""")
 
-1. minimization of the first term of ``G(u)``, i.e. minimizing ``\sum_x q(x|u) \log \frac{1}{p(x)}``, leads to policies (``u``) that align the inferred observations ``q(x|u)`` under policy ``u`` (i.e., predicted future observations under policy ``u``) with a prior ``p(x)`` on future observations. We are in control to choose any prior ``p(x)`` and usually we choose a prior that aligns with desired (goal) observations. Hence, policies with low EFE leads to **$(HTML("<span id='goal-seeking'>goal-seeking behavior</span>"))** (a.k.a. pragmatic behavior or exploitation). [In the OPTIONAL SLIDES](#ambiguity-plus-risk), we derive an alternative (perhaps clearer) expression to support this interpretation].
-2. minimization of ``G(u)`` maximizes the second term
+# ╔═╡ bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
+md"""
+# Active Inference
+"""
+
+# ╔═╡ ef54a162-d0ba-47ef-af75-88c92276ed66
+md"""
+## Optimal Planning by Variational Inference
+
+Assume that our agent is continually engaged in minimizing its variational free energy ``F[q]``, defined in Eq. (F2). This process tracks the following optimal posterior beliefs over policies,
 
 ```math
-\begin{aligned}
-  \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)} &= \sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{q(s|u)}\frac{q(x|u)}{q(x|u)} \\
-  &= \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(x,s|u)}{q(x|u)q(s|u)}}_{\text{(conditional) mutual information }I[x,s|u]}
-  \end{aligned}
+\begin{align}
+q^*(u) &\triangleq \arg\min_q F[q]  \\ 
+&= \sigma\left( -P(u) - G(u) -B(u)\right) \,, \tag{Q*}
+\end{align}
 ```
+where
+- ``\sigma(\cdot)`` denotes the softmax function,
+- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
+- ``G(u)`` is the expected free energy, defined in Eq. (G1), scoring both goal-directed and epistemic value of each policy,
+- ``B(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.
 
-which is the (conditional) [**mutual information**](https://en.wikipedia.org/wiki/Mutual_information) between (posteriors on) future observations and states, for a given policy ``u``. Thus, maximizing this term leads to actions that maximize statistical dependency between future observations and states. In other words, a policy with low EFE also leads to **information-seeking behavior** (a.k.a. epistemic behavior or exploration). 
-
-(The third term ``\sum_{x,s} q(x,s|u) \log \frac{q(s|x)}{p(s|x)}`` is an (expected) KL divergence between posterior and prior on the states. This can be interpreted as a complexity/regularization term and ``G(u)`` minimization will drive this term to zero.)   
-
-Seeking actions that balance goal-seeking behavior (exploitation) and information-seeking behavior (exploration) is a [fundamental problem in the Reinforcement Learning literature](https://en.wikipedia.org/wiki/Exploration-exploitation_dilemma). 
-
-**Active Inference solves the exploration-exploitation dilemma**. Both objectives are served by EFE minimization without any need for tuning parameters. 
 
 """
 
-# ╔═╡ 2784b474-d294-11ef-1305-ef0f0771d28f
+# ╔═╡ 94391132-dee6-4b22-9900-ba394f4ad66b
+details(md"""Click for proof of ``q^*(u)``""",
 md"""
-## $(HTML("<span id='PS-decomposition'></span>")) AIF Agents learn both the Problem and Solution
-
-We highlight another great feature of FE minimizing agents. Consider an AIF agent (``m``) with generative model ``p(x,s,u|m)``.
-
-Consider the Divergence-Evidence decomposition of the FE again:
-
+Starting from Eq. (F2), 
 ```math
-\begin{aligned}
-F[q] &= \sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(x,s,u|m)} \\
-&= \underbrace{-\log p(x|m)}_{\substack{\text{problem} \\ \text{representation costs}}} + \underbrace{\sum_{s,u} q(s,u) \log \frac{q(s,u)}{p(s,u|x,m)}}_{\text{solution costs}}
-\end{aligned}
+\begin{align}
+F[q] &=\mathbb{E}_{q(u)}\left[ G(u)\right] + \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right] \tag{F2} \\  
+&=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{B(u)}	\bigg]	\\
+&=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-B(u))}\Big]	\bigg]	\\
+&= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - B(u))}\bigg]	
+\end{align}
 ```
+which is (proportional to) a Kullback-Leibler divergence that is minimized for 
+```math
+\begin{align}
+q^*(u) = \sigma\left(-P(u) -G(u) - B(u) \right)	\,.
+\end{align}
+```	
+""")
 
-The first term, ``-\log p(x|m)``, is the (negative log-) evidence for model ``m``, given recorded data ``x``. 
-
-Minimization of FE maximizes the evidence for the given model. The model captures the  **problem representation**. A model with high evidence predicts the data well and therefore "understands the world".  
-
-The second term scores the cost of inference. In almost all cases, the solution to a problem can be phrased as an inference task on the generative model. Hence, the second term **scores the accuracy of the inferred solution**, for the given model. 
-
-FE minimization optimizes a balanced trade-off between a good-enough problem representation and a good-enough solution proposal for that model. Since FE comprises both a cost for solution *and* problem representation, it is a neutral criterion that applies across a very wide set of problems. 
-
-A good solution to the wrong problem is not good enough. A poor solution to a great problem statement is not sufficient either.  In order to solve a problem well, we need both to represent the problem correctly (high model evidence) and we need to solve it well (low inference costs). 
-
-
-
-"""
-
-# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
+# ╔═╡ a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
 md"""
-## The Brain's Action-Perception Loop by FE Minimization
+## An Active Inference Agent!
 
-The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+Eq. (Q*) marks a central result: an agent that minimizes the variational free energy ``F[q]``, as defined in Eq.(F2), naturally selects policies that are goal-directed, epistemically valuable, and computationally parsimonious.
+- Goal-directed policies **minimize risk** by steering predicted future states toward preferred or desired outcomes.
+- Epistemically valuable policies reduce uncertainty by favoring informative observations (**low ambiguity**) and supporting model learning (**high novelty**).
+- Computationally parsimonious policies **minimize complexity**, ensuring that posterior beliefs remain close to prior expectations. This limits the extent of belief updating, thereby *conserving computational resources* and reducing inference overhead.
 
-Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
+The process of minimizing ``F[q]`` is called an **Active Inference** (AIF) process, and an agent that realizes this process is referred to as an **active inference agent**. The “active” aspect highlights that an AIF agent does not passively consume a fixed data set, but instead actively selects its own data set through purposeful interaction with the environment.
 
-The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
+From an engineering perspective, if one accepts that effective decision-making systems should exhibit goal-directed behavior, epistemic exploration, and computational efficiency, then an AIF agent can be viewed as an "intelligent" controller. Given a well-defined set of predictive, goal-oriented, and epistemic prior beliefs, the agent’s behavior follows directly from the minimization of variational free energy. In this sense, the agent acts rationally—or Bayes-optimally—with respect to its design objectives and internal model.
 
 """
 
-# ╔═╡ 2784cf9a-d294-11ef-2284-a507f840ea99
+# ╔═╡ 5b66f8e5-4f01-4448-82e3-388bc8ea31de
 md"""
-## The Engineering Challenge: Synthetic AIF Agents
+## Interpretation of the Epistemic Priors
 
-We have here a framework (the FEP) for emergent intelligent behavior in self-organizing biological systems that
+Where do the epistemic costs (ambiguity and novelty) in the EFE function come from? In the formulation introduced in Eq. (E1), the epistemic prior
+``\tilde{p}(u) = \exp\big(H[q(x | u)]\big)`` biases the agent toward selecting policies ``u`` that maximize the entropy of the predicted future states ``x``.
 
-  * leads to optimal (Bayesian) information processing, including balancing accuracy vs complexity.
-  * leads to balanced and continual learning of both problem representation and solution proposal
-  * actively selects data in-the-field under situated conditions (no dependency on large data base)
-  * pursues a optimal trade-off between exploration (information-seeking) and exploitation (goal-seeking) behavior
-  * needs no external tuning parameters (such as step sizes, thresholds, etc.)
+This reflects an information-seeking preference: high entropy over future states implies that the agent is actively maintaining flexibility and postponing premature commitment. Rather than treating uncertainty as something to avoid, this formulation encourages the agent to seek out policies that enable adaptation as new observations arrive.
 
-Clearly, the FEP, and synthetic AIF agents as a realization of FEP, comprise a very attractive framework for all things relating to AI and AI agents. 
+Additionally, the epistemic prior ``\tilde{p}(x) = \exp(−H[q(y|x)])``
+in (E2), favors policies that reduce uncertainty about future states by
+selecting observations that are informative about them. Together, ``\tilde{p}(u)`` and ``\tilde{p}(x)`` induce a **bias toward ambiguity-minimizing behavior**.
 
-A current big AI challenge is to design synthetic AIF agents based solely on FE/EFE minimization.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/Synthetic-FEP-agent.png?raw=true) 
-
-Executing a synthetic AIF agent often poses a large computational problem because of the following reasons: 
-
-1. For interesting problems (e.g. speech recognition, scene analysis), generative models may contain thousands of latent variables.
-2. The FE function is a time-varying function, since it is also a function of observable variables.
-3. An AIF agent must execute inference in real-time if it is engaged and embedded in a real world environment.
-
-So, in practice, executing a synthetic AIF agent may lead to a **task of minimizing a time-varying FE function of thousands of variables in real-time**!!
+Similarly, the epistemic priors ``\tilde{p}(u)`` and ``\tilde{p}(y,x)`` from (E1) and (E3), jointly shape a **preference for policies that maximize novelty**, i.e., that are expected to be informative about the parameters of the generative model.
 
 """
 
-# ╔═╡ 2784e0fc-d294-11ef-360c-f14e94324770
+# ╔═╡ 07c48a8b-522b-4c26-a177-e8d0611f7b59
 md"""
-## Factor Graph Approach to Modeling of an Active Inference Agent
+## Realization by Reactive Message Passing
 
-How to specify and execute a synthetic AIF agent is an active area of research. 
+An AIF agent can be efficiently realized by an autonomous reactive message passing process in a Forney-style Factor Graph (FFG) representation of (a rollout to the future of) the generative model, augmented with goal and epistemic priors.
 
-There is no definitive solution approach to AIF agent modeling yet; we ([BIASlab](http://biaslab.org)) think that (reactive) message passing in a factor graph representation provides a promising path. 
+![FFG for an AIF agent](https://github.com/bmlip/course/blob/main/assets/figures/AIF-generative-model-as-FFG.png?raw=true)
 
-After selecting an action ``a_t`` and making an observation ``x_t``, the FFG for the rolled-out generative model is given by the following FFG:
+In the above figure, the agent's generative (predictive) model
+```math
+\prod_{k=1}^T p(y_k|x_k) p(x_k|x_{k-1},u_k)\,,
+```
+is represented by the white nodes in the factor graph. The initial and desired final states are constrained by initial and goal priors ``\hat{p}(x_0|x^+)`` and ``\hat{p}(x_T|x^+)``, which are typically generated by a higher-level state ``x^+`` and shown here as orange and blue nodes, respectively.
 
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-active-inference-model-specification.png?raw=true)
+At time ``k = 0``, the agent is tasked to infer a future action sequence (a "policy") ``u_{1:T}`` such that the posterior ``q(x_T|y_{1:T})`` matches the goal prior ``\hat{p}(x_T|x^+)`` as closely as possible. Inference proceeds entirely via reactive message passing in the factor graph, with no external control.
 
-The open red nodes for ``p(x_{t+k})`` specify **desired future observations**, whereas the open black boxes for ``p(s_k|s_{k-1},u_k)`` and ``p(x_k|s_k)`` reflect the agent's beliefs about how the world actually evolves (ie, the **veridical model**). 
-
-The (brown) dashed box is the agent's Markov blanket. Given the states on the Markov blanket, the internal states of the agent are independent of the state of the world.   
+The figure shows the state of the system at time ``t``, after having executed actions ``u_{1:t}`` and having observed ``y_{1:t}``. The future rollout for steps ``t+1`` to ``T`` terminates the predictive model (white) with both epistemic priors (green and red nodes) and the goal prior (blue node). As new actions are selected and new observations are sensed, the epistemic priors are replaced by posteriors (small black boxes), enabling an ongoing free energy minimization process.
 
 """
 
-# ╔═╡ 2784e908-d294-11ef-1c3d-ff9c59696590
+# ╔═╡ 6ef5a268-81bb-4418-a54b-a1e37a089381
 md"""
-## How to minimize FE: Online Active Inference
-
-[Online active inference proceeds by iteratively executing three stages](https://www.frontiersin.org/articles/10.3389/frobt.2019.00020/full): 
-
-1. act-execute-observe
-2. infer: update the latent variables and select an action
-3. slide forward
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-online-active-inference.png?raw=true)
-
+# Implementation
 """
+
+# ╔═╡ 64474167-bf52-456c-9099-def288bd17bf
+section_outline("Challenge Revisited:", "The Mountain Car Problem", color="green")
 
 # ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
 md"""
-## The Mountain car Problem Revisited
 
 Here we solve the mountain car problem as stated at the beginning of this lesson. Before implementing the active inference agent, let's first perform a naive approach that executes the engine's maximum power to reach the goal. As can be seen in the results, this approach fails since the car's engine is not strong enough to reach the goal directly. 
 
@@ -629,144 +546,96 @@ Note that the AIF agent **explores** other options, like going first in the oppo
 
 """
 
-# ╔═╡ 2785b056-d294-11ef-1415-49b1508736ba
+# ╔═╡ f4509603-36be-4d24-8933-eb7a705eb933
 md"""
-## Extensions and Comments
+# Discussion
+"""
 
-Just to be sure, you don't need to memorize all FE/EFE decompositions nor are you expected to derive them on-the-spot. We present these decompositions only to provide insight into the multitude of forces that underlie FEM-based action selection.
+# ╔═╡ 8d7058c4-0e13-4d05-b131-32b1f118129f
+md"""
+The Free Energy Principle and active inference are deep and fast-moving areas of research. They bring fresh ideas to intelligent reasoning, control, and AI, with exciting applications in robotics, adaptive systems, cognitive modeling, and more. There’s a lot to unpack, but in this lecture, we’ve only had time to scratch the surface. To wrap up, we’ll end with a few closing thoughts.
+"""
 
-In a sense, the FEP is an umbrella for describing the mechanics and self-organization of intelligent behavior, in man and machines. Lots of sub-fields in AI, such as reinforcement learning, can be interpreted as a special case of active inference under the FEP, see e.g., [Friston et al., 2009](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421). 
+# ╔═╡ 1c53d48b-6950-4921-bf03-292b5ed8980e
+md"""
+## Comparison Decision-theoretic vs Active Inference Agents
 
-Is EFE minimization really different from "regular" FE minimization? Not really, it appears that [EFE minimization can be reformulated as a special case of FE minimization](https://link.springer.com/article/10.1007/s00422-019-00805-w). In other words, FE minimization is still the only game in town.
+The idea of framing decision-making and planning as the minimization of expected cost over future states has become foundational across many disciplines, including machine learning (e.g., reinforcement learning), control theory (e.g., model-predictive and optimal control), and economics (e.g., utility theory and operations research). In what follows, we will refer to such systems collectively as *decision-theoretic* (DT) agents.
+
+AIF agents fundamentally differ from DT agents in that variational free energy (VFE) minimization is the sole underlying process. As a result, policies are evaluated based on a function of beliefs about states, rather than directly on the states themselves. The FEP formally captures this distinction.
+
+From an engineering perspective, what is gained by moving from DT to AIF agents? While our treatment here is necessarily brief and not intended as a comprehensive academic assessment, several key advantages already stand out:
+
+- A principled grounding in fundamental physics
+  - If we aim to understand how brains—human or animal—give rise to intelligent behavior, we must start from the premise that they operate entirely within the laws of physics. The FEP is consistent with this physical grounding.
+
+- Balanced goal-directed and information-seeking behavior
+  - The epistemic components that emerge naturally from the EFE functional often need to be added through ad hoc mechanisms in decision-theoretic frameworks that do not explicitly score beliefs about future states.
+
+- No need for task-specific reward (or value) functions
+  - In DT agents, a recurring question is: where do the reward functions come from? These functions are typically hand-crafted. In an AIF agent, preferences are encoded as prior distributions over desired outcomes. These priors can be parameterized and updated through hyper-priors and Bayesian learning at higher levels of the generative model, allowing agents to adapt their preferences on the fly, rather than relying on externally specified reward functions.
+
+- AIF agents are explainable and trustworthy by nature
+  - Explainability and trustworthiness are critical concerns in AI, for instance in medical AI applications. An AIF agent’s reasoning process is Bayes-optimal, and therefore logically consistent and inherently *trustworthy*. Crucially, domain-specific knowledge and inference are cleanly separated: all domain-specific assumptions reside in the model. As a result, the agent’s behavior can be *explained* as the logical (Bayesian) consequence of its generative model.
+
+- Robustness by realization as a reactive message passing process!
+  - In contrast to decision-theoretic (DT) agents, an active inference (AIF) agent can be fully realized as a reactive variational message passing (RMP) process, since variational free energy (VFE) minimization is the only ongoing process. RMP is an event-driven, fully distributed process—both in time and space—that exhibits robustness to fluctuating computational resources. It “lands softly” when resources such as power, data, or time become limited. As a result, an AIF agent continues to function during power dips, handles missing or noisy observations gracefully, and can be interrupted at any time during decision-making without catastrophic failure, making it naturally suited for real-world, resource-constrained environments.
+
+- Easy to code! 
+  - Since VFE minimization can be automated by a toolbox, the engineer’s primary task is to specify the generative model and priors, which typically fits within a single page of code. 
+
+- Other advantages
+  - Additional advantages include the potential for scalability, particularly in real-time applications. Realizing this potential will require further research into efficient, real-time message passing, capabilities that are difficult to match in frameworks that cannot be implemented as reactive message passing processes.
+
+While the advantages listed above hold great promise for the future of synthetic AIF agents in solving complex engineering problems, it’s important to acknowledge current limitations. The vast majority of engineers and scientists have been trained within DT frameworks, and the **tooling and methodologies for DT agents are far more mature**. For many practical problems, several of the above-mentioned advantages of AIF agents have yet to be conclusively demonstrated in real-world applications.
+
+
+"""
+
+# ╔═╡ d823599e-a87f-4586-999f-fbbd99d0db65
+md"""
+## The FEP: A New Frontier for Understanding Intelligent Behavior
+
+
+The FEP is often misunderstood as a scientific theory that counterexamples can falsify. In reality, the **FEP is a principle**, a general modeling framework for describing the dynamics of systems that exhibit ("life-like") attractor dynamics, repeatedly returning to states that preserve their functional organization and structural integrity. According to the FEP, such systems can be interpreted as performing variational Bayesian inference in a generative model, where the goal priors correspond to the system’s attractors.
+
+In this lecture, we’ve seen how the FEP can be used to describe the dynamics of rational AI agents, but its reach goes far beyond AI and control. As a unifying framework for understanding adaptive self-organization, the FEP touches neuroscience, biology, cognition, and even physics. 
+
+For example, the Expected Free Energy used to evaluate policies is not just an arbitrary cost function—it follows naturally from common assumptions in fundamental physics. EFE-based policy scoring also makes sense from a philosophical standpoint: if minimizing variational free energy is the only process driving the system, then it is a logical consequence to rank policies by how much VFE we expect them to minimize in the future. 
+
+It will be clear from this and previous lectures that I am an unapologetic supporter of the Bayesian modeling framework and the Free Energy Principle as a foundation for AI. Of course, different researchers may hold differing views—and rightly so—but for those willing to seriously engage with the foundational ideas of the FEP and active inference, I can promise you that the intellectual rewards are substantial. This framework offers a powerful and unifying lens through which to understand life, cognition, and intelligent systems at their most fundamental level.
+
+Looking ahead to the future of artificial intelligence, adaptive robotics, and agentic AI, the Free Energy Principle stands out as a framework with the potential to transform not only how we build intelligent systems, but how we fundamentally understand their nature, purpose, and place within the broader landscape of self-organizing life.
+
+"""
+
+# ╔═╡ 6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
+md"""
+# Optional Slides
+"""
+
+# ╔═╡ eccea480-1eda-47b0-bfbf-e9e406898606
+TODO("The slide below needs work")
+
+# ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
+md"""
+## The Brain's Action-Perception Loop by FE Minimization
+
+In the Machine Learning Overview lecture, we introduced a picture illustrating the [scientific inquiry loop](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html#Machine-Learning-and-the-Scientific-Inquiry-Loop). that The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+
+Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
+
+The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
 
 Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-complete.png?raw=true)
 
-Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, **AIF is an automated Bayes-optimal engineering design loop**!!
+Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, AIF is an automated Bayes-optimal engineering design loop!!
 
-The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.    
-
-
-
-"""
-
-# ╔═╡ 2785c0f8-d294-11ef-2529-0b340c00b8ab
-md"""
-## Final Thoughts
-
-In the end, all the state inference, parameter estimation, etc., in this lecture series could have been implemented by FE minimization in an appropriately specified generative probabilistic model. However, the Free Energy Principle extends beyond state and parameter estimation. Driven by FE minimization, brains change their structure as well over time. In fact, the FEP extends beyond brains to a general theory for biological self-organization, e.g., [Darwin's natural selection process](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5857288/) may be interpreted as a FE minimization-driven model optimization process, and here's an article on [FEP for predictive processing in plants](https://royalsocietypublishing.org/doi/10.1098/rsif.2017.0096). Moreover, Constrained-FE minimization (rephrased as the Principle of Maximum Relative Entropy) provides an elegant framework to derive most (if not all) physical laws, as Caticha exposes in his [brilliant monograph](https://github.com/bmlip/course/blob/main/assets/files/Caticha-2012-Entropic-Inference-and-the-Foundations-of-Physics.pdf) on Entropic Physics. Indeed, the framework of FE minimization is known in the physics community as the very fundamental [Principle of Least Action](https://en.wikipedia.org/wiki/Stationary-action_principle) that governs the equations-of-motion in nature. 
-
-So, the FEP is very fundamental and extends way beyond applications to machine learning. At [our research lab](http://biaslab.org) at TU/e, we work on developing FEP-based intelligent agents that go out into the world and autonomously learn to accomplish a pre-determined task, such as learning-to-walk or learning-to-process-noisy-speech-signals. Free free to approach us if you want to know more about that effort.    
-
-"""
-
-# ╔═╡ 2785cdc8-d294-11ef-0592-5945c1e39d5f
-md"""
-# OPTIONAL SLIDES
-
-"""
-
-# ╔═╡ 27861ca6-d294-11ef-3a75-ff797da3cf44
-md"""
-## In an AIF Agent, Actions fulfill Desired Expectations about the Future
-
-In the [derivations above](#goal-seeking), we decomposed the EFE into an upperbound on the sum of a goal-seeking and information-seeking term. Here, we derive an alternative (exact) decomposition that more clearly reveals the goal-seeking objective.
-
-We consider again the EFE and factorize the generative model ``p(x,s|u) = p^\prime(x) p(s|x,u)`` as a product of a **goal prior** ``p^\prime(x)`` on observations and a **veridical** state model ``p(s|x,u)``. 
-
-Through the **goal prior** ``p^\prime(x)``, the agent declares which observations it **wants** to observe in the future. (The prime is just to distinguish the semantics of a desired future from the model for the actual future).
-
-Through the **veridical** state model ``p(s|x,u)`` , the agent implicitly declares its beliefs about how the world will **actually** generate observations.
-
-  * In particular, note that through the equality (by Bayes rule)
-
-```math
-p(s|x,u) = \frac{p(x|s)p(s|u)}{p(x|u)} = \frac{p(x|s)p(s|u)}{\sum_s p(x|s)p(s|u)}\,,
-```
-
-it follows that in practice the agent may specify ``p(s|x,u)`` implicitly by explicitly specifying a state transition model ``p(s|u)`` and observation model ``p(x|s)``. 
-
-Hence, an AIF agent holds both a model for its beliefs about how the world will actually evolve AND a model for its beliefs about how it desires the world to evolve!! 
-
-$(HTML("<span id='ambiguity-plus-risk'></span>")) To highlight the role of these two models in the EFE, consider the following alternative EFE decomposition:
-
-```math
-\begin{aligned}
-G(u) &= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)p(s|x,u)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{1}{p(s|x,u)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p^\prime(x)} \frac{p(x|u)}{p(x|s)p(s|u)} \quad \text{(use Bayes)}\\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  q(x,s|u) \log \frac{q(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} q(x,s|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \sum_{x,s}  p(s|u) p(x|s) \log \frac{p(s|u)}{p(x|s)p(s|u)} + \sum_{x,s} p(s|u) p(x|s) \log \frac{p(x|u)}{p^\prime(x)} \quad \text{( assume }q(x,s|u)=p(x|s)p(s|u)\text{ )}\\
-&= \sum_{s}  p(s|u) \sum_x p(x|s) \log \frac{1}{p(x|s)} + \sum_x p(x|u) \log \frac{p(x|u)}{p^\prime(x)} \\
-&= \underbrace{E_{p(s|u)}\left[ H[p(x|s)]\right]}_{\text{ambiguity}} + \underbrace{D_{\text{KL}}\left[ p(x|u), p^\prime(x)\right]}_{\text{risk}}
-\end{aligned}
-```
-
-In this derivation, we have assumed that we can use the generative model to make inferences in the "forward" direction. Hence, ``q(s|u)=p(s|u)`` and ``q(x|s)=p(x|s)``.  
-
-The terms "ambiguity" and "risk" have their origin in utility theory for behavioral ecocomics. Minimization of EFE leads to minimizing both ambiguity and risk.
-
-Ambiguous (future) states are states that map to large uncertainties about (future) observations. We want to avoid those ambiguous states since it implies that the model is not capable to predict how the world evolves. Ambiguity can be resolved by selecting information-seeking (epistemic) actions. 
-
-Minimization of the second term (risk) leads to choosing actions (``u``) that align **predicted** future observations (represented by ``p(x|u)``) with **desired** future observations (represented by ``p^\prime(x)``). Agents minimize risk by selecting pragmatic (goal-seeking) actions.
-
-```math
-\Rightarrow
-```
-
-**Actions fulfill desired expectations about the future!**
-
-([return to related cell in main text](#goal-seeking)).
-
-"""
-
-# ╔═╡ 27862b56-d294-11ef-1f0b-c72293441005
-md"""
-## Proof ``q^*(u) = \arg\min_q F_>[q] \propto p(u)\exp(-G(u))``
-
-$(HTML("<span id='q-star'></span>"))Consider the following decomposition:
-
-```math
-\begin{aligned}
-F_>[q] &= \sum_{x,s,u} q(x,s,u) \log \frac{q(s,u)}{p(x,s,u)} \\
-&= \sum_{x,s,u} q(x,s|u) q(u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)} \\
-&= \sum_{u} q(u) \bigg(\sum_{x,s} q(x,s|u) \log \frac{q(s|u) q(u)}{p(x,s|u) p(u)}\bigg) \\
-&= \sum_{u} q(u) \bigg( \log q(u) + \log \frac{1}{p(u)}+ \underbrace{\sum_{x,s} q(x,s|u) \log \frac{q(s|u)}{p(x,s|u)}}_{G(u)}\bigg) \\
-&= \sum_{u} q(u) \log \frac{q(u)}{p(u)\exp\left(- G(u)\right) }
-\end{aligned}
-```
-
-This is a KL-divergence. Minimization of ``F_>[q]`` leads to the following posterior for the policy:
-
-```math
-\begin{aligned}
-q^*(u) &= \arg\min_q F_>[q] \\
-&= \frac{1}{Z}p(u)\exp(-G(u))
-\end{aligned}
-```
-
-[(click to return to linked cell in the main text.)](#q-star-main-cell)
-
-"""
-
-# ╔═╡ 27863dee-d294-11ef-3709-955340e17547
-md"""
-## What Makes a Good Agent? [The Good Regulator Theorem](https://en.wikipedia.org/wiki/Good_regulator)
-
-$(HTML("<span id='good-regulator-theorem'></span>")) According to Friston, an "intelligent" agent like a brain minimizes a variational free energy functional, which, in general, is a functional of a probability distribution ``p`` and a variational posterior ``q``. 
-
-What should the agent's model ``p`` be modeling? This question was (already) answered by [Conant and Ashby (1970)](https://doi.org/10.1080/00207727008920220) as the Good Regulator Theorem: **every good regulator of a system must be a model of that system**. 
-
-A Quote from Conant and Ashby's paper (this statement was later finessed by [Friston (2013)](https://royalsocietypublishing.org/doi/full/10.1098/rsif.2013.0475)): 
-
-> "The theory has the interesting corollary that the living brain, insofar as it is successful and efficient as a regulator for survival, *must* proceed, in learning, by the formation of a model (or models) of its environment."
-
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/good-regulator.png?raw=true)
-
-([Return to related cell in main text](#model-specification)).
+The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.
 
 """
 
@@ -980,10 +849,62 @@ end
     dzdt() -> DeltaMeta(method = Linearization())
 end
 
+# ╔═╡ 39127d53-7050-47fb-8ca5-428991598f25
+begin
+	
+	ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy", 
+	md""" Starting from Eq.(G1),
+	```math										
+	\begin{align}
+	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
+	\end{align}		
+	```										
+	""");
+	
+	novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information", 
+	md""" Starting from Eq.(G1), 
+	```math
+	\begin{align}
+	\mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
+	\end{align}
+	```		
+	""");
+
+
+	
+end
+
+# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
+md"""
+## Interpretation of Expected Free Energy ``G(u)``
+
+``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{T})``, commonly referred to as a **policy**. ``G(u)`` decomposes into three distinct components:
+
+###### risk
+  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). As a result, ``G(u)`` penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
+
+###### ambiguity
+  - Ambiguity can be expressed as ``\mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]``, which quantifies the expected entropy of future observations ``y``, under policy ``u``. It measures how ambiguous or noisy the relationship is between hidden states ``x`` and observations ``y``. Policies with low ambiguity are preferable because they lead to observations that are more informative about the hidden state, thus facilitating more accurate inference and better decision-making.
+  - $(ambiguity_as_expected_entropy)
+
+
+###### novelty
+  - The novelty term can be worked out to ``\mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]``, where ``I[\theta,y\,|x]`` is the [mutual information](https://en.wikipedia.org/wiki/Mutual_information) between parameters ``\theta`` and observations ``y``, given states ``x``. Novelty complements the ambiguity term. While ambiguity scores information-seeking behavior aimed at reducing uncertainty about hidden states ``x``, the novelty term extends this idea to parameters ``\theta`` of the generative model. It encourages policies that are expected to lead to observations that reduce uncertainty about ``\theta``, i.e., learning about the structure or dynamics of the environment itself.
+  - $(novelty_as_mutual_information)
+
+Clearly, policies with lower Expected Free Energy are preferred. Such policies strike a balance between goal-directed behavior—by minimizing risk—and information-seeking behavior—by minimizing ambiguity (to infer hidden states) and maximizing novelty (to learn about model parameters). This unified objective naturally promotes both exploitation and exploration.
+
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
@@ -992,8 +913,9 @@ RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
 HypergeometricFunctions = "~0.3.28"
+HypertextLiteral = "~0.9.5"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.3.1"
+PlutoTeachingTools = "~0.4.4"
 PlutoUI = "~0.7.62"
 RxInfer = "~4.4.2"
 """
@@ -1002,14 +924,14 @@ RxInfer = "~4.4.2"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "662424eb95cce2dc98253e1bf2dd87c27679a2ed"
+project_hash = "011199c8023b6f8ac4406f6c30e2d15f624a3762"
 
 [[deps.ADTypes]]
-git-tree-sha1 = "e2478490447631aedba0823d4d7a80b2cc8cdb32"
+git-tree-sha1 = "7927b9af540ee964cc5d1b73293f1eb0b761a3a1"
 uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "1.14.0"
+version = "1.16.0"
 
     [deps.ADTypes.extensions]
     ADTypesChainRulesCoreExt = "ChainRulesCore"
@@ -1046,7 +968,7 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.ArnoldiMethod]]
 deps = ["LinearAlgebra", "Random", "StaticArrays"]
@@ -1056,9 +978,9 @@ version = "0.4.0"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "bebb10cd3f0796dd1429ba61e43990ba391186e9"
+git-tree-sha1 = "9606d7832795cbef89e06a550475be300364a8aa"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.18.1"
+version = "7.19.0"
 
     [deps.ArrayInterface.extensions]
     ArrayInterfaceBandedMatricesExt = "BandedMatrices"
@@ -1087,10 +1009,10 @@ version = "7.18.1"
     Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 
 [[deps.ArrayLayouts]]
-deps = ["FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "4e25216b8fea1908a0ce0f5d87368587899f75be"
+deps = ["FillArrays", "LinearAlgebra", "StaticArrays"]
+git-tree-sha1 = "120e392af69350960b1d3b89d41dcc1d66543858"
 uuid = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
-version = "1.11.1"
+version = "1.11.2"
 weakdeps = ["SparseArrays"]
 
     [deps.ArrayLayouts.extensions]
@@ -1098,15 +1020,17 @@ weakdeps = ["SparseArrays"]
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BayesBase]]
-deps = ["Distributions", "DomainSets", "LinearAlgebra", "LoopVectorization", "Random", "SpecialFunctions", "StaticArrays", "Statistics", "StatsAPI", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
-git-tree-sha1 = "06664ca85dc72f940617c9d10bd3dd099084f36c"
+deps = ["Distributions", "DomainSets", "LinearAlgebra", "Random", "SpecialFunctions", "StaticArrays", "Statistics", "StatsAPI", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
+git-tree-sha1 = "232c38ab317e6e84596414fb2e1c29786b85806f"
 uuid = "b4ee3484-f114-42fe-b91c-797d54a0c67e"
-version = "1.5.4"
+version = "1.5.7"
 weakdeps = ["FastCholesky"]
 
     [deps.BayesBase.extensions]
@@ -1131,9 +1055,9 @@ version = "0.1.6"
 
 [[deps.BlockArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "a8c0f363186263d75e97a41878d10dd842797561"
+git-tree-sha1 = "291532989f81db780e435452ccb2a5f902ff665f"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "1.6.3"
+version = "1.7.0"
 
     [deps.BlockArrays.extensions]
     BlockArraysAdaptExt = "Adapt"
@@ -1157,21 +1081,15 @@ version = "0.2.6"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "2ac646d71d0d24b44f3f8c84da8c9f4d70fb67df"
+git-tree-sha1 = "fde3bf89aead2e723284a8ff9cdf5b551ed700e8"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
-version = "1.18.4+0"
+version = "1.18.5+0"
 
 [[deps.CloseOpenIntervals]]
 deps = ["Static", "StaticArrayInterface"]
 git-tree-sha1 = "05ba0d07cd4fd8b7a39541e31a7b0254704ea581"
 uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
 version = "0.1.13"
-
-[[deps.CodeTracking]]
-deps = ["InteractiveUtils", "UUIDs"]
-git-tree-sha1 = "062c5e1a5bf6ada13db96a4ae4749a4c2234f521"
-uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
-version = "1.3.9"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1181,21 +1099,25 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
+git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.29.0"
+version = "3.30.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.5"
+version = "0.12.1"
+weakdeps = ["StyledStrings"]
+
+    [deps.ColorTypes.extensions]
+    StyledStringsExt = "StyledStrings"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
-git-tree-sha1 = "a1f44953f2382ebb937d60dafbe2deea4bd23249"
+git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.10.0"
+version = "0.11.0"
 weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
@@ -1203,9 +1125,9 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
+git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Combinatorics]]
 git-tree-sha1 = "8010b6bb3388abe68d95743dcbea77650bb2eddf"
@@ -1225,9 +1147,9 @@ version = "1.0.0"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.16.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1250,9 +1172,9 @@ uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.5.0"
 
 [[deps.ConstructionBase]]
-git-tree-sha1 = "76219f1ed5771adbb096743bff43fb5fdd4c1157"
+git-tree-sha1 = "b4b092499347b18a015186eae3042f72267106cb"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.8"
+version = "1.6.0"
 weakdeps = ["IntervalSets", "LinearAlgebra", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
@@ -1295,6 +1217,7 @@ version = "1.0.0"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1328,9 +1251,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "aa87a743e3778d35a950b76fbd2ae64f810a2bb3"
+git-tree-sha1 = "54d7b8c74408048aea9c055ac8573b2b5c5ec11f"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.6.52"
+version = "0.7.4"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1379,12 +1302,13 @@ version = "0.6.52"
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "6d8b535fd38293bc54b88455465a1386f8ac1c3c"
+git-tree-sha1 = "3e6d038b77f22791b8e3472b7c633acea1ecac06"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.119"
+version = "0.25.120"
 
     [deps.Distributions.extensions]
     DistributionsChainRulesCoreExt = "ChainRulesCore"
@@ -1397,9 +1321,9 @@ version = "0.25.119"
     Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.DocStringExtensions]]
-git-tree-sha1 = "e7b7e6f178525d17c720ab9c081e4ef04429f860"
+git-tree-sha1 = "7442a5dfe1ebb773c29cc2962a8980f47221d76c"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.4"
+version = "0.9.5"
 
 [[deps.DomainIntegrals]]
 deps = ["CompositeTypes", "DomainSets", "FastGaussQuadrature", "GaussQuadrature", "HCubature", "IntervalSets", "LinearAlgebra", "QuadGK", "SpecialFunctions", "StaticArrays"]
@@ -1408,16 +1332,18 @@ uuid = "cc6bae93-f070-4015-88fd-838f9505a86c"
 version = "0.5.2"
 
 [[deps.DomainSets]]
-deps = ["CompositeTypes", "IntervalSets", "LinearAlgebra", "Random", "StaticArrays"]
-git-tree-sha1 = "a7e9f13f33652c533d49868a534bfb2050d1365f"
+deps = ["CompositeTypes", "IntervalSets", "LinearAlgebra", "StaticArrays"]
+git-tree-sha1 = "c249d86e97a7e8398ce2068dce4c078a1c3464de"
 uuid = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
-version = "0.7.15"
+version = "0.7.16"
 
     [deps.DomainSets.extensions]
     DomainSetsMakieExt = "Makie"
+    DomainSetsRandomExt = "Random"
 
     [deps.DomainSets.weakdeps]
     Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+    Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
@@ -1448,28 +1374,28 @@ uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
 version = "2.6.5+0"
 
 [[deps.ExponentialFamily]]
-deps = ["BayesBase", "BlockArrays", "Distributions", "DomainSets", "FastCholesky", "FillArrays", "ForwardDiff", "HCubature", "HypergeometricFunctions", "IntervalSets", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "LoopVectorization", "PositiveFactorizations", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
-git-tree-sha1 = "63abcf79108b50b27c7f6cccefb890cdaee3714f"
+deps = ["BayesBase", "BlockArrays", "Distributions", "DomainSets", "FastCholesky", "FillArrays", "ForwardDiff", "HCubature", "HypergeometricFunctions", "IntervalSets", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "PositiveFactorizations", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
+git-tree-sha1 = "00188d3ea03cfe63d6b82e9e5b81972d56f8403b"
 uuid = "62312e5e-252a-4322-ace9-a5f4bf9b357b"
-version = "2.0.5"
+version = "2.0.7"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
-git-tree-sha1 = "53ebe7511fa11d33bec688a9178fac4e49eeee00"
+git-tree-sha1 = "83dc665d0312b41367b7263e8a4d172eac1897f4"
 uuid = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.FFMPEG_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "PCRE2_jll", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
-git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
+git-tree-sha1 = "3a948313e7a41eb1db7a1e733e6335f17b4ab3c4"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
-version = "4.4.4+1"
+version = "7.1.1+0"
 
 [[deps.FastCholesky]]
 deps = ["LinearAlgebra", "PositiveFactorizations"]
-git-tree-sha1 = "5422860597c671655e0bbaa10ed0eb4ff54e9fb3"
+git-tree-sha1 = "1c0a81e006e40e9fcbd5f6f6cb42ac2700f86889"
 uuid = "2d5283b6-8564-42b6-bb00-83ed8e915756"
-version = "1.4.1"
+version = "1.4.3"
 weakdeps = ["StaticArraysCore"]
 
     [deps.FastCholesky.extensions]
@@ -1493,6 +1419,7 @@ weakdeps = ["HTTP"]
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1572,6 +1499,7 @@ version = "1.0.17+0"
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+version = "1.11.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
@@ -1581,15 +1509,15 @@ version = "3.4.0+2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Preferences", "Printf", "Qt6Wayland_jll", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "p7zip_jll"]
-git-tree-sha1 = "7ffa4049937aeba2e5e1242274dc052b0362157a"
+git-tree-sha1 = "1828eb7275491981fa5f1752a5e126e8f26f8741"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.73.14"
+version = "0.73.17"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "FreeType2_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt6Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "98fc192b4e4b938775ecd276ce88f539bcec358e"
+git-tree-sha1 = "27299071cc29e409488ada41ec7643e0ab19091f"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.73.14+0"
+version = "0.73.17+0"
 
 [[deps.GaussQuadrature]]
 deps = ["SpecialFunctions"]
@@ -1597,17 +1525,17 @@ git-tree-sha1 = "eb6f1f48aa994f3018cbd029a17863c6535a266d"
 uuid = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
 version = "0.5.8"
 
-[[deps.Gettext_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "9b02998aba7bf074d14de89f9d37ca24a1a0b046"
-uuid = "78b55507-aeef-58d4-861c-77aaff3498b1"
-version = "0.21.0+0"
+[[deps.GettextRuntime_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
+git-tree-sha1 = "45288942190db7c5f760f59c04495064eedf9340"
+uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
+version = "0.22.4+0"
 
 [[deps.Glib_jll]]
-deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
-git-tree-sha1 = "b0036b392358c80d2d2124746c2bf3d48d457938"
+deps = ["Artifacts", "GettextRuntime_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE2_jll", "Zlib_jll"]
+git-tree-sha1 = "35fbd0cefb04a516104b8e183ce0df11b70a3f1a"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.82.4+0"
+version = "2.84.3+0"
 
 [[deps.GraphPPL]]
 deps = ["BitSetTuples", "DataStructures", "Dictionaries", "MacroTools", "MetaGraphsNext", "NamedTupleTools", "Static", "StaticArrays", "TupleTools", "Unrolled"]
@@ -1633,10 +1561,10 @@ uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
 version = "1.3.15+0"
 
 [[deps.Graphs]]
-deps = ["ArnoldiMethod", "Compat", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
-git-tree-sha1 = "3169fd3440a02f35e549728b0890904cfd4ae58a"
+deps = ["ArnoldiMethod", "DataStructures", "Distributed", "Inflate", "LinearAlgebra", "Random", "SharedArrays", "SimpleTraits", "SparseArrays", "Statistics"]
+git-tree-sha1 = "c5abfa0ae0aaee162a3fbb053c13ecda39be545b"
 uuid = "86223c79-3864-5bf0-83f7-82e725a168b6"
-version = "1.12.1"
+version = "1.13.0"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -1651,15 +1579,20 @@ version = "1.7.0"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "f93655dc73d7a0b4a368e3c0bce296ae035ad76e"
+git-tree-sha1 = "ed5e9c58612c4e081aecdb6e1a479e18462e041e"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.16"
+version = "1.10.17"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
-git-tree-sha1 = "55c53be97790242c29031e5cd45e8ac296dadda3"
+git-tree-sha1 = "f923f9a774fcf3f5cb761bfa43aeadd689714813"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "8.5.0+0"
+version = "8.5.1+0"
+
+[[deps.HashArrayMappedTries]]
+git-tree-sha1 = "2eaa69a7cab70a52b9687c8bf950a5a93ec895ae"
+uuid = "076d061b-32b6-4027-95e0-9a2c6f6d7e74"
+version = "0.2.0"
 
 [[deps.HostCPUFeatures]]
 deps = ["BitTwiddlingConvenienceFunctions", "IfElse", "Libdl", "Static"]
@@ -1709,6 +1642,7 @@ version = "0.1.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IntervalSets]]
 git-tree-sha1 = "5fbb102dcb8b1a858111ae81d56682376130517d"
@@ -1732,10 +1666,10 @@ uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
 
 [[deps.JLD2]]
-deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "TranscodingStreams"]
-git-tree-sha1 = "8e071648610caa2d3a5351aba03a936a0c37ec61"
+deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "ScopedValues", "TranscodingStreams"]
+git-tree-sha1 = "d97791feefda45729613fafeccc4fbef3f539151"
 uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-version = "0.5.13"
+version = "0.5.15"
 weakdeps = ["UnPack"]
 
     [deps.JLD2.extensions]
@@ -1749,9 +1683,9 @@ version = "0.1.11"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
-git-tree-sha1 = "a007feb38b422fbdab534406aeca1b86823cb4d6"
+git-tree-sha1 = "0533e564aae234aff59ab625543145446d8b6ec2"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -1765,17 +1699,11 @@ git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.1.1+0"
 
-[[deps.JuliaInterpreter]]
-deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
-git-tree-sha1 = "6ac9e4acc417a5b534ace12690bc6973c25b862f"
-uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
-version = "0.10.3"
-
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
+git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.2+0"
+version = "3.100.3+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1802,19 +1730,21 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cd10d2cc78d34c0e2a3a36420ab607b611debfbb"
+git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.7"
+version = "0.16.8"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
     SparseArraysExt = "SparseArrays"
     SymEngineExt = "SymEngine"
+    TectonicExt = "tectonic_jll"
 
     [deps.Latexify.weakdeps]
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+    tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 
 [[deps.LayoutPointers]]
 deps = ["ArrayInterface", "LinearAlgebra", "ManualMemory", "SIMDTypes", "Static", "StaticArrayInterface"]
@@ -1824,9 +1754,9 @@ version = "0.1.17"
 
 [[deps.LazyArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "MacroTools", "SparseArrays"]
-git-tree-sha1 = "866ce84b15e54d758c11946aacd4e5df0e60b7a3"
+git-tree-sha1 = "76627adb8c542c6b73f68d4bfd0aa71c9893a079"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
-version = "2.6.1"
+version = "2.6.2"
 
     [deps.LazyArrays.extensions]
     LazyArraysBandedMatricesExt = "BandedMatrices"
@@ -1848,16 +1778,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1866,12 +1797,13 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "27ecae93dd25ee0909666e6835051dd684cc035e"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c8da7e6a91781c41a863611c7e966098d783c57a"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+2"
+version = "3.4.7+0"
 
 [[deps.Libglvnd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll", "Xorg_libXext_jll"]
@@ -1905,13 +1837,14 @@ version = "2.41.0+0"
 
 [[deps.LineSearches]]
 deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
-git-tree-sha1 = "e4c3be53733db1051cc15ecf573b1042b3a712a1"
+git-tree-sha1 = "4adee99b7262ad2a1a4bbbc59d993d24e55ea96f"
 uuid = "d3d80556-e9d4-5f37-9878-2ab0fcc64255"
-version = "7.3.0"
+version = "7.4.0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1931,6 +1864,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1953,12 +1887,6 @@ version = "0.12.172"
     ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
-[[deps.LoweredCodeUtils]]
-deps = ["JuliaInterpreter"]
-git-tree-sha1 = "4ef1c538614e3ec30cb6383b9eb0326a5c3a9763"
-uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
-version = "3.3.0"
-
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
@@ -1977,6 +1905,7 @@ version = "0.1.8"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MatrixCorrectionTools]]
 deps = ["LinearAlgebra"]
@@ -1993,7 +1922,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -2014,16 +1943,17 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NLSolversBase]]
 deps = ["ADTypes", "DifferentiationInterface", "Distributed", "FiniteDiff", "ForwardDiff"]
-git-tree-sha1 = "b14c7be6046e7d48e9063a0053f95ee0fc954176"
+git-tree-sha1 = "25a6638571a902ecfb1ae2a18fc1575f86b1d4df"
 uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.9.1"
+version = "7.10.0"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -2050,15 +1980,15 @@ weakdeps = ["Adapt"]
     OffsetArraysAdaptExt = "Adapt"
 
 [[deps.Ogg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b6aa4566bb7ae78498a5e68943863fa8b5231b59"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+1"
+version = "1.3.6+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2067,15 +1997,15 @@ version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "38cb508d080d21dc1128f7fb04f20387ed4c0af4"
+git-tree-sha1 = "f1a7e086c677df53e064e0fdd2c9d0b0833e3f6e"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "9216a80ff3682833ac4b733caa8c00390620ba5d"
+git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.0+0"
+version = "3.5.1+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -2085,9 +2015,9 @@ version = "0.5.6+0"
 
 [[deps.Optim]]
 deps = ["Compat", "EnumX", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "31b3b1b8e83ef9f1d50d74f1dd5f19a37a304a1f"
+git-tree-sha1 = "61942645c38dd2b5b78e2082c9b51ab315315d10"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.12.0"
+version = "1.13.2"
 
     [deps.Optim.extensions]
     OptimMOIExt = "MathOptInterface"
@@ -2097,14 +2027,14 @@ version = "1.12.0"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
+git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
 uuid = "91d4177d-7536-5919-b921-800302f37372"
-version = "1.3.3+0"
+version = "1.5.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "cc4054e898b852042d7b503313f7ad03de99c3dd"
+git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2113,15 +2043,15 @@ version = "10.42.0+1"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "0e1340b5d98971513bddaa6bbed470670cebbbfe"
+git-tree-sha1 = "f07c06228a1c670ae4c87d1276b92c7c597fdda0"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.34"
+version = "0.11.35"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "3b31172c032a1def20c98dae3f2cdc9d10e3b561"
+git-tree-sha1 = "275a9a6d85dc86c24d03d1837a0010226a96f540"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.56.1+0"
+version = "1.56.3+0"
 
 [[deps.Parameters]]
 deps = ["OrderedCollections", "UnPack"]
@@ -2142,9 +2072,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2160,9 +2094,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "809ba625a00c605f8d00cd2a9ae19ce34fc24d68"
+git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.13"
+version = "1.40.17"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2178,29 +2112,17 @@ version = "1.40.13"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PlutoHooks]]
-deps = ["InteractiveUtils", "Markdown", "UUIDs"]
-git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
-version = "0.0.5"
-
-[[deps.PlutoLinks]]
-deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
-git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
-uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
-version = "0.1.6"
-
 [[deps.PlutoTeachingTools]]
-deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoLinks", "PlutoUI"]
-git-tree-sha1 = "8252b5de1f81dc103eb0293523ddf917695adea1"
+deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.3.1"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
-deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "d3de2694b52a01ce61a036f18ea9c0f61c4a9230"
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.62"
+version = "0.7.69"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
@@ -2241,6 +2163,7 @@ version = "2.4.0"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.ProgressMeter]]
 deps = ["Distributed", "Printf"]
@@ -2255,27 +2178,27 @@ version = "1.3.0"
 
 [[deps.Qt6Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Vulkan_Loader_jll", "Xorg_libSM_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_cursor_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "libinput_jll", "xkbcommon_jll"]
-git-tree-sha1 = "492601870742dcd38f233b23c3ec629628c1d724"
+git-tree-sha1 = "eb38d376097f47316fe089fc62cb7c6d85383a52"
 uuid = "c0090381-4147-56d7-9ebc-da0b1113ec56"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll"]
-git-tree-sha1 = "e5dd466bf2569fe08c91a2cc29c1003f4797ac3b"
+git-tree-sha1 = "da7adf145cce0d44e892626e647f9dcbe9cb3e10"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.7.1+2"
+version = "6.8.2+1"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
-git-tree-sha1 = "1a180aeced866700d4bebc3120ea1451201f16bc"
+git-tree-sha1 = "9eca9fc3fe515d619ce004c83c31ffd3f85c7ccf"
 uuid = "ce943373-25bb-56aa-8eca-768745ed7b5a"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.Qt6Wayland_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"]
-git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
+git-tree-sha1 = "e1d5e16d0f65762396f9ca4644a5f4ddab8d452b"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
-version = "6.7.1+1"
+version = "6.8.2+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -2290,18 +2213,20 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.ReactiveMP]]
 deps = ["BayesBase", "DataStructures", "DiffResults", "Distributions", "DomainIntegrals", "DomainSets", "ExponentialFamily", "FastCholesky", "FastGaussQuadrature", "FixedArguments", "ForwardDiff", "HCubature", "LazyArrays", "LinearAlgebra", "LoopVectorization", "MacroTools", "MatrixCorrectionTools", "Optim", "PolyaGammaHybridSamplers", "PositiveFactorizations", "Random", "Rocket", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers", "Tullio", "TupleTools", "Unrolled"]
-git-tree-sha1 = "47602c5b74a9bbc610877d015eb7a5167d3cc316"
+git-tree-sha1 = "feff187996d9163f0e277673c17c0f458f5f6dbe"
 uuid = "a194aa59-28ba-4574-a09c-4a745416d6e3"
-version = "5.4.3"
+version = "5.4.7"
 
     [deps.ReactiveMP.extensions]
     ReactiveMPOptimisersExt = "Optimisers"
@@ -2342,16 +2267,6 @@ git-tree-sha1 = "62389eeff14780bfe55195b7204c0d8738436d64"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
-[[deps.Revise]]
-deps = ["CodeTracking", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "REPL", "Requires", "UUIDs", "Unicode"]
-git-tree-sha1 = "cedc9f9013f7beabd8a9c6d2e22c0ca7c5c2a8ed"
-uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
-version = "3.7.6"
-weakdeps = ["Distributed"]
-
-    [deps.Revise.extensions]
-    DistributedExt = "Distributed"
-
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
 git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
@@ -2372,9 +2287,9 @@ version = "1.8.2"
 
 [[deps.RxInfer]]
 deps = ["BayesBase", "DataStructures", "Dates", "Distributions", "DomainSets", "ExponentialFamily", "FastCholesky", "GraphPPL", "HTTP", "JSON", "LinearAlgebra", "Logging", "MacroTools", "Optim", "Preferences", "PrettyTables", "ProgressMeter", "Random", "ReactiveMP", "Reexport", "Rocket", "Static", "Statistics", "TupleTools", "UUIDs"]
-git-tree-sha1 = "60e631d6c65de5194907387858195c7806635f8f"
+git-tree-sha1 = "c820266d2e70f4d7bac1254186b2f9cefda3bb1e"
 uuid = "86711068-29c9-4ff7-b620-ae75d7495b3d"
-version = "4.4.2"
+version = "4.4.3"
 
     [deps.RxInfer.extensions]
     ProjectionExt = "ExponentialFamilyProjection"
@@ -2397,14 +2312,21 @@ git-tree-sha1 = "456f610ca2fbd1c14f5fcf31c6bfadc55e7d66e0"
 uuid = "476501e8-09a2-5ece-8869-fb82de89a1fa"
 version = "0.6.43"
 
+[[deps.ScopedValues]]
+deps = ["HashArrayMappedTries", "Logging"]
+git-tree-sha1 = "7f44eef6b1d284465fafc66baf4d9bdcc239a15b"
+uuid = "7e506255-f358-4e82-b7e4-beb19740aa63"
+version = "1.4.0"
+
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
+git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.1"
+version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Setfield]]
 deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
@@ -2415,6 +2337,7 @@ version = "1.1.2"
 [[deps.SharedArrays]]
 deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2435,17 +2358,18 @@ version = "0.9.4"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2484,9 +2408,9 @@ weakdeps = ["OffsetArrays", "StaticArrays"]
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "0feb6b9031bd5c51f9072393eb5ab3efd31bf9e4"
+git-tree-sha1 = "cbea8a6bd7bed51b1619658dec70035e07b8502f"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.13"
+version = "1.9.14"
 
     [deps.StaticArrays.extensions]
     StaticArraysChainRulesCoreExt = "ChainRulesCore"
@@ -2502,21 +2426,26 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "1ff449ad350c9c4cbc756624d6f8a8c3ef56d3ed"
+git-tree-sha1 = "9d72a13a3f4dd3795a195ac5a44d7d6ff5f552ff"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2538,6 +2467,10 @@ git-tree-sha1 = "725421ae8e530ec29bcbdddbe91ff8053421d023"
 uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
 version = "0.4.1"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2545,7 +2478,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2560,9 +2493,9 @@ version = "1.0.1"
 
 [[deps.Tables]]
 deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
+git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.12.0"
+version = "1.12.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -2578,17 +2511,18 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.ThreadingUtilities]]
 deps = ["ManualMemory"]
-git-tree-sha1 = "18ad3613e129312fe67789a71720c3747e598a61"
+git-tree-sha1 = "d969183d3d244b6c33796b5ed01ab97328f2db85"
 uuid = "8290d209-cae3-49c0-8002-c8c24d57dab5"
-version = "0.5.3"
+version = "0.5.5"
 
 [[deps.TinyHugeNumbers]]
-git-tree-sha1 = "c8760444248aef64bc728b340ebc50df13148c93"
+git-tree-sha1 = "83c6abf376718345a85c071b249ef6692a8936d4"
 uuid = "783c9a47-75a3-44ac-a16b-f1ab7b3acf04"
-version = "1.0.2"
+version = "1.0.3"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2596,9 +2530,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.11"
 
 [[deps.Tullio]]
 deps = ["DiffRules", "LinearAlgebra", "Requires"]
@@ -2624,13 +2558,14 @@ uuid = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 version = "1.6.0"
 
 [[deps.URIs]]
-git-tree-sha1 = "cbbebadbcc76c5ca1cc4b4f3b0614b3e603b5000"
+git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.5.2"
+version = "1.6.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.UnPack]]
 git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
@@ -2639,6 +2574,7 @@ version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2648,23 +2584,27 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "c0667a8e676c53d390a09dc6870b3d8d6650e2bf"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.22.0"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
+    ForwardDiffExt = "ForwardDiff"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+    PrintfExt = "Printf"
 
     [deps.Unitful.weakdeps]
     ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+    Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.UnitfulLatexify]]
 deps = ["LaTeXStrings", "Latexify", "Unitful"]
-git-tree-sha1 = "975c354fcd5f7e1ddcc1f1a23e6e091d99e99bc8"
+git-tree-sha1 = "af305cc62419f9bd61b6644d19170a4d258c7967"
 uuid = "45397f5d-5981-4c77-b2b3-fc36d6e9b728"
-version = "1.6.4"
+version = "1.7.0"
 
 [[deps.Unrolled]]
 deps = ["MacroTools"]
@@ -2690,22 +2630,10 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
-git-tree-sha1 = "85c7811eddec9e7f22615371c3cc81a504c508ee"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
+git-tree-sha1 = "96478df35bbc2f3e1e791bc7a3d0eeee559e60e9"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.21.0+2"
-
-[[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "5db3e9d307d32baba7067b13fc7b5aa6edd4a19a"
-uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.36.0+0"
-
-[[deps.XML2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
-uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.6+1"
+version = "1.24.0+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2799,39 +2727,39 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "04341cb870f29dcd5e39055f895c39d016e18ccd"
+git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.4+0"
+version = "0.1.5+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "0fab0a40349ba1cba2c1da699243396ff8e94b97"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f4fc02e384b74418679983a97385644b67e1263b"
 uuid = "12413925-8142-5f55-bb0e-6d7ca50bb09b"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxcb_jll"]
-git-tree-sha1 = "e7fd7b2881fa2eaa72717420894d3938177862d1"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll"]
+git-tree-sha1 = "68da27247e7d8d8dafd1fcf0c3654ad6506f5f97"
 uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_keysyms_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "d1151e2c45a544f32441a567d1690e701ec89b00"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "44ec54b0e2acd408b0fb361e1e9244c60c9c3dd4"
 uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
-version = "0.4.0+1"
+version = "0.4.1+0"
 
 [[deps.Xorg_xcb_util_renderutil_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "dfd7a8f38d4613b6a575253b3174dd991ca6183e"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "5b0263b6d080716a02544c55fdff2c8d7f9a16a0"
 uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
-version = "0.3.9+1"
+version = "0.3.10+0"
 
 [[deps.Xorg_xcb_util_wm_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
-git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "f233c83cad1fa0e70b7771e0e21b061a116f2763"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
-version = "0.4.1+1"
+version = "0.4.2+0"
 
 [[deps.Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
@@ -2863,10 +2791,10 @@ uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
 version = "1.5.7+1"
 
 [[deps.eudev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
-git-tree-sha1 = "431b678a28ebb559d224c0b6b6d01afce87c51ba"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "c3b0e6196d50eab0c5ed34021aaa0bb463489510"
 uuid = "35ca27e7-8b34-5b7f-bca9-bdc33f59eb06"
-version = "3.2.9+0"
+version = "3.2.14+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2874,23 +2802,17 @@ git-tree-sha1 = "b6a34e0e0960190ac2a4363a1bd003504772d631"
 uuid = "214eeab7-80f7-51ab-84ad-2988db7cef09"
 version = "0.61.1+0"
 
-[[deps.gperf_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "0ba42241cb6809f1a278d0bcb976e0483c3f1f2d"
-uuid = "1a1c6b14-54f6-533d-8383-74cd7377aa70"
-version = "3.1.1+1"
-
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "522c1df09d05a71785765d19c9524661234738e9"
+git-tree-sha1 = "4bba74fa59ab0755167ad24f98800fe5d727175b"
 uuid = "a4ae2306-e953-59d6-aa16-d00cac43593b"
-version = "3.11.0+0"
+version = "3.12.1+0"
 
 [[deps.libass_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "e17c115d55c5fbb7e52ebedb427a0dca79d4484e"
+git-tree-sha1 = "125eedcb0a4a0bba65b657251ce1d27c8714e9d6"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
-version = "0.15.2+0"
+version = "0.17.4+0"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2904,45 +2826,45 @@ uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
 version = "0.2.2+0"
 
 [[deps.libevdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "141fe65dc3efabb0b1d5ba74e91f6ad26f84cc22"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "56d643b57b188d30cccc25e331d416d3d358e557"
 uuid = "2db6ffa8-e38f-5e21-84af-90c45d0032cc"
-version = "1.11.0+0"
+version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a22cf860a7d27e4f3498a0fe0811a7957badb38"
+git-tree-sha1 = "646634dd19587a56ee2f1199563ec056c5f228df"
 uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
-version = "2.0.3+0"
+version = "2.0.4+0"
 
 [[deps.libinput_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "eudev_jll", "libevdev_jll", "mtdev_jll"]
-git-tree-sha1 = "ad50e5b90f222cfe78aa3d5183a20a12de1322ce"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
+git-tree-sha1 = "91d05d7f4a9f67205bd6cf395e488009fe85b499"
 uuid = "36db933b-70db-51c0-b978-0f229ee0e533"
-version = "1.18.0+0"
+version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "068dfe202b0a05b8332f1e8e6b4080684b9c7700"
+git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.47+0"
+version = "1.6.50+0"
 
 [[deps.libvorbis_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
+git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+2"
+version = "1.3.8+0"
 
 [[deps.mtdev_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "814e154bdb7be91d78b6802843f76b6ece642f11"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
 uuid = "009596ad-96f7-51b1-9f1b-5ce2d5e8a71e"
-version = "1.1.6+0"
+version = "1.1.7+0"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2950,22 +2872,22 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 version = "17.4.0+2"
 
 [[deps.x264_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "4fea590b89e6ec504593146bf8b988b2c00922b2"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "14cc7083fc6dff3cc44f2bc435ee96d06ed79aa7"
 uuid = "1270edf5-f2f9-52d2-97e9-ab00b5d0237a"
-version = "2021.5.5+0"
+version = "10164.0.1+0"
 
 [[deps.x265_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "ee567a171cce03570d77ad3a43e90218e38937a9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "e7b67590c14d487e734dcb925924c5dc43ec85f3"
 uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
-version = "3.5.0+0"
+version = "4.1.0+0"
 
 [[deps.xkbcommon_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
-git-tree-sha1 = "c950ae0a3577aec97bfccf3381f66666bc416729"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "fbf139bce07a534df0e699dbb5f5cc9346f95cc1"
 uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
-version = "1.8.1+0"
+version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
@@ -2973,21 +2895,26 @@ version = "1.8.1+0"
 # ╟─9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
 # ╟─27839788-d294-11ef-30a2-8ff6357aa68b
 # ╟─2783a99e-d294-11ef-3163-bb455746bf52
+# ╟─aed436fd-6773-4932-a5d8-d01cf99c10ec
 # ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
 # ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
+# ╟─939e74b0-8ceb-4214-bbc0-407c8f0b2f26
+# ╟─e3d5786b-49e0-40f7-9056-13e26e09a4cf
 # ╟─2783c686-d294-11ef-3942-c75d2b559fb3
-# ╟─2783d22a-d294-11ef-3f2c-b1996df7e1aa
-# ╟─7128f91d-f3f3-41fe-a491-ede27921a822
-# ╟─2783dc14-d294-11ef-2df0-1b7474f85e29
-# ╟─2783fb1a-d294-11ef-0a27-0b5d3bfc86b1
-# ╟─2784529a-d294-11ef-3b0e-c5a60644fa53
-# ╟─27846c9e-d294-11ef-0a86-2527c96da2c3
-# ╟─278491ec-d294-11ef-305a-41b583d12d5a
-# ╟─2784b474-d294-11ef-1305-ef0f0771d28f
-# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
-# ╟─2784cf9a-d294-11ef-2284-a507f840ea99
-# ╟─2784e0fc-d294-11ef-360c-f14e94324770
-# ╟─2784e908-d294-11ef-1c3d-ff9c59696590
+# ╟─29592915-cadf-4674-958b-5743a8f73a8b
+# ╟─9708215c-72c9-408f-bd10-68ae02e17243
+# ╟─f9b241fd-d853-433e-9996-41d8a60ed9e8
+# ╟─97136f81-3468-439a-8a22-5aae96725937
+# ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
+# ╟─aaa07dc5-9105-4f70-b924-6e51e5c36600
+# ╟─bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
+# ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
+# ╟─94391132-dee6-4b22-9900-ba394f4ad66b
+# ╟─a8c88dff-b10c-4c25-8dbe-8f04ee04cffa
+# ╟─5b66f8e5-4f01-4448-82e3-388bc8ea31de
+# ╟─07c48a8b-522b-4c26-a177-e8d0611f7b59
+# ╟─6ef5a268-81bb-4418-a54b-a1e37a089381
+# ╟─64474167-bf52-456c-9099-def288bd17bf
 # ╟─2784f45e-d294-11ef-0439-1903016c1f14
 # ╠═2d4b5a0e-9b9f-4908-81a7-56e8a6d14ecc
 # ╠═f43d3264-f88e-42bf-8147-92b4225807f4
@@ -3006,12 +2933,13 @@ version = "1.8.1+0"
 # ╠═278573d4-d294-11ef-36a2-19eba9a07c1b
 # ╠═27858c46-d294-11ef-28aa-7744a577e6e5
 # ╟─27859b3c-d294-11ef-17e9-19c68a3f5ab5
-# ╟─2785b056-d294-11ef-1415-49b1508736ba
-# ╟─2785c0f8-d294-11ef-2529-0b340c00b8ab
-# ╟─2785cdc8-d294-11ef-0592-5945c1e39d5f
-# ╟─27861ca6-d294-11ef-3a75-ff797da3cf44
-# ╟─27862b56-d294-11ef-1f0b-c72293441005
-# ╟─27863dee-d294-11ef-3709-955340e17547
+# ╟─f4509603-36be-4d24-8933-eb7a705eb933
+# ╟─8d7058c4-0e13-4d05-b131-32b1f118129f
+# ╟─1c53d48b-6950-4921-bf03-292b5ed8980e
+# ╟─d823599e-a87f-4586-999f-fbbd99d0db65
+# ╟─6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
+# ╠═eccea480-1eda-47b0-bfbf-e9e406898606
+# ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
 # ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
 # ╠═97a0384a-0596-4714-a3fc-bf422aed4474
 # ╠═0652eab9-f472-4dc5-89ed-66787c6bd49e
@@ -3019,5 +2947,6 @@ version = "1.8.1+0"
 # ╟─7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
 # ╟─0c12e2dc-15a0-45ca-bade-30ed49bf1cad
 # ╟─74181be4-02d3-4049-882c-04d64152dad8
+# ╠═39127d53-7050-47fb-8ca5-428991598f25
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
