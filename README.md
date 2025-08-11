@@ -80,7 +80,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
          <tr>
             <td>12-Nov-2025 <em>(Wed)</em></td>
             <td>⚪️ B0: Course Syllabus<br/>
-            B1: Machine Learning Overview</td>
+            ⚪️ B1: Machine Learning Overview</td>
             <td><a href="https://bmlip.github.io/course/lectures/Course%20Syllabus.html">B0</a>, <a href="https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html">B1</a></td>
             <td></td>
             <td></td>
@@ -181,7 +181,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
          </tr>
          <tr>
             <td>12-Dec-2025 <em>(Fri)</em></td>
-            <td>⚪️ B8: Generative Classification <br/>B9: Discriminative Classification
+            <td>⚪️ B8: Generative Classification <br/>⚪️ B9: Discriminative Classification
             </td>
             <td><a href="https://bmlip.github.io/course/lectures/Generative%20Classification.html">B8</a>, <a href="https://bmlip.github.io/course/lectures/Discriminative%20Classification.html">B9</a></td>
             <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Classification.ipynb">B8-9-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Classification.ipynb">B8-9-sol</a></td>
