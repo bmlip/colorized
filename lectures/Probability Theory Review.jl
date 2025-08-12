@@ -134,7 +134,7 @@ Boolean logic (or propositional logic) is a formal system of logic based on bina
 
 With Boolean operators (``\lor``, ``\land``, ``\implies``, etc.), we can create and evaluate compound propositions, e.g.,
 
-- Given two events ``A`` and ``B``, the **conjunction** (logical-and) ``A \land B`` is true only if both ``A`` and ``B`` are true. We write ``A \land B`` also shortly as ``A,B`` or ``AB``. 
+- Given two events ``A`` and ``B``, the **conjunction** (logical-and) ``A \land B`` is true only if both ``A`` and ``B`` are true. We write ``A \land B`` also shortly as ``AB``. 
 
 - The **disjunction** (logical-or) ``A \lor B``, is true if either ``A`` or ``B`` is true or both ``A`` and ``B`` are true. We write ``A \lor B`` also as ``A + B`` (Note that the plus-sign is here not an arithmetic operator, but rather a logical operator to process truth values.)
 
@@ -201,7 +201,7 @@ Under these assumptions, Cox showed that any consistent system of reasoning abou
  p(A+B|I) = p(A|I) + p(B|I) - p(A,B|I)
 ```
 
-##### The product rule: 
+##### The product rule
 
 - The degree of belief in the conjunction of two events ``A`` and ``B``, with given background information ``I``, is evaluated as
 
@@ -216,7 +216,14 @@ In other words: **Probability = extended logic**.
 
 # ╔═╡ dd11e93a-3dad-4e97-8642-fb70edfa6aae
 md"""
-In the above sum and product rules, the **conditional probability** of ``A`` given ``I``, denoted by ``p(A|I)``, indicates the degree of belief in event ``A``, given that ``I`` is true. 
+##### some notational conventions
+
+In the above sum and product rules
+  - the **conditional probability** of ``A`` given ``I``, denoted by ``p(A|I)``, indicates the degree of belief in event ``A``, given that ``I`` is true. 
+- ``p(A,B|I)`` should be read as the *joint* probabability that both ``A`` and ``B`` are true, given that ``I`` is true. 
+- Similarly, ``p(A|B,I)`` is the probability that ``A`` is true, given that both ``B`` and ``I`` are true. 
+
+
 """
 
 # ╔═╡ 3e18e4bc-d294-11ef-38bc-cb97cb4e0963
@@ -314,7 +321,7 @@ The Bayesian interpretation contrasts with the **frequentist** interpretation of
 
 # ╔═╡ 3e1964b4-d294-11ef-373d-712257fc130f
 md"""
-The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like ``\texttt{`it will rain tomorrow'}``. 
+The Bayesian viewpoint is more generally applicable than the frequentist viewpoint, e.g., it is hard to apply the frequentist viewpoint to events like ``\texttt{"it will rain tomorrow"}``. 
 
 """
 
@@ -506,18 +513,22 @@ Let ``A`` and ``B_1,B_2,\ldots,B_n`` be events, where ``B_1,B_2,\ldots,B_n`` par
 \sum_{i=1}^n p(A,B_i) = p(A) \,.
 ```
 
-This rule is called the [law of total probability](https://en.wikipedia.org/wiki/Law_of_total_probability). Proof:
+This rule is called the [law of total probability](https://en.wikipedia.org/wiki/Law_of_total_probability). 
 
-```math
+"""
+
+# ╔═╡ 5377c5a4-77c4-4fa7-9f84-0c511e3bf708
+details("Click for proof", 
+	   md"""
+		```math
 \begin{align*}
-  \sum_i p(A,B_i) &= p(\sum_i AB_i)  &&\quad \text{(since all $AB_i$ are disjoint)}\\
-  &= p(A,\sum_i B_i) \\
+  \sum_i p(A,B_i) &= p\big(\sum_i AB_i\big)  &&\quad \text{(since all $AB_i$ are disjoint)}\\
+  &= p\big(A,\sum_i B_i\big) \\
   &= p(A,\Omega) &&\quad \text{($\Omega$ is true event, since $B_i$ are exhaustive)} \\
   &= p(A)
   \end{align*}
 ```
-
-"""
+""")
 
 # ╔═╡ 3e1b8bf4-d294-11ef-04cc-6364e46fdd64
 md"""
@@ -776,24 +787,52 @@ end
 md"""
 The (discrete) sampling distribution is a valid probability distribution. 
 
-However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L(\theta) \mathrm{d}\theta \neq 1``. 
+However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L(\theta) \mathrm{d}\theta = 0.5 \neq 1``. 
 
 """
 
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
 md"""
-$(section_outline("Inference Exercise:", "Bag Counter"))
+$(section_outline("Inference Exercise:", "Which color has the ball?"))
 
 ##### Problem  
 
-- A bag contains one ball, known to be either white or black. A white ball is put in, the bag is shaken. Next, a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball?
+- A bag contains one ball, known to be either white or black. A white ball is put in , and the bag is shaken. Next, a ball is drawn out, which proves to be white. What is now the  chance of drawing a white ball? 
 
-##### Solution 
 
-- Again, use Bayes and marginalization to arrive at ``p(\text{white}|\text{data})=2/3``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+"""
 
-``\Rightarrow`` Note that probabilities describe **a person's state of knowledge** rather than a 'property of nature'.
+# ╔═╡ 4c639e65-e06b-4c5e-b6e7-aabed6b6c0b4
+details("Click for solution", 
+	   md"""
+There are two hypotheses: let ``H = 0`` mean that the original ball in the bag was white and ``H = 1`` that it was black. Assume the prior probabilities are equal, i.e.,
+```math
+		P(H =0) = 1/2, \quad P(H =1) = 1/2 \,.
+```
+The data is that when a randomly selected ball was drawn from the bag, which contained a white one and the unknown one, it turned out to be white. The probability of this result according to each hypothesis is:
+```math
+		P(D|H =0) = 1, \quad P(D|H =1) = 1/2 \,.
+```		
+So by Bayes theorem, 
+```math
+\begin{align}
+P(H=0|D) &= \frac{P(H=0,D)}{P(D)} \\
+    &= \frac{P(D|H=0) P(H=0)}{P(D|H=0) P(H=0) + P(D|H=1) P(H=1)} \\
+    &= \frac{1 \cdot \frac{1}{2}}{1 \cdot \frac{1}{2} + \frac{1}{2} \cdot \frac{1}{2}} \\
+    &= \frac{2}{3} 
+\end{align}
+```		
+and consequently,  		
+```math 
+	P(H =1|D) = 1 - P(H =0|D) = \frac{1}{3}
+```		
+""")
 
+# ╔═╡ ff9142ba-3a85-48cf-8b78-07e0b554e280
+md"""
+Note that the physical state of the bag—either containing one black ball or one white ball—remains unchanged after the “put one in, take one out” procedure.
+Yet, the probability we assign to the color of the ball in the bag changes.
+This illustrates a key point: probabilities describe a person’s state of knowledge, not an intrinsic property of nature.
 """
 
 # ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
@@ -807,13 +846,28 @@ $(section_outline("Inference Exercise:", "Causality?"))
 - Balls are not returned to the bag after each draw. 
   - (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
 
-##### Solution 
 
-- (a) ``5/12``. (b) ``5/11``, see the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook.
+"""
 
+# ╔═╡ 727dc817-0284-4c0f-9a92-21dcbea50807
+details("Click for solution", 
+md"""
 
-``\Rightarrow`` Again, we conclude that conditional probabilities reflect **implications for a state of knowledge** rather than temporal causality.
+(a) ``p(S_1=R) = \frac{N_\text{red}}{N_\text{red}+N_\text{green}} = \frac{5}{12}``
+	
+(b) The outcome of the ``n``-th draw is referred to by ``S_n``. Use Bayes rule to get,	
+```math
+\begin{align}
+p(S_1=\text{R} | S_2=\text{G}) &= \frac{p(S_2=\text{G} | S_1=\text{R}) p(S_1=\text{R})} {p(S_2=\text{G} | S_1 = \text{R}) p(S_1=\text{R}) + p(S_2=\text{G} | S_1=\text{G}) p(S_1=\text{G})} \\
+    &= \frac{\frac{7}{11}\cdot\frac{5}{12}}{\frac{7}{11}\cdot\frac{5}{12}+\frac{6}{11}\cdot\frac{7}{12}} \\
+	&= \frac{5}{11}
+\end{align}
+```
+""")
 
+# ╔═╡ fae6f2ce-ac8f-4ea6-b2cf-38b30a7e20d4
+md"""
+In this case, knowledge about the future influences our state of knowledge about the present. Once again, we see that conditional probabilities capture implications for a state of knowledge, not temporal causality.
 
 """
 
@@ -908,22 +962,19 @@ Home exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB
 
 # ╔═╡ 3e1e9224-d294-11ef-38b3-137c2be22400
 md"""
-## $(HTML("<span id='linear-transformation'>Linear Transformations</span>"))
+## Linear Transformations
 
-If we have two variables ``X`` and ``Y``, what can we say about arithmetic transformations of these variables? Such as ``X + Y``, ``5X + 7`` or ``\sqrt{X}``?
-
-Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and variance ``\Sigma_x`` and the linear transformation 
+Consider an arbitrary distribution ``p(X)`` with mean ``\mu_x`` and covariance matrix ``\Sigma_x``. Define
 
 ```math
 Z = A X + b \,.
 ```
 
-No matter the specification of ``p(X)``, we can derive that (see [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb) notebook)
-
+No matter the specification of ``p(X)``, the mean and covariance matrix for ``Z`` are given by 
 ```math
 \begin{align*}
-\mu_z &= A\mu_x + b &\qquad \text{(SRG-3a)}\\
-\Sigma_z &= A\,\Sigma_x\,A^T &\qquad \text{(SRG-3b)}
+\mu_z &= A\mu_x + b \tag{SRG-3a}\\
+\Sigma_z &= A\,\Sigma_x\,A^T \tag{SRG-3b}
 \end{align*}
 ```
 
@@ -931,20 +982,71 @@ No matter the specification of ``p(X)``, we can derive that (see [Exercises](htt
 
 """
 
+# ╔═╡ d2202628-e4f9-4289-b48e-23b5a0073f94
+details("Click for proof",
+md"""
+Let ``\mathbb{E}[\cdot]`` refer to the expectation (mean) operator. By linearity of expectation and the fact that ``A`` and ``b`` are constants,
+```math 
+\mu_z = \mathbb{E}[z] = \mathbb{E}[A x + b] = A\,\mathbb{E}[x] + b = A\mu_x + b\,.
+```
+For the covariance matrix,
+```math
+\begin{align}
+\Sigma_z &= \mathbb{E}\big[(z-\mu_z)(z-\mu_z)^T \big] \\
+&= \mathbb{E}\big[(Ax + b - (A\mu_x + b))(Ax + b - (A\mu_x + b))^T \big] \\  
+&= \mathbb{E}\big[(Ax - A\mu_x)(Ax - A\mu_x)^T \big]	 \\	
+&= A\,\mathbb{E}\big[(x-\mu_x)(x-\mu_x)^\top\big]A^T \\
+&= A\Sigma_x A^T \,.
+\end{align}
+```		
+"""			   
+)
+
+# ╔═╡ 58f70d3e-4b64-414e-b560-327be2a0c4c2
+section_outline("Exercise:", "The PDF for the Sum of Two Variables")
+
 # ╔═╡ 3e1ea442-d294-11ef-1364-8dd9986325f7
 md"""
-## PDF for the Sum of Two Variables
 
-Given eqs SRG-3a and SRG-3b (previous section), you should now be able to derive the following: for any distribution of variable ``X`` and ``Y`` and sum ``Z = X+Y`` (proof by [Exercise](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb))
+Given Eqs SRG-3a and SRG-3b, you should now be able to derive the following: for any distribution of variables ``X`` and ``Y``, show that the mean and variance of the sum ``Z = X+Y`` is given by
 
 ```math
 \begin{align*}
     \mu_z &= \mu_x + \mu_y \\
-    \Sigma_z &= \Sigma_x + \Sigma_y + 2\Sigma_{xy} 
+    \Sigma_z &= \Sigma_x + \Sigma_{xy} + \Sigma_{yx} 
 \end{align*}
 ```
-
+where ``\Sigma_{yx} = \Sigma_{xy}^T``.
 """
+
+# ╔═╡ 6d07be25-53d0-46b9-b197-a3680d830952
+details("Click for solution",
+md"""
+Define ``A = \begin{pmatrix} I & I \end{pmatrix}`` and ``w = \begin{pmatrix} x \\ y \end{pmatrix}``, where ``I`` is the identity matrix. Then 
+```math
+z = A w\,. 
+```
+Let ``\mathbb{E}[\cdot]`` refer to the expectation operator. Now apply the formula for the mean and variance of a variable after a linear transformation:
+
+```math
+\mathbb{E}[z] = \mathbb{E}[Aw]  = \mathbb{E}[x+y] = \mathbb{E}[x] + \mathbb{E}[y] \,. 
+```
+For the covariance matrix, first note that
+```math
+\begin{align}
+		\Sigma_w &= \mathbb{E} \bigg[ \begin{pmatrix} x - \mu_x \\ y- \mu_y\end{pmatrix} \begin{pmatrix} x - \mu_x \\ y- \mu_y\end{pmatrix}^T \bigg] \\
+	&= \begin{pmatrix} \Sigma_x &  \Sigma_{xy} \\ \Sigma_{yx} & \Sigma_y\end{pmatrix}
+\end{align} 
+```
+and we note that ``\Sigma_{yx} = \Sigma_{xy}^T``. Then, ``\Sigma_z`` evaluates to		
+```math
+\begin{align}
+\Sigma_z &= A \Sigma_w A^T \\
+  &= \begin{pmatrix} I & I \end{pmatrix}  \begin{pmatrix} \Sigma_x &  \Sigma_{xy} \\ \Sigma_{yx} & \Sigma_y\end{pmatrix} \begin{pmatrix}I \\ I \end{pmatrix} \\
+  &= \Sigma_x +  \Sigma_y + \Sigma_{xy} + \Sigma_{yx} \,.
+\end{align}
+```		
+"""		)
 
 # ╔═╡ 3e1eba72-d294-11ef-2f53-b56f1862fcbb
 md"""
@@ -1099,50 +1201,67 @@ P_y(y) = P_x(g(y))\,.
 """
 
 # ╔═╡ 3e1f8e48-d294-11ef-0f8a-b58294a8543d
+details("Click for proof",
 md"""
-**Proof**: ``P_y(\hat{y}) = P(y=\hat{y}) = P(h(x)=\hat{y}) = P(x=g(\hat{y})) = P_x(g(\hat{y})). \,\square``
-
-"""
+```math		
+P_y(\hat{y}) = P(y=\hat{y}) = P(h(x)=\hat{y}) = P(x=g(\hat{y})) = P_x(g(\hat{y})) \,.
+```
+""")
 
 # ╔═╡ 3e1fa04a-d294-11ef-00c3-a51d1aaa5553
 md"""
-If ``x`` is defined on a **continuous** domain, and ``p_x(x)`` is a probability **density** function, then probability mass is represented by the area under a (density) curve. Let ``a=g(c)`` and ``b=g(d)``. Then
-
-```math
-\begin{align*}
-P(a ≤ x ≤ b) &= \int_a^b p_x(x)\mathrm{d}x \\
-  &= \int_{g(c)}^{g(d)} p_x(x)\mathrm{d}x \\
-  &= \int_c^d p_x(g(y))\mathrm{d}g(y) \\
-  &= \int_c^d \underbrace{p_x(g(y)) g^\prime(y)}_{p_y(y)}\mathrm{d}y \\  
-  &= P(c ≤ y ≤ d)
-\end{align*}
-```
-
-Equating the two probability masses leads to the identification of the relation 
-
+If ``x`` is defined on a **continuous** domain, and ``p_x(x)`` is a probability **density** function, then probability mass is represented by the area under a (density) curve. In that case, 
 ```math
 p_y(y) = p_x(g(y)) g^\prime(y)\,,
 ```
 
 which is also known as the [Change-of-Variable theorem](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function). 
 
-If the transformation ``y = h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains. 
 
+"""
+
+# ╔═╡ 50bdc2fe-f48d-4c4e-8b4e-170782681366
+details("Click for proof",
+md"""
+We assume again that ``y = h(x)`` is a one-to-one function with ``x = g(y) = h^{-1}(y)``. Let ``a=g(c)`` and ``b=g(d)``. Then
+
+```math
+\begin{align}
+P(a ≤ x ≤ b) &= \int_a^b p_x(x)\mathrm{d}x \\
+  &= \int_{g(c)}^{g(d)} p_x(x)\mathrm{d}x \\
+  &= \int_c^d p_x(g(y))\mathrm{d}g(y) \\
+  &= \int_c^d \underbrace{p_x(g(y)) g^\prime(y)}_{p_y(y)}\mathrm{d}y \\  
+  &= P(c ≤ y ≤ d)
+\end{align}
+```
+
+Equating the two probability masses, ``p_y(y)\mathrm{d}y = p_x(x)\mathrm{d}x``, leads to the identification of the relation 
+```math
+p_y(y) = p_x(g(y)) g^\prime(y)\,,
+```
+"""
+)
+
+# ╔═╡ db73766d-643c-41d7-a1eb-f376c657f860
+md"""
+If the transformation ``y=h(x)`` is not invertible, then ``x=g(y)`` does not exist. In that case, you can still work out the transformation by equating equivalent probability masses in the two domains.
 """
 
 # ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
 md"""
-$(section_outline("Example:", "Transformation of a Gaussian Variable"; big=true, header_level=2))  
-
-Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
+$(section_outline("Exercise:", "Transformation of a Gaussian Variable"; big=true, header_level=2))  
 
 ##### Problem
 
-- What is ``p_y(y)``? 
+Let ``p_x(x) = \mathcal{N}(x|\mu,\sigma^2)`` and ``y = \frac{x-\mu}{\sigma}``. 
+Evaluate ``p_y(y)`` as a Gaussian distribution. 
 
-##### Solution
+"""
 
-- Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
+# ╔═╡ 317707a3-9ef1-4c67-b451-6adcfcff50f0
+details("Click for solution",
+md"""
+Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
 
 ```math
 \begin{align*}
@@ -1154,9 +1273,8 @@ p_y(y) &= p_x(g(y)) \cdot g^\prime(y) \\
 \end{align*}
 ```
 
-In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.
-
-"""
+In the statistics literature, ``y = \frac{x-\mu}{\sigma}`` is called the **standardized** variable since it transforms a general normal variable into a standard normal one.)
+""")
 
 # ╔═╡ 3e1fd38a-d294-11ef-05d3-ad467328be96
 md"""
@@ -1203,9 +1321,140 @@ For a variable ``X`` with distribution ``p(X)`` with mean ``\mu_x`` and variance
 
 # ╔═╡ 3e2009e2-d294-11ef-255d-8d4a44865663
 md"""
-That's really about all you need to know about probability theory, but you need to *really* know it, so do the [Exercises](https://nbviewer.org/github/bertdv/BMLIP/blob/master/lessons/exercises/Exercises-Probability-Theory-Review.ipynb)!
+That's really about all you need to know about probability theory, but you need to *really* know it, so let's do some more exercises. 
 
 """
+
+# ╔═╡ 03692f4d-0daf-4dfc-a7ff-6b954326e4d0
+md"""
+## Some More Exercises
+"""
+
+
+# ╔═╡ 3a1d380e-df80-4727-9772-f199214cf05d
+md"""
+##### The Sum Rule
+
+Derive the general sum rule,
+```math
+p(A + B) = p(A) + p(B) - p(A,B)
+```
+from the elementary sum rule ``p(A) + p(\bar A) = 1`` and the sum and product rules. Here, you may make use of the (Boolean logic) fact that ``A + B = \overline {\bar A \bar B }``. 
+ 
+"""
+
+# ╔═╡ 3b1b0869-b815-4697-9dba-3c4b4cb5ac47
+details("Click for solution", 
+md"""
+```math
+\begin{align}
+p\left( A + B \right)  &\underset{\mathrm{bool}}{=}  p\left( \overline {\bar A \bar B }  \right) \\
+  &\underset{\mathrm{sum}}{=} 1 - p\left( \bar{A} \bar{B} \right) \\
+  &\underset{\mathrm{prod}}{=} 1 - p\left( \bar{A} |\bar{B} \right) p\left(\bar{B}  \right) \\
+  &\underset{\mathrm{sum}}{=} 1 - \left( 1 - p\left(A|\bar B \right) \right) \left( 1 - p\left( B \right) \right) \\
+  &= p(B) + \left( {1 - p\left( B \right)} \right)p\left( {A|\bar B } \right)  \\
+  &\underset{\mathrm{prod}}{=} p(B) + \left( 1 - p\left( B \right) \right) p\left( \bar{B} |A \right) \frac{ p\left( A \right) }{ p\left(\bar{B}\right)} \\
+    &\underset{\mathrm{sum}}{=} p(B) + p\left(\bar{B} |A \right) p\left( A \right) \\
+    &\underset{\mathrm{sum}}{=} p(B) + \left( 1 - p\left( {B|A} \right) \right) p\left( A \right)  \\
+   &\underset{\mathrm{sum}}{=} p\left( A \right) + p(B) - p\left( A,B \right) 
+\end{align}
+```
+Note that, aside from the first boolean rewrite, everything follows straight application of sum and product rules. 
+
+		
+""")
+
+# ╔═╡ 5f377237-d9a5-4778-aa4d-1c6ce109b705
+md"""
+##### Apples and Oranges
+
+Box 1 contains 8 apples and 4 oranges. Box 2 contains 10 apples and 2 oranges. Boxes are chosen with equal probability.
+- (a) (#) What is the probability of choosing an apple?  
+- (b) (##) If an apple is chosen, what is the probability that it came from box 1?
+"""
+
+# ╔═╡ 5613e9b7-ff0d-435a-9de6-aaf293ebf592
+details("Click for solution",
+md"""
+The following probabilities are given in the problem statement,
+```math
+\begin{align}
+p(b_1) &= p(b_2) = 1/2  \\
+p(a|b_1) &= 8/12,  \quad p(a|b_2) = 10/12 \\
+p(o|b_1) &= 4/12,  \quad p(o|b_2) = 2/12
+\end{align}
+```
+(a)
+```math 
+p(a) = \sum_i p(a,b_i) = \sum_i p(a|b_i)p(b_i)=\frac{8}{12}\cdot\frac{1}{2} + \frac{10}{12}\cdot\frac{1}{2} = \frac{3}{4}
+```
+(b)		
+```math 
+p(b_1|a) = \frac{p(a,b_1)}{p(a)} = \frac{p(a|b_1)p(b_1)}{p(a)} = \frac{\frac{8}{12}\cdot\frac{1}{2}}{\frac{3}{4}} = \frac{4}{9}
+```
+"""
+)
+
+# ╔═╡ fc3151f9-e143-4e31-b7b7-3f25b4fe9dab
+md"""
+##### What is a Random Signal?
+Is a speech signal a "probabilistic" (random) or a deterministic signal?
+"""
+
+# ╔═╡ 66ebe33c-8360-4938-9b51-625e5bed176c
+details("Click for solution",
+md"""
+That depends. The term “probabilistic” refers to a state-of-knowledge (or beliefs) about something—in this case, about the values of a speech signal. The key point is that the signal itself is neither inherently probabilistic nor deterministic; these labels describe our knowledge about it.
+
+If you had a perfect microphone and recorded the speech signal flawlessly at its source, you would know all its values exactly—no uncertainty—so you could call it deterministic.
+
+However, before making the recording, how would you represent your knowledge about the signal values you are going to measure? You face uncertainty, so the appropriate description is a probability distribution over all possible signal values.
+""")
+
+# ╔═╡ 5b681e41-ad14-4c58-8ea0-4b6d85885c51
+md"""
+##### Who Speaks the Truth?
+(###) The inhabitants of an island tell the truth one-third of the time. They lie with probability ``2/3``. On an occasion, after one of them made a statement, you ask another person "was that statement true?" and he says "yes". What is the probability that the statement was indeed true?
+
+"""
+
+# ╔═╡ 91dd40f0-c373-48b3-b83b-6e8df2c43e5a
+details("Click for solution",
+md"""
+We use variables ``S_1 \in \{\text{t},\text{f}\}`` and ``S_2 \in \{\text{y},\text{n}\}`` for statements 1 and 2 and shorthand "y", "n", "t" and "f" for "yes", "no", "true" and "false", respectively. The problem statement provides us with the following probabilities,
+```math		
+\begin{align}
+p(S_1=\text{t}) &= 1/3 \\
+p(S_1=\text{f}) &= 1 - p(S_1=\text{t}) = 2/3\\
+p(S_2=\text{y} | S_1=\text{t}) &= 1/3 \\
+p(S_2=\text{y} | S_1=\text{f}) &= 2/3
+\end{align}
+```
+We are asked to compute ``p(S_1=\text{t} | S_2=\text{y})``. Use Bayes rule,
+```math			
+\begin{align}
+p(S_1=\text{t} | S_2=\text{y}) &= \frac{p(S_1=\text{t},S_2=\text{y})}{p(S_2=\text{y})} \\
+&= \frac{\overbrace{p(S_2=\text{y}|S_1=\text{t})p(S_1=\text{t})}^{\text{both speak the truth}}}{\underbrace{p(S_2=\text{y}|S_1=\text{t})p(S_1=\text{t})}_{\text{both speak the truth}}+\underbrace{p(S_2=\text{y}|S_1=\text{f})p(S_1=\text{f})}_{\text{both lie}}}\\
+&= \frac{\frac{1}{3}\cdot\frac{1}{3}}{\frac{1}{3}\cdot\frac{1}{3}+\frac{2}{3}\cdot\frac{2}{3}} = \frac{1}{5}
+\end{align}
+```
+""")
+
+# ╔═╡ a8d4a517-84a7-426e-a49e-482c5fd047ae
+md"""
+##### The Likelihood Function is a Function of What?
+
+When considering the distribution ``p(D|\theta)``, is it more correct to speak about the likelihood of the model parameters ``\theta`` than about the likelihood of the observed data set ``D``. And why?
+
+"""
+
+# ╔═╡ d3b003c6-70ca-419f-a343-e35b266323f3
+details("Click for solution",
+md"""
+Yes, it’s more correct to speak about the likelihood of the model parameters, not of the observed data set. Once ``D`` has been observed, it is no longer a random variable; it’s just a fixed outcome. What varies is ``\theta``, so ``L(\theta) = p(D|\theta)`` is a function of the parameters, not of the data.
+
+Saying “likelihood of the data” is misleading because it confuses likelihood with the sampling distribution ``p(D|\theta)`` seen as a function of ``D`` (where ``\theta`` is fixed). The latter is a probability distribution over possible data sets before observing them.
+""")
 
 # ╔═╡ dd31ec7c-708d-4fd7-958d-f9887798a5bc
 md"""
@@ -1235,9 +1484,9 @@ PlutoUI = "~0.7.68"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "27c6add76aa17575a875334f1922df0d3360412d"
+project_hash = "8ba82f028e7a30038ecc7658ed5cf3cc5fdd784a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1253,13 +1502,15 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1295,12 +1546,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -1317,16 +1566,6 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
-
-[[deps.Compat]]
-deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
-uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.17.0"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1350,14 +1589,15 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
 [[deps.DataStructures]]
-deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "76b3b7c3925d943edf158ddb7f693ba54eb297a5"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.22"
+version = "0.19.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1429,6 +1669,7 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1551,6 +1792,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1636,16 +1878,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1654,6 +1897,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1694,6 +1938,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1713,6 +1958,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1733,6 +1979,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1743,7 +1990,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1758,10 +2005,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1782,7 +2030,7 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1797,9 +2045,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
+git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.1+0"
+version = "3.5.2+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1848,9 +2096,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1866,9 +2118,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
+git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.17"
+version = "1.40.18"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1886,15 +2138,15 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "ce33e4fd343e43905a8416e6148de8c630101909"
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.68"
+version = "0.7.69"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1904,13 +2156,14 @@ version = "1.2.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
+git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -1954,12 +2207,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2014,6 +2269,7 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2028,17 +2284,18 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2059,9 +2316,14 @@ uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2071,9 +2333,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2089,6 +2351,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2096,7 +2362,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2117,6 +2383,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2124,9 +2391,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2136,9 +2403,11 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2148,9 +2417,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.23.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -2416,7 +2685,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2480,6 +2749,7 @@ version = "1.9.2+0"
 # ╟─3e1b4b1c-d294-11ef-0423-9152887cc403
 # ╟─3e1b5c9c-d294-11ef-137f-d75b3731eae4
 # ╟─3e1b7d14-d294-11ef-0d10-1148a928dd57
+# ╟─5377c5a4-77c4-4fa7-9f84-0c511e3bf708
 # ╟─3e1b8bf4-d294-11ef-04cc-6364e46fdd64
 # ╟─3e1b9ba8-d294-11ef-18f2-db8eed3d87d0
 # ╟─3e1babca-d294-11ef-37c1-cd821a6488b2
@@ -2505,7 +2775,11 @@ version = "1.9.2+0"
 # ╟─8a7dd8b7-5faf-4091-8451-9769f842accb
 # ╟─3e1d20e0-d294-11ef-2044-e1fe6590a600
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
+# ╟─4c639e65-e06b-4c5e-b6e7-aabed6b6c0b4
+# ╟─ff9142ba-3a85-48cf-8b78-07e0b554e280
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
+# ╟─727dc817-0284-4c0f-9a92-21dcbea50807
+# ╟─fae6f2ce-ac8f-4ea6-b2cf-38b30a7e20d4
 # ╟─178721d2-624c-4ac4-8fa1-ded23da7feef
 # ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
 # ╟─2156f96e-eebe-4190-8ce9-c76825c6da71
@@ -2516,7 +2790,10 @@ version = "1.9.2+0"
 # ╟─3e1e5a5a-d294-11ef-2fdf-efee4eb1a0f2
 # ╟─3e1e7742-d294-11ef-1204-f9be24da07ab
 # ╟─3e1e9224-d294-11ef-38b3-137c2be22400
+# ╟─d2202628-e4f9-4289-b48e-23b5a0073f94
+# ╟─58f70d3e-4b64-414e-b560-327be2a0c4c2
 # ╟─3e1ea442-d294-11ef-1364-8dd9986325f7
+# ╟─6d07be25-53d0-46b9-b197-a3680d830952
 # ╟─3e1eba72-d294-11ef-2f53-b56f1862fcbb
 # ╟─3e1ed1a4-d294-11ef-2de4-d7cc540e06a1
 # ╟─3e1eeb14-d294-11ef-1702-f5d2cf6fe60a
@@ -2538,12 +2815,26 @@ version = "1.9.2+0"
 # ╟─3e1f7d5e-d294-11ef-2878-05744036f32c
 # ╟─3e1f8e48-d294-11ef-0f8a-b58294a8543d
 # ╟─3e1fa04a-d294-11ef-00c3-a51d1aaa5553
+# ╟─50bdc2fe-f48d-4c4e-8b4e-170782681366
+# ╟─db73766d-643c-41d7-a1eb-f376c657f860
 # ╟─3e1fb370-d294-11ef-1fb6-63a41a024691
+# ╟─317707a3-9ef1-4c67-b451-6adcfcff50f0
 # ╟─3e1fd38a-d294-11ef-05d3-ad467328be96
 # ╟─3e1fe0de-d294-11ef-0d8c-35187e394292
 # ╟─3e1fedfc-d294-11ef-30ee-a396bb877037
 # ╟─3e1ffc5c-d294-11ef-27b1-4f6ccb64c5d6
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
+# ╟─03692f4d-0daf-4dfc-a7ff-6b954326e4d0
+# ╟─3a1d380e-df80-4727-9772-f199214cf05d
+# ╟─3b1b0869-b815-4697-9dba-3c4b4cb5ac47
+# ╟─5f377237-d9a5-4778-aa4d-1c6ce109b705
+# ╟─5613e9b7-ff0d-435a-9de6-aaf293ebf592
+# ╟─fc3151f9-e143-4e31-b7b7-3f25b4fe9dab
+# ╟─66ebe33c-8360-4938-9b51-625e5bed176c
+# ╟─5b681e41-ad14-4c58-8ea0-4b6d85885c51
+# ╟─91dd40f0-c373-48b3-b83b-6e8df2c43e5a
+# ╟─a8d4a517-84a7-426e-a49e-482c5fd047ae
+# ╟─d3b003c6-70ca-419f-a343-e35b266323f3
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
 # ╠═7910a84c-18b3-4081-9f01-e59258a01adb
