@@ -26,11 +26,11 @@ News and Announcements
 - [Prof.dr.ir. Bert de Vries](http://bertdv.nl) (email: bert.de.vries@tue.nl) is the responsible instructor for this course and teaches the [lectures with label B](#lectures).
 - [Dr. Wouter Kouw](https://biaslab.github.io/member/wouter/) (w.m.kouw@tue.nl) teaches the probabilistic programming [lectures with label W](#lectures).
 - [Fons van der Plas](https://biaslab.github.io/member/fons/) is our educational advisor who is responsible for all Pluto-related issues. If you have ideas on making the course more interactive, contact Fons.
-- [Wouter Nuijten](https://biaslab.github.io/member/woutern) and [Thijs Jeneskens](https://biaslab.github.io/member/thijsJ/) are the teaching assistants.
+- [Wouter Nuijten](https://biaslab.github.io/member/woutern) and [Thijs Jenneskens](https://biaslab.github.io/member/thijsJ/) are the teaching assistants.
 
 ## Materials
 
-In principle, you can download all needed materials from the links below. This course is based on [Pluto.jl](https://plutojl.org/).
+In principle, all the necessary materials can be downloaded from the links below. This course is based on [Pluto.jl](https://plutojl.org/).
 
 <!--
 
@@ -63,7 +63,7 @@ Please follow the [software installation instructions]() TODO ADD URL. If you en
 ### <a name="lectures">Lecture notes, exercises, assignment and video recordings</a>
 
 
-You can access all lecture notes, assignments, videos and exercises online through the links below:
+You can access all lecture notes, assignments, videos, and exercises online through the links below:
 
 <table border = "1">
          <tr>
@@ -80,7 +80,7 @@ You can access all lecture notes, assignments, videos and exercises online throu
          <tr>
             <td>12-Nov-2025 <em>(Wed)</em></td>
             <td>⚪️ B0: Course Syllabus<br/>
-            B1: Machine Learning Overview</td>
+            ⚪️ B1: Machine Learning Overview</td>
             <td><a href="https://bmlip.github.io/course/lectures/Course%20Syllabus.html">B0</a>, <a href="https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html">B1</a></td>
             <td></td>
             <td></td>
@@ -181,7 +181,7 @@ You can access all lecture notes, assignments, videos and exercises online throu
          </tr>
          <tr>
             <td>12-Dec-2025 <em>(Fri)</em></td>
-            <td>⚪️ B8: Generative Classification <br/>B9: Discriminative Classification
+            <td>⚪️ B8: Generative Classification <br/>⚪️ B9: Discriminative Classification
             </td>
             <td><a href="https://bmlip.github.io/course/lectures/Generative%20Classification.html">B8</a>, <a href="https://bmlip.github.io/course/lectures/Discriminative%20Classification.html">B9</a></td>
             <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Classification.ipynb">B8-9-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Classification.ipynb">B8-9-sol</a></td>

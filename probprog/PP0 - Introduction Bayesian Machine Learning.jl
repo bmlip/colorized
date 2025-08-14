@@ -93,7 +93,7 @@ md"""A couple of things to note about the code block:
 - You can use greek letters as variables (write them like in latex, e.g. \alpha, and press `tab`)
 - To get sliders, you can wrap html code. The "@" in front of 'bind' is called a ["macro" operator](https://docs.julialang.org/en/v1/base/base/#macro). It essentially groups a set of commands into one to get a clean function call.
 - Ranges of numbers work just like they do in Matlab (e.g. `0.0:0.1:1.0`) and Python (e.g. `range(0.0, stop=100., length=100)`). Note that Julia is strict about types, i.e. it will generate integers if you don't use a decimal point.
-- There is a `.` after the command `pdf`. This refers to ["broadcasting"](https://julia.guide/broadcasting): the function is applied to each element of a list or array. Here we use the `pdf` command to compute the probability for each value of $\theta$ in the array.
+- There is a `.` after the command `pdf`. This refers to ["broadcasting"](https://julia-guide.netlify.app/broadcasting): the function is applied to each element of a list or array. Here we use the `pdf` command to compute the probability for each value of $\theta$ in the array.
 - Many of the keyword arguments in the `plot` command should be familiar to you if you've worked with [Matplotlib](https://matplotlib.org/) (Python's plotting library).
 - In the `label=` argument to plots, we have performed \"string concatenation\". In Julia, you write a string with double-quote characters and concatenate two strings by "multiplying", i.e. using `*`.
 

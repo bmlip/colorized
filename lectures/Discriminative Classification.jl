@@ -12,11 +12,20 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-using Random
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
-# ╔═╡ ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-using Plots, LaTeXStrings
+# ╔═╡ a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
+using Random, Plots, LaTeXStrings
 
 # ╔═╡ 6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
 using Optim # Optimization library
@@ -43,47 +52,60 @@ PlutoUI.TableOfContents()
 md"""
 ## Preliminaries
 
-Goal 
+##### Goal 
 
   * Introduction to discriminative classification models
 
-Materials        
+##### Materials        
 
   * Mandatory
 
       * These lecture notes
   * Optional
 
-      * Bishop pp. 213 - 217 (Laplace approximation)
-      * Bishop pp. 217 - 220 (Bayesian logistic regression)
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 213 - 217 (Laplace approximation)
+      * [Bishop PRML book](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf) (2006), pp. 217 - 220 (Bayesian logistic regression)
       * [T. Minka (2005), Discriminative models, not discriminative training](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf)
 
 """
 
+# ╔═╡ fe66a986-2f55-4417-a71d-b3b99f6369cc
+section_outline("Challenge:", "difficult class-conditional data distributions" , color= "red" )
+
 # ╔═╡ 25ef2806-d294-11ef-3cb6-0f3e76b9177e
 md"""
-## Challenge: difficult class-conditional data distributions
-
 Our task will be the same as in the preceding class on (generative) classification. But this time, the class-conditional data distributions look very non-Gaussian, yet the linear discriminative boundary looks easy enough:
 
 """
 
-# ╔═╡ ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# Generate dataset {(x1,y1),...,(xN,yN)}
-# x is a 2-d feature vector [x_1;x_2]
-# y ∈ {false,true} is a binary class label
-# p(x|y) is multi-modal (mixture of uniform and Gaussian distributions)
+# ╔═╡ 4ceede48-a4d5-446b-bb34-26cec4af357a
+begin
+	N_bond = @bindname N Slider(9:200; default=120, show_value=true)
+end
 
-N = 200;
+# ╔═╡ cf829697-6283-4d2f-b0dd-bbfbd689a145
+md"""
+### Implementation
+"""
 
-# ╔═╡ c5777ae3-e499-46a6-998a-05b97693b3e1
+# ╔═╡ b5bc379c-5a0e-4b13-99fe-92632250a35e
+md"""
+Split X based on class label:
+"""
+
+# ╔═╡ ddb2dc0d-3ef9-4add-93e9-ee575aabd81a
 X_test = [3.75; 1.0] # Features of 'new' data point
+
+# ╔═╡ d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
+md"""
+# Bayesian Logistic Regression
+"""
 
 # ╔═╡ 25ef6ece-d294-11ef-270a-999c8d457b24
 md"""
-## Main Idea of Discriminative Classification
+## Framework
 
-Again, a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
+A data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathcal{C}_k``, with ``k=1,\ldots,K``.
 
 """
 
@@ -119,8 +141,7 @@ Similarly to regression, we will assume that the inputs ``x`` are given, so we w
 
 # ╔═╡ 25efd6b6-d294-11ef-3b21-6363ef531eb5
 md"""
-## Model Specification for Bayesian Logistic Regression
-
+## Model Specification 
 We will work this idea out for a 2-class problem. Assume a data set is given by  ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \{0,1\}``.
 
 """
@@ -133,7 +154,7 @@ What model should we use for the posterior distribution ``p(y_n \in \mathcal{C}_
 
 # ╔═╡ 25f0adde-d294-11ef-353e-4b4773df9ff5
 md"""
-#### Likelihood
+#### Data-generating distribution
 
 We will take inspiration from the [generative classification](https://bmlip.github.io/course/lectures/Generative%20Classification.html#softmax) approach, where we derived the class posterior 
 
@@ -161,6 +182,9 @@ Clearly, it follows from this assumption that ``p(y_n =0 \,|\, x_n, w) = 1- \sig
 
 """
 
+# ╔═╡ 7d8f376c-b43f-46f4-87bc-c4d7f94d60e1
+TODO("can we make a mini on the softmax function and its special case, the logistic function? The graph below, including its approximation should be generated in Julia, not taken as an png from Bishop.")
+
 # ╔═╡ 25f0f618-d294-11ef-0d94-bf80c8e2957b
 md"""
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true)
@@ -187,25 +211,26 @@ Each of these three models in B-4.89 are **equivalent**. We mention all three no
 
 """
 
-# ╔═╡ 25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╔═╡ b94644f8-725d-49bf-9641-3dad8b647f45
 md"""
-For the data set ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the **likelihood function** for the parameters ``w`` is then given by
+As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
 
 ```math
-p(D|w) = \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)
+\frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
 ```
 
+is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 """
 
 # ╔═╡ 25f14226-d294-11ef-369f-e545d5fe2700
 md"""
-This choice for the class posterior is called **logistic regression**, in analogy to **linear regression**:
+This choice for the class posterior is called **logistic regression**, in analogy to [linear regression](https://bmlip.github.io/course/lectures/Regression.html#likelihood-function):
 
 ```math
-\begin{align*}
-p(y_n|x_n,w) &= \mathcal{N}(y_n|w^T x_n,\beta^{-1}) \quad &&\text{for linear regression} \\
-p(y_n|x_n,w) &= \sigma\left( (2y_n-1) w^T x_n\right) &&\text{for logistic regression}
-\end{align*}
+\begin{align}
+p(y_n|x_n,w) &= \mathcal{N}(y_n|w^T x_n,\beta^{-1}) \tag{for linear regression} \\
+p(y_n|x_n,w) &= \sigma\left( (2y_n-1) w^T x_n\right) \tag{for logistic regression}
+\end{align}
 ```
 
 """
@@ -229,31 +254,34 @@ p(w) = \mathcal{N}(w \,|\, m_0, S_0) \tag{B-4.140}
 ```
 """
 
-# ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
+# ╔═╡ 25f19ed8-d294-11ef-3298-efa16dda1dde
 md"""
-## Some Notes on the Model
+## Parameter Inference
 
-Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. In principle, we could have used Bayesian parameter estimation for the generative classification model as well (but the math is not suited for a introductory lesson).  
+Note that for generative classification, for the sake of simplicity, we used maximum likelihood estimation for the model parameters. We could have used Bayesian parameter estimation for the generative classification model but the math is not suited for an introductory lesson. 
 
-In the optional paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), you can read how the model assumptions for discriminative classification can be re-interpreted as a special generative model (this paper not for exam). 
+In this lesson on discriminative classification, we specify both a prior and likelihood function for the parameters ``w``, which allows us to compute a Bayesian posterior for the weights. 
 
-As an exercise, please check that for logistic regression with ``p(y_n =1 \,|\, x_n, w) = \sigma(w^T x_n)``, the **discrimination boundary**, which can be computed by
+As before, once the model is specified, everything else follows directly from the rules of probability theory.
 
-```math
-\frac{p(y_n\in\mathcal{C}_1|x_n)}{p(y_n\in\mathcal{C}_0|x_n)} \overset{!}{=} 1
-```
-
-is a straight line, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-Classification.ipynb). 
 
 """
 
-# ╔═╡ 25f19ed8-d294-11ef-3298-efa16dda1dde
+# ╔═╡ 25f1390c-d294-11ef-364d-17e4c93b9a57
 md"""
-## $(HTML("<span id='logistic-regression-posterior'>Parameter Inference</span>"))
+For the data set ``D = \{(x_1,y_1),\dotsc,(x_N,y_N)\}``, the **likelihood function** for the parameters ``w`` is given by
 
-After model specification, the rest follows by application of probability theory.
+```math
+p(D|w) = \prod_{n=1}^N p(y_n|x_n,w) = \prod_{n=1}^N \sigma\left( (2y_n-1) w^T x_n\right)
+```
 
-The posterior for the weights follows by Bayes rule
+"""
+
+# ╔═╡ bda07a2e-3769-4ffe-9bc5-2b8a515247f6
+md"""
+
+
+The posterior for the weights follows by Bayes rule,
 
 ```math
 \begin{align*}
@@ -261,22 +289,21 @@ The posterior for the weights follows by Bayes rule
 \end{align*}
 ```
 
-In principle, Bayesian inference is done now! 
+In principle, Bayesian learning of the parameters is done now! 
 
-Unfortunately, the posterior ``p(w \,|\, D)`` is not Gaussian and the evidence ``p(D)`` is also not analytically computable. (We will deal with this later).
-
+Unfortunately, the posterior ``p(w | D)`` is not Gaussian, and the evidence ``p(D)`` is also not analytically computable. (We will deal with this later).
 """
 
 # ╔═╡ 25f1ab08-d294-11ef-32ed-493792e121b7
 md"""
 ## Application: the predictive distribution
 
-For a new data point ``x_\bullet``, the predictive distribution for ``y_\bullet`` is given by 
+For a new data point ``x_\bullet``, the predictive distribution for ``y_\bullet=1`` is given by 
 
 ```math
 \begin{align*}
-p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \, p(w\,|\, D) \,\mathrm{d}w \\
-  &= \int \sigma(w^T x_\bullet) \, p(w\,|\, D) \,\mathrm{d}w \tag{B-4.145}
+p(y_\bullet = 1 | x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \, p(w| D) \,\mathrm{d}w \\
+  &= \int \sigma(w^T x_\bullet) \, p(w| D) \,\mathrm{d}w \tag{B-4.145}
 \end{align*}
 ```
 
@@ -284,86 +311,176 @@ p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \
 
 # ╔═╡ 25f1b404-d294-11ef-1c3a-a5a8142bb202
 md"""
-After substitution of ``p(w | D)`` from B-4.142, we have closed-form expressions for both the posterior ``p(w|D)`` and the predictive distribution ``p(y_\bullet = 1 \mid x_\bullet, D)``. Unfortunately, these expressions contain integrals that are not analytically computable. 
+While Eq. B-4.145 gives the expression for the Bayesian predictive class distribution, the integral becomes analytically intractable when we substitute the posterior distribution over weights, ``p(w | D)`` (from Eq. B-4.142), into it :(
 
 """
 
 # ╔═╡ 25f1c2a0-d294-11ef-009c-69b64e87e5fb
 md"""
-Many methods have been developed to approximate the integrals in order to get analytical or numerical solutions. Here, we present the **Laplace approximation**, which is one of the simplest methods with broad applicability to Bayesian calculations.
+Many methods have been developed to approximate these types of Bayesian integrals. Here, we present the **Laplace approximation**, which is one of the simplest methods with broad applicability to Bayesian calculations.
 
+"""
+
+# ╔═╡ 3422dd29-6da9-4e0f-a4ab-646f223c2244
+md"""
+## Working out Numerics with Laplace Approximation
+"""
+
+# ╔═╡ 8b0bb225-bdc1-45ec-bd34-68d674d6f08d
+md"""
+The **Laplace Approximation** approximates a function by a Gaussian-shaped function. In this case, we will approximate the weight posterior ``p(w|D)`` by a Gaussian distribution
+
+```math
+q(w) = \mathcal{N}\left(w\,|\, w_{N}, S_N\right) \tag{B-4.144}
+```
+
+with
+
+```math
+\begin{align}
+w_N &= \arg\max_w \log p(w|D) \\
+S_N^{-1} &= S_0^{-1} + \sum_n \sigma_n (1-\sigma_n) x_n x_n^T \tag{B-4.143}
+\end{align}
+```
+where we used short-hand ``\sigma_n = \sigma\left((2y_n-1) w^T x_n\right)``.
+
+If we substitute the Gaussian approximation from Eq. B-4.143 into the expression for the predictive class distribution (Eq. B-4.145), we obtain (after some additional approximations):
+
+```math
+\begin{align*}
+p(y_\bullet = 1 \mid x_\bullet, D) &= \int p(y_\bullet = 1 \,|\, x_\bullet, w) \cdot p(w\,|\, D) \,\mathrm{d}w \\
+  &\approx  \int \sigma(w^T x_\bullet) \cdot \mathcal{N}\left(w \,|\, w_N, S_N\right) \,\mathrm{d}w \tag{B-4.145} \\
+&\approx \Phi\left( \frac{\mu_a}{\sqrt(\lambda^{-2} +\sigma_a^2)}\right) \tag{B-4.152}
+\end{align*}
+```
+
+where 
+
+```math
+\begin{align}
+\lambda^2 &= \pi / 8 \\
+\mu_a  &= w^T_{N} x_\bullet \tag{B-4.149} \\
+\sigma_a^2 &= x^T_\bullet S_N x_\bullet \tag{B-4.150}
+\end{align}
+```
+and ``\Phi(x)= \frac{1}{\sqrt(2\pi)}\int_{-\infty}^{x}e^{-t^2/2}\mathrm{d}t`` is the Gaussian cumulative distribution function (CDF) . The Gaussian CDF closely approximates the logistic sigmoid function, with 
+``\Phi(\sqrt{\pi/8} a) \approx \sigma(a)``. 
+
+
+"""
+
+# ╔═╡ ae2b23f0-853e-4237-aab2-81c961f52cf6
+md"""
+Although the intermediate equations may look intimidating, the final result for the predictive distribution Eq. B-4.152 has a simple closed-form expression.
+
+"""
+
+# ╔═╡ e4cc517b-d3b5-4517-a28b-efb8aba24496
+md"""
+The numerical issues associated with the Laplace approximation and the evaluation of the predictive class distribution are discussed in detail in the following mini-lecture.
 """
 
 # ╔═╡ 33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
 NotebookCard("https://bmlip.github.io/course/minis/Laplace%20Approximation.html")
 
-# ╔═╡ 25f356b0-d294-11ef-17b9-8583928f7829
+# ╔═╡ 38b4854f-be02-4696-802f-2106481e3aea
 md"""
-## ML Estimation for Discriminative Classification
+## Bayesian Processing of Uncertainties
 
-Rather than the computationally involved Laplace approximation for Bayesian inference, in practice, discriminative classification is often executed through maximum likelihood estimation. 
+We now make an important observation: According to Eq. B-4.143, the posterior covariance matrix ``S_N`` of the weight vector depends on both the prior variance ``S_0`` and the distribution of the training data ``\{(x_n, y_n)\}_{n=1}^N``. In regions with limited training data and/or an uninformative prior (i.e., large ``S_0``), the posterior uncertainty about the weights remains high. This increased uncertainty raises ``\sigma_a^2`` in Eq. B-4.150, **causing the posterior class probability in Eq. B-4.152 to approach ``0.5``** (since ``\Phi(0) = 0.5``, see [Gaussian CDF image](https://en.wikipedia.org/wiki/Normal_distribution#/media/File:Normal_Distribution_CDF.svg)), thereby reflecting greater uncertainty in the prediction.
+
+In other words, if you draw a new feature ``x_\bullet`` from a region with little training data, then the predictive class probability ``p(y_\bullet | x_\bullet, D)`` naturally tends toward ``0.5``, a built-in expression of uncertainty, courtesy of the Bayesian framework.
+
+In contrast, if you eliminate uncertainty by representing the weights as fixed-point estimates (i.e., as mere numbers), then the model becomes overconfident. It will still produce sharp predictions, even in regions where it has seen no data, exactly when it should be most uncertain. 
+
+"""
+
+# ╔═╡ 0045e569-dc3c-4998-86da-9d96f599c599
+md"""
+# Maximum Likelihood Estimation
 
 """
 
 # ╔═╡ 25f365e2-d294-11ef-300e-9914333b1233
 md"""
-With the usual 1-of-K encoding scheme for classes (``y_{nk}=1`` if ``x_n \in \mathcal{C}_k``, otherwise ``y_{nk}=0``), the log-likelihood for a ``K``-dimensional discriminative classifier is 
+
+## MLE Parameter Estimation
+
+Rather than the computationally involved Laplace approximation, in practice, discriminative classification is often executed through maximum likelihood estimation. 
+
+With the usual 1-of-K encoding scheme for classes,
+
+```math 
+y_{nk} = \begin{cases} 1 & \text{if } x_n \in \mathcal{C}_k \\ 
+  0 & \text{otherwise}  \,,\end{cases}
+```
+
+the log-likelihood for a ``K``-dimensional discriminative classifier evaluates to
 
 ```math
 \begin{align*}
-    \mathrm{L}(\theta) &= \log \prod_n \prod_k {p(\mathcal{C}_k|x_n,\theta)}^{y_{nk}} \\
-    &= \log \prod_n \prod_k \Bigg(\underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{softmax function}}\Bigg)^{y_{nk}} \\
-    &= \sum_n \sum_k y_{kn} \log \big( \frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}} \big)
+    \mathrm{L}(w) &= \log \prod_n \prod_k {p(\mathcal{C}_k|x_n,w)}^{y_{nk}} \\
+    &= \sum_n \sum_k y_{kn} \log \bigg( \underbrace{\frac{e^{w_k^T x_n}}{ \sum_j e^{w_j^T x_n}}}_{=\text{softmax}(w_k^T x_n)} \bigg)
      \end{align*}
 ```
 
-"""
-
-# ╔═╡ 25f3741a-d294-11ef-1418-f11326406eb6
-md"""
-Computing the gradient ``\nabla_{\theta_k} \mathrm{L}(\theta)`` leads to (for [proof, see optional slide below](#ML-for-LG)) 
-
+The gradient ``\nabla_{w_k} \mathrm{L}(w)`` to the weight  ``w_k`` can be worked out to
 ```math
-\nabla_{\theta_k} \mathrm{L}(\theta) = \sum_n \underbrace{\big( \underbrace{y_{nk}}_{\text{target}} - \underbrace{\frac{e^{\theta_k^T x_n}}{ \sum_j e^{\theta_j^T x_n}}}_{\text{prediction}} \big)}_{\text{prediction error}}\cdot x_n 
+\nabla_{w_k} \mathrm{L}(w) = \sum_n \underbrace{\big( \underbrace{y_{nk}}_{\text{target}} - \underbrace{\frac{e^{w_k^T x_n}}{ \sum_j e^{w_j^T x_n}}}_{\text{prediction}} \big)}_{\text{prediction error}}\cdot x_n  .
 ```
 
 """
 
-# ╔═╡ 25f386e4-d294-11ef-2cec-f56f4a6feb19
-md"""
-Compare this to the [gradient for *linear* regression](https://bmlip.github.io/course/lectures/Regression.html#regression-gradient):
+# ╔═╡ 3b24b142-2239-4951-9177-ff87b5da4b68
+details("Click for proof", 
+	   md"""
+The Log-likelihood is 
 
 ```math
-\nabla_\theta \mathrm{L}(\theta) =  \sum_n \left(y_n - \theta^T x_n \right)  x_n
+\mathrm{L}(w) = \log \prod_n \prod_k {\underbrace{p(y_{nk}=1|x_n,w)}_{p_{nk}}}^{y_{nk}} = \sum_{n,k} y_{nk} \log p_{nk}
 ```
+
+Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative,
+
+```math
+ \begin{align*}
+ \frac{\partial \phi_k}{\partial a_j} &= \frac{(\sum_j e^{a_j})e^{a_k}\delta_{kj}-e^{a_j}e^{a_k}}{(\sum_j e^{a_j})^2} = \frac{e^{a_k}}{\sum_j e^{a_j}}\delta_{kj} - \frac{e^{a_j}}{\sum_j e^{a_j}} \frac{e^{a_k}}{\sum_j e^{a_j}}\\
+     &= \phi_k \cdot(\delta_{kj}-\phi_j) \,.
+ \end{align*}
+```
+
+Take the derivative of ``\mathrm{L}(w)`` (or: how to spend an hour ...)
+
+```math
+\begin{align*} 
+\nabla_{w_j} \mathrm{L}(w) &= \sum_{n,k} \frac{\partial \mathrm{L}_{nk}}{\partial p_{nk}} \cdot\frac{\partial p_{nk}}{\partial a_{nj}}\cdot\frac{\partial a_{nj}}{\partial w_j} \\
+  &= \sum_{n,k} \frac{y_{nk}}{p_{nk}} \cdot p_{nk} (\delta_{kj}-p_{nj}) \cdot x_n \\
+  &= \sum_n \Big( y_{nj} (1-p_{nj}) -\sum_{k\neq j} y_{nk} p_{nj} \Big) \cdot x_n \\
+  &= \sum_n \left( y_{nj} - p_{nj} \right)\cdot x_n \\
+  &= \sum_n \Big( \underbrace{y_{nj}}_{\text{target}} - \underbrace{\frac{e^{w_j^T x_n}}{\sum_{j^\prime} e^{w_{j^\prime}^T x_n}}}_{\text{prediction}} \Big)\cdot x_n 
+\end{align*}
+```
+
+		
+		""")
+
+# ╔═╡ ff31d8c1-db35-4c85-a609-67fc40e9e78d
+md"""
+
+The parameter vector ``w`` for logistic regression can then be estimated through iterative gradient-based adaptation. For instance, start with a random weight ``\hat{w} = w_0``, and iterate through
+
+```math
+\hat{w}^{(i+1)} =  \hat{w}^{(i)} + \eta \cdot \left. \nabla_w   \mathrm{L}(w)  \right|_{w = \hat{w}^{(i)}}
+```
+until convergence. 
 
 """
 
-# ╔═╡ 25f3965c-d294-11ef-11b8-af605b86f188
-md"""
-In both cases
-
-```math
-\nabla_\theta \mathrm{L} =  \sum_n \left( \text{target}_n - \text{prediction}_n \right) \cdot \text{input}_n 
-```
-
-"""
-
-# ╔═╡ 25f3a638-d294-11ef-0cd5-c3a46aa780c6
-md"""
-The parameter vector ``\theta`` for logistic regression can be estimated through iterative gradient-based adaptation. E.g. (with iteration index ``i``),
-
-```math
-\hat{\theta}^{(i+1)} =  \hat{\theta}^{(i)} + \eta \cdot \left. \nabla_\theta   \mathrm{L}(\theta)  \right|_{\theta = \hat{\theta}^{(i)}}
-```
-
-Note that, while in the Bayesian approach we get to update ``\theta`` with [**Kalman-gain-weighted** prediction errors](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#precision-weighted-update) (which is optimal), in the maximum likelihood approach, we weigh the prediction errors with **input** values (which is less precise).
-
-"""
+# ╔═╡ 7932fff4-0568-49de-b34c-711e51487ae3
+section_outline("Challenge Revisited:", "Bayesian Logistic Regression for Difficult Class-conditional Data Distributions" , color= "green" )
 
 # ╔═╡ 25f3bef2-d294-11ef-1438-e9f7e469336f
 md"""
-## Code Example: ML Estimation for Discriminative Classification
 
 Let us perform ML estimation of ``w`` on the data set from the introduction. To allow an offset in the discrimination boundary, we add a constant 1 to the feature vector ``x``. We only have to specify the (negative) log-likelihood and the gradient w.r.t. ``w``. Then, we use an off-the-shelf optimisation library to minimize the negative log-likelihood.
 
@@ -371,12 +488,20 @@ We plot the resulting maximum likelihood discrimination boundary. For comparison
 
 """
 
+# ╔═╡ aaf764da-cf1b-4bc7-83ea-6d25a80ca3ab
+N_bond
+
 # ╔═╡ 25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
 md"""
 The generative model gives a bad result because the feature distribution of one class is clearly non-Gaussian: the model does not fit the data well. 
 
 The discriminative approach does not suffer from this problem because it makes no assumptions about the feature distribution ``p(x)``. Rather, it just estimates the conditional class distribution ``p(y|x)`` directly.
 
+"""
+
+# ╔═╡ 1f2bfcf4-fef4-4612-8683-d5c86a326eef
+md"""
+# Closing Thoughts
 """
 
 # ╔═╡ 25f3ff84-d294-11ef-0031-63b23d23324d
@@ -387,15 +512,20 @@ Why should you embrace the Bayesian approach to logistic regression? After all, 
 
 Still, consider the following:
 
-  * Bayesian logistic regression with the Laplace approximation ultimately leads to very simple analytic rules. Moreover, modern probabilistic programming languages and packages are able to automate the above inference derivations. (We just do them here to gain insight in difficult inference processes.)
-  * Bayesian logistic regression offers the option to compute model evidence.
-  * Bayesian logistic regression processes uncertainties, e.g., in places where almost no data is observed, the posterior class probability will pull back to the prior class probability rather than predicting some arbitrary probability.
+  * Bayesian logistic regression with the Laplace approximation ultimately leads to very simple analytic rules. Moreover, modern probabilistic programming languages and packages are able to automate the above inference derivations. (We just do them here to gain insight into a difficult inference process.)
+
+  * Bayesian logistic regression allows for the computation of model evidence, enabling principled comparison of model performance across alternative models.
+
+  * Perhaps most importantly, Bayesian logistic regression processes uncertainties, e.g., in places where almost no data is observed, the posterior class probability will pull back to the prior class probability rather than predicting some arbitrary probability.
 
 """
 
 # ╔═╡ 25f41118-d294-11ef-13a8-3fa6587c1bf3
 @mdx """
 ## Recap Classification
+
+Let us recapitulate the differences between the generative and discriminative approaches to classification in a table:
+
 
 <table> <tr> <td></td><td style="text-align:center"><b>Generative</b></td> <td style="text-align:center"><b>Discriminative (ML)</b></td> </tr> 
 
@@ -448,84 +578,21 @@ For Gaussian ``p(x|\\mathcal{C}_k)`` and multinomial priors,
 
 """
 
+# ╔═╡ 25f19230-d294-11ef-2dfd-6d4927e86f57
+md"""
+## Discriminative Training or Discriminative Models?
+
+In this lecture series, we presented two approaches to classification, namely the generative and the discriminative approach.  
+
+While the discriminative approach is intuitive and effective for many tasks, it sits somewhat uncomfortably with the [Bayesian modeling approach](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#The-Bayesian-Modeling-Approach) outlined in the Bayesian Machine Learning lecture. Specifically, the discriminative approach does not define a full joint model over all variables in the system. Instead, it focuses only on modeling the conditional distribution ``p(y | x)``, effectively ignoring the input distribution ``p(x)`` that would normally be part of a fully generative Bayesian model.
+
+In a short paper by [T. Minka (2005)](https://github.com/bmlip/course/blob/main/assets/files/Minka-2005-Discriminative-models-not-discriminative-training.pdf), the model assumptions underlying discriminative classification are reinterpreted as arising from a special case of a generative model. This effectively restores discriminative approaches as fully compatible with the Bayesian modeling framework. (Note: the Minka paper is not required reading for the exam.)
+
+"""
+
 # ╔═╡ 6eee35ee-fd55-498f-9441-f18c2508de19
 md"""
 # Appendix
-"""
-
-# ╔═╡ 25f42e98-d294-11ef-1f51-8b6b81987cc4
-md"""
-## $(HTML("<span id='gradient-hessian'>Proof of gradient and Hessian for Laplace Approximation of Posterior</span>"))
-
-We will start with the posterior
-
-```math
-\begin{align*}
-\underbrace{p(w | D)}_{\text{posterior}} \propto  \underbrace{\mathcal{N}(w \,|\, m_0, S_0)}_{\text{prior}} \cdot \underbrace{\prod_{n=1}^N \sigma\big( \underbrace{(2y_n-1) w^T x_n}_{a_n}\big)}_{\text{likelihood}}  \tag{B-4.142}
-\end{align*}
-```
-
-from which it follows that
-
-```math
-\begin{align*}
-\log p(w | D) \propto  -\frac{1}{2}\log |S_0| -\frac{1}{2} (w-m_0)^T S_0^{-1} (w-m_0) +\sum_n \log \sigma\left( a_n\right) 
-\end{align*}
-```
-
-and the gradient
-
-```math
-\begin{align*}
-\nabla_{w}\log p(w | D) &\propto   \underbrace{S_0^{-1} (m_0-w)}_{\text{SRM-5b}} +\sum_n \underbrace{\frac{1}{\sigma(a_n)}}_{\frac{\partial \log \sigma(a_n)}{\partial \sigma(a_n)}} \cdot \underbrace{\sigma(a_n) \cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)}{\partial a_n}} \cdot \underbrace{(2y_n-1)x_n}_{\frac{\partial a_n}{\partial w} \text{ (see SRM-5a)}}    \\
-&=   S_0^{-1} (m_0-w) + \sum_n (2y_n-1) (1-\sigma(a_n)) x_n \quad \text{(gradient)}
- \end{align*}
-```
-
-where we used  ``\sigma^\prime(a) = \sigma(a)\cdot (1-\sigma(a))``.
-
-For the Hessian, we continue to differentiate the transpose of the gradient, leading to
-
-```math
-\begin{align*}
-\nabla\nabla_{w}\log p(w | D) &=  \nabla_{w} \left(S_0^{-1} (m_0-w)\right)^T - \sum_n (2y_n-1) x_n \nabla_{w}\sigma(a_n)^T \\ &=  -S_0^{-1} - \sum_n (2y_n-1) x_n \cdot \underbrace{\sigma(a_n)\cdot (1-\sigma(a_n))}_{\frac{\partial \sigma(a_n)^T}{\partial a_n^T}}\cdot \underbrace{(2y_n-1) x_n^T}_{\frac{\partial a_n^T}{\partial w}} \\
-&= -S_0^{-1} - \sum_n \sigma(a_n)\cdot (1-\sigma(a_n))\cdot x_n x_n^T \quad \text{(Hessian)}
-\end{align*}
-```
-
-since ``(2y_n-1)^2=1`` for ``y_n \in \{0,1\}``.
-
-"""
-
-# ╔═╡ 25f461c2-d294-11ef-2e85-6f1acc16cf3b
-md"""
-## $(HTML("<span id='ML-for-LG'>Proof of Derivative of Log-likelihood for Logistic Regression</span>"))
-
-The Log-likelihood is ``\mathrm{L}(\theta) = \log \prod*n \prod*k {\underbrace{p(\mathcal{C}*k|x*n,\theta)}*{p*{nk}}}^{y*{nk}} = \sum*{n,k} y*{nk} \log p*{nk}``
-
-Use the fact that the softmax ``\phi_k \equiv e^{a_k} / {\sum_j e^{a_j}}`` has analytical derivative:
-
-```math
- \begin{align*}
- \frac{\partial \phi_k}{\partial a_j} &= \frac{(\sum_j e^{a_j})e^{a_k}\delta_{kj}-e^{a_j}e^{a_k}}{(\sum_j e^{a_j})^2} = \frac{e^{a_k}}{\sum_j e^{a_j}}\delta_{kj} - \frac{e^{a_j}}{\sum_j e^{a_j}} \frac{e^{a_k}}{\sum_j e^{a_j}}\\
-     &= \phi_k \cdot(\delta_{kj}-\phi_j)
- \end{align*}
-```
-
-
-
-Take the derivative of ``\mathrm{L}(\theta)`` (or: how to spend a hour ...)
-
-```math
-\begin{align*} 
-\nabla_{\theta_j} \mathrm{L}(\theta) &= \sum_{n,k} \frac{\partial \mathrm{L}_{nk}}{\partial p_{nk}} \cdot\frac{\partial p_{nk}}{\partial a_{nj}}\cdot\frac{\partial a_{nj}}{\partial \theta_j} \\
-  &= \sum_{n,k} \frac{y_{nk}}{p_{nk}} \cdot p_{nk} (\delta_{kj}-p_{nj}) \cdot x_n \\
-  &= \sum_n \Big( y_{nj} (1-p_{nj}) -\sum_{k\neq j} y_{nk} p_{nj} \Big) \cdot x_n \\
-  &= \sum_n \left( y_{nj} - p_{nj} \right)\cdot x_n \\
-  &= \sum_n \Big( \underbrace{y_{nj}}_{\text{target}} - \underbrace{\frac{e^{\theta_j^T x_n}}{\sum_{j^\prime} e^{\theta_{j^\prime}^T x_n}}}_{\text{prediction}} \Big)\cdot x_n 
-\end{align*}
-```
-
 """
 
 # ╔═╡ 1128cb07-68c8-4b80-8fb4-ee9fcc76c050
@@ -559,27 +626,29 @@ function generate_dataset(N::Int64)
     return (X, y)
 end
 
-# ╔═╡ d908270d-81b4-4c97-8298-2ba66bccc45b
+# ╔═╡ e3474a09-11ec-43e8-900f-f4fb31283f46
 X, y = generate_dataset(N) # Generate data set, collect in matrix X and vector y
 
-# ╔═╡ c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-X_c1 = X[:,findall(.!y)]'; X_c2 = X[:,findall(y)]' # Split X based on class label
+# ╔═╡ 48c200f1-9363-4ae4-ab9c-b000071aa9d6
+X_c1 = X[:,findall(.!y)]'
 
-# ╔═╡ 476f1aef-fb9b-42a6-a0cb-f0f3da1385da
+# ╔═╡ 47ee9e9f-427c-42e1-867a-b6d2c9438d76
+X_c2 = X[:,findall(y)]'
+
+# ╔═╡ a65ca01a-0e9a-42cb-b1d7-648102a77eb5
 function plot_dataset()
     result = scatter(X_c1[:,1], X_c1[:,2],markersize=4, label=L"y=0", xlabel=L"x_1", ylabel=L"x_2", xlims=(-1.6, 9), ylims=(-2, 7))
     scatter!(X_c2[:,1], X_c2[:,2],markersize=4, label=L"y=1")
     scatter!([X_test[1]], [X_test[2]], markersize=7, marker=:star, label=L"y=?") 
+	plot!(legend=:bottomright)
     return result  
 end
 
-# ╔═╡ cc016a47-5c5f-4361-85b9-f6f4141e58d3
-plot_dataset()
+# ╔═╡ d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
+	plot_dataset()
 
 # ╔═╡ 56598859-2824-4242-a894-684bf1ad1f6e
-y_1 = map(y) do val
-	val == true ? 1.0 : 0.0
-end # class 1 indicator vector
+y_1 = ifelse.(y, 1.0, 0.0)
 
 # ╔═╡ 6f483978-29f0-4165-bd8f-650c403e3512
 # Extend X with a row of ones to allow an offset in the discrimination boundary
@@ -644,15 +713,15 @@ end
 let
 	# Plot the data set and ML discrimination boundary
 	plot_dataset()
-	p_1(x) = 1.0 / (1.0 + exp(-([x;1.]' * θ)))
-	boundary(x1) = -1 / θ[2] * (θ[1]*x1 + θ[3])
-	
+	disc_boundary(x1) = -1 / θ[2] * (θ[1]*x1 + θ[3])
 	generative_boundary = build_generative_discrimination_boundary(X, y)
 	
+	
+	p_1(x) = 1.0 / (1.0 + exp(-([x;1.]' * θ)))
 	x_test = [3.75;1.0]
 	@debug("P(C1|x•,θ) = $(p_1(x_test))")
 	
-	plot!([-2., 10.], boundary; label="Discr. boundary", linewidth=2)
+	plot!([-2., 10.], disc_boundary; label="Discr. boundary", linewidth=2)
 	plot!([-2.,10.], generative_boundary; label="Gen. boundary", linewidth=2)
 end
 
@@ -673,9 +742,9 @@ Distributions = "~0.25.120"
 LaTeXStrings = "~1.4.0"
 MarkdownLiteral = "~0.1.2"
 Optim = "~1.13.2"
-Plots = "~1.40.14"
-PlutoTeachingTools = "~0.4.1"
-PlutoUI = "~0.7.65"
+Plots = "~1.40.17"
+PlutoTeachingTools = "~0.4.4"
+PlutoUI = "~0.7.69"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -684,12 +753,12 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.10"
 manifest_format = "2.0"
-project_hash = "29067c9016216121b98421356e76a1112a503495"
+project_hash = "4fcc2c5847ff1427f3a86ebc4837f0179fbdac22"
 
 [[deps.ADTypes]]
-git-tree-sha1 = "be7ae030256b8ef14a441726c4c37766b90b93a3"
+git-tree-sha1 = "7927b9af540ee964cc5d1b73293f1eb0b761a3a1"
 uuid = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
-version = "1.15.0"
+version = "1.16.0"
 
     [deps.ADTypes.extensions]
     ADTypesChainRulesCoreExt = "ChainRulesCore"
@@ -794,9 +863,9 @@ version = "0.7.8"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "403f2d8e209681fcbd9468a8514efff3ea08452e"
+git-tree-sha1 = "a656525c8b46aa6a1c76891552ed5381bb32ae7b"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.29.0"
+version = "3.30.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -840,9 +909,9 @@ version = "0.3.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.16.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -885,10 +954,10 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
 [[deps.DataStructures]]
-deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "76b3b7c3925d943edf158ddb7f693ba54eb297a5"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.22"
+version = "0.19.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -920,9 +989,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "210933c93f39f832d92f9efbbe69a49c453db36d"
+git-tree-sha1 = "54d7b8c74408048aea9c055ac8573b2b5c5ec11f"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.1"
+version = "0.7.4"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1023,15 +1092,15 @@ version = "2.6.5+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
-git-tree-sha1 = "53ebe7511fa11d33bec688a9178fac4e49eeee00"
+git-tree-sha1 = "83dc665d0312b41367b7263e8a4d172eac1897f4"
 uuid = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
-version = "0.4.2"
+version = "0.4.4"
 
 [[deps.FFMPEG_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers", "LAME_jll", "Libdl", "Ogg_jll", "OpenSSL_jll", "Opus_jll", "PCRE2_jll", "Zlib_jll", "libaom_jll", "libass_jll", "libfdk_aac_jll", "libvorbis_jll", "x264_jll", "x265_jll"]
-git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
+git-tree-sha1 = "3a948313e7a41eb1db7a1e733e6335f17b4ab3c4"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
-version = "4.4.4+1"
+version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -1205,9 +1274,9 @@ version = "0.1.11"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
-git-tree-sha1 = "a007feb38b422fbdab534406aeca1b86823cb4d6"
+git-tree-sha1 = "0533e564aae234aff59ab625543145446d8b6ec2"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.7.0"
+version = "1.7.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -1223,9 +1292,9 @@ version = "3.1.1+0"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "170b660facf5df5de098d866564877e119141cbd"
+git-tree-sha1 = "059aabebaa7c82ccb853dd4a0ee9d17796f7e1bc"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
-version = "3.100.2+0"
+version = "3.100.3+0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1432,10 +1501,10 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
 [[deps.Ogg_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "b6aa4566bb7ae78498a5e68943863fa8b5231b59"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+1"
+version = "1.3.6+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1455,9 +1524,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "9216a80ff3682833ac4b733caa8c00390620ba5d"
+git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.0+0"
+version = "3.5.1+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1479,9 +1548,9 @@ version = "1.13.2"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
+git-tree-sha1 = "c392fc5dd032381919e3b22dd32d6443760ce7ea"
 uuid = "91d4177d-7536-5919-b921-800302f37372"
-version = "1.3.3+0"
+version = "1.5.2+0"
 
 [[deps.OrderedCollections]]
 git-tree-sha1 = "05868e21324cede2207c6f0f466b4bfef6d5e7ee"
@@ -1542,9 +1611,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "28ea788b78009c695eb0d637587c81d26bdf0e36"
+git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.14"
+version = "1.40.17"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1562,15 +1631,15 @@ version = "1.40.14"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "537c439831c0f8d37265efe850ee5c0d9c7efbe4"
+git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.1"
+version = "0.4.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "3151a0c8061cc3f887019beebf359e6c4b3daa08"
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.65"
+version = "0.7.69"
 
 [[deps.PositiveFactorizations]]
 deps = ["LinearAlgebra"]
@@ -1719,9 +1788,9 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
@@ -1764,9 +1833,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -1817,14 +1886,14 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.11"
 
 [[deps.URIs]]
-git-tree-sha1 = "24c1c558881564e2217dcf7840a8b2e10caeb0f9"
+git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.6.0"
+version = "1.6.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -1846,9 +1915,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.23.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -1880,22 +1949,10 @@ uuid = "a44049a8-05dd-5a78-86c9-5fde0876e88c"
 version = "1.3.243+0"
 
 [[deps.Wayland_jll]]
-deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "XML2_jll"]
-git-tree-sha1 = "49be0be57db8f863a902d59c0083d73281ecae8e"
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
+git-tree-sha1 = "96478df35bbc2f3e1e791bc7a3d0eeee559e60e9"
 uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
-version = "1.23.1+0"
-
-[[deps.Wayland_protocols_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "54b8a029ac145ebe8299463447fd1590b2b1d92f"
-uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
-version = "1.44.0+0"
-
-[[deps.XML2_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "b8b243e47228b4a3877f1dd6aee0c5d56db7fcf4"
-uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.6+1"
+version = "1.24.0+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1989,9 +2046,9 @@ version = "1.1.3+0"
 
 [[deps.Xorg_xcb_util_cursor_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_jll", "Xorg_xcb_util_renderutil_jll"]
-git-tree-sha1 = "04341cb870f29dcd5e39055f895c39d016e18ccd"
+git-tree-sha1 = "c5bf2dad6a03dfef57ea0a170a1fe493601603f2"
 uuid = "e920d4aa-a673-5f3a-b3d7-f755a4d47c43"
-version = "0.1.4+0"
+version = "0.1.5+0"
 
 [[deps.Xorg_xcb_util_image_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xcb_util_jll"]
@@ -2066,15 +2123,15 @@ version = "0.61.1+0"
 
 [[deps.libaom_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "522c1df09d05a71785765d19c9524661234738e9"
+git-tree-sha1 = "4bba74fa59ab0755167ad24f98800fe5d727175b"
 uuid = "a4ae2306-e953-59d6-aa16-d00cac43593b"
-version = "3.11.0+0"
+version = "3.12.1+0"
 
 [[deps.libass_jll]]
 deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "e17c115d55c5fbb7e52ebedb427a0dca79d4484e"
+git-tree-sha1 = "125eedcb0a4a0bba65b657251ce1d27c8714e9d6"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
-version = "0.15.2+0"
+version = "0.17.4+0"
 
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2095,9 +2152,9 @@ version = "1.13.4+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a22cf860a7d27e4f3498a0fe0811a7957badb38"
+git-tree-sha1 = "646634dd19587a56ee2f1199563ec056c5f228df"
 uuid = "f638f0a6-7fb0-5443-88ba-1cc74229b280"
-version = "2.0.3+0"
+version = "2.0.4+0"
 
 [[deps.libinput_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "eudev_jll", "libevdev_jll", "mtdev_jll"]
@@ -2107,15 +2164,15 @@ version = "1.28.1+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "cd155272a3738da6db765745b89e466fa64d0830"
+git-tree-sha1 = "07b6a107d926093898e82b3b1db657ebe33134ec"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.49+0"
+version = "1.6.50+0"
 
 [[deps.libvorbis_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll"]
+git-tree-sha1 = "11e1772e7f3cc987e9d3de991dd4f6b2602663a5"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+2"
+version = "1.3.8+0"
 
 [[deps.mtdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2134,37 +2191,41 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 version = "17.4.0+2"
 
 [[deps.x264_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "4fea590b89e6ec504593146bf8b988b2c00922b2"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "14cc7083fc6dff3cc44f2bc435ee96d06ed79aa7"
 uuid = "1270edf5-f2f9-52d2-97e9-ab00b5d0237a"
-version = "2021.5.5+0"
+version = "10164.0.1+0"
 
 [[deps.x265_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "ee567a171cce03570d77ad3a43e90218e38937a9"
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "e7b67590c14d487e734dcb925924c5dc43ec85f3"
 uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
-version = "3.5.0+0"
+version = "4.1.0+0"
 
 [[deps.xkbcommon_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
-git-tree-sha1 = "c950ae0a3577aec97bfccf3381f66666bc416729"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "fbf139bce07a534df0e699dbb5f5cc9346f95cc1"
 uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
-version = "1.8.1+0"
+version = "1.9.2+0"
 """
 
 # ╔═╡ Cell order:
 # ╟─25eefb10-d294-11ef-0734-2daf18636e8e
 # ╟─e7c45ff8-9fa2-4ea3-a06f-5769d877540e
 # ╟─25ef12bc-d294-11ef-1557-d98ba829a804
+# ╟─fe66a986-2f55-4417-a71d-b3b99f6369cc
 # ╟─25ef2806-d294-11ef-3cb6-0f3e76b9177e
+# ╟─4ceede48-a4d5-446b-bb34-26cec4af357a
+# ╟─d29ccc9e-d4a6-46ae-b907-2bc68c8d99bc
+# ╟─cf829697-6283-4d2f-b0dd-bbfbd689a145
+# ╟─a65ca01a-0e9a-42cb-b1d7-648102a77eb5
+# ╠═e3474a09-11ec-43e8-900f-f4fb31283f46
+# ╟─b5bc379c-5a0e-4b13-99fe-92632250a35e
+# ╠═48c200f1-9363-4ae4-ab9c-b000071aa9d6
+# ╠═47ee9e9f-427c-42e1-867a-b6d2c9438d76
+# ╠═ddb2dc0d-3ef9-4add-93e9-ee575aabd81a
 # ╠═a759653c-0da4-40b7-9e9e-1e3d2e4df4ea
-# ╠═ae2a65fa-1322-43b1-80cf-ee3ad1c47312
-# ╠═ad6b7f43-ccae-4b85-bd6e-051cd4d771cd
-# ╠═d908270d-81b4-4c97-8298-2ba66bccc45b
-# ╠═c9dfa502-74ce-4c9d-ad4b-b554fec6ddf2
-# ╠═c5777ae3-e499-46a6-998a-05b97693b3e1
-# ╠═cc016a47-5c5f-4361-85b9-f6f4141e58d3
-# ╠═476f1aef-fb9b-42a6-a0cb-f0f3da1385da
+# ╟─d1bbdc6a-e5ff-4cd6-9175-860b5ec04f3c
 # ╟─25ef6ece-d294-11ef-270a-999c8d457b24
 # ╟─25ef7f54-d294-11ef-3f05-0d85fe6e7a17
 # ╟─25efa2fe-d294-11ef-172f-9bb09277f59e
@@ -2172,37 +2233,44 @@ version = "1.8.1+0"
 # ╟─25efd6b6-d294-11ef-3b21-6363ef531eb5
 # ╟─25f02ac6-d294-11ef-26c4-f142b8ac4b5f
 # ╟─25f0adde-d294-11ef-353e-4b4773df9ff5
+# ╟─7d8f376c-b43f-46f4-87bc-c4d7f94d60e1
 # ╟─25f0f618-d294-11ef-0d94-bf80c8e2957b
 # ╟─25f12528-d294-11ef-0c65-97c61935e9c2
-# ╟─25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╟─b94644f8-725d-49bf-9641-3dad8b647f45
 # ╟─25f14226-d294-11ef-369f-e545d5fe2700
 # ╟─25f14f82-d294-11ef-02fb-2dc632b8f118
 # ╟─25f15e0a-d294-11ef-3737-79a68c9b3c61
-# ╟─25f19230-d294-11ef-2dfd-6d4927e86f57
 # ╟─25f19ed8-d294-11ef-3298-efa16dda1dde
+# ╟─25f1390c-d294-11ef-364d-17e4c93b9a57
+# ╟─bda07a2e-3769-4ffe-9bc5-2b8a515247f6
 # ╟─25f1ab08-d294-11ef-32ed-493792e121b7
 # ╟─25f1b404-d294-11ef-1c3a-a5a8142bb202
 # ╟─25f1c2a0-d294-11ef-009c-69b64e87e5fb
-# ╠═33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
-# ╟─25f356b0-d294-11ef-17b9-8583928f7829
+# ╟─3422dd29-6da9-4e0f-a4ab-646f223c2244
+# ╟─8b0bb225-bdc1-45ec-bd34-68d674d6f08d
+# ╟─ae2b23f0-853e-4237-aab2-81c961f52cf6
+# ╟─e4cc517b-d3b5-4517-a28b-efb8aba24496
+# ╟─33b859f2-9ea8-4f8b-b0f8-08a19c6a96fc
+# ╟─38b4854f-be02-4696-802f-2106481e3aea
+# ╟─0045e569-dc3c-4998-86da-9d96f599c599
 # ╟─25f365e2-d294-11ef-300e-9914333b1233
-# ╟─25f3741a-d294-11ef-1418-f11326406eb6
-# ╟─25f386e4-d294-11ef-2cec-f56f4a6feb19
-# ╟─25f3965c-d294-11ef-11b8-af605b86f188
-# ╟─25f3a638-d294-11ef-0cd5-c3a46aa780c6
+# ╟─3b24b142-2239-4951-9177-ff87b5da4b68
+# ╟─ff31d8c1-db35-4c85-a609-67fc40e9e78d
+# ╟─7932fff4-0568-49de-b34c-711e51487ae3
 # ╟─25f3bef2-d294-11ef-1438-e9f7e469336f
-# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
+# ╠═aaf764da-cf1b-4bc7-83ea-6d25a80ca3ab
+# ╟─7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╠═56598859-2824-4242-a894-684bf1ad1f6e
 # ╠═6f483978-29f0-4165-bd8f-650c403e3512
 # ╠═a89af0df-c39b-406e-a30a-4706ad2ea043
 # ╠═a75d69e1-c1e9-45b4-9924-4c2fe59413dc
-# ╠═7ad2f815-9d19-448c-bb7e-044a955f82e0
 # ╟─25f3ee5e-d294-11ef-1fb4-e9d84b1e1ec6
+# ╠═6a20aa94-e2fa-45ab-9889-62d44cbfc1ba
+# ╟─1f2bfcf4-fef4-4612-8683-d5c86a326eef
 # ╟─25f3ff84-d294-11ef-0031-63b23d23324d
 # ╟─25f41118-d294-11ef-13a8-3fa6587c1bf3
+# ╟─25f19230-d294-11ef-2dfd-6d4927e86f57
 # ╟─6eee35ee-fd55-498f-9441-f18c2508de19
-# ╟─25f42e98-d294-11ef-1f51-8b6b81987cc4
-# ╟─25f461c2-d294-11ef-2e85-6f1acc16cf3b
 # ╟─1128cb07-68c8-4b80-8fb4-ee9fcc76c050
 # ╠═ad196ae6-c65e-4aaa-b0cc-bd72daa41952
 # ╠═616e84d7-063d-4d9d-99e4-56aecf3c7ee4

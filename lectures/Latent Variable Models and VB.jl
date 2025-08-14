@@ -54,7 +54,7 @@ md"""
           * tutorial on entropic inference, which is a generalization to Bayes rule and provides a foundation for variational inference.
   * references $(HTML("<span id='references'></span>"))
 
-      * Blei et al. (2017), [Variational Inference: A Review for Statisticians](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773)
+      * Blei et al. (2017), [Variational Inference: A Review for Statisticians](https://doi.org/10.1080/01621459.2017.1285773)
       * Lanczos (1961), [The variational principles of mechanics](https://www.amazon.com/Variational-Principles-Mechanics-Dover-Physics/dp/0486650677)
       * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-)
       * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
@@ -1027,7 +1027,7 @@ Given the mean-field constraints, it is possible to derive the following express
 
 where we defined ``q_{-j}^*(z_{-j}) \triangleq q_1^*(z_1)q_2^*(z_2)\cdots q_{j-1}^*(z_{j-1})q_{j+1}^*(z_{j+1})\cdots q_m^*(z_m)``.
 
-**Proof** (from [Blei, 2017](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773)): We first rewrite the FE as a function of ``q_j(z_j)`` only: 
+**Proof** (from [Blei, 2017](https://doi.org/10.1080/01621459.2017.1285773)): We first rewrite the FE as a function of ``q_j(z_j)`` only: 
 
 ```math
  F[q_j] = \mathbb{E}_{q_{j}}\left[ \mathbb{E}_{q_{-j}}\left[ \log p(x,z_j,z_{-j})\right]\right] - \mathbb{E}_{q_j}\left[ \log q_j(z_j)\right] + \mathtt{const.}\,,
@@ -1043,7 +1043,7 @@ which is a KL-divergence that is minimized by Eq. B-10.9.  (end proof)
 
 This is not yet a full solution to the FE minimization task since the solution ``q_j^*(z_j)`` depends on expectations that involve other solutions ``q_{i\neq j}^*(z_{i \neq j})``, and each of these other solutions ``q_{i\neq j}^*(z_{i \neq j})`` depends on an expection that involves ``q_j^*(z_j)``. 
 
-In practice, we solve this chicken-and-egg problem by an iterative approach: we first initialize all ``q_j(z_j)`` (for ``j=1,\ldots,m``) to an appropriate initial distribution and then cycle through the factors in turn by solving eq.B-10.9 and update ``q_{-j}^*(z_{-j})`` with the latest estimates. (See [Blei, 2017](https://www.tandfonline.com/doi/full/10.1080/01621459.2017.1285773), Algorithm 1, p864).  
+In practice, we solve this chicken-and-egg problem by an iterative approach: we first initialize all ``q_j(z_j)`` (for ``j=1,\ldots,m``) to an appropriate initial distribution and then cycle through the factors in turn by solving eq.B-10.9 and update ``q_{-j}^*(z_{-j})`` with the latest estimates. (See [Blei, 2017](https://doi.org/10.1080/01621459.2017.1285773), Algorithm 1, p864).  
 
 This algorithm for approximating Bayesian inference is known **Coordinate Ascent Variational Inference** (CAVI).   
 
