@@ -750,6 +750,7 @@ p&(D|\mu)\cdot p(\mu)  \\
   &= \underbrace{\biggl(\frac{B(n+\alpha,N-n+\beta)}{B(\alpha,\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{1}{B(n+\alpha,N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
 \end{flalign*}
 ```
+In the final equation, we included the term ``\frac{1}{B(n+\alpha,\,N-n+\beta)}`` to normalize the posterior ``p(\mu | D)``, and we compensated for this normalization in the evidence factor.	
 		""")
 
 # ╔═╡ 181ade96-8e1e-4186-9227-c1561352529d
