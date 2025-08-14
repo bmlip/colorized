@@ -1192,7 +1192,7 @@ For proof, see [https://en.wikipedia.org/wiki/Product_distribution](https://en.w
 md"""
 Generally, this integral does not lead to an analytical expression for ``p_z(z)``. 
 
-As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html#product-of-gaussians).
+As a crucial example, [the product of two independent variables that are both Gaussian-distributed does **not** lead to a Gaussian distribution](https://bmlip.github.io/course/minis/Sum%20and%20product%20of%20Gaussians.html).
 
   * Exception: the distribution of the product of two variables that both have [log-normal distributions](https://en.wikipedia.org/wiki/Log-normal_distribution) is again a lognormal distribution. (If ``X`` has a normal distribution, then ``Y=\exp(X)`` has a log-normal distribution.)
 
@@ -1349,9 +1349,16 @@ Derive the general sum rule,
 ```math
 p(A + B) = p(A) + p(B) - p(A,B)
 ```
-from the elementary sum rule ``p(A) + p(\bar A) = 1`` and the sum and product rules. Here, you may make use of the (Boolean logic) fact that ``A + B = \overline {\bar A \bar B }``. 
+from the elementary sum rule ``p(A) + p(\bar A) = 1`` and the sum and product rules.
  
 """
+
+# ╔═╡ 99d9099f-4908-4bb3-8d59-da9cb69af04c
+hint(
+	md"""
+	Here, you may make use of the (Boolean logic) fact that ``A + B = \overline {\bar A \bar B }``. 
+	"""
+)
 
 # ╔═╡ 3b1b0869-b815-4697-9dba-3c4b4cb5ac47
 details("Click for solution", 
@@ -2838,6 +2845,7 @@ version = "1.9.2+0"
 # ╟─3e2009e2-d294-11ef-255d-8d4a44865663
 # ╟─03692f4d-0daf-4dfc-a7ff-6b954326e4d0
 # ╟─3a1d380e-df80-4727-9772-f199214cf05d
+# ╟─99d9099f-4908-4bb3-8d59-da9cb69af04c
 # ╟─3b1b0869-b815-4697-9dba-3c4b4cb5ac47
 # ╟─5f377237-d9a5-4778-aa4d-1c6ce109b705
 # ╟─5613e9b7-ff0d-435a-9de6-aaf293ebf592
