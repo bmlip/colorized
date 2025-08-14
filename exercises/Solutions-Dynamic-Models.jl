@@ -10,20 +10,42 @@ md"""
 
   * **[1]** (##) Given the Markov property
 
-\begin{equation*} p(x*n|x*{n-1},x*{n-2},\ldots,x*1) = p(x*n|x*{n-1}) \tag{A1} \end{equation*} proof that, for any ``n``, \begin{align*} p(x*n,x*{n-1},&\ldots,x*{k+1},x*{k-1},\ldots,x*1|x*k) = \
-&p(x*n,x*{n-1},\ldots,x*{k+1}|x*k) \cdot p(x*{k-1},x*{k-2},\ldots,x*1|x*k) \tag{A2}\,. \end{align*} In other words, proof that, if the Markov property A1 holds, then, given the "present" (``x_k``), the "future" ``(x_n,x_{n-1},\ldots,x_{k+1})`` is *independent* of the "past" ``(x_{k-1},x_{k-2},\ldots,x_1)``.
+```math
+p(x*n|x*{n-1},x*{n-2},\ldots,x*1) = p(x*n|x*{n-1}) \tag{A1}
+```
+
+proof that, for any ``n``,
+
+```math
+p(x*n,x*{n-1},\ldots,x*{k+1},x*{k-1},\ldots,x*1|x*k) = p(x*n,x*{n-1},\ldots,x*{k+1}|x*k) \cdot p(x*{k-1},x*{k-2},\ldots,x*1|x*k) \tag{A2}
+```
+
+In other words, proof that, if the Markov property A1 holds, then, given the "present" (``x_k``), the "future" ``(x_n,x_{n-1},\ldots,x_{k+1})`` is *independent* of the "past" ``(x_{k-1},x_{k-2},\ldots,x_1)``.
 
 > First, we rewrite A2 as
 
 
-\begin{align*} p(&x*n,x*{n-1},\ldots,x*{k+1},x*{k-1},\ldots,x*1|x*k) = \frac{p(x*n,x*{n-1},\ldots,x*1)}{p(x*k)} \
-&= \frac{p(x*n,x*{n-1},\ldots,x*{k+1}|x*k,\ldots,x*1) \cdot p(x*k,x*{k-1},\ldots,x*1)}{p(x*k)} \
-&= p(x*n,x*{n-1},\ldots,x*{k+1}|x*k,\ldots,x*1) \cdot p(x*{k-1},\ldots,x*1|x_k) \tag{A3} \end{align*} The first term in A3 can be simplified if A1 holds to  \begin{align*} p(x*n,&x*{n-1},\ldots,x*{k+1}|x*k,x*{k-1},\ldots,x*1) \
-&= p(x*n|x*{n-1},x*{n-2},\ldots,x*1) \cdot p(x*{n-1}|x*{n-2},x*{n-3},\ldots,x*1) \cdots \
-&\quad \cdots p(x*{k+1}|x*{k},x*{k-2},\ldots,x*1) \
-&= p(x*n|x*{n-1},x*{n-2},\ldots,x*k) \cdot p(x*{n-1}|x*{n-2},x*{n-3},\ldots,x*k) \cdots \
-&\quad \cdots p(x*{k+1}|x*{k}) \
-&= p(x*n,x*{n-1},\ldots,x*{k+1}|x*k) \tag{A4} \end{align*} Substitution of A4 into A3 leads to A2. QED.
+```math
+\begin{align}
+p(x*n,x*{n-1},\ldots,x*{k+1},x*{k-1},\ldots,x*1|x*k) &= \frac{p(x*n,x*{n-1},\ldots,x*1)}{p(x*k)} \\
+&= \frac{p(x*n,x*{n-1},\ldots,x*{k+1}|x*k,\ldots,x*1) \cdot p(x*k,x*{k-1},\ldots,x*1)}{p(x*k)} \\
+&= p(x*n,x*{n-1},\ldots,x*{k+1}|x*k,\ldots,x*1) \cdot p(x*{k-1},\ldots,x*1|x_k) \tag{A3}
+\end{align}
+```
+
+The first term in A3 can be simplified if A1 holds to
+
+```math
+\begin{align}
+p(x*n,x*{n-1},\ldots,x*{k+1}|x*k,x*{k-1},\ldots,x*1) &= p(x*n|x*{n-1},x*{n-2},\ldots,x*1) \cdot p(x*{n-1}|x*{n-2},x*{n-3},\ldots,x*1) \cdots \\
+&\quad \cdots p(x*{k+1}|x*{k},x*{k-2},\ldots,x*1) \\
+&= p(x*n|x*{n-1},x*{n-2},\ldots,x*k) \cdot p(x*{n-1}|x*{n-2},x*{n-3},\ldots,x*k) \cdots \\
+&\quad \cdots p(x*{k+1}|x*{k}) \\
+&= p(x*n,x*{n-1},\ldots,x*{k+1}|x*k) \tag{A4}
+\end{align}
+```
+
+Substitution of A4 into A3 leads to A2. QED.
 
   * **[2]** (#)      (a) What's the difference between a hidden Markov model and a linear Dynamical system?    
 
