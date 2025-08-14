@@ -221,7 +221,9 @@ p_z(z) = \mathcal{N}(z \,|\, A(\mu_x-\mu_y)+b, \, A (\sigma_x^2 + \sigma_y^2) A^
 md"""
   * **[6]** (###) Compute
 
+```math
 \begin{equation*}         \int_{-\infty}^{\infty} \exp(-x^2)\mathrm{d}x \,.     \end{equation*}
+```
 
 > For a Gaussian with zero mean and varance equal to ``1`` we have
 

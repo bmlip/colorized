@@ -75,7 +75,7 @@ with ``y, X`` and ``w`` as defined in the notebook.         (a) Work out the max
 \begin{equation*} w_{MAP} = (X^TX+\frac{\alpha}{\beta}I)^{-1}X^Ty  \end{equation*}
 ```
 
-> The MAP solution weighs both the prior and likelihood. If :\frac{\alpha}{\beta} $ is close to zero (if the prior is uninformative), then the ML solution and MAP solutions are close to each other.
+> The MAP solution weighs both the prior and likelihood. If ``\frac{\alpha}{\beta}`` is close to zero (if the prior is uninformative), then the ML solution and MAP solutions are close to each other.
 
 
   * **[3]** (###) Show that the variance of the predictive distribution for linear regression decreases as more data becomes available.
@@ -182,7 +182,7 @@ where ``f(x_n)`` is an ``M``-dimensional feature vector of input ``x_n``; ``y_n`
 
 (d) What is the predicted output value ``y_\bullet``, given an observation ``x_\bullet`` and the maximum likelihood parameters ``\hat \theta_{\text{ml}}``. Work this expression out in terms of ``F``, ``y`` and ``f(x_\bullet)``.      
 
-> Prediction of new data point: :\hat y*\bullet = \hat \theta^T f(x*\bullet) = \left((F^TF)^{-1}F^Ty\right)^T  f(x_\bullet) $
+> Prediction of new data point: ``\hat y_\bullet = \hat \theta^T f(x_\bullet) = \left((F^TF)^{-1}F^Ty\right)^T  f(x_\bullet)``
 
 
 (e) Suppose that, before the data set ``D`` was observed, we had reason to assume a prior distribution ``p(\theta)=\mathcal{N}(0,\sigma_0^2)``. Derive the Maximum a posteriori (MAP) estimate ``\hat \theta_{\text{map}}``.(hint: work this out in the ``\log`` domain.)                
