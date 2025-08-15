@@ -90,7 +90,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>14-Nov-2025 <em>(Fri)</em></td>
             <td>⚪️ B2: Probability Theory Review</td>
             <td><a href="https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html">B2</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Probability-Theory-Review.ipynb">B2-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Probability-Theory-Review.ipynb">B2-sol</a></td>
+            <td></td>
             <td></td>
             <td><a href="https://youtu.be/PGbN5rv6HL4">B2.1</a>, <a href="https://youtu.be/LKh2ypFVGwY">B2.2</a></td>
          </tr>
@@ -98,7 +98,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>19-Nov-2025 <em>(Wed)</em></td>
             <td>⚪️ B3: Bayesian Machine Learning</td>
             <td><a href="https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html">B3</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Bayesian-Machine-Learning.ipynb">B3-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Bayesian-Machine-Learning.ipynb">B3-sol</a></td>
+            <td></td>
             <td></td>
             <td> <a href="https://youtu.be/OPGrqnnEfU0">B3.1</a>, <a href="https://youtu.be/BOUmzY1Nx5g">B3.2</a> </td>
          </tr>
