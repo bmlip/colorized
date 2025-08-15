@@ -772,7 +772,7 @@ It follow from the above calculation that the evidence for model ``m`` can be an
 ```math
 \begin{align}
 p(D|m) &= \frac{B(n+\alpha,N-n+\beta)}{B(\alpha,\beta)} \\
-&= \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)}\,.
+\Big( &=  \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)} \Bigg/ \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}\,. \Big)
 \end{align}
 ```
 
@@ -1212,12 +1212,12 @@ md"""
 
 # ╔═╡ 6a2c8f4a-d294-11ef-213c-dfa929a403bc
 md"""
-(bad). Cannot be used for model comparison! When doing ML estimation, the Bayesian model evidence collapses because a uniform prior on the full real axis is not a "proper" probability distribution, in the sense that its integral does not evaluate to ``1``. As a result, when doing ML estimation, Bayesian model evidence cannot be used to evaluate model performance: 
+(bad). ML cannot be used for model comparison! In ML estimation, the Bayesian model evidence is undefined because no prior distribution is specified. Even if we attempt to simulate ML as a special case of Bayesian inference by using a uniform prior, the evidence still collapses: a uniform prior over the entire real line is not a proper probability distribution, since its integral does not evaluate to 1. Consequently, when performing ML estimation, Bayesian model evidence cannot be used to evaluate model performance:
 
 ```math
 \begin{align*}
 \underbrace{p(D|m)}_{\substack{\text{Bayesian}\\ \text{evidence}}} &= \int p(D|\theta) \cdot p(\theta|m)\,\mathrm{d}\theta \\
-  &= \lim_{(b-a)\rightarrow \infty} \int p(D|\theta)\cdot \text{Uniform}(\theta|a,b)\,\mathrm{d}\theta \\
+  &= \lim_{(b-a)\rightarrow \infty} \int p(D|\theta)\cdot \underbrace{\text{Uniform}(\theta|a,b)}_{\text{"ML prior"}}\,\mathrm{d}\theta \\
   &= \lim_{(b-a)\rightarrow \infty} \frac{1}{b-a}\underbrace{\int_a^b p(D|\theta)\,\mathrm{d}\theta}_{<\infty}  \\
     &= 0
 \end{align*}
@@ -1235,6 +1235,231 @@ keyconcept(" ",
 	"""
 )
 
+
+# ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
+md"""
+$(section_outline("Excercises","",header_level=1))
+
+#####  Bayes estimate (**)
+
+(##) The Bayes estimate is a summary of a posterior distribution by a delta distribution on its mean, i.e.,
+
+```math
+\hat \theta_{bayes}  = \int \theta \, p\left( \theta |D \right)
+\,\mathrm{d}{\theta}
+```
+
+Proof that the Bayes estimate minimizes the mean-squared error, i.e., proof that
+
+```math
+\hat \theta_{bayes} = \arg\min_{\hat \theta} \int_\theta (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta}
+```
+"""
+
+# ╔═╡ 7dd9a456-9dca-47c8-98c5-51f87f28e6a4
+details("Click for solution",
+md"""
+To minimize the expected mean-squared error we will look for ``\hat{\theta}`` that makes the gradient of the integral with respect to ``\hat{\theta}`` vanish.
+
+```math
+\begin{align*}
+  \nabla_{\hat{\theta}}  \int_\theta (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta \nabla_{\hat{\theta}}  (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta  2(\hat \theta -\theta) p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta  \hat \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} \\
+  \hat \theta \underbrace{\int_\theta p \left( \theta |D \right) \,\mathrm{d}{\theta}}_{1} &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} \\
+  \Rightarrow \hat \theta &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta}
+\end{align*}
+```
+"""
+)
+
+# ╔═╡ b2820dfd-b3ca-477b-8cb7-c430e0fe18dd
+md"""
+
+##### Coin Toss MAP and ML (**)
+
+Consider the coin toss example with model
+```math
+\begin{align}
+p(x_k|\mu) &= \mu^{x_k} (1-\mu)^{1-x_k} \\ 
+p(\mu) &= \mathrm{Beta}(\mu|\alpha,\beta) \,.
+\end{align}
+```
+and a given data set ``D=\{x_1, x_2,\ldots,x_N\}``.
+
+- (a) Derive the Maximum Likelihood estimate for ``\mu``.
+- (b) Derive the MAP estimate for ``\mu``.           
+- (c) Do these two estimates ever coincide (if so, under what circumstances)?
+
+
+"""
+
+# ╔═╡ 664d4183-edb6-4818-a44b-bf4c0a22a33c
+details("Click for solution",
+md"""
+- (a) The likelihood is given by ``p(D|\mu) = \mu^n\cdot (1-\mu)^{(N-n)}``. It follows that
+
+
+```math
+\begin{align*}
+    \nabla \log p(D|\mu) &= 0 \\
+    \nabla \left( n\log \mu + (N-n)\log(1-\mu)\right) &= 0\\
+    \frac{n}{\mu} - \frac{N-n}{1-\mu} &= 0 \\
+    \rightarrow \hat{\mu}_{\text{ML}} &= \frac{n}{N}
+  \end{align*}
+```
+
+- (b) We can write the posterior as as
+
+
+```math
+\begin{align*}
+   p(\mu|D) &\propto p(D|\mu)p(\mu) \\
+      &\propto \mu^n (1-\mu)^{N-n} \mu^{\alpha-1} (1-\mu)^{\beta-1} \\
+      &\propto \mathcal{B}(\mu|n+\alpha,N-n+\beta)
+   \end{align*}
+```
+
+The MAP estimate for a beta distribution ``\mathcal{B}(a,b)`` is located at ``\frac{a - 1}{a+b-2}``, see [wikipedia](https://en.wikipedia.org/wiki/Beta_distribution). Hence,
+
+
+```math
+\begin{align*}
+\hat{\mu}_{\text{MAP}} &= \frac{(n+\alpha)-1}{(n+\alpha) + (N-n+\beta) -2} \\
+  &= \frac{n+\alpha-1}{N + \alpha +\beta -2}
+\end{align*}
+```
+
+- (c) As ``N`` gets larger, the MAP estimate approaches the ML estimate. In the limit the MAP solution converges to the ML solution.
+
+
+"""
+)
+
+# ╔═╡ ecb036da-a0a2-4919-b1aa-bc33b6ba7e73
+md"""
+
+##### Model Comparison (**)
+
+A model ``m_1`` is described by a single parameter ``\theta``, with ``0 \leq \theta \leq 1``. The system can produce data ``x \in \{0,1\}``. The sampling distribution and prior are given by
+
+```math
+\begin{align*}
+p(x|\theta,m_1) &=  \theta^x (1-\theta)^{(1-x)} \\
+p(\theta|m_1) &= 6\theta(1-\theta)
+\end{align*}
+```
+
+- (a) Work out the probability ``p(x=1|m_1)``.    
+
+- (b) Determine the posterior ``p(\theta|x=1,m_1)``.     
+
+Now consider a second model ``m_2`` with the following sampling distribution and prior on ``0 \leq \theta \leq 1``:
+
+```math
+\begin{align*}
+p(x|\theta,m_2) &= (1-\theta)^x \theta^{(1-x)} \\
+p(\theta|m_2) &= 2\theta
+\end{align*}
+```
+
+- (c) Determine the probability ``p(x=1|m_2)``.    
+
+Now assume that the model priors are given by
+
+```math
+\begin{align*}
+    p(m_1) &= 1/3  \\
+    p(m_2) &= 2/3
+    \end{align*}
+```
+
+- (d) Compute the probability ``p(x=1)`` by "Bayesian model averaging", i.e., by weighing the predictions of both models appropriately.  
+
+
+- (e) Compute the fraction of posterior model probabilities ``\frac{p(m_1|x=1)}{p(m_2|x=1)}``.     
+
+
+- (f) Which model do you prefer after observation ``x=1``?
+
+
+"""
+
+# ╔═╡ de08c2a1-c5e3-4add-8b22-2c633247da48
+details("Click for solutions",
+md"""
+- (a) Work out the probability ``p(x=1|m_1)``.    
+
+```math
+\begin{align*}
+  p(x=1|m_1) &= \int_0^1 p(x=1|\theta,m_1) p(\theta|m_1) \mathrm{d}\theta \\
+  &= \int \theta \cdot 6\theta (1-\theta) \mathrm{d}\theta \\
+  &= 6 \cdot \left(\frac{1}{3}\theta^3 - \frac{1}{4}\theta^4\right) \bigg|_0^1 \\
+  &= 6 \cdot (\frac{1}{3} - \frac{1}{4}) = \frac{1}{2}
+\end{align*}
+```
+
+- (b) Determine the posterior ``p(\theta|x=1,m_1)``.     
+
+```math
+\begin{align*}
+  p(\theta|x=1,m_1) &= \frac{p(x=1|\theta) p(\theta|m_1)}{p(x=1|m_1)} \\
+  &= 2\cdot \theta \cdot 6\theta (1-\theta) \\
+  &= \begin{cases} 12 \theta^2 (1-\theta) & \text{if }0 \leq \theta \leq 1 \\
+  0 & \text{otherwise} \end{cases}
+  \end{align*}
+```
+
+Now consider a second model ``m_2`` with the following sampling distribution and prior on ``0 \leq \theta \leq 1``:
+
+```math
+\begin{align*}
+p(x|\theta,m_2) &= (1-\theta)^x \theta^{(1-x)} \\
+p(\theta|m_2) &= 2\theta
+\end{align*}
+```
+
+- (c) Determine the probability ``p(x=1|m_2)``.    
+
+```math
+\begin{align*}
+  p(x=1|m_2) &= \int_0^1 p(x=1|\theta,m_2) p(\theta|m_2) \mathrm{d}\theta \\
+  &= \int (1-\theta) \cdot 2\theta \mathrm{d}\theta \\
+  &= 2 \cdot \left( \frac{1}{2}\theta^2 - \frac{1}{3}\theta^3 \right) \bigg|_0^1 \\
+  &= 2 \cdot (\frac{1}{2} - \frac{1}{3}) = \frac{1}{3}
+  \end{align*}
+```
+
+Now assume that the model priors are given by
+
+```math
+\begin{align*}
+    p(m_1) &= 1/3  \\
+    p(m_2) &= 2/3
+    \end{align*}
+```
+
+- (d) Compute the probability ``p(x=1)`` by "Bayesian model averaging", i.e., by weighing the predictions of both models appropriately.  
+
+```math
+\begin{align*}
+    p(x=1) &= \sum_{k=1}^2 p(x=1|m_k) p(m_k)  \\
+    &= \frac{1}{2} \cdot \frac{1}{3} + \frac{1}{3} \cdot \frac{2}{3} = \frac{7}{18} 
+    \end{align*}
+```
+
+- (e) Compute the fraction of posterior model probabilities ``\frac{p(m_1|x=1)}{p(m_2|x=1)}``.     
+
+```math
+\frac{p(m_1|x=1)}{p(m_2|x=1)} = \frac{p(x=1|m_1) p(m_1)}{p(x=1|m_2) p(m_2)} = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{3} \cdot \frac{2}{3}} =\frac{3}{4}
+```
+
+- (f) Which model do you prefer after observation ``x=1``?
+
+In principle, the observation ``x=1`` favors model ``m_2``, since ``p(m_2|x=1) = \frac{4}{3} \times p(m_1|x=1)``. However, note that ``\log_{10} \frac{3}{4} \approx -0.125``, so the extra evidence for ``m_2`` relative to ``m_1`` is very low. At this point, after 1 observation, we have no preference for a model yet.
+
+""")
 
 # ╔═╡ 6a2cb25e-d294-11ef-1d88-1fc784b33df0
 md"""
@@ -1344,22 +1569,6 @@ let i = KL_animation_step
 		  label=L"D_{KL}(Q || P)",
 	)
 end
-
-# ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
-md"""
-$(section_outline("Inference Exercise:", "Causality?"))
-
-##### Problem 
-
-A dark bag contains five red balls and seven green ones. 
-
-- (a) What is the probability of drawing a red ball on the first draw? 
-
-Balls are not returned to the bag after each draw. 
-
-- (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
-
-"""
 
 # ╔═╡ 1f92c406-6792-4af6-9132-35efd8223bc5
 md"""
@@ -2993,6 +3202,12 @@ version = "1.9.2+0"
 # ╟─6a2c7f5a-d294-11ef-2e17-9108a39df280
 # ╟─6a2c8f4a-d294-11ef-213c-dfa929a403bc
 # ╟─6a2ca496-d294-11ef-0043-1f350b36773e
+# ╟─f2969d91-4a5b-4665-9fa5-521db750302f
+# ╟─7dd9a456-9dca-47c8-98c5-51f87f28e6a4
+# ╟─b2820dfd-b3ca-477b-8cb7-c430e0fe18dd
+# ╟─664d4183-edb6-4818-a44b-bf4c0a22a33c
+# ╟─ecb036da-a0a2-4919-b1aa-bc33b6ba7e73
+# ╟─de08c2a1-c5e3-4add-8b22-2c633247da48
 # ╟─6a2cb25e-d294-11ef-1d88-1fc784b33df0
 # ╟─1edae118-dcc7-4169-95cf-f36025f2c336
 # ╟─275a9a69-3135-4cbd-8a35-b1abee4af83f
@@ -3004,7 +3219,6 @@ version = "1.9.2+0"
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
 # ╟─7bf0fde7-b201-4646-9934-ec93e661cf22
 # ╟─635e4f4c-5274-4bd4-a940-b2f3819426ec
-# ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
 # ╟─7a764a14-a5df-4f76-8836-f0a571fc3519
