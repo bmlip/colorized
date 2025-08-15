@@ -26,13 +26,6 @@ end
 # ╔═╡ eeb9a1f5-b857-4843-920b-2e4a9656f66b
 using Plots, LaTeXStrings
 
-# ╔═╡ 42b47af6-b850-4987-a2d7-805a2cb64e43
-begin
-	using MarkdownLiteral: @mdx
-	using Printf
-	n(x; digits=2) = @sprintf("%.*f", digits, x)
-end
-
 # ╔═╡ 5394e37c-ae00-4042-8ada-3bbf32fbca9e
 using Distributions
 
@@ -41,6 +34,16 @@ using PlutoUI, PlutoTeachingTools
 
 # ╔═╡ 7910a84c-18b3-4081-9f01-e59258a01adb
 using HypertextLiteral
+
+# ╔═╡ 42b47af6-b850-4987-a2d7-805a2cb64e43
+# The Disease Diagnosis example uses a combination of:
+# - PlutoUI.Scrubbable for the interactive input percentages
+# - MarkdownLiteral to be able to interpolate numbers into markdown math
+# - PrintF for consistent formatting
+using MarkdownLiteral: @mdx
+
+# ╔═╡ a66ab9df-897c-42e5-8b0f-c520ceaffa23
+using Printf
 
 # ╔═╡ 3e17df5e-d294-11ef-38c7-f573724871d8
 md"""
@@ -894,38 +897,6 @@ _The percentages are interactive! **Click and drag** to change the values._
 
 """
 
-# ╔═╡ 70d79732-0f55-40ba-929d-fba431318848
-md"""
-##### Code Implementation
-"""
-
-# ╔═╡ a8046381-ff11-40af-ae2b-078d71c586e7
-result = (sensitivity * prevalence) / (sensitivity * prevalence + (1 - specificity)*(1 - prevalence))
-
-# ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
-@mdx """
-
-##### Solution 
-
-- The given information is ``p(D=1)=$(n(prevalence))``, ``p(T=1|D=1)=$(n(sensitivity))`` and ``p(T=0|D=0)=$(n(specificity))``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
-
-```math
-\\begin{align*}
-p( D=1 &| T=1) \\\\
-&\\stackrel{p}{=} \\frac{p(T=1,D=1)}{p(T=1)} \\\\
-&\\stackrel{p}{=} \\frac{p(T=1|D=1)p(D=1)}{p(T=1)} \\\\
-&\\stackrel{s}{=} \\frac{p(T=1|D=1)p(D=1)}{p(T=1|D=1)p(D=1)+p(T=1|D=0)p(D=0)} \\\\
-&= \\frac{$(n(sensitivity))\\times$(n(prevalence))}{$(n(sensitivity))\\times$(n(prevalence)) + $(n(1 - specificity))\\times$(n(1 - prevalence))} = \\boldsymbol{$(n(result; digits=4))}
-\\end{align*}
-```
-
-
-Note that ``p(\\text{sick}|\\text{positive test}) = $(n(result))`` while ``p(\\text{positive test} | \\text{sick}) = $(n(sensitivity))``. This is a huge difference that is sometimes called the "medical test paradox" or the [base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy). 
-
-Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and numerous unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
-
-"""
-
 # ╔═╡ ef264651-854e-4374-8ea8-5476c85150c4
 md"# Moments and Transformations"
 
@@ -1487,6 +1458,41 @@ Saying “likelihood of the data” is misleading because it confuses likelihood
 # ╔═╡ dd31ec7c-708d-4fd7-958d-f9887798a5bc
 md"""
 # Appendix
+"""
+
+# ╔═╡ 70d79732-0f55-40ba-929d-fba431318848
+md"""
+### Disease diagnosis implementation
+"""
+
+# ╔═╡ a8046381-ff11-40af-ae2b-078d71c586e7
+result = (sensitivity * prevalence) / (sensitivity * prevalence + (1 - specificity)*(1 - prevalence))
+
+# ╔═╡ 4a81342c-17c7-4eb9-933b-edb98df7b9c4
+n(x; digits=2) = @sprintf("%.*f", digits, x)
+
+# ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
+@mdx """
+
+##### Solution 
+
+- The given information is ``p(D=1)=$(n(prevalence))``, ``p(T=1|D=1)=$(n(sensitivity))`` and ``p(T=0|D=0)=$(n(specificity))``. We are asked to derive ``p( D=1 | T=1)``. We just follow the sum and product rules to derive the requested probability:
+
+```math
+\\begin{align*}
+p( D=1 &| T=1) \\\\
+&\\stackrel{p}{=} \\frac{p(T=1,D=1)}{p(T=1)} \\\\
+&\\stackrel{p}{=} \\frac{p(T=1|D=1)p(D=1)}{p(T=1)} \\\\
+&\\stackrel{s}{=} \\frac{p(T=1|D=1)p(D=1)}{p(T=1|D=1)p(D=1)+p(T=1|D=0)p(D=0)} \\\\
+&= \\frac{$(n(sensitivity))\\times$(n(prevalence))}{$(n(sensitivity))\\times$(n(prevalence)) + $(n(1 - specificity))\\times$(n(1 - prevalence))} = \\boldsymbol{$(n(result; digits=4))}
+\\end{align*}
+```
+
+
+Note that ``p(\\text{sick}|\\text{positive test}) = $(n(result))`` while ``p(\\text{positive test} | \\text{sick}) = $(n(sensitivity))``. This is a huge difference that is sometimes called the "medical test paradox" or the [base rate fallacy](https://en.wikipedia.org/wiki/Base_rate_fallacy). 
+
+Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their heads. This has led to major negative consequences. For instance, unfounded convictions in the legal arena and numerous unfounded conclusions in the pursuit of scientific results. See [Ioannidis (2005)](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124) and [Clayton (2021)](https://aubreyclayton.com/bernoulli).
+
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2796,9 +2802,6 @@ version = "1.9.2+0"
 # ╟─178721d2-624c-4ac4-8fa1-ded23da7feef
 # ╟─3e1d6d00-d294-11ef-1081-e11b8397eb91
 # ╟─2156f96e-eebe-4190-8ce9-c76825c6da71
-# ╟─70d79732-0f55-40ba-929d-fba431318848
-# ╟─a8046381-ff11-40af-ae2b-078d71c586e7
-# ╟─42b47af6-b850-4987-a2d7-805a2cb64e43
 # ╟─ef264651-854e-4374-8ea8-5476c85150c4
 # ╟─3e1e4dda-d294-11ef-33b7-4bbe3300ca22
 # ╟─3e1e5a5a-d294-11ef-2fdf-efee4eb1a0f2
@@ -2855,5 +2858,10 @@ version = "1.9.2+0"
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
 # ╠═7910a84c-18b3-4081-9f01-e59258a01adb
+# ╟─70d79732-0f55-40ba-929d-fba431318848
+# ╟─a8046381-ff11-40af-ae2b-078d71c586e7
+# ╠═42b47af6-b850-4987-a2d7-805a2cb64e43
+# ╠═a66ab9df-897c-42e5-8b0f-c520ceaffa23
+# ╠═4a81342c-17c7-4eb9-933b-edb98df7b9c4
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
