@@ -106,7 +106,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td >21-Nov-2025 <em>(Fri)</em></td>
             <td >⚪️ B4: Factor Graphs and the Sum-Product Algorithm</td>
             <td><a href="https://bmlip.github.io/course/lectures/Factor%20Graphs.html">B4</a></td>
-             <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Factor-Graphs.ipynb">B4-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Factor-Graphs.ipynb">B4-sol</a></td>
+             <td></td>
              <td></td>
              <td><a href="https://youtu.be/C2vvsf_Ts2g">B4.1</a>, <a href="https://youtu.be/HbUuYBMZOKw">B4.2</a></td>
          </tr>
