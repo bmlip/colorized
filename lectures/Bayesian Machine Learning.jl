@@ -95,15 +95,18 @@ md"""
 
 Suppose that your application is to predict a future observation ``x``, based on ``N`` past observations ``D=\{x_1,\dotsc,x_N\}``.
 
-The $(HTML("<span id='Bayesian-modeling-recipe'>Bayesian modeling </span>")) approach to solving this task involves four stages: 
+The **Bayesian modeling** approach to solving this task involves four stages: 
 
+"""
+
+# ╔═╡ e2de9415-7bd8-4e95-abeb-53fc068ee950
+md"""
 	REPEAT
 		1. Model Specification
 		2. Parameter Estimation
 		3. Model Evaluation
 	UNTIL model performance is satisfactory
 		4. Apply Model
-
 """
 
 # ╔═╡ 6a24c9f4-d294-11ef-20cc-172ea50da901
@@ -243,18 +246,29 @@ p(D,\theta,m_k) = p(D|\theta,m_k) p(\theta|m_k) p(m_k)
 # ╔═╡ 288fbee6-0783-4447-b5d0-f5c2b29b39c7
 md"""
 
-Then, solve the desired inference problem:      
+Then, solve the desired inference problem for the posterior over the model ``m_k``:      
 
 ```math
 \begin{align} 
-\underbrace{p(m_k|D)}_{\substack{\text{model}\\\text{posterior}}} &= \frac{p(m_k,D) }{p(D)} \\
-  &\propto p(m_k,D)\\
- &= \int_\theta p(D,\theta,m_k) \,\mathrm{d}\theta\\
-  &= \underbrace{p(m_k)}_{\substack{\text{model}\\\text{prior}}}\, \underbrace{\int_\theta \underbrace{p(D|\theta,m_k)}_{\text{likelihood}} \,\underbrace{p(\theta|m_k)}_{\substack{\text{parameter} \\ \text{prior}}}\, \mathrm{d}\theta }_{\substack{\text{evidence }p(D|m_k)\\\text{= model likelihood}}}\\
+\underbrace{p(m_k|D)}_{\substack{\text{model}\\\text{posterior}}} 
+  = \underbrace{p(m_k)}_{\substack{\text{model}\\\text{prior}}}\, \underbrace{\int_\theta \underbrace{p(D|\theta,m_k)}_{\text{likelihood}} \,\underbrace{p(\theta|m_k)}_{\substack{\text{parameter} \\ \text{prior}}}\, \mathrm{d}\theta }_{\substack{\text{evidence }p(D|m_k)\\\text{= model likelihood}}}\\
 \end{align}
 ```
 
 """
+
+# ╔═╡ 74fa1925-0d9f-47f6-a6bd-b822948a4fbc
+details("Proof this yourself, and click for solution",
+md"""
+```math
+\begin{align} 
+p(m_k|D)&= \frac{p(m_k,D) }{p(D)} \\
+  &\propto p(m_k,D)\\
+ &= \int_\theta p(D,\theta,m_k) \,\mathrm{d}\theta\\
+  &= p(m_k)\int_\theta p(D|\theta,m_k)\,p(\theta|m_k)\, \mathrm{d}\theta 
+\end{align}
+```	   
+""")
 
 # ╔═╡ 6a261278-d294-11ef-25a0-5572de58ad06
 md"""
@@ -327,13 +341,27 @@ As an aside, in the (statistics and machine learning) literature, performance co
 
 ```math
 \begin{align*}
+\mathrm{BF_{12}} \triangleq  \frac{p(D|m_1)}{p(D|m_2)}  
+= \underbrace{\frac{p(m_1|D)}{p(m_2|D)}}_{\substack{\text{posterior} \\ \text{ratio}}} \cdot \underbrace{\frac{p(m_2)}{p(m_1)}}_{\substack{\text{prior} \\ \text{ratio}}}
+\end{align*}
+```
+"""
+
+# ╔═╡ 99db44c9-185c-4f39-ae5e-1a4cd751d980
+details("Proof this yourself, and click for solution",
+md"""
+```math
+\begin{align*}
 \mathrm{BF_{12}} &= \frac{p(D|m_1)}{p(D|m_2)}  \\
 &= \frac{p(D,m_1)}{p(m_1)} \bigg/ \frac{p(D,m_2)}{p(m_2)} \\
 &= \frac{p(m_1|D) p(D)}{p(m_1)} \cdot \frac{p(m_2)}{p(m_2|D) p(D)} \\
-&= \underbrace{\frac{p(m_1|D)}{p(m_2|D)}}_{\substack{\text{posterior} \\ \text{ratio}}} \cdot \underbrace{\frac{p(m_2)}{p(m_1)}}_{\substack{\text{prior} \\ \text{ratio}}}
+&= \frac{p(m_1|D)}{p(m_2|D)} \cdot \frac{p(m_2)}{p(m_1)} 
 \end{align*}
 ```
+""")		
 
+# ╔═╡ d22f58ac-9f68-41cb-8e61-cf74d3692c44
+md"""
 Hence, for equal model priors (``p(m_1)=p(m_2)=0.5``), the Bayes Factor reports the posterior probability ratio for the two models. 
 
 In principle, any hard decision on which is the better model has to accept some *ad hoc* arguments.  [Jeffreys (1961)](https://www.amazon.com/Theory-Probability-Classic-Physical-Sciences/dp/0198503687/ref=sr_1_1?qid=1663516628&refinements=p_27%3Athe+late+Harold+Jeffreys&s=books&sr=1-1&text=the+late+Harold+Jeffreys) advises to use the **log-Bayes factor**,  
@@ -351,7 +379,6 @@ to quantify evidence for preferring model ``m_1`` over ``m_2`` by the following 
 | 1 to 2               | strong                      |
 | >2                   | decisive                    |
 
-
 """
 
 # ╔═╡ 6a2707e6-d294-11ef-02ad-31bf84662c70
@@ -367,20 +394,25 @@ md"""
 Given the data ``D``, our knowledge about a yet unobserved datum ``x`` is captured by the following inference problem (where everything is conditioned on the selected model):
 
 ```math
-\begin{align*}
-p(x|D) &\stackrel{s}{=} \int p(x,\theta|D) \,\mathrm{d}\theta\\
- &\stackrel{p}{=} \int p(x|\theta,D) p(\theta|D) \,\mathrm{d}\theta\\
- &\stackrel{m}{=} \int \underbrace{p(x|\theta)}_{\substack{\text{data } \\ \text{generating}}} \, \underbrace{p(\theta|D)}_{\text{posterior}} \,\mathrm{d}\theta\\
-\end{align*}
+p(x|D) = \int \underbrace{p(x|\theta)}_{\substack{\text{data } \\ \text{generating}}} \, \underbrace{p(\theta|D)}_{\text{posterior}} \,\mathrm{d}\theta
 ```
 
 """
 
-# ╔═╡ 6a272cc6-d294-11ef-2844-0fa9091f97de
+# ╔═╡ f6ee5570-9b92-42b6-baf3-3eed5352a060
+details("Proof this yourself, and click for solution",
 md"""
-In the last equation, the simplification ``p(x|\theta,D) = p(x|\theta)`` follows from our model specification. In particular, we assumed a *parametric* data generating distribution ``p(x|\theta)`` with no explicit dependency on the data set ``D``. Technically, in our model specification, we assumed that ``x`` is conditionally independent from ``D``, given the parameters ``\theta``, i.e., we assumed ``p(x|\theta,D) = p(x|\theta)``. The information from the data set ``D`` has been absorbed in the posterior ``p(\theta|D)``, so all information from ``D`` is passed to a new observation ``x`` through the (posterior distribution over the) parameters ``\theta``. 
+```math
+\begin{align*}
+p(x|D) &\stackrel{s}{=} \int p(x,\theta|D) \,\mathrm{d}\theta\\
+ &\stackrel{p}{=} \int p(x|\theta,D) p(\theta|D) \,\mathrm{d}\theta\\
+ &\stackrel{m}{=} \int p(x|\theta) \, p(\theta|D) \,\mathrm{d}\theta
+\end{align*}
+```		
 
-"""
+In the last equation, the simplification ``p(x|\theta,D) = p(x|\theta)`` follows from our model specification. In particular, we assumed a *parametric* data generating distribution ``p(x|\theta)`` with no explicit dependency on the data set ``D``. Technically, in our model specification, we assumed that ``x`` is conditionally independent from ``D``, given the parameters ``\theta``, i.e., we assumed ``p(x|\theta, D) = p(x|\theta)``. The information from the data set ``D`` has been absorbed in the posterior ``p(\theta|D)``, so all information from ``D`` is passed to a new observation ``x`` through the (posterior distribution over the) parameters ``\theta``. 
+		
+""")
 
 # ╔═╡ 6a273ae0-d294-11ef-2c00-9b3eaed93f6d
 md"""
@@ -430,13 +462,18 @@ p(\text{what-I-am-interested-in} \,|\, \text{all available information})\,.
 md"""
 ## We're Done!
 
-In principle, you now have the recipe in your hands now to solve all your prediction/classification/regression/etc. problems by the same Bayesian modeling method:
+In principle, you now have the recipe in your hands to solve all your prediction/classification/regression (etc.) problems by the same Bayesian modeling method:
 
-	1. specify a model
-	2. train the model (by PT)
-	3. evaluate the model (by PT); if not satisfied, goto 1
-	4. apply the model (by PT)
+"""
 
+# ╔═╡ c03229ef-3e0f-4612-909b-97f488a1e4c9
+md"""
+	REPEAT
+		1. Model Specification
+		2. Parameter Estimation
+		3. Model Evaluation
+	UNTIL model performance is satisfactory
+		4. Apply Model
 """
 
 # ╔═╡ 6a27951c-d294-11ef-2e1a-b5a4ce84aceb
@@ -467,8 +504,31 @@ Consider a model ``p(x,\theta|m)`` and a data set ``D = \{x_1,x_2, \ldots,x_N\}`
 
 # ╔═╡ cc8af69e-6d00-4327-aaa2-0b1023052b8a
 md"""
-Given the data set ``D``, the log-evidence for model ``m`` decomposes as follows (please check the derivation):
+Given the data set ``D``, the log-evidence for model ``m`` decomposes as 
 """
+
+# ╔═╡ c454be00-05e7-42f6-a243-bf559ed6eff7
+md"""
+```math
+\begin{flalign}
+\underbrace{\log p(D|m)}_{\text{log-evidence}} = \underbrace{\int p(\theta|D,m) \log p(D|\theta,m) \mathrm{d}\theta}_{\text{accuracy (a.k.a. data fit)}} - \underbrace{\int p(\theta|D,m) \log  \frac{p(\theta|D,m)}{p(\theta|m)} \mathrm{d}\theta}_{\text{complexity}} \,.
+\end{flalign}
+```
+
+""" 
+
+# ╔═╡ 6a9ad1c4-dfb2-4987-9ddc-da6131605083
+details("Click for proof", 
+md"""
+```math
+\begin{flalign}
+\log p(D|m)&= \log p(D|m) \cdot   \underbrace{\int p(\theta|D,m)\mathrm{d}\theta}_{\text{evaluates to }1} \\
+ &= \int p(\theta|D,m) \log p(D|m) \mathrm{d}\theta  \qquad \text{(move $\log p(D|m)$ into the integral)} \\
+ &= \int p(\theta|D,m) \log \underbrace{\frac{p(D|\theta,m) p(\theta|m)}{p(\theta|D,m)}}_{\text{by Bayes rule}} \mathrm{d}\theta \\
+  &= \underbrace{\int p(\theta|D,m) \log p(D|\theta,m) \mathrm{d}\theta}_{\text{accuracy (a.k.a. data fit)}} - \underbrace{\int p(\theta|D,m) \log  \frac{p(\theta|D,m)}{p(\theta|m)} \mathrm{d}\theta}_{\text{complexity}}
+\end{flalign}
+```
+""")
 
 # ╔═╡ 6a27efc6-d294-11ef-2dc2-3b2ef95e72f5
 md"""
@@ -481,6 +541,9 @@ md"""
 The second term ("complexity", also known as "information gain") is technically a [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) (KLD) between the posterior and prior distributions, see [OPTIONAL SLIDE](#KLD) below. The KLD is an information-theoretic quantity that can be interpreted as a "distance" measure between two distributions. In other words, the complexity term measures how much the beliefs about ``\theta`` changed, due to learning from the data ``D``. Generally, we like the complexity term to be low, because moving away means forgetting previously acquired information represented by the prior. Indeed, lower complexity leads to higher model evidence.
 
 """
+
+# ╔═╡ 80edf8a4-e738-4bdb-bea3-0967926da645
+TODO("Fons, can we move teh OPTIONAL Slide KL divergence to a mini?")
 
 # ╔═╡ 6a2814b0-d294-11ef-3a76-9b93c1fcd4d5
 md"""
@@ -504,7 +567,7 @@ keyconcept(" ",
 
 # ╔═╡ 6a2879e6-d294-11ef-37db-df7babe24d25
 md"""
-Put somewhat provocatively, this point underscores that the common machine learning practice of splitting a data set into training, validation, and test sets is essentially an ad hoc workaround; a substitute for ("properly") formulating the learning task as a problem of Bayesian inference.
+Put provocatively, this highlights that the common machine learning practice of splitting a dataset into training, validation, and test sets is, in essence, an ad hoc workaround, a substitute for formulating the learning task properly as a Bayesian inference problem.
 
 """
 
@@ -661,13 +724,38 @@ Before observing any data, you can express your state-of-knowledge about the coi
 md"""
 ## 2. Parameter Estimation for Coin Toss
 
-Next, infer the posterior PDF over ``\mu`` (and evidence) through Bayes rule
+Next, infer the posterior PDF over ``\mu`` (and evidence) through Bayes rule,
 """
+
+# ╔═╡ 1ba1939d-9986-4b97-9273-4f2434f1d385
+md"""
+```math
+\begin{flalign*}
+p&(D|\mu)\cdot p(\mu)   \\
+  &= \underbrace{\biggl(\frac{B(n+\alpha,N-n+\beta)}{B(\alpha,\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{1}{B(n+\alpha,N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
+\end{flalign*}
+```
+where ``B(\alpha,\beta) \triangleq \frac{\Gamma(\alpha) \Gamma(\beta)}{\Gamma(\alpha + \beta)}``. 
+"""
+
+# ╔═╡ b426df32-5629-4773-b862-101cfbd82d42
+details("Proof this, and click for solution",
+md"""
+```math
+\begin{flalign*}
+p&(D|\mu)\cdot p(\mu)  \\
+  &=  \underbrace{\biggl( \mu^n (1-\mu)^{N-n}\biggr)}_{\text{likelihood}} \cdot \underbrace{\biggl( \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{\alpha-1}(1-\mu)^{\beta-1} \biggr)}_{\text{prior}} \\
+  &= \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1} \\
+  &= \frac{1}{B(\alpha,\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1} \\
+  &= \underbrace{\biggl(\frac{B(n+\alpha,N-n+\beta)}{B(\alpha,\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{1}{B(n+\alpha,N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
+\end{flalign*}
+```
+In the final equation, we included the term ``\frac{1}{B(n+\alpha,\,N-n+\beta)}`` to normalize the posterior ``p(\mu | D)``, and we compensated for this normalization in the evidence factor.	
+		""")
 
 # ╔═╡ 181ade96-8e1e-4186-9227-c1561352529d
 md"""
-
-hence the posterior is also beta-distributed as
+Hence, the posterior is also beta-distributed as
 
 ```math
 p(\mu|D) = \mathrm{Beta}(\mu|\,n+\alpha, N-n+\beta)
@@ -682,7 +770,10 @@ md"""
 It follow from the above calculation that the evidence for model ``m`` can be analytically expressed as
 
 ```math
-p(D|m) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)}
+\begin{align}
+p(D|m) &= \frac{B(n+\alpha,N-n+\beta)}{B(\alpha,\beta)} \\
+\Big( &=  \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)} \Bigg/ \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}\,. \Big)
+\end{align}
 ```
 
 The model evidence is a scalar. The absolute value is not important. However, you may want to compare the model evidence of this model to the evidence for another model on the same data set.  
@@ -770,9 +861,35 @@ md"""
 Note the following decomposition
 """
 
+# ╔═╡ e3f9e571-2248-403c-8ab8-f6b99597f595
+md"""
+```math
+\begin{flalign*}
+    p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
+        &= \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} + \underbrace{\underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}}\cdot \underbrace{\biggl( \underbrace{\frac{n}{N}}_{\substack{\text{data-based}\\\text{prediction}}} - \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} \biggr)}_{\text{prediction error}}}_{\text{correction}}
+\end{flalign*}
+```
+
+""" 
+
+# ╔═╡ 90f691ad-046c-4595-99b0-19a1d6cb599e
+details("Proof this yourself, and click for solution",
+md"""
+```math
+\begin{align*}
+    p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
+    &= \frac{\alpha}{N+\alpha+\beta} + \frac{n}{N+\alpha+\beta}  \\
+    &= \frac{\alpha}{N+\alpha+\beta}\cdot \frac{\alpha+\beta}{\alpha+\beta} + \frac{n}{N+\alpha+\beta}\cdot \frac{N}{N}  \\
+    &= \frac{\alpha}{\alpha+\beta}\cdot \frac{\alpha+\beta}{N+\alpha+\beta} + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
+    &= \frac{\alpha}{\alpha+\beta}\cdot \biggl(1-\frac{N}{N+\alpha+\beta} \biggr) + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
+        &= \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} + \underbrace{\underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}}\cdot \underbrace{\biggl( \underbrace{\frac{n}{N}}_{\substack{\text{data-based}\\\text{prediction}}} - \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} \biggr)}_{\text{prediction error}}}_{\text{correction}}
+\end{align*}
+```
+		""")
+
 # ╔═╡ 6a2a9faa-d294-11ef-1284-cfccb1da444e
 md"""
-Let's interpret this decomposition of the posterior prediction. Before the data ``D`` was observed, our model generated a *prior prediction* ``p(x*\bullet=1) = \frac{\alpha}{\alpha+\beta}``. Next, the degree to which the actually observed data matches this prediction is represented by the *prediction error* ``\frac{n}{N} - \frac{\alpha}{\alpha-\beta}``. The prior prediction is then updated to a _posterior prediction_ ``p(x_\bullet=1|D)`` by adding a fraction of the prediction error to the prior prediction. Hence, the data plays the role of "correcting" the prior prediction. 
+Let's interpret this decomposition of the posterior prediction. Before the data ``D`` was observed, our model generated a *prior prediction* ``p(x_\bullet=1) = \frac{\alpha}{\alpha+\beta}``. Next, the degree to which the actually observed data matches this prediction is represented by the *prediction error* ``\frac{n}{N} - \frac{\alpha}{\alpha-\beta}``. The prior prediction is then updated to a *posterior prediction* ``p(x_\bullet=1|D)`` by adding a fraction of the prediction error to the prior prediction. Hence, the data plays the role of "correcting" the prior prediction. 
 
 Note that, since ``0\leq \underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}} \lt 1``, the Bayesian prediction lies between (fuses) the prior and data-based predictions.
 
@@ -1095,12 +1212,12 @@ md"""
 
 # ╔═╡ 6a2c8f4a-d294-11ef-213c-dfa929a403bc
 md"""
-(bad). Cannot be used for model comparison! When doing ML estimation, the Bayesian model evidence collapses because a uniform prior on the full real axis is not a "proper" probability distribution, in the sense that its integral does not evaluate to ``1``. As a result, when doing ML estimation, Bayesian model evidence cannot be used to evaluate model performance: 
+(bad). ML cannot be used for model comparison! In ML estimation, the Bayesian model evidence is undefined because no prior distribution is specified. Even if we attempt to simulate ML as a special case of Bayesian inference by using a uniform prior, the evidence still collapses: a uniform prior over the entire real line is not a proper probability distribution, since its integral does not evaluate to 1. Consequently, when performing ML estimation, Bayesian model evidence cannot be used to evaluate model performance:
 
 ```math
 \begin{align*}
 \underbrace{p(D|m)}_{\substack{\text{Bayesian}\\ \text{evidence}}} &= \int p(D|\theta) \cdot p(\theta|m)\,\mathrm{d}\theta \\
-  &= \lim_{(b-a)\rightarrow \infty} \int p(D|\theta)\cdot \text{Uniform}(\theta|a,b)\,\mathrm{d}\theta \\
+  &= \lim_{(b-a)\rightarrow \infty} \int p(D|\theta)\cdot \underbrace{\text{Uniform}(\theta|a,b)}_{\text{"ML prior"}}\,\mathrm{d}\theta \\
   &= \lim_{(b-a)\rightarrow \infty} \frac{1}{b-a}\underbrace{\int_a^b p(D|\theta)\,\mathrm{d}\theta}_{<\infty}  \\
     &= 0
 \end{align*}
@@ -1118,6 +1235,231 @@ keyconcept(" ",
 	"""
 )
 
+
+# ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
+md"""
+$(section_outline("Excercises","",header_level=1))
+
+#####  Bayes estimate (**)
+
+(##) The Bayes estimate is a summary of a posterior distribution by a delta distribution on its mean, i.e.,
+
+```math
+\hat \theta_{bayes}  = \int \theta \, p\left( \theta |D \right)
+\,\mathrm{d}{\theta}
+```
+
+Proof that the Bayes estimate minimizes the mean-squared error, i.e., proof that
+
+```math
+\hat \theta_{bayes} = \arg\min_{\hat \theta} \int_\theta (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta}
+```
+"""
+
+# ╔═╡ 7dd9a456-9dca-47c8-98c5-51f87f28e6a4
+details("Click for solution",
+md"""
+To minimize the expected mean-squared error we will look for ``\hat{\theta}`` that makes the gradient of the integral with respect to ``\hat{\theta}`` vanish.
+
+```math
+\begin{align*}
+  \nabla_{\hat{\theta}}  \int_\theta (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta \nabla_{\hat{\theta}}  (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta  2(\hat \theta -\theta) p \left( \theta |D \right) \,\mathrm{d}{\theta} &= 0 \\
+  \int_\theta  \hat \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} \\
+  \hat \theta \underbrace{\int_\theta p \left( \theta |D \right) \,\mathrm{d}{\theta}}_{1} &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta} \\
+  \Rightarrow \hat \theta &= \int_\theta  \theta p \left( \theta |D \right) \,\mathrm{d}{\theta}
+\end{align*}
+```
+"""
+)
+
+# ╔═╡ b2820dfd-b3ca-477b-8cb7-c430e0fe18dd
+md"""
+
+##### Coin Toss MAP and ML (**)
+
+Consider the coin toss example with model
+```math
+\begin{align}
+p(x_k|\mu) &= \mu^{x_k} (1-\mu)^{1-x_k} \\ 
+p(\mu) &= \mathrm{Beta}(\mu|\alpha,\beta) \,.
+\end{align}
+```
+and a given data set ``D=\{x_1, x_2,\ldots,x_N\}``.
+
+- (a) Derive the Maximum Likelihood estimate for ``\mu``.
+- (b) Derive the MAP estimate for ``\mu``.           
+- (c) Do these two estimates ever coincide (if so, under what circumstances)?
+
+
+"""
+
+# ╔═╡ 664d4183-edb6-4818-a44b-bf4c0a22a33c
+details("Click for solution",
+md"""
+- (a) The likelihood is given by ``p(D|\mu) = \mu^n\cdot (1-\mu)^{(N-n)}``. It follows that
+
+
+```math
+\begin{align*}
+    \nabla \log p(D|\mu) &= 0 \\
+    \nabla \left( n\log \mu + (N-n)\log(1-\mu)\right) &= 0\\
+    \frac{n}{\mu} - \frac{N-n}{1-\mu} &= 0 \\
+    \rightarrow \hat{\mu}_{\text{ML}} &= \frac{n}{N}
+  \end{align*}
+```
+
+- (b) We can write the posterior as as
+
+
+```math
+\begin{align*}
+   p(\mu|D) &\propto p(D|\mu)p(\mu) \\
+      &\propto \mu^n (1-\mu)^{N-n} \mu^{\alpha-1} (1-\mu)^{\beta-1} \\
+      &\propto \mathcal{B}(\mu|n+\alpha,N-n+\beta)
+   \end{align*}
+```
+
+The MAP estimate for a beta distribution ``\mathcal{B}(a,b)`` is located at ``\frac{a - 1}{a+b-2}``, see [wikipedia](https://en.wikipedia.org/wiki/Beta_distribution). Hence,
+
+
+```math
+\begin{align*}
+\hat{\mu}_{\text{MAP}} &= \frac{(n+\alpha)-1}{(n+\alpha) + (N-n+\beta) -2} \\
+  &= \frac{n+\alpha-1}{N + \alpha +\beta -2}
+\end{align*}
+```
+
+- (c) As ``N`` gets larger, the MAP estimate approaches the ML estimate. In the limit the MAP solution converges to the ML solution.
+
+
+"""
+)
+
+# ╔═╡ ecb036da-a0a2-4919-b1aa-bc33b6ba7e73
+md"""
+
+##### Model Comparison (**)
+
+A model ``m_1`` is described by a single parameter ``\theta``, with ``0 \leq \theta \leq 1``. The system can produce data ``x \in \{0,1\}``. The sampling distribution and prior are given by
+
+```math
+\begin{align*}
+p(x|\theta,m_1) &=  \theta^x (1-\theta)^{(1-x)} \\
+p(\theta|m_1) &= 6\theta(1-\theta)
+\end{align*}
+```
+
+- (a) Work out the probability ``p(x=1|m_1)``.    
+
+- (b) Determine the posterior ``p(\theta|x=1,m_1)``.     
+
+Now consider a second model ``m_2`` with the following sampling distribution and prior on ``0 \leq \theta \leq 1``:
+
+```math
+\begin{align*}
+p(x|\theta,m_2) &= (1-\theta)^x \theta^{(1-x)} \\
+p(\theta|m_2) &= 2\theta
+\end{align*}
+```
+
+- (c) Determine the probability ``p(x=1|m_2)``.    
+
+Now assume that the model priors are given by
+
+```math
+\begin{align*}
+    p(m_1) &= 1/3  \\
+    p(m_2) &= 2/3
+    \end{align*}
+```
+
+- (d) Compute the probability ``p(x=1)`` by "Bayesian model averaging", i.e., by weighing the predictions of both models appropriately.  
+
+
+- (e) Compute the fraction of posterior model probabilities ``\frac{p(m_1|x=1)}{p(m_2|x=1)}``.     
+
+
+- (f) Which model do you prefer after observation ``x=1``?
+
+
+"""
+
+# ╔═╡ de08c2a1-c5e3-4add-8b22-2c633247da48
+details("Click for solutions",
+md"""
+- (a) Work out the probability ``p(x=1|m_1)``.    
+
+```math
+\begin{align*}
+  p(x=1|m_1) &= \int_0^1 p(x=1|\theta,m_1) p(\theta|m_1) \mathrm{d}\theta \\
+  &= \int \theta \cdot 6\theta (1-\theta) \mathrm{d}\theta \\
+  &= 6 \cdot \left(\frac{1}{3}\theta^3 - \frac{1}{4}\theta^4\right) \bigg|_0^1 \\
+  &= 6 \cdot (\frac{1}{3} - \frac{1}{4}) = \frac{1}{2}
+\end{align*}
+```
+
+- (b) Determine the posterior ``p(\theta|x=1,m_1)``.     
+
+```math
+\begin{align*}
+  p(\theta|x=1,m_1) &= \frac{p(x=1|\theta) p(\theta|m_1)}{p(x=1|m_1)} \\
+  &= 2\cdot \theta \cdot 6\theta (1-\theta) \\
+  &= \begin{cases} 12 \theta^2 (1-\theta) & \text{if }0 \leq \theta \leq 1 \\
+  0 & \text{otherwise} \end{cases}
+  \end{align*}
+```
+
+Now consider a second model ``m_2`` with the following sampling distribution and prior on ``0 \leq \theta \leq 1``:
+
+```math
+\begin{align*}
+p(x|\theta,m_2) &= (1-\theta)^x \theta^{(1-x)} \\
+p(\theta|m_2) &= 2\theta
+\end{align*}
+```
+
+- (c) Determine the probability ``p(x=1|m_2)``.    
+
+```math
+\begin{align*}
+  p(x=1|m_2) &= \int_0^1 p(x=1|\theta,m_2) p(\theta|m_2) \mathrm{d}\theta \\
+  &= \int (1-\theta) \cdot 2\theta \mathrm{d}\theta \\
+  &= 2 \cdot \left( \frac{1}{2}\theta^2 - \frac{1}{3}\theta^3 \right) \bigg|_0^1 \\
+  &= 2 \cdot (\frac{1}{2} - \frac{1}{3}) = \frac{1}{3}
+  \end{align*}
+```
+
+Now assume that the model priors are given by
+
+```math
+\begin{align*}
+    p(m_1) &= 1/3  \\
+    p(m_2) &= 2/3
+    \end{align*}
+```
+
+- (d) Compute the probability ``p(x=1)`` by "Bayesian model averaging", i.e., by weighing the predictions of both models appropriately.  
+
+```math
+\begin{align*}
+    p(x=1) &= \sum_{k=1}^2 p(x=1|m_k) p(m_k)  \\
+    &= \frac{1}{2} \cdot \frac{1}{3} + \frac{1}{3} \cdot \frac{2}{3} = \frac{7}{18} 
+    \end{align*}
+```
+
+- (e) Compute the fraction of posterior model probabilities ``\frac{p(m_1|x=1)}{p(m_2|x=1)}``.     
+
+```math
+\frac{p(m_1|x=1)}{p(m_2|x=1)} = \frac{p(x=1|m_1) p(m_1)}{p(x=1|m_2) p(m_2)} = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{3} \cdot \frac{2}{3}} =\frac{3}{4}
+```
+
+- (f) Which model do you prefer after observation ``x=1``?
+
+In principle, the observation ``x=1`` favors model ``m_2``, since ``p(m_2|x=1) = \frac{4}{3} \times p(m_1|x=1)``. However, note that ``\log_{10} \frac{3}{4} \approx -0.125``, so the extra evidence for ``m_2`` relative to ``m_1`` is very low. At this point, after 1 observation, we have no preference for a model yet.
+
+""")
 
 # ╔═╡ 6a2cb25e-d294-11ef-1d88-1fc784b33df0
 md"""
@@ -1228,22 +1570,6 @@ let i = KL_animation_step
 	)
 end
 
-# ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
-md"""
-$(section_outline("Inference Exercise:", "Causality?"))
-
-##### Problem 
-
-A dark bag contains five red balls and seven green ones. 
-
-- (a) What is the probability of drawing a red ball on the first draw? 
-
-Balls are not returned to the bag after each draw. 
-
-- (b) If you know that on the second draw the ball was a green one, what is now the probability of drawing a red ball on the first draw?
-
-"""
-
 # ╔═╡ 1f92c406-6792-4af6-9132-35efd8223bc5
 md"""
 # Appendix
@@ -1251,47 +1577,6 @@ md"""
 
 # ╔═╡ 7a764a14-a5df-4f76-8836-f0a571fc3519
 wideq(x) = PlutoUI.ExperimentalLayout.Div([x]; style="min-width: max-content;") |> WideCell
-
-# ╔═╡ c454be00-05e7-42f6-a243-bf559ed6eff7
-md"""
-```math
-\begin{align*}
-\underbrace{\log p(D|m)}_{\text{log-evidence}} &= \log p(D|m) \cdot   \underbrace{\int p(\theta|D,m)\mathrm{d}\theta}_{\text{evaluates to }1} \\
- &= \int p(\theta|D,m) \log p(D|m) \mathrm{d}\theta  \qquad \text{(move $\log p(D|m)$ into the integral)} \\
- &= \int p(\theta|D,m) \log \underbrace{\frac{p(D|\theta,m) p(\theta|m)}{p(\theta|D,m)}}_{\text{by Bayes rule}} \mathrm{d}\theta \\
-  &= \underbrace{\int p(\theta|D,m) \log p(D|\theta,m) \mathrm{d}\theta}_{\text{accuracy (a.k.a. data fit)}} - \underbrace{\int p(\theta|D,m) \log  \frac{p(\theta|D,m)}{p(\theta|m)} \mathrm{d}\theta}_{\text{complexity}}
-\end{align*}
-```
-
-""" |> wideq
-
-# ╔═╡ 1ba1939d-9986-4b97-9273-4f2434f1d385
-md"""
-```math
-\begin{align*}
-p(\mu&|D) \cdot p(D) = p(D|\mu)\cdot p(\mu)  \\
-  &=  \underbrace{\biggl( \mu^n (1-\mu)^{N-n}\biggr)}_{\text{likelihood}} \cdot \underbrace{\biggl( \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{\alpha-1}(1-\mu)^{\beta-1} \biggr)}_{\text{prior}} \\
-  &= \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1} \\
-        &= \underbrace{\biggl(\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)} \frac{\Gamma(n+\alpha) \Gamma(N-n+\beta)}{\Gamma(N+\alpha+\beta)}\biggr)}_{\text{evidence }p(D)} \cdot \underbrace{\biggl( \frac{\Gamma(N+\alpha+\beta)}{\Gamma(n+\alpha)\Gamma(N-n+\beta)} \mu^{n+\alpha-1} (1-\mu)^{N-n+\beta-1}\biggr)}_{\text{posterior }p(\mu|D)=\mathrm{Beta}(\mu|n+\alpha, N-n+\beta)}
-\end{align*}
-```
-
-""" |> wideq
-
-# ╔═╡ e3f9e571-2248-403c-8ab8-f6b99597f595
-md"""
-```math
-\begin{align*}
-    p(x_\bullet=1|\,D) &= \frac{n+\alpha}{N+\alpha+\beta} \\
-    &= \frac{\alpha}{N+\alpha+\beta} + \frac{n}{N+\alpha+\beta}  \\
-    &= \frac{\alpha}{N+\alpha+\beta}\cdot \frac{\alpha+\beta}{\alpha+\beta} + \frac{n}{N+\alpha+\beta}\cdot \frac{N}{N}  \\
-    &= \frac{\alpha}{\alpha+\beta}\cdot \frac{\alpha+\beta}{N+\alpha+\beta} + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
-    &= \frac{\alpha}{\alpha+\beta}\cdot \biggl(1-\frac{N}{N+\alpha+\beta} \biggr) + \frac{N}{N+\alpha+\beta}\cdot \frac{n}{N}  \\
-        &= \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} + \underbrace{\underbrace{\frac{N}{N+\alpha+\beta}}_{\text{gain}}\cdot \underbrace{\biggl( \underbrace{\frac{n}{N}}_{\substack{\text{data-based}\\\text{prediction}}} - \underbrace{\frac{\alpha}{\alpha+\beta}}_{\substack{\text{prior}\\\text{prediction}}} \biggr)}_{\text{prediction error}}}_{\text{correction}}
-\end{align*}
-```
-
-""" |> wideq
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1308,8 +1593,8 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 Distributions = "~0.25.119"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.4.2"
-PlutoUI = "~0.7.62"
+PlutoTeachingTools = "~0.4.5"
+PlutoUI = "~0.7.69"
 SpecialFunctions = "~2.5.1"
 StatsPlots = "~0.15.7"
 """
@@ -1318,9 +1603,9 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.9"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "5c99a46e6d2e558c43563418a6b2b8c617eb3500"
+project_hash = "abd58c9f6700767f652d81b5f75ddf0c01e33a11"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1358,7 +1643,7 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Arpack]]
 deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
@@ -1374,6 +1659,7 @@ version = "3.5.1+1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.AxisAlgorithms]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
@@ -1383,6 +1669,7 @@ version = "1.1.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1403,9 +1690,9 @@ version = "1.18.5+0"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "06ee8d1aa558d2833aa799f6f0b31b30cada405f"
+git-tree-sha1 = "e4c6a16e77171a5f5e25e9646617ab1c276c5607"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.25.2"
+version = "1.26.0"
 weakdeps = ["SparseArrays"]
 
     [deps.ChainRulesCore.extensions]
@@ -1434,12 +1721,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -1459,9 +1744,9 @@ version = "0.13.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "3a3dfb30697e96a440e4149c8c51bf32f818c0f3"
+git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.17.0"
+version = "4.18.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1502,6 +1787,7 @@ version = "1.0.0"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1529,6 +1815,7 @@ weakdeps = ["ChainRulesCore", "SparseArrays"]
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
@@ -1600,6 +1887,7 @@ version = "3.3.11+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1728,6 +2016,7 @@ version = "2025.2.0+0"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.Interpolations]]
 deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
@@ -1810,9 +2099,9 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
+git-tree-sha1 = "52e1296ebbde0db845b356abbbe67fb82a0a116c"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.8"
+version = "0.16.9"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1829,6 +2118,7 @@ version = "0.16.8"
 [[deps.LazyArtifacts]]
 deps = ["Artifacts", "Pkg"]
 uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
+version = "1.11.0"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -1838,16 +2128,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1856,6 +2147,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1896,6 +2188,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1915,6 +2208,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1941,6 +2235,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1951,7 +2246,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1966,10 +2261,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.MultivariateStats]]
 deps = ["Arpack", "Distributions", "LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI", "StatsBase"]
@@ -2016,7 +2312,7 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2031,9 +2327,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
+git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.1+0"
+version = "3.5.2+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -2082,9 +2378,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2100,9 +2400,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
+git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.17"
+version = "1.40.18"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2120,15 +2420,15 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "ce33e4fd343e43905a8416e6148de8c630101909"
+git-tree-sha1 = "85778cdf2bed372008e6646c64340460764a5b85"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.2"
+version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.68"
+version = "0.7.69"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2138,13 +2438,14 @@ version = "1.2.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
+git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2188,12 +2489,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.Ratios]]
 deps = ["Requires"]
@@ -2264,10 +2567,12 @@ version = "1.4.8"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.SharedArrays]]
 deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2282,17 +2587,18 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2327,9 +2633,14 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2339,9 +2650,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2363,6 +2674,10 @@ git-tree-sha1 = "3b1dcbf62e469a67f6733ae493401e53d92ff543"
 uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
 version = "0.15.7"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2370,7 +2685,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2409,6 +2724,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2416,9 +2732,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "6cae795a5a9313bbb4f60683f7263318fc7d1505"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.10"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2428,9 +2744,11 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2440,9 +2758,9 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "d2282232f8a4d71f79e85dc4dd45e5b12a6297fb"
+git-tree-sha1 = "6258d453843c466d84c17a58732dda5deeb8d3af"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.23.1"
+version = "1.24.0"
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
@@ -2720,7 +3038,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.oneTBB_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2759,6 +3077,7 @@ version = "1.9.2+0"
 # ╟─6a24376c-d294-11ef-348a-e9027bd0ec29
 # ╟─6a24b9e4-d294-11ef-3ead-9d272fbf89be
 # ╟─6a24c3e6-d294-11ef-3581-2755a9ba15ba
+# ╟─e2de9415-7bd8-4e95-abeb-53fc068ee950
 # ╟─6a24c9f4-d294-11ef-20cc-172ea50da901
 # ╟─6a24cee0-d294-11ef-35cb-71ab9ef935e5
 # ╟─6a24d478-d294-11ef-2a75-9d03a5ba7ff8
@@ -2778,6 +3097,7 @@ version = "1.9.2+0"
 # ╟─6a25edfc-d294-11ef-3411-6f74c376461e
 # ╟─53de7edd-6c28-49a7-9f54-cf7b8ca42aeb
 # ╟─288fbee6-0783-4447-b5d0-f5c2b29b39c7
+# ╟─74fa1925-0d9f-47f6-a6bd-b822948a4fbc
 # ╟─6a261278-d294-11ef-25a0-5572de58ad06
 # ╟─6a26549a-d294-11ef-1f10-15c4d14ae41f
 # ╟─6a262182-d294-11ef-23e9-ed45e1da9f46
@@ -2788,23 +3108,28 @@ version = "1.9.2+0"
 # ╟─6a269568-d294-11ef-02e3-13402d296391
 # ╟─6a26b7bc-d294-11ef-03e7-2715b6f8dcc7
 # ╟─6a26f244-d294-11ef-0488-c1e4ec6e739d
+# ╟─99db44c9-185c-4f39-ae5e-1a4cd751d980
+# ╟─d22f58ac-9f68-41cb-8e61-cf74d3692c44
 # ╟─6a2707e6-d294-11ef-02ad-31bf84662c70
 # ╟─6a271a56-d294-11ef-0046-add807cc0b4f
-# ╟─6a272cc6-d294-11ef-2844-0fa9091f97de
+# ╟─f6ee5570-9b92-42b6-baf3-3eed5352a060
 # ╟─6a273ae0-d294-11ef-2c00-9b3eaed93f6d
 # ╟─6a274948-d294-11ef-0563-1796b8883306
 # ╟─6a275a52-d294-11ef-1323-9d83972f611a
 # ╟─6a27684e-d294-11ef-040e-c302cdad714a
 # ╟─6a2777d0-d294-11ef-1ac3-add102c097d6
 # ╟─6a278784-d294-11ef-11ae-65bd398910d5
+# ╟─c03229ef-3e0f-4612-909b-97f488a1e4c9
 # ╟─6a27951c-d294-11ef-2e1a-b5a4ce84aceb
 # ╟─6a27a28a-d294-11ef-1f33-41b444761429
 # ╟─6a27b114-d294-11ef-099d-1d55968934a6
 # ╟─6a27beca-d294-11ef-1895-d57b11b827c1
 # ╟─cc8af69e-6d00-4327-aaa2-0b1023052b8a
 # ╟─c454be00-05e7-42f6-a243-bf559ed6eff7
+# ╟─6a9ad1c4-dfb2-4987-9ddc-da6131605083
 # ╟─6a27efc6-d294-11ef-2dc2-3b2ef95e72f5
 # ╟─6a280132-d294-11ef-10ac-f3890cb3f78b
+# ╠═80edf8a4-e738-4bdb-bea3-0967926da645
 # ╟─6a2814b0-d294-11ef-3a76-9b93c1fcd4d5
 # ╟─6a282892-d294-11ef-2c12-4b1c7374617c
 # ╟─6a286b04-d294-11ef-1b34-8b7a85c0048c
@@ -2825,6 +3150,7 @@ version = "1.9.2+0"
 # ╟─6a294790-d294-11ef-270b-5b2152431426
 # ╟─b872cd69-d534-4b04-bb76-d85bb7ef0ea9
 # ╟─1ba1939d-9986-4b97-9273-4f2434f1d385
+# ╟─b426df32-5629-4773-b862-101cfbd82d42
 # ╟─181ade96-8e1e-4186-9227-c1561352529d
 # ╟─6a29d548-d294-11ef-1361-ad2230cad02b
 # ╟─6a29e25e-d294-11ef-15ce-5bf3d8cdb64c
@@ -2837,6 +3163,7 @@ version = "1.9.2+0"
 # ╟─6a2a465e-d294-11ef-2aa0-43c954a6439e
 # ╟─48fd2dff-796d-48bc-b5a8-bee270d119fd
 # ╟─e3f9e571-2248-403c-8ab8-f6b99597f595
+# ╟─90f691ad-046c-4595-99b0-19a1d6cb599e
 # ╟─6a2a9faa-d294-11ef-1284-cfccb1da444e
 # ╟─6a2aad42-d294-11ef-3129-3be5be8c82d6
 # ╟─6a2abb16-d294-11ef-0243-d376e8a39bb0
@@ -2875,6 +3202,12 @@ version = "1.9.2+0"
 # ╟─6a2c7f5a-d294-11ef-2e17-9108a39df280
 # ╟─6a2c8f4a-d294-11ef-213c-dfa929a403bc
 # ╟─6a2ca496-d294-11ef-0043-1f350b36773e
+# ╟─f2969d91-4a5b-4665-9fa5-521db750302f
+# ╟─7dd9a456-9dca-47c8-98c5-51f87f28e6a4
+# ╟─b2820dfd-b3ca-477b-8cb7-c430e0fe18dd
+# ╟─664d4183-edb6-4818-a44b-bf4c0a22a33c
+# ╟─ecb036da-a0a2-4919-b1aa-bc33b6ba7e73
+# ╟─de08c2a1-c5e3-4add-8b22-2c633247da48
 # ╟─6a2cb25e-d294-11ef-1d88-1fc784b33df0
 # ╟─1edae118-dcc7-4169-95cf-f36025f2c336
 # ╟─275a9a69-3135-4cbd-8a35-b1abee4af83f
@@ -2886,7 +3219,6 @@ version = "1.9.2+0"
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
 # ╟─7bf0fde7-b201-4646-9934-ec93e661cf22
 # ╟─635e4f4c-5274-4bd4-a940-b2f3819426ec
-# ╟─f2969d91-4a5b-4665-9fa5-521db750302f
 # ╟─1f92c406-6792-4af6-9132-35efd8223bc5
 # ╠═caba8eee-dfea-45bc-a8a7-1dd20a1fa994
 # ╟─7a764a14-a5df-4f76-8836-f0a571fc3519
