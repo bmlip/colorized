@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.14
+# v0.20.13
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true"
@@ -315,18 +315,23 @@ Consequently, the sum of two independent Gaussian random variables remains Gauss
 A common mistake is to confuse the *sum of two Gaussian-distributed variables*, which remains Gaussian-distributed (see above), with the *sum of two Gaussian distributions*, which is typically not a Gaussian distribution.
 """
 
-# ╔═╡ b9a5a82c-d294-11ef-096f-ffee478aca20
+# ╔═╡ 1df7a10d-c4f6-40d6-8f5a-cbd79ef1d415
+TwoColumn(
 md"""
-##### Gaussian Signals in a Linear System
+#### Gaussian Signals in a Linear System (**)
+	
+Given independent variables ``x \sim \mathcal{N}(\mu_x, \sigma_x^2)`` and ``y \sim \mathcal{N}(\mu_y, \sigma_x^y)``, what is the PDF for
 
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true)
-
-Given independent variables ``x \sim \mathcal{N}(\mu_x,\sigma_x^2)`` and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for 
 ```math
-z = a\cdot(x -y) + b \,?
+z =a \cdot (x-y) + b \,\text{?}
 ```
- 
-"""
+
+""", 
+@htl """
+
+<img src="https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+
+""")
 
 # ╔═╡ 673360e8-27ed-471c-a866-15af550df5e7
 details("click for answer",
@@ -358,12 +363,6 @@ and
 		
 		"""		
 	   )
-
-# ╔═╡ b9a5b7e0-d294-11ef-213e-4b72b8c88db7
-md"""
-Think about the role of the Gaussian distribution for stochastic linear systems in relation to what sinusoidals mean for deterministic linear system analysis.
-
-"""
 
 # ╔═╡ 9eb3e920-fab5-4a6a-8fe1-5734ebc6b25c
 md"""
@@ -623,7 +622,7 @@ $(HTML("<span id='Gaussian-multiplication'></span>")) In general, the multiplica
 
 ```math
 \begin{equation*}
-\boxed{\mathcal{N}(x|\mu_a,\Sigma_a) \cdot \mathcal{N}(x|\mu_b,\Sigma_b) = \underbrace{\mathcal{N}(\mu_a|\, \mu_b, \Sigma_a + \Sigma_b)}_{\text{normalization constant}} \cdot \mathcal{N}(x|\mu_c,\Sigma_c)} \tag{SRG-6}
+\mathcal{N}(x|\mu_a,\Sigma_a) \cdot \mathcal{N}(x|\mu_b,\Sigma_b) = \underbrace{\mathcal{N}(\mu_a|\, \mu_b, \Sigma_a + \Sigma_b)}_{\text{normalization constant}} \cdot \mathcal{N}(x|\mu_c,\Sigma_c) \tag{SRG-6}
 \end{equation*}
 ```
 
@@ -737,14 +736,14 @@ Let's factorize ``p(z) = p(x,y)`` as ``p(x,y) = p(y|x) p(x)`` through conditioni
 ##### conditioning
 ```math
 \begin{equation*}
-\boxed{ p(y|x) = \mathcal{N}\left(y\,|\,\mu_y + \Sigma_{yx}\Sigma_x^{-1}(x-\mu_x),\, \Sigma_y - \Sigma_{yx}\Sigma_x^{-1}\Sigma_{xy} \right)}
+p(y|x) = \mathcal{N}\left(y\,|\,\mu_y + \Sigma_{yx}\Sigma_x^{-1}(x-\mu_x),\, \Sigma_y - \Sigma_{yx}\Sigma_x^{-1}\Sigma_{xy} \right)
 \end{equation*}
 ```
 
 ##### marginalization
 ```math
 \begin{equation*}
- \boxed{ p(x) = \mathcal{N}\left( x|\mu_x, \Sigma_x \right)}
+ p(x) = \mathcal{N}\left( x|\mu_x, \Sigma_x \right)
 \end{equation*}
 ```
 
@@ -819,7 +818,7 @@ p(\theta) &= \mathcal{N}(\theta\,|\,\mu_0,\sigma_0^2)
 
 # ╔═╡ b9a9f98e-d294-11ef-193a-0dbdbfffa86f
 md"""
-Let ``z = \begin{bmatrix} x \\ \theta \end{bmatrix}``. The distribution for ``z`` is then given by (see [Gaussian distribution Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
+Let ``z = \begin{bmatrix} x \\ \theta \end{bmatrix}``. The distribution for ``z`` is then given by (see [exercise below](#Conversion-to-Joint-Distribution-(**)))
 
 ```math
 p(z) = p\left(\begin{bmatrix} x \\ \theta \end{bmatrix}\right) = \mathcal{N} \left( \begin{bmatrix} x\\ 
@@ -920,10 +919,29 @@ where
 \end{align*}
 ```
 
+
+"""
+
+# ╔═╡ 364cd002-92ee-4fb6-b89a-3251eff7502c
+md"""
 #### application: prediction of future sample
 
-With the posterior over the model parameters in hand, we can now evaluate the posterior predictive distribution for the next sample ``x_{N+1}`` as
+With the posterior over the model parameters in hand, we can now evaluate the posterior predictive distribution for the next sample ``x_{N+1}``. Proof for yourself that
 
+```math
+\begin{align*}
+ p(x_{N+1}|D) &= \int p(x_{N+1}|\theta) p(\theta|D)\mathrm{d}\theta \\
+  &=\mathcal{N}(x_{N+1}|\mu_N, \sigma^2_N +\sigma^2 )
+\end{align*}
+```
+
+Note that uncertainty about ``x_{N+1}`` involves both uncertainty about the parameter (``\sigma_N^2``) and observation noise ``\sigma^2``.
+
+"""
+
+# ╔═╡ 922f0eb6-9e29-4b6c-9701-cb7b2f07bb7a
+details("Click for solution",
+md"""
 ```math
 \begin{align*}
  p(x_{N+1}|D) &= \int p(x_{N+1}|\theta) p(\theta|D)\mathrm{d}\theta \\
@@ -935,14 +953,12 @@ With the posterior over the model parameters in hand, we can now evaluate the po
 \end{align*}
 ```
 
-Note that uncertainty about ``x_{N+1}`` involves both uncertainty about the parameter (``\sigma_N^2``) and observation noise ``\sigma^2``.
-
 To follow the above derivation of ``p(x_{N+1}|D)``, note that transition ``1`` relies on the identity
 ```math
 \mathcal{N}(x|\mu,\Sigma) = \mathcal{N}(\mu|x,\Sigma)
 ```
 and transition ``2`` derives from using the multiplication rule for Gaussians.
-"""
+""")
 
 # ╔═╡ 9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
 section_outline("Challenge Revisited:", "Classify a Gaussian Sample", header_level=2, color="red")
@@ -984,16 +1000,31 @@ To determine the MLE of ``\mu`` as a special case of Bayesian inference, we let 
 
 ```math
 \begin{align}
+ \mu_{\text{ML}} = \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \frac{1}{N} \sum_{n=1}^N x_n 
+\end{align}
+```
+
+
+"""
+
+# ╔═╡ 0d303dba-51d4-4413-8001-73ed98bf74df
+details("Click for proof",
+md"""
+```math
+\begin{align}
  \mu_{\text{ML}} &= \left.\mu_N\right\vert_{\sigma_0^2 \rightarrow \infty} = \Bigg.  \underbrace{\left(\frac{1}{\sigma_0^2} + \sum_n \frac{1}{\sigma^2}\right)^{-1}}_{\text{Eq. B-2.142}} \cdot \underbrace{\left( \frac{1}{\sigma_0^2} \mu_0 + \sum_n \frac{1}{\sigma^2} x_n  \right)}_{\text{Eq. B-2.141 }} \Bigg\vert_{\sigma_0^2 \rightarrow \infty}  \\
 &=  \left(\sum_n \frac{1}{\sigma^2}\right)^{-1} \cdot \left( \sum_n \frac{1}{\sigma^2} x_n  \right)  \\
 &= \left(\frac{N}{\sigma^2}\right)^{-1} \cdot \left( \frac{1}{\sigma^2} \sum_n  x_n  \right) \\
 &= \frac{1}{N} \sum_{n=1}^N x_n 
 \end{align}
 ```
+		""")
+
+# ╔═╡ 4a2cd378-0960-4089-81ad-87bf1be9a3b2
+md"""
 This is a reassuring result: it matches the maximum likelihood estimate for ``\mu`` that we [previously derived by setting the gradient of the log-likelihood function to zero](#Maximum-Likelihood-Estimation).
 
-Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.
-
+Of course, in practical applications, the maximum likelihood estimate is not obtained by first computing the full Bayesian posterior and then applying simplifications. This derivation (see proof) is included solely to illuminate the connection between Bayesian inference and maximum likelihood estimation.
 
 """
 
@@ -1013,7 +1044,7 @@ Proof that
 """
 
 # ╔═╡ d05975bb-c5cc-470a-a6f3-60bc43c51e89
-details("proof:", 
+details("Click for proof", 
 md"""		
 ```math
 \begin{align*}
@@ -1258,6 +1289,276 @@ Here's a nice [summary of Gaussian calculations](https://github.com/bertdv/AIP-5
 
 """
 
+# ╔═╡ 79a99a22-3bb5-431b-bf84-5dce5cccfe25
+md"""
+# Exercises
+
+"""
+
+# ╔═╡ 14b3edcc-0d16-4055-9b1c-7f324514a0a9
+md"""
+#### Gaussian Message Passing (**)
+
+This exercise is a continuation of the [exercise on message passing for an addition node](https://bmlip.github.io/course/lectures/Factor%20Graphs.html#Messages-for-the-Addition-Node-(*)).
+"""
+
+# ╔═╡ dd7786e2-d6ac-4dba-abca-3686242c067d
+TwoColumn(
+md"""
+Consider an addition node
+
+```math
+f_+(x,y,z) = \delta(z-x-y)
+```
+Assume that both incoming messages are Gaussian, namely ``\overrightarrow{\mu}_{X}(x) \sim \mathcal{N}(\overrightarrow{m}_X,\overrightarrow{V}_X)`` and ``\overrightarrow{\mu}_{Y}(y) \sim \mathcal{N}(\overrightarrow{m}_Y,\overrightarrow{V}_Y)``. 
+
+""", 
+	
+@htl """
+
+<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-addition-node.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+
+""")
+
+# ╔═╡ b7a810a3-dc38-4e72-ab10-2ad2f064bdbb
+md"""
+
+- (a) Evaluate the outgoing message ``\overrightarrow{\mu}_{Z}(z)``. 
+
+- (b) For the same summation node, work out the SP update rule for the backward message ``\overleftarrow{\mu}_{X}(x)`` as a function of ``\overrightarrow{\mu}_{Y}(y)`` and  ``\overleftarrow{\mu}_{Z}(z)``. And further refine the answer for Gaussian messages.
+
+
+"""
+
+# ╔═╡ f711b053-dccf-4bf1-b285-e8da94a48b68
+details("Click for solution",
+md"""
+
+- (a) Evaluate the outgoing message ``\overrightarrow{\mu}_{Z}(z)``. 
+
+In the [exercise on message passing for an addition node](https://bmlip.github.io/course/lectures/Factor%20Graphs.html#Messages-for-the-Addition-Node-(*)), we found that the outgoing message is given by
+
+```math
+\begin{align*}
+  \overrightarrow{\mu}_{Z}(z) &= \iint  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(y) \,\delta(z-x-y) \,\mathrm{d}x \mathrm{d}y \\
+   &=  \int  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(z-x) \,\mathrm{d}x \,, 
+  \end{align*}
+```
+
+
+For Gaussian incoming messages, these update rules evaluate to ``\overrightarrow{\mu}_{Z}(z) \sim \mathcal{N}(\overrightarrow{m}_Z,\overrightarrow{V}_Z)`` with
+
+
+```math
+\begin{align*}
+  \overrightarrow{m}_Z &= \overrightarrow{m}_X + \overrightarrow{m}_Y \\
+  \overrightarrow{V}_z &= \overrightarrow{V}_X + \overrightarrow{V}_Y \,.
+\end{align*}
+```
+
+- (b) For the same summation node, work out the SP update rule for the backward message ``\overleftarrow{\mu}_{X}(x)`` as a function of ``\overrightarrow{\mu}_{Y}(y)`` and  ``\overleftarrow{\mu}_{Z}(z)``. And further refine the answer for Gaussian messages.
+
+```math
+\begin{align*}
+  \overleftarrow{\mu}_{X}(x) &= \iint  \overrightarrow{\mu}_{Y}(y) \overleftarrow{\mu}_{Z}(z) \,\delta(z-x-y) \,\mathrm{d}y \mathrm{d}z \\
+   &=  \int  \overrightarrow{\mu}_{Y}(z-x) \overleftarrow{\mu}_{Z}(z) \,\mathrm{d}z  
+  \end{align*}
+```
+
+and now further with Gaussian messages,
+
+
+```math
+\begin{align*}
+  \overleftarrow{\mu}_{X}(x) &= \int  \mathcal{N}(z-x | m_y,V_y)  \mathcal{N}(z | m_z,V_z)\,\mathrm{d}z \\
+  &=  \int  \mathcal{N}(z | x+ m_y,V_y)  \mathcal{N}(z | m_z,V_z)\,\mathrm{d}z  \\
+  &=  \int  \mathcal{N}(x+m_y | m_z,V_y+V_z)  \mathcal{N}(z | \cdot,\cdot)\,\mathrm{d}z  \\
+  &= \mathcal{N}(x | m_z-m_y, V_y+V_z) 
+\end{align*}
+```
+
+
+""")
+
+# ╔═╡ 22539cfe-3694-4100-8120-ca6ac1e66b31
+md"""
+#### Estimation of a Constant (**)
+
+We make ``N`` IID observations ``D=\{x_1 \dots x_N\}`` and assume the following model
+
+```math
+\begin{align}
+x_k &= A + \epsilon_k \\
+A &\sim \mathcal{N}(m_A,v_A) \\
+\epsilon_k &\sim \mathcal{N}(0,\sigma^2) \,.
+\end{align}
+```
+
+We assume that ``\sigma`` has a known value and are interested in deriving an estimator for ``A``.
+
+- (a) Derive the Bayesian (posterior) estimate ``p(A|D)``.   
+
+- (b) Derive the Maximum Likelihood estimate for ``A``.
+
+- (c) Derive the MAP estimates for ``A``.  
+
+- (d) Now assume that we do not know the variance of the noise term? Describe the procedure for Bayesian estimation of both ``A`` and ``\sigma^2`` (No need to fully work out to closed-form estimates). 
+
+"""
+
+# ╔═╡ fa197526-6706-47ce-b84b-5675eee00610
+details("Click for solution",
+md"""
+- (a) Derive the Bayesian (posterior) estimate ``p(A|D)``.   
+
+Since ``p(D|A) = \prod_k \mathcal{N}(x_k|A,\sigma^2)`` is a Gaussian likelihood and ``p(A)`` is a Gaussian prior, their multiplication is proportional to a Gaussian. We will work this out with the canonical parameterization of the Gaussian since it is easier to multiply Gaussians in that domain. This means the posterior ``p(A|D)`` is
+
+
+```math
+\begin{align*}
+   p(A|D) &\propto p(A) p(D|A) \\
+   &= \mathcal{N}(A|m_A,v_A) \prod_{k=1}^N \mathcal{N}(x_k|A,\sigma^2) \\
+   &= \mathcal{N}(A|m_A,v_A) \prod_{k=1}^N \mathcal{N}(A|x_k,\sigma^2) \\
+   &= \mathcal{N}_c\big(A \Bigm|\frac{m_A}{v_A},\frac{1}{v_A}\big)\prod_{k=1}^N \mathcal{N}_c\big(A\Bigm| \frac{x_k}{\sigma^2},\frac{1}{\sigma^2}\big) \\
+       &\propto \mathcal{N}_c\big(A \Bigm| \frac{m_A}{v_A} + \frac{1}{\sigma^2} \sum_k x_k , \frac{1}{v_A} + \frac{N}{\sigma^2}  \big)      \,, 
+  \end{align*}
+```
+
+where we have made use of the fact that precision-weighted means and precisions add when multiplying Gaussians. In principle, this description of the posterior completes the answer.
+
+- (b) Derive the Maximum Likelihood estimate for ``A``.
+
+The ML estimate can be found by
+
+
+```math
+\begin{align*}
+  \nabla \log p(D|A) &=0\\
+  \nabla \sum_k \log \mathcal{N}(x_k|A,\sigma^2) &= 0 \\
+  \nabla \frac{-1}{2}\sum_k \frac{(x_k-A)^2}{\sigma^2} &=0\\
+  \sum_k(x_k-A) &= 0 \\
+  \Rightarrow \hat{A}_{ML} = \frac{1}{N}\sum_{k=1}^N x_k
+\end{align*}
+```
+
+- (c) Derive the MAP estimates for ``A``.  
+
+The MAP is simply the location where the posterior has its maximum value, which for a Gaussian posterior is its mean value. We computed in (a) the precision-weighted mean, so we need to divide by precision (or multiply by variance) to get the location of the mean:
+
+
+```math
+\begin{align*}   
+\hat{A}_{MAP}  &= \left( \frac{m_A}{v_A} + \frac{1}{\sigma^2} \sum_k x_k\right)\cdot \left(  \frac{1}{v_A} + \frac{N}{\sigma^2} \right)^{-1} \\
+&= \frac{v_A \sum_k x_k + \sigma^2 m_A}{N v_A + \sigma^2}
+\end{align*}
+```
+
+- (d) Now assume that we do not know the variance of the noise term? Describe the procedure for Bayesian estimation of both ``A`` and ``\sigma^2`` (No need to fully work out to closed-form estimates). 
+
+A Bayesian treatment requires putting a prior on the unknown variance. The variance is constrained to be positive; hence the support of the prior distribution needs to be on the positive reals. (In a multivariate case, positivity needs to be extended to symmetric positive definiteness.) Choosing a conjugate prior will simplify matters greatly. In this scenerio, the inverse Gamma distribution is the conjugate prior for the unknown variance. In the literature, this model is called a Normal-Gamma distribution. See [Murphy (2007)](https://www.seas.harvard.edu/courses/cs281/papers/murphy-2007.pdf) for the analytical treatment.
+""")
+
+# ╔═╡ 645308ac-c9e3-4d6f-bcff-82327fbb8edf
+md"""
+####  Conversion to Joint Distribution (**)
+
+Show that the system
+
+```math
+\begin{align*}
+p(x\,|\,\theta) &= \mathcal{N}(x\,|\,\theta,\sigma^2) \\
+p(\theta) &= \mathcal{N}(\theta\,|\,\mu_0,\sigma_0^2)
+\end{align*}
+```
+
+can be written as
+
+```math
+p(z) = p\left(\begin{bmatrix} x \\ \theta \end{bmatrix}\right) = \mathcal{N} \left( \begin{bmatrix} x\\ 
+  \theta  \end{bmatrix} 
+  \,\left|\, \begin{bmatrix} \mu_0\\ 
+  \mu_0\end{bmatrix}, 
+         \begin{bmatrix} \sigma_0^2+\sigma^2  & \sigma_0^2\\ 
+         \sigma_0^2 &\sigma_0^2 
+  \end{bmatrix} 
+  \right. \right)
+```
+
+"""
+
+# ╔═╡ 03c399e1-d0d8-493a-9f95-4209918d132a
+details("Click for solution",
+md"""
+Let's first compute the moments for the marginals ``p(x)`` and ``p(\theta)``:
+
+
+```math
+\begin{align*}
+p(x) &= \int p(x|\theta) p(\theta) \mathrm{d}\theta \\
+  &= \int \mathcal{N}(x|\theta,\sigma^2) \mathcal{N}(\theta|\mu_0,\sigma_0^2) \mathrm{d}\theta \\
+  &= \int \mathcal{N}(\theta|x,\sigma^2) \mathcal{N}(\theta|\mu_0,\sigma_0^2) \mathrm{d}\theta \\
+  &= \mathcal{N}(x|\mu_0,\sigma^2+\sigma_0^2) \underbrace{\int \mathcal{N}(\theta| \cdot,\cdot) \mathrm{d}\theta}_{=1} \\
+  &= \mathcal{N}(x|\mu_0,\sigma^2+\sigma_0^2)
+\end{align*}
+```
+
+and for ``p(\theta)``:
+
+
+```math
+\begin{align*}
+p(\theta) &= \int p(x|\theta) p(\theta) \mathrm{d}x \\
+  &= \mathcal{N}(\theta|\mu_0,\sigma_0^2) \underbrace{\int \mathcal{N}(x|\theta,\sigma^2)  \mathrm{d}x}_{=1} \\
+  &= \mathcal{N}(\theta|\mu_0,\sigma_0^2)
+\end{align*}
+```
+
+With this information, we have
+
+
+```math
+p(z) = p\left(\begin{bmatrix} x \\ \theta \end{bmatrix}\right) = \mathcal{N} \left( \begin{bmatrix} x\\ 
+  \theta  \end{bmatrix} 
+  \,\left|\, \begin{bmatrix} \mu_0\\ 
+  \mu_0\end{bmatrix}, 
+         \begin{bmatrix} \sigma_0^2+\sigma^2  & \cdot \\ 
+         \cdot &\sigma_0^2 
+  \end{bmatrix} 
+  \right. \right)
+```
+
+So, we only need to compute ``\Sigma_{x\theta} = \Sigma_{\theta x}^T``. It helps here to write the system as
+
+
+```math
+\begin{align*}
+x &= \theta + \epsilon \\
+\theta &\sim \mathcal{N}(\mu_0,\sigma_0^2) \\
+\epsilon &\sim \mathcal{N}(0,\sigma^2)
+\end{align*}
+```
+
+Now we work out ``\Sigma_{x\theta}``:
+
+
+```math
+\begin{align*}
+\Sigma_{x\theta} &= E[(x-E[x])(\theta-E[\theta])^T] \\
+&= E[(x-\mu_0)(\theta-\mu_0)^T] \\
+&= E[x\theta^T] - \mu_0 E[\theta^T] - E[x]\mu_0^T + \mu_0 \mu_0^T \\
+&= E[x\theta^T] - \mu_0 \mu_0^T  \\
+&= E[(\theta + \epsilon)\theta^T] - \mu_0 \mu_0^T  \\
+&= E[\theta \theta^T] + \underbrace{E[\epsilon]}_{=0} E[\theta^T] - \mu_0 \mu_0^T \\
+&= Var[\theta] + E[\theta] E[\theta]^T  - \mu_0 \mu_0^T \\
+&= \sigma_0^2 + \mu_0 \mu_0^T - \mu_0 \mu_0^T \\
+&= \sigma_0^2
+\end{align*}
+```
+( I am sure one of you can do it simpler and faster. Let me know:)
+
+		
+""")
+
 # ╔═╡ 6dfc31a0-d0d7-4901-a876-890df9ab4258
 md"""
 # Optional
@@ -1465,9 +1766,9 @@ SpecialFunctions = "~2.5.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.10"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "c43ebafcf5853a51001aaadfb0fc3a4445e037f3"
+project_hash = "3af7b7a1e24ddf3753ac4474e9b19716a9f90072"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1483,13 +1784,15 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -1525,12 +1828,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -1593,6 +1894,7 @@ version = "0.18.22"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -1664,6 +1966,7 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1792,6 +2095,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1853,9 +2157,9 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
+git-tree-sha1 = "52e1296ebbde0db845b356abbbe67fb82a0a116c"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.8"
+version = "0.16.9"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1877,16 +2181,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1895,6 +2200,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1935,6 +2241,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1954,6 +2261,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1974,6 +2282,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1984,7 +2293,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1999,10 +2308,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -2023,12 +2333,12 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2038,9 +2348,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
+git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.1+0"
+version = "3.5.2+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -2089,9 +2399,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -2107,9 +2421,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
+git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.17"
+version = "1.40.18"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2127,15 +2441,15 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
+git-tree-sha1 = "85778cdf2bed372008e6646c64340460764a5b85"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.4"
+version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.68"
+version = "0.7.69"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2145,13 +2459,14 @@ version = "1.2.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
+git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -2195,12 +2510,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -2255,6 +2572,7 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -2269,17 +2587,18 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -2319,9 +2638,14 @@ uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 version = "1.4.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -2331,9 +2655,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2349,6 +2673,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -2356,7 +2684,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2377,6 +2705,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -2384,9 +2713,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.11"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2396,9 +2725,11 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -2676,7 +3007,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2723,9 +3054,8 @@ version = "1.9.2+0"
 # ╟─87f400ac-36f2-4778-a3ba-06dd7652e279
 # ╟─9c2bf0a2-4bb6-4769-b47b-6a02c4e73044
 # ╟─8f7ecb91-d251-4ac9-bb32-0dd7215382e3
-# ╟─b9a5a82c-d294-11ef-096f-ffee478aca20
+# ╟─1df7a10d-c4f6-40d6-8f5a-cbd79ef1d415
 # ╟─673360e8-27ed-471c-a866-15af550df5e7
-# ╟─b9a5b7e0-d294-11ef-213e-4b72b8c88db7
 # ╟─9eb3e920-fab5-4a6a-8fe1-5734ebc6b25c
 # ╟─883e8244-270e-4c6c-874b-b69d8989c24c
 # ╟─f02aa0b1-2261-4f65-9bd0-3be33230e0d6
@@ -2765,11 +3095,15 @@ version = "1.9.2+0"
 # ╟─b9aa3950-d294-11ef-373f-d5d330694bfd
 # ╟─b426f9c8-4506-43ef-92fa-2ee30be621ca
 # ╟─b9a80522-d294-11ef-39d8-53a536d66bf9
+# ╟─364cd002-92ee-4fb6-b89a-3251eff7502c
+# ╟─922f0eb6-9e29-4b6c-9701-cb7b2f07bb7a
 # ╟─9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
 # ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
 # ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
 # ╟─b9ac5190-d294-11ef-0a99-a9d369b34045
 # ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
+# ╟─0d303dba-51d4-4413-8001-73ed98bf74df
+# ╟─4a2cd378-0960-4089-81ad-87bf1be9a3b2
 # ╟─50d90759-8e7f-4da5-a741-89b997eae40b
 # ╟─d05975bb-c5cc-470a-a6f3-60bc43c51e89
 # ╟─e8e26e57-ae94-478a-8bb2-2868de5d99e0
@@ -2792,6 +3126,15 @@ version = "1.9.2+0"
 # ╠═115eabf2-c476-40f8-8d7b-868a7359c1b6
 # ╠═61764e4a-e5ef-4744-8c71-598b2155f4d9
 # ╟─b9ac7486-d294-11ef-13e5-29b7ffb440bc
+# ╟─79a99a22-3bb5-431b-bf84-5dce5cccfe25
+# ╟─14b3edcc-0d16-4055-9b1c-7f324514a0a9
+# ╟─dd7786e2-d6ac-4dba-abca-3686242c067d
+# ╟─b7a810a3-dc38-4e72-ab10-2ad2f064bdbb
+# ╟─f711b053-dccf-4bf1-b285-e8da94a48b68
+# ╟─22539cfe-3694-4100-8120-ca6ac1e66b31
+# ╟─fa197526-6706-47ce-b84b-5675eee00610
+# ╟─645308ac-c9e3-4d6f-bcff-82327fbb8edf
+# ╟─03c399e1-d0d8-493a-9f95-4209918d132a
 # ╟─6dfc31a0-d0d7-4901-a876-890df9ab4258
 # ╟─b9acd5d4-d294-11ef-1ae5-ed4e13d238ef
 # ╟─b9acf7a8-d294-11ef-13d9-81758355cb1e
