@@ -342,23 +342,6 @@ which, in case ``x_i`` has ``10`` values, requires a few hundred additions and i
 
 """
 
-<<<<<<< HEAD
-=======
-# ╔═╡ 2e417c9c-2449-4023-b461-4901392ac277
-TODO("The equation above does not fit on the page. How do we deal with that?")
-
-# ╔═╡ a4ced00a-4131-4e94-8f0a-83d850ceb4de
-md"""
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-message-passing.png?raw=true)
-"""
-
-# ╔═╡ 5ef03512-b6ba-4c0b-9914-550092220232
-md"""
-Note: In the above FFG, we drew *directed edges* to distinguish between intermediate results ``\overrightarrow{\mu}_\bullet(\cdot)`` that flow in the same direction as the arrow of the edge (later to be called: forward messages) from intermediate results ``\overleftarrow{\mu}_\bullet(\cdot)`` that flow in opposite direction (later to be called: backward messages).  This is just a notational convenience since an FFG is computationally an undirected graph. 
-"""
-
->>>>>>> 0e7e4bb683f0b879da60501173a20a5c8e20aa44
 # ╔═╡ 9657b088-d294-11ef-3017-e95c4c69b62b
 md"""
 Applying the distributive law in an FFG for inference is much like replacing the sum-of-products
@@ -444,10 +427,6 @@ This recipe holds generally. For a node ``f(y,x_1,\ldots,x_n)`` with incoming me
 \underbrace{\overrightarrow{\mu}_{Y}(y)}_{\substack{ \text{outgoing}\\ \text{message}}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\substack{\text{incoming} \\ \text{messages}}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\substack{\text{node}\\ \text{function}}} \tag{SP}
 ```
 
-<<<<<<< HEAD
-=======
-![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-sum-product.png?raw=true)
->>>>>>> 0e7e4bb683f0b879da60501173a20a5c8e20aa44
 
 
 """
@@ -481,13 +460,9 @@ TwoColumn(
 md"""
 As an example, let´s evaluate the SP messages for the **equality node** 
 
-<<<<<<< HEAD
 ```math 
 f_=(x,y,z) = \delta(z-x)\delta(z-y) \,.
 ``` 
-=======
-![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-equality-node.png?raw=true)
->>>>>>> 0e7e4bb683f0b879da60501173a20a5c8e20aa44
 
 """,
 @htl """
