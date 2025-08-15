@@ -130,9 +130,7 @@ An FFG is an **undirected** graph subject to the following construction rules ([
 
 # ╔═╡ 9655e06c-d294-11ef-0393-9355d6e20afb
 md"""
-A **configuration** is an assigment of values to all variables.
-
-A configuration ``\omega=(x_1,x_2,x_3,x_4,x_5)`` is said to be **valid** iff ``f(\omega) \neq 0``
+A **configuration** is an assignment of values to all variables. A configuration ``\omega=(x_1,x_2,x_3,x_4,x_5)`` is said to be **valid** iff ``f(\omega) \neq 0``
 
 """
 
@@ -165,17 +163,21 @@ For the factor graph representation, we will instead consider the function ``g``
 \end{align*}
 ```
 
-where 
 
+"""
+
+# ╔═╡ 2d5cd42e-26ea-4ee4-979f-3a4e2c6271b6
+TwoColumn(
+md"""
+where 
 ```math
 f_=(x_2,x_2^\prime,x_2^{\prime\prime}) \triangleq \delta(x_2-x_2^\prime)\, \delta(x_2-x_2^{\prime\prime})
 ```
-
 is a so-called **equality** (or branching) node. 
-
+""", 
+md"""
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-wEquality-node.png?raw=true)
-
-"""
+""")
 
 # ╔═╡ 96561594-d294-11ef-1590-198382927808
 md"""
@@ -219,8 +221,12 @@ could represent the probabilistic model
 p(x_1,x_2,x_3,x_4,x_5) = p(x_1,x_2|x_3) \cdot p(x_3,x_5|x_4) \cdot p(x_4)
 ```
 
-where we identify 
+"""
 
+# ╔═╡ 27b9e811-4542-4fe8-86a5-f8ba09074761
+TwoColumn(
+md"""
+where we identify 
 ```math
 \begin{align*}
 f_a(x_1,x_2,x_3) &= p(x_1,x_2|x_3) \\
@@ -228,14 +234,16 @@ f_b(x_3,x_4,x_5) &= p(x_3,x_5|x_4) \\
 f_c(x_4) &= p(x_4)
 \end{align*}
 ```
+""", 
+@htl """
 
-"""
+<img src="https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-prob-model.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+
+""")
 
 # ╔═╡ 9656d850-d294-11ef-21a1-474b07ea7729
 md"""
-This factorized probability distribution is represented by the following FFG:  
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-prob-model.png?raw=true)
+This factorized probability distribution is represented by the above FFG. 
 
 """
 
@@ -271,9 +279,18 @@ md"""
 
 An observation, say ``y=3``, can be represented by a **delta node** ``f(y)=\delta(y−3)`` to terminate the half-edge for variable ``y``.
 
-In an FFG, we visualize a delta node by a small black box, see FFG below.
+In an FFG, we visualize a delta node by a small black box,
 
-![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-observation-y-3-no-message.png?raw=true)
+![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-observation-y-3.png?raw=true)
+
+where we identify 
+```math
+\begin{align*}
+f_a(x_1,x_2,x_3) &= p(x_1,x_2|x_3) \\
+f_b(x_3,x_4,x_5) &= p(x_3,x_5|x_4) \\
+f_c(x_4) &= p(x_4)
+\end{align*}
+```
 
 """
 
@@ -321,7 +338,12 @@ We draw here the FFG for the factorized distribution:
 
 ![](https://github.com/bertdv/BMLIP/blob/master/lessons/notebooks/figures/ffg-message-passing.png?raw=true)
 
-For now, only consider the nodes and edges. The messages ``\overrightarrow{\mu}_\bullet(\cdot)`` will be discussed below. Note that we drew *directed edges* to distinguish between intermediate results ``\overrightarrow{\mu}_\bullet(\cdot)`` that flow in the same direction as the arrow of the edge (later to be called: forward messages) from intermediate results ``\overleftarrow{\mu}_\bullet(\cdot)`` that flow in opposite direction (later to be called: backward messages).  This is just a notational convenience since an FFG is computationally an undirected graph. 
+
+"""
+
+# ╔═╡ cb3df230-6c7e-41b9-ba13-3c5f8a7fbb62
+md"""
+Note that we drew *directed edges* to distinguish between intermediate results ("messages") ``\overrightarrow{\mu}_\bullet(\cdot)`` that flow in the same direction as the arrow of the edge (later to be called: forward messages) from intermediate results ``\overleftarrow{\mu}_\bullet(\cdot)`` that flow in opposite direction (later to be called: backward messages).  This is just a notational convenience since an FFG is computationally an undirected graph. For now, only consider the nodes and edges. The messages ``\overrightarrow{\mu}_\bullet(\cdot)`` will be discussed later. 
 
 """
 
@@ -344,7 +366,7 @@ which, in case ``x_i`` has ``10`` values, requires a few hundred additions and i
 
 # ╔═╡ 9657b088-d294-11ef-3017-e95c4c69b62b
 md"""
-Applying the distributive law in an FFG for inference is much like replacing the sum-of-products
+As an afterthought, note that applying the distributive law in an FFG for inference is analogous to replacing the sum-of-products
 
 ```math
 ac + ad + bc + bd
@@ -427,23 +449,22 @@ This recipe holds generally. For a node ``f(y,x_1,\ldots,x_n)`` with incoming me
 \underbrace{\overrightarrow{\mu}_{Y}(y)}_{\substack{ \text{outgoing}\\ \text{message}}} = \sum_{x_1,\ldots,x_n} \underbrace{\overrightarrow{\mu}_{X_1}(x_1)\cdots \overrightarrow{\mu}_{X_n}(x_n)}_{\substack{\text{incoming} \\ \text{messages}}} \cdot \underbrace{f(y,x_1,\ldots,x_n)}_{\substack{\text{node}\\ \text{function}}} \tag{SP}
 ```
 
-
-
 """
 
-# ╔═╡ ee8cf06a-fde0-4231-8c45-c72c265d9e73
+# ╔═╡ 5cc2016e-0383-448c-bd33-5b3a687b7436
+TwoColumn(
+md"""
+Equation (SP) is called a **Sum-Product** message, so named because the computation involves evaluating a sum-of-products. Note that all SP messages in an FFG can be computed from information that is **locally available** at each node.
+""", 
 @htl """
 
-<img src="https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-sum-product.png?raw=true" alt=" " style="display: block; width: 70%; margin: 0 auto;">
+<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-sum-product.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
 
-"""
-
-
-
+""")
 
 # ╔═╡ f65f5d0e-2583-4b88-b9f2-5fee15257c05
 md"""
-Equation (SP) is called a **Sum-Product** message, so named because the computation involves evaluating a sum-of-products. Note that all SP messages in an FFG can be computed from information that is **locally available** at each node.
+
 
 If the factor graph for the whole model has no cycles, i.e., the FFG is a tree, then the process of passing SP message from the terminal nodes to the internal (latent) variables yields exact Bayesian marginals for all hidden variables. This inference method is known as the **Sum-Product** (SP) algorithm.
 
@@ -455,7 +476,7 @@ md"""
 ## Example: Sum-Product Messages for the Equality Node
 """
 
-# ╔═╡ ead88056-7ed5-447d-9f51-b3e75c59e4d8
+# ╔═╡ 0633afea-5e92-4bad-8402-d159c534af81
 TwoColumn(
 md"""
 As an example, let´s evaluate the SP messages for the **equality node** 
@@ -463,19 +484,15 @@ As an example, let´s evaluate the SP messages for the **equality node**
 ```math 
 f_=(x,y,z) = \delta(z-x)\delta(z-y) \,.
 ``` 
-
-""",
+""", 
 @htl """
 
-<img src="https://github.com/bertdv/BMLIP/blob/2024_pdfs/lessons/notebooks/./figures/ffg-equality-node.png?raw=true" alt="Equality-node" style="display: block; width: 80%; margin: 0 auto;">
+<img src="https://github.com/bmlip/course/blob/v2/assets/figures/ffg-equality-node.png?raw=true" alt=" " style="display: block; width: 90%; margin: 0 auto;">
 
-"""
-)
+""")
 
 # ╔═╡ f11564db-aafc-4df9-b494-4e5ced9bfcfe
 md"""
-
-##### general formulation 
 
 Given incoming messages ``\overrightarrow{\mu}_{X}(x)`` and ``\overrightarrow{\mu}_{Y}(y)``, the outgoing SP message ``\overrightarrow{\mu}_{Z}(z)`` to edge ``z`` is given by
 ```math
@@ -494,28 +511,14 @@ By symmetry, this also implies (for the same equality node) that
 \overleftarrow{\mu}_{Y}(y) &= \overrightarrow{\mu}_{X}(y) \overleftarrow{\mu}_{Z}(y)\,.
 \end{align*}
 ```
-"""
 
-# ╔═╡ ce9e9dad-ef4c-432d-87dd-3152100b146e
-md"""
+It follows that message passing through an equality node is analogous to applying Bayes’ rule: two information sources are fused by multiplying their corresponding probability distributions.
 
-##### The case for Gaussian incoming messages
-
-Let us now consider the case of Gaussian messages ``\overrightarrow{\mu}_{X}(x) = \mathcal{N}(x|\overrightarrow{m}_X,\overrightarrow{V}_X)``, ``\overrightarrow{\mu}_{Y}(y) = \mathcal{N}(y| \overrightarrow{m}_Y,\overrightarrow{V}_Y)`` and ``\overrightarrow{\mu}_{Z}(z) = \mathcal{N}(z|\overrightarrow{m}_Z,\overrightarrow{V}_Z)``. Let´s also define the precision matrices ``\overrightarrow{W}_X \triangleq \overrightarrow{V}_X^{-1}`` and similarly for ``Y`` and ``Z``. Then applying the SP update rule leads to multiplication of two Gaussian distributions (see [Roweis notes](https://github.com/bmlip/course/blob/main/assets/files/Roweis-1999-gaussian-identities.pdf)), resulting in 
-
-```math
-\begin{align*}
-\overrightarrow{W}_Z &= \overrightarrow{W}_X + \overrightarrow{W}_Y \qquad &\text{(precisions add)}\\ 
-\overrightarrow{W}_Z \overrightarrow{m}_z &= \overrightarrow{W}_X \overrightarrow{m}_X + \overrightarrow{W}_Y \overrightarrow{m}_Y \qquad &\text{(natural means add)}
-\end{align*}
-```
-
-It follows that **message passing through an equality node is similar to applying Bayes rule**, i.e., fusion of two information sources. Does this make sense?
 """
 
 # ╔═╡ 9651f976-b834-4b81-8810-649f0290969d
 md"""
-# RxInfer: A Toolbox Julia package for fast and flexible Bayesian inference
+# RxInfer: A Toolbox for Automated Bayesian inference
 """
 
 # ╔═╡ 96587a66-d294-11ef-2c7a-9fd7bea76582
@@ -530,23 +533,35 @@ If the update rules for all node types in a graph have been tabulated, then infe
 
 In our research lab [BIASlab](http://biaslab.org) (FLUX 7.060), we are developing [RxInfer](http://rxinfer.com), which is a (Julia) toolbox for automating Bayesian inference by message passing in a factor graph.
 
+In general, a code package that automates Bayesian inference is called a [Probabilistic Programming](https://en.wikipedia.org/wiki/Probabilistic_programming) Language (PLL). RxInfer is a PLL that automates inference through message passing-based inference in a factor graph. 
+
+"""
+
+# ╔═╡ 89e2757e-a09f-40c6-8dd7-9b4b4d232e17
+md"""
+![](https://github.com/bmlip/course/blob/main/assets/figures/RxInfer-gif.gif?raw=true)
+"""
+
+# ╔═╡ c4b5b124-e52a-41fc-b27e-a58181622e5c
+md"""
+The figure above (a screen recording from the [RxInfer webpage](http://rxinfer.com)) is an animated GIF illustrating how RxInfer operates. The model is represented as a graph, where each node passes messages to its neighbors. When messages meet on an edge, the belief about the variable associated with that edge is updated.
 """
 
 # ╔═╡ 96589eb0-d294-11ef-239a-2513a805cdcf
 md"""
-## Example: Bayesian Linear Regression by Message Passing
+## Code Example: Bayesian Linear Regression by Message Passing
 
 """
 
 # ╔═╡ 9658c106-d294-11ef-01db-cfcff611ed81
 md"""
-Assume we want to estimate some function ``f: \mathbb{R}^D \rightarrow \mathbb{R}`` from a given data set ``D = \{(x_1,y_1), \ldots, (x_N,y_N)\}``, with model assumption ``y_i = f(x_i) + \epsilon_i``.
+Assume we want to estimate some function ``f: \mathbb{R}^D \rightarrow \mathbb{R}`` from a given data set ``D = \{(x_1,y_1), \ldots, (x_N,y_N)\}``.
 
 """
 
 # ╔═╡ 96594d44-d294-11ef-22b8-95165fb08ce4
 md"""
-### model specification
+#### model specification
 
 We will assume a linear model with white Gaussian noise and a Gaussian prior on the coefficients ``w``:
 
@@ -562,7 +577,7 @@ or equivalently
 
 ```math
 \begin{align*}
-p(w,\epsilon,D) &= \overbrace{p(w)}^{\text{weight prior}} \prod_{i=1}^N  \overbrace{p(y_i\,|\,x_i,w,\epsilon_i)}^{\text{regression model}} \overbrace{p(\epsilon_i)}^{\text{noise model}} \\
+p(w,\epsilon,D) &= \overbrace{p(w)}^{\text{weight prior}} \prod_{i=1}^N  \overbrace{p(y_i\,|\,x_i,w,\epsilon_i)}^{\text{data-generating}} \overbrace{p(\epsilon_i)}^{\text{noise prior}} \\
   &= \mathcal{N}(w\,|\,0,\Sigma) \prod_{i=1}^N \delta(y_i - w^T x_i - \epsilon_i) \mathcal{N}(\epsilon_i\,|\,0,\sigma^2) 
 \end{align*}
 ```
@@ -571,7 +586,7 @@ p(w,\epsilon,D) &= \overbrace{p(w)}^{\text{weight prior}} \prod_{i=1}^N  \overbr
 
 # ╔═╡ 96597ce0-d294-11ef-3478-25c6bbef601e
 md"""
-### Inference (parameter estimation)
+#### Inference (parameter estimation)
 
 We are interested in inferring the posterior ``p(w|D)``. We will execute inference by message passing on the FFG for the model.
 
@@ -579,9 +594,7 @@ We are interested in inferring the posterior ``p(w|D)``. We will execute inferen
 
 # ╔═╡ 965998a8-d294-11ef-1d18-85876e3656c5
 md"""
-The left figure shows the factor graph for this model. 
-
-The right figure shows the message passing scheme. 
+The left figure shows the factor graph for this model for one observation ``(x,y)``. The figure on the right shows the message passing scheme. 
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/ffg-bayesian-linear-regression.png?raw=true)
 
@@ -589,7 +602,7 @@ The right figure shows the message passing scheme.
 
 # ╔═╡ 9659ab66-d294-11ef-027a-d3f7206050af
 md"""
-### CODE EXAMPLE
+#### Inference Execution (by RxInfer)
 
 Let's solve this problem by message passing-based inference with Julia's FFG toolbox [RxInfer](https://biaslab.github.io/rxinfer-website/).
 
@@ -681,18 +694,189 @@ The great Michael Jordan (no, not [this one](https://youtu.be/cuLprHh_BRg), but 
 
 > "I basically know of two principles for treating complicated systems in simple ways: the first is the principle of **modularity** and the second is the principle of **abstraction**. I am an apologist for computational probability in machine learning because I believe that probability theory implements these two principles in deep and intriguing ways — namely through factorization and through averaging. Exploiting these two mechanisms as fully as possible seems to me to be the way forward in machine learning." — Michael Jordan, 1997 (quoted in [Fre98](https://mitpress.mit.edu/9780262062022/)).
 
+Factor graphs capture these ideas elegantly—both visually and computationally.
 
-Factor graphs realize these ideas nicely, both visually and computationally.
+**Visually**, the graph structure displays the modularity of conditional independencies in the model. Each node encapsulates internal complexity, and by closing the box, we can hierarchically move to higher levels of abstraction.
 
-Visually, the modularity of conditional independencies in the model are displayed by the graph structure. Each node hides internal complexity and by closing-the-box, we can hierarchically move on to higher levels of abstraction. 
+**Computationally**, message-passing inference exploits the distributive law to avoid unnecessary computations.
 
-Computationally, message passing-based inference uses the Distributive Law to avoid any unnecessary computations.  
+Although RxInfer is still under active development, my prediction is that within 5–10 years, RxInfer—or a comparable toolbox—will be able to automate Bayesian inference for virtually any interesting probabilistic model you can conceive. In principle, you will then have all the tools needed to implement the four-step Bayesian ML recipe—model specification, parameter learning, model evaluation, and application—for any (Bayesian) information processing problem. 
 
-What is the relevance of this lesson? RxInfer is not yet a finished project. Still, my prediction is that in 5-10 years, this lesson on Factor Graphs will be the final lecture of part-A of this class, aimed at engineers who need to develop machine learning applications. In principle you have all the tools now to work out the 4-step machine learning recipe (1. model specification, 2. parameter learning, 3. model evaluation, 4. application) that was proposed in the [Bayesian machine learning lesson](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#Bayesian-design). You can propose any model and execute the (learning, evaluation, and application) stages by executing the corresponding inference task automatically in RxInfer. 
-
-Part-B of this class would be about on advanced methods on how to improve automated inference by RxInfer or a similar probabilistic programming package. The Bayesian approach fully supports separating model specification from the inference task. 
 
 """
+
+# ╔═╡ 25492eea-e649-43f9-b71f-ac6d1a80d0ee
+md"""
+# Exercises
+"""
+
+# ╔═╡ a5cd774f-57ad-4cb5-86c0-35987aa6e221
+md"""
+##### Message Passing in a State Space Model (*)
+"""
+
+# ╔═╡ b6de3f00-d3b8-44d8-b72a-48cd5628b607
+TwoColumn(md""" Consider the following state-space model:
+
+```math
+\begin{align*}
+z_k &= A z_{k-1} + w_k \\
+x_k &= C z_k + v_k 
+\end{align*}
+```
+
+where ``k=1,2,\ldots,n`` is the time step counter; ``z_k`` is  an *unobserved* state sequence; ``x_k`` is an *observed* sequence; ``w_k \sim \mathcal{N}(0,\Sigma_w)`` and ``v_k \sim \mathcal{N}(0,\Sigma_v)`` are (unobserved) state and observation noise sequences respectively; ``z_0 \sim \mathcal{N}(0,\Sigma_0)`` is the initial state and ``A``, ``C``, ``\Sigma_v``,``\Sigma_w`` and ``\Sigma_0`` are known parameters. """,
+@htl """
+<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-5SSB0-exam-Kalman-filter.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+""")
+	
+
+# ╔═╡ 05375a01-4d1b-44cc-b1c4-a5eb4b6c5c5b
+md"""
+- (a) Rewrite the state-space equations as a set of conditional probability distributions.                 
+
+```math
+\begin{align*}
+ p(z_k|z_{k-1},A,\Sigma_w) &= \ldots \\
+ p(x_k|z_k,C,\Sigma_v) &= \ldots \\
+ p(z_0|\Sigma_0) &= \ldots
+\end{align*}
+```
+
+- (b) Define ``z^n \triangleq (z_0,z_1,\ldots,z_n)``, ``x^n \triangleq (x_1,\ldots,x_n)`` and ``\theta=\{A,C,\Sigma_w,\Sigma_v\}``. Now write out the generative model ``p(x^n,z^n|\theta)`` as a product of factors.     
+
+- (c) We are interested in estimating ``z_k`` from a given estimate for ``z_{k-1}`` and the current observation ``x_k``, i.e., we are interested in computing ``p(z_k|z_{k-1},x_k,\theta)``. Can ``p(z_k|z_{k-1},x_k,\theta)`` be expressed as a Gaussian distribution? Explain why or why not in one sentence.    
+
+- (d) Copy the graph onto your exam paper and draw the message passing schedule for computing ``p(z_k|z_{k-1},x_k,\theta)`` by drawing arrows in the factor graph. Indicate the order of the messages by assigning numbers to the arrows.    
+
+- (e) Now assume that our belief about parameter ``\Sigma_v`` is instead given by a distribution ``p(\Sigma_v)`` (rather than a known value). Adapt the factor graph drawing of the previous answer to reflect our belief about ``\Sigma_v``.  
+"""
+
+# ╔═╡ 206c34b3-1873-460b-911e-f2cd4f8886af
+details("Click for solution",
+md"""
+
+- (a) Rewrite the state-space equations as a set of conditional probability distributions.                 
+
+```math
+\begin{align*}
+ p(z_k|z_{k-1},A,\Sigma_w) &= \ldots \\
+ p(x_k|z_k,C,\Sigma_v) &= \ldots \\
+ p(z_0|\Sigma_0) &= \ldots
+\end{align*}
+```
+
+This is a linear system with only Gaussian source signals (``w_k`` and ``v_k``), hence the distributions for ``z_k`` and ``x_k`` will also be Gaussian. As a result, we only need to compute the mean and covariance matrix. We begin with the mean for ``p(z_k|z_{k-1},A,\Sigma_w)``:
+
+
+```math
+\begin{align*}
+  E[z_k|z_{k-1},A,\Sigma_w] &= E[A z_{k-1} + w_k|z_{k-1},A,\Sigma_w] \\
+  &= E[A z_{k-1}|z_{k-1},A] + E[w_k|\Sigma_w] \\
+  &= A z_{k-1} + 0
+  \end{align*}
+```
+
+And now the variance:
+
+
+```math
+\begin{align*}
+  V[z_k|z_{k-1},A,\Sigma_w] &= E[(z_k - E[z_k])(z_k-E[z_k])^T \,|\,z_{k-1},A,\Sigma_w ] \\ &= E[(\overbrace{A z_{k-1} + w_k}^{z_k} - \overbrace{A z_{k-1}}^{E[z_k]})(A z_{k-1} + w_k-A z_{k-1})^T|z_{k-1},A,\Sigma_w] \\
+  &= E[w_k w_k^T|\Sigma_w] \\
+  &= \Sigma_w
+  \end{align*}
+```
+
+You can execute similar computations for the other distributions, leading to
+
+
+```math
+\begin{align*}
+ p(z_k|z_{k-1},A,\Sigma_w) &= \mathcal{N}(z_k|A z_{k-1},\Sigma_w) \\
+ p(x_k|z_k,C,\Sigma_v) &= \mathcal{N}(x_k|C z_k,\Sigma_v) \\
+  p(z_0|\Sigma_0) &= \mathcal{N}(z_0|0,\Sigma_0)
+\end{align*}
+```
+
+- (b) Define ``z^n \triangleq (z_0,z_1,\ldots,z_n)``, ``x^n \triangleq (x_1,\ldots,x_n)`` and ``\theta=\{A,C,\Sigma_w,\Sigma_v\}``. Now write out the generative model ``p(x^n,z^n|\theta)`` as a product of factors.     
+
+```math
+\begin{align*}
+p(x^n,z^n|\theta) &= p(z_0|\Sigma_0) \prod_{k=1}^n p(x_k|z_k,C,\Sigma_v) \,p(z_k|z_{k-1},A,\Sigma_w) \\
+  &= \mathcal{N}(z_0|0,\Sigma_0) \prod_{k=1}^n  \mathcal{N}(x_k|C z_k,\Sigma_v) \,\mathcal{N}(z_k|A z_{k-1},\Sigma_w)
+\end{align*}
+```
+
+- (c) We are interested in estimating ``z_k`` from a given estimate for ``z_{k-1}`` and the current observation ``x_k``, i.e., we are interested in computing ``p(z_k|z_{k-1},x_k,\theta)``. Can ``p(z_k|z_{k-1},x_k,\theta)`` be expressed as a Gaussian distribution? Explain why or why not in one sentence.    
+
+Yes, since the generative model ``p(x^n,z^n|\theta)`` is (one big) Gaussian.
+
+
+""")
+
+# ╔═╡ a9a9f3a2-67e7-4ff5-bc94-29229656ca40
+TODO("FONS, I like to put a two-column block into one foldable solution, so that answers for (d) and (e) are also in the details() function.")
+
+# ╔═╡ 45251c19-6eae-41e7-b0ed-8bd70a67d4e0
+TwoColumn(
+	md"""
+	- (d) Copy the graph onto your exam paper and draw the message passing schedule for computing ``p(z_k|z_{k-1},x_k,\theta)`` by drawing arrows in the factor graph. Indicate the order of the messages by assigning numbers to the arrows.      
+	
+	Some permutations of this order are also possible. The most important thing here is that you recognize the tree with ``Z_k`` as a root of the tree and pass messages from the terminals (e.g., ``Z_{k-1}``, ``X_k``, etc.) towards the root.
+	""", 
+	@htl """
+	<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-5SSB0-exam-Kalman-filter-wMessages-wUncertainSigmaV.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+	""")
+
+# ╔═╡ 7f4c06cb-139e-4e15-a032-b8991183634f
+md"""
+	- (e) Now assume that our belief about parameter ``\Sigma_v`` is instead given by a distribution ``p(\Sigma_v)`` (rather than a known value). Adapt the factor graph drawing of the previous answer to reflects our belief about ``\Sigma_v``.      
+	
+	For answer, see drawing for answer (d).
+	"""
+
+# ╔═╡ a6e155eb-7376-4e57-8e63-628934e14e78
+md"""
+##### Messages for the Addition Node (*)
+
+"""
+
+# ╔═╡ 9dc870d7-a5f3-447c-96ee-ad23199bc253
+TwoColumn(
+md"""
+Consider an addition node
+
+```math
+f_+(x,y,z) = \delta(z-x-y)
+```
+- Derive an expression for the outgoing message ``\overrightarrow{\mu}_{Z}(z)`` in terms of the incoming messages ``\overrightarrow{\mu}_{X}(\cdot)`` and ``\overrightarrow{\mu}_{Y}(\cdot)``.   
+
+""", 
+	
+@htl """
+
+<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-addition-node.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+
+""")
+
+# ╔═╡ e8a35c28-6d6d-4066-8251-f091f28622a9
+details("Click for solution", 
+md"""
+
+We use the sum-product rule to compute
+
+
+```math
+\begin{align*}
+  \overrightarrow{\mu}_{Z}(z) &= \iint  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(y) \,\delta(z-x-y) \,\mathrm{d}x \mathrm{d}y \\
+   &=  \int  \overrightarrow{\mu}_{X}(x) \overrightarrow{\mu}_{Y}(z-x) \,\mathrm{d}x \,, 
+  \end{align*}
+```
+
+i.e., ``\overrightarrow{\mu}_{Z}`` is the convolution of the messages ``\overrightarrow{\mu}_{X}`` and ``\overrightarrow{\mu}_{Y}``.
+
+		""")
 
 # ╔═╡ 965a8a1a-d294-11ef-1d2f-65abf76665e8
 md"""
@@ -937,7 +1121,7 @@ RxInfer = "~4.4.2"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "aacc534113e47e6438eb875663f1139a4ac160cd"
 
@@ -2029,7 +2213,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2962,8 +3146,10 @@ version = "1.9.2+0"
 # ╟─9655ed6e-d294-11ef-370f-937b590036f3
 # ╟─9655fb88-d294-11ef-1ceb-91585012d142
 # ╟─965606f2-d294-11ef-305b-870427879e50
+# ╟─2d5cd42e-26ea-4ee4-979f-3a4e2c6271b6
 # ╟─96561594-d294-11ef-1590-198382927808
 # ╟─9656cf72-d294-11ef-03aa-b715dd686c09
+# ╟─27b9e811-4542-4fe8-86a5-f8ba09074761
 # ╟─9656d850-d294-11ef-21a1-474b07ea7729
 # ╟─9658329c-d294-11ef-0d03-45e6872c4985
 # ╟─f0181b53-a604-489f-a89e-db6fc58571dd
@@ -2973,6 +3159,7 @@ version = "1.9.2+0"
 # ╟─9656ee62-d294-11ef-38f4-7bc8031df7ee
 # ╟─9656fae2-d294-11ef-10d8-ff921d5956bd
 # ╟─b33b2aef-e672-490c-bdf4-a5f655fa4695
+# ╟─cb3df230-6c7e-41b9-ba13-3c5f8a7fbb62
 # ╟─96570d3e-d294-11ef-0178-c34dda717495
 # ╟─9657b088-d294-11ef-3017-e95c4c69b62b
 # ╟─0afe3cdc-15ed-4d9a-848a-d1977d051866
@@ -2981,14 +3168,15 @@ version = "1.9.2+0"
 # ╟─a7b1f559-3c34-491e-83e7-ba95c8c22c80
 # ╟─70736e62-2b6c-4b3a-ab59-7e51522d620b
 # ╟─96575dd4-d294-11ef-31d6-b39b4c4bdea1
-# ╟─ee8cf06a-fde0-4231-8c45-c72c265d9e73
+# ╟─5cc2016e-0383-448c-bd33-5b3a687b7436
 # ╟─f65f5d0e-2583-4b88-b9f2-5fee15257c05
 # ╟─91f81188-727c-4754-9a07-e754eef8bbe0
-# ╟─ead88056-7ed5-447d-9f51-b3e75c59e4d8
+# ╟─0633afea-5e92-4bad-8402-d159c534af81
 # ╟─f11564db-aafc-4df9-b494-4e5ced9bfcfe
-# ╟─ce9e9dad-ef4c-432d-87dd-3152100b146e
 # ╟─9651f976-b834-4b81-8810-649f0290969d
 # ╟─96587a66-d294-11ef-2c7a-9fd7bea76582
+# ╟─89e2757e-a09f-40c6-8dd7-9b4b4d232e17
+# ╟─c4b5b124-e52a-41fc-b27e-a58181622e5c
 # ╟─96589eb0-d294-11ef-239a-2513a805cdcf
 # ╟─9658c106-d294-11ef-01db-cfcff611ed81
 # ╟─96594d44-d294-11ef-22b8-95165fb08ce4
@@ -3014,6 +3202,17 @@ version = "1.9.2+0"
 # ╠═83a70a4b-b114-4351-8fa2-dd565ebc9916
 # ╟─965a37e8-d294-11ef-340f-0930b229dd32
 # ╟─965a6c20-d294-11ef-1c91-4bd237afbd20
+# ╟─25492eea-e649-43f9-b71f-ac6d1a80d0ee
+# ╟─a5cd774f-57ad-4cb5-86c0-35987aa6e221
+# ╟─b6de3f00-d3b8-44d8-b72a-48cd5628b607
+# ╟─05375a01-4d1b-44cc-b1c4-a5eb4b6c5c5b
+# ╟─206c34b3-1873-460b-911e-f2cd4f8886af
+# ╟─a9a9f3a2-67e7-4ff5-bc94-29229656ca40
+# ╟─45251c19-6eae-41e7-b0ed-8bd70a67d4e0
+# ╟─7f4c06cb-139e-4e15-a032-b8991183634f
+# ╟─a6e155eb-7376-4e57-8e63-628934e14e78
+# ╟─9dc870d7-a5f3-447c-96ee-ad23199bc253
+# ╟─e8a35c28-6d6d-4066-8251-f091f28622a9
 # ╟─965a8a1a-d294-11ef-1d2f-65abf76665e8
 # ╟─965aa14c-d294-11ef-226f-65d587fefa64
 # ╟─965ab77c-d294-11ef-2510-95b1a998589f
