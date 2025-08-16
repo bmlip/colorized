@@ -184,7 +184,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B8: Generative Classification <br/>⚪️ B9: Discriminative Classification
             </td>
             <td><a href="https://bmlip.github.io/course/lectures/Generative%20Classification.html">B8</a>, <a href="https://bmlip.github.io/course/lectures/Discriminative%20Classification.html">B9</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Classification.ipynb">B8-9-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Classification.ipynb">B8-9-sol</a></td>
+            <td></td>
             <td></td>
             <td><a href="https://youtu.be/IzNDzIcrhLA">B8</a>, <a href="https://youtu.be/Y7q0JQKNfjM">B9</a></td>
          </tr>
