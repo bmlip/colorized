@@ -278,6 +278,8 @@ Note that the binary class selection variable ``y_{nk}`` groups data from the sa
 md"""
 ## Application: Class prediction for new Data
 
+##### the posterior class probability
+
 Let's apply the trained model to predict the class for a "new" input ``x_\bullet``:
 
 ```math
@@ -287,13 +289,16 @@ p(\mathcal{C}_k|x_\bullet,D ) &= \int p(\mathcal{C}_k|x_\bullet,\theta ) p(\thet
 \end{align*}
 ```
 
-where  ``\sigma(a)_k \triangleq \frac{\exp(a_k)}{\sum_{k^\prime}\exp(a_{k^\prime})}`` is $(HTML("<span id='softmax'>called a</span>")) [**softmax**](https://en.wikipedia.org/wiki/Softmax_function) (a.k.a., **normalized exponential**) function, and
+where  
+```math 
+\sigma(a)_k \triangleq \frac{\exp(a_k)}{\sum_{k^\prime}\exp(a_{k^\prime})}
+``` 
+is $(HTML("<span id='softmax'>called a</span>")) [**softmax**](https://en.wikipedia.org/wiki/Softmax_function) (a.k.a., **normalized exponential**) function, and
 
 ```math
 \begin{align*}
 \beta_k &= \hat{\Sigma}^{-1} \hat{\mu}_k \\
-\gamma_k &= - \frac{1}{2} \hat{\mu}_k^T \hat{\Sigma}^{-1} \hat{\mu}_k  + \log \hat{\pi}_k \\
-Z &= \sum_{k^\prime}\exp\{\beta_{k^\prime}^T x_\bullet + \gamma_{k^\prime}\}\,. \quad \text{(normalization constant)} 
+\gamma_k &= - \frac{1}{2} \hat{\mu}_k^T \hat{\Sigma}^{-1} \hat{\mu}_k  + \log \hat{\pi}_k 
 \end{align*}
 ```
 
@@ -426,9 +431,11 @@ Because the quadratic term ``x_\bullet^T \hat{\Sigma}_k^{-1} x_\bullet`` is now 
 		
 """	)
 
+# ╔═╡ 1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
+section_outline("Challenge Revisited:", "Apple or Peach", header_level=2, color="green")
+
 # ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
 md"""
-## $(HTML("<span id='code-generative-classification-example'>Code Example</span>")):  Working out the "apple or peach" example problem
 
 We'll apply the above results to solve the "apple or peach" example problem.
 
@@ -453,6 +460,11 @@ md"""
 md"""
 #### Discrimination boundary of the posterior 
 Given by the condition ``p(apple|x;D) = p(peach|x;D) = 0.5``
+"""
+
+# ╔═╡ 21602809-d98b-43d7-8c41-80dc8de6da57
+md"""
+# Closing Thoughts
 """
 
 # ╔═╡ 23c85d90-d294-11ef-375e-7101d4d3cbfa
@@ -532,8 +544,121 @@ where ``\beta _k= \Sigma^{-1} \mu_k`` and ``\gamma_k=- \frac{1}{2} \mu_k^T \Sigm
 
 """
 
-# ╔═╡ fba217de-eda0-427a-9b3e-b26efceda3d5
-TODO("recap MLE for parameters but Bayesian for classification")
+# ╔═╡ ca11db2d-aa15-4bf1-b949-529c7487d11d
+md"""
+# Exercises
+"""
+
+# ╔═╡ 24a08e5c-c2c1-4f1f-a2c1-998b30147e61
+md"""
+
+#### Fanta or Orangina? (**)
+
+You have a machine that measures property ``x``, the "orangeness" of liquids. You wish to discriminate between ``C_1 = \text{`Fanta'}`` and ``C_2 = \text{`Orangina'}``. It is known that
+
+```math
+\begin{align*}
+p(x|C_1) &= \begin{cases} 10 & 1.0 \leq x \leq 1.1\\
+    0 & \text{otherwise}
+    \end{cases}\\
+p(x|C_2) &= \begin{cases} 200(x - 1) & 1.0 \leq x \leq 1.1\\
+0 & \text{otherwise}
+\end{cases}
+\end{align*}
+```
+
+The prior probabilities ``p(C_1) = 0.6`` and ``p(C_2) = 0.4`` are also known from experience. 
+
+- (a) A "Bayes Classifier" is given by
+
+```math
+ \text{Decision} = \begin{cases} C_1 & \text{if } p(C_1|x)>p(C_2|x) \\
+                               C_2 & \text{otherwise}
+                 \end{cases}
+```
+
+Derive the optimal Bayes classifier.  
+
+- (b) The probability of making the wrong decision, given ``x``, is
+
+```math
+p(\text{error}|x)= p(C_1|\text{we-decide-} C_2, x) +  p(C_2|\text{we-decide-}C_1, x)
+```
+
+Compute the **total** error probability  ``p(\text{error})`` for the Bayes classifier in this example. 
+
+"""
+
+# ╔═╡ 66172ab6-7df8-4068-a748-b33b3f345d6d
+details("Click for solution",
+md"""
+- (a) We choose ``C_1`` if ``p(C_1|x)/p(C_2|x) > 1``. This condition can be worked out as
+
+
+```math
+\frac{p(C_1|x)}{p(C_2|x)} = \frac{p(x|C_1)p(C_1)}{p(x|C_2)p(C_2)} = \frac{10 \times 0.6}{200(x-1)\times 0.4}>1 
+```
+
+which evaluates to choosing
+
+```math
+\mathrm{Decision} = \begin{cases}
+C_1 & \text{ if $1.0\leq x < 1.075$} \\ 
+C_2 & \text{ if $1.075 \leq x \leq 1.1$ } 
+\end{cases}
+```
+
+The probability that ``x`` falls outside the interval ``[1.0,1.1]`` is zero.
+
+
+- (b) The total probability of error is
+
+```math
+p(\text{error})=\int_x p(\text{error}|x)p(x) \mathrm{d}{x} \,.
+```
+
+We can work this out as
+
+
+```math
+\begin{align*}
+p(\text{error}) &= \int_x p(\text{error}|x)p(x)\mathrm{d}{x}\\
+&= \int_{1.0}^{1.075} p(C_2|x)p(x) \mathrm{d}{x} + \int_{1.075}^{1.1} p(C_1|x)p(x) \mathrm{d}{x}\\
+&= \int_{1.0}^{1.075} p(x|C_2)p(C_2) \mathrm{d}{x} + \int_{1.075}^{1.1} p(x|C_1)p(C_1) \mathrm{d}{x}\\
+&= \int_{1.0}^{1.075}0.4\cdot 200(x-1) \mathrm{d}{x} + \int_{1.075}^{1.1} 0.6\cdot 10 \mathrm{d}{x}\\
+&=80\cdot[x^2/2-x]_{1.0}^{1.075} + 6\cdot[x]_{1.075}^{1.1}\\
+&=0.225 + 0.15\\
+&=0.375
+\end{align*}
+```
+
+""")
+
+# ╔═╡ 7e5213d6-4a68-4843-ab4c-77ea3ed8b0cd
+md"""
+#### [Bishop exercise 4.8](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf#page=241) (**)
+
+Using (4.57) and (4.58) (from Bishop's book), derive the result (4.65) for the posterior class probability in the two-class generative model with Gaussian densities, and verify the results (4.66) and (4.67) for the parameters ``w`` and ``w0``.
+
+"""
+
+# ╔═╡ ef1e5885-7153-4b55-9f97-1e984c2504e6
+details("Click for solution",
+md"""
+Substitute 4.64 into 4.58 to get
+
+```math
+\begin{align*}
+a &= \log \left( \frac{ \frac{1}{(2\pi)^{D/2}} \cdot \frac{1}{|\Sigma|^{1/2}} \cdot \exp\left( -\frac{1}{2}(x-\mu_1)^T \Sigma^{-1} (x-\mu_1)\right) \cdot p(C_1)}{\frac{1}{(2\pi)^{D/2}} \cdot \frac{1}{|\Sigma|^{1/2}}\cdot  \exp\left( -\frac{1}{2}(x-\mu_2)^T \Sigma^{-1} (x-\mu_2)\right) \cdot p(C_2)}\right) \\
+&= \log \left(  \exp\left(-\frac{1}{2}(x-\mu_1)^T \Sigma^{-1} (x-\mu_1) + \frac{1}{2}(x-\mu_2)^T \Sigma^{-1} (x-\mu_2) \right) \right) + \log \frac{p(C_1)}{p(C_2)} \\
+&\qquad\vdots \\
+&=( \mu_1-\mu_2)^T\Sigma^{-1}x - 0.5\left(\mu_1^T\Sigma^{-1}\mu_1 - \mu_2^T\Sigma^{-1} \mu_2\right)+ \log \frac{p(C_1)}{p(C_2)} 
+\end{align*}
+```
+
+Substituting this into the right-most form of (4.57) we obtain (4.65), with ``w`` and ``w0`` given by (4.66) and (4.67), respectively.
+
+""")
 
 # ╔═╡ e65e0e33-3e4f-4765-84ea-a4fb5d43269e
 md"""
@@ -1951,7 +2076,7 @@ version = "1.9.2+0"
 # ╟─23c7a54c-d294-11ef-0252-ef7a043e995c
 # ╟─23c7ab20-d294-11ef-1926-afae49e79923
 # ╟─23c7baa4-d294-11ef-22c1-31b0d86f5586
-# ╠═84353cd1-e4fb-4689-9e90-d8995cbe2e9b
+# ╟─84353cd1-e4fb-4689-9e90-d8995cbe2e9b
 # ╟─23c7c920-d294-11ef-1b6d-d98dd54dcbe3
 # ╟─23c7d700-d294-11ef-1268-c1441a3301a4
 # ╟─23c82154-d294-11ef-0945-c9c94fc2a44d
@@ -1962,6 +2087,7 @@ version = "1.9.2+0"
 # ╟─25e18c78-9cac-4faa-bb7c-ac036d0eac90
 # ╟─a8adaf31-bee2-40e9-8d9b-bb9f1ad996ca
 # ╟─b01a4a56-bed2-4a06-991a-831adc84aa3e
+# ╠═1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
 # ╟─23c82e10-d294-11ef-286a-ff6fee0f2805
 # ╟─4481b38d-dc67-4c1f-ac0b-b348f0aea461
 # ╠═cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
@@ -1979,12 +2105,17 @@ version = "1.9.2+0"
 # ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
 # ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
 # ╠═d5a342ff-6c5c-45af-affb-baf66ac7a7c1
-# ╠═23c85d90-d294-11ef-375e-7101d4d3cbfa
+# ╟─21602809-d98b-43d7-8c41-80dc8de6da57
+# ╟─23c85d90-d294-11ef-375e-7101d4d3cbfa
 # ╟─23c8698e-d294-11ef-2ae8-83bebd89d6c0
 # ╟─23c87654-d294-11ef-3aaf-595b207054a5
 # ╟─23c88284-d294-11ef-113b-f57800a10e5d
 # ╟─23c88ec8-d294-11ef-3e0d-8de1377a14bf
-# ╠═fba217de-eda0-427a-9b3e-b26efceda3d5
+# ╟─ca11db2d-aa15-4bf1-b949-529c7487d11d
+# ╟─24a08e5c-c2c1-4f1f-a2c1-998b30147e61
+# ╟─66172ab6-7df8-4068-a748-b33b3f345d6d
+# ╟─7e5213d6-4a68-4843-ab4c-77ea3ed8b0cd
+# ╟─ef1e5885-7153-4b55-9f97-1e984c2504e6
 # ╟─e65e0e33-3e4f-4765-84ea-a4fb5d43269e
 # ╠═f1a40378-a27c-4aa0-a62c-600ffde0032f
 # ╠═1b304964-6833-4cae-b84e-a5073f9586cd
