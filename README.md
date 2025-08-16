@@ -140,7 +140,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>03-Dec-2025 <em>(Wed)</em> </td>
             <td>⚪️ B6: Discrete Data and the Multinomial Distribution</td>
             <td><a href="https://bmlip.github.io/course/lectures/The%20Multinomial%20Distribution.html">B6</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-The-Multinomial-Distribution.ipynb">B6-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-The-Multinomial-Distribution.ipynb">B6-sol</a></td>
+            <td></td>
             <td></td>
             <td><a href="https://youtu.be/vyh8RvXxnT8">B6</a> </td>
          <tr >
@@ -175,7 +175,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>10-Dec-2025 <em>(Wed)</em></td>
             <td>⚪️ B7: Regression</td>
             <td><a href="https://bmlip.github.io/course/lectures/Regression.html">B7</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Regression.ipynb">B7-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Regression.ipynb">B7-sol</a></td>
+            <td></td>
             <td></td>
             <td> <a href="https://youtu.be/2llpaRSN2Wc">B7.1</a>, <a href="https://youtu.be/TSoYnO6oXhw">B7.2 </a></td>
          </tr>
