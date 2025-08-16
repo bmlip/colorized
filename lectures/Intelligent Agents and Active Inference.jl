@@ -274,6 +274,54 @@ if Eqs. (E1), (E2), and (E3) hold.
 
 """)
 
+# ╔═╡ aec84a6d-33fc-4541-80c0-091998f8c4d1
+begin
+	
+ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy", 
+	md""" Starting from Eq.(G1),
+	```math										
+	\begin{align}
+	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
+	\end{align}		
+	```	
+""");
+
+	novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information", 
+	md""" Starting from Eq.(G1), 
+	```math
+	\begin{align}
+	\mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
+	&= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
+	&= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
+	\end{align}
+	```									
+	""");
+end;
+
+# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
+md"""
+## Interpretation of Expected Free Energy ``G(u)``
+
+``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{T})``, commonly referred to as a **policy**. ``G(u)`` decomposes into three distinct components:
+
+###### risk
+  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). As a result, ``G(u)`` penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
+
+###### ambiguity
+  - Ambiguity can be expressed as ``\mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]``, which quantifies the expected entropy of future observations ``y``, under policy ``u``. It measures how ambiguous or noisy the relationship is between hidden states ``x`` and observations ``y``. Policies with low ambiguity are preferable because they lead to observations that are more informative about the hidden state, thus facilitating more accurate inference and better decision-making.
+  - $(ambiguity_as_expected_entropy)
+
+
+###### novelty
+  - The novelty term can be worked out to ``\mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]``, where ``I[\theta,y\,|x]`` is the [mutual information](https://en.wikipedia.org/wiki/Mutual_information) between parameters ``\theta`` and observations ``y``, given states ``x``. Novelty complements the ambiguity term. While ambiguity scores information-seeking behavior aimed at reducing uncertainty about hidden states ``x``, the novelty term extends this idea to parameters ``\theta`` of the generative model. It encourages policies that are expected to lead to observations that reduce uncertainty about ``\theta``, i.e., learning about the structure or dynamics of the environment itself.
+  - $(novelty_as_mutual_information)
+
+Clearly, policies with lower Expected Free Energy are preferred. Such policies strike a balance between goal-directed behavior—by minimizing risk—and information-seeking behavior—by minimizing ambiguity (to infer hidden states) and maximizing novelty (to learn about model parameters). This unified objective naturally promotes both exploitation and exploration.
+
+"""
+
 # ╔═╡ bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 md"""
 # Active Inference
@@ -575,8 +623,11 @@ From an engineering perspective, what is gained by moving from DT to AIF agents?
 - No need for task-specific reward (or value) functions
   - In DT agents, a recurring question is: where do the reward functions come from? These functions are typically hand-crafted. In an AIF agent, preferences are encoded as prior distributions over desired outcomes. These priors can be parameterized and updated through hyper-priors and Bayesian learning at higher levels of the generative model, allowing agents to adapt their preferences on the fly, rather than relying on externally specified reward functions.
 
+- A Universal Cost Function for All Problems
+  - A related limitation of the DT systems is that the value function must be specified anew for each problem. Brains, however, cannot afford to construct a different value function for every task, given that thousands of novel problems are encountered daily. In contrast, AIF agents employ the same free-energy functional ``F`` that measures the quality of the beliefs, for all problems. The structure of ``F`` (complexity minus accuracy) does not change and applies universally.
+
 - AIF agents are explainable and trustworthy by nature
-  - Explainability and trustworthiness are critical concerns in AI, for instance in medical AI applications. An AIF agent’s reasoning process is Bayes-optimal, and therefore logically consistent and inherently *trustworthy*. Crucially, domain-specific knowledge and inference are cleanly separated: all domain-specific assumptions reside in the model. As a result, the agent’s behavior can be *explained* as the logical (Bayesian) consequence of its generative model.
+  - Explainability and trustworthiness are critical concerns in AI, for instance, in medical AI applications. An AIF agent’s reasoning process is Bayes-optimal, and therefore logically consistent and inherently *trustworthy*. Crucially, domain-specific knowledge and inference are cleanly separated: all domain-specific assumptions reside in the model. As a result, the agent’s behavior can be *explained* as the logical (Bayesian) consequence of its generative model.
 
 - Robustness by realization as a reactive message passing process!
   - In contrast to decision-theoretic (DT) agents, an active inference (AIF) agent can be fully realized as a reactive variational message passing (RMP) process, since variational free energy (VFE) minimization is the only ongoing process. RMP is an event-driven, fully distributed process—both in time and space—that exhibits robustness to fluctuating computational resources. It “lands softly” when resources such as power, data, or time become limited. As a result, an AIF agent continues to function during power dips, handles missing or noisy observations gracefully, and can be interrupted at any time during decision-making without catastrophic failure, making it naturally suited for real-world, resource-constrained environments.
@@ -585,7 +636,7 @@ From an engineering perspective, what is gained by moving from DT to AIF agents?
   - Since VFE minimization can be automated by a toolbox, the engineer’s primary task is to specify the generative model and priors, which typically fits within a single page of code. 
 
 - Other advantages
-  - Additional advantages include the potential for scalability, particularly in real-time applications. Realizing this potential will require further research into efficient, real-time message passing, capabilities that are difficult to match in frameworks that cannot be implemented as reactive message passing processes.
+  - Additional advantages include the potential for scalability, particularly in real-time applications. Realizing this potential will require further research into efficient, real-time message passing capabilities that are difficult to match in frameworks that cannot be implemented as reactive message passing processes.
 
 While the advantages listed above hold great promise for the future of synthetic AIF agents in solving complex engineering problems, it’s important to acknowledge current limitations. The vast majority of engineers and scientists have been trained within DT frameworks, and the **tooling and methodologies for DT agents are far more mature**. For many practical problems, several of the above-mentioned advantages of AIF agents have yet to be conclusively demonstrated in real-world applications.
 
@@ -609,33 +660,51 @@ Looking ahead to the future of artificial intelligence, adaptive robotics, and a
 
 """
 
+# ╔═╡ acefdbf6-1beb-4ce5-9106-0fc7be63dabe
+md"""
+# Exercises
+
+- There are no more exercises. If you understand the Free Energy Principle and active inference, you now hold a lens for seeing into the mechanics of life, consciousness, and intelligent behavior. The next insights are yours to discover.
+"""
+
 # ╔═╡ 6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
 md"""
 # Optional Slides
 """
 
-# ╔═╡ eccea480-1eda-47b0-bfbf-e9e406898606
-TODO("The slide below needs work")
+# ╔═╡ 345fa88c-98c2-4c41-b046-0c2d868b1d36
+md"""
+
+## The FEP is a Least Action Principle for "Things"
+
+Almost all of physics can be described as processes that minimize energy differences. This is formalized in the celebrated [Principle of Least Action](https://en.wikipedia.org/wiki/Action_principles) (PLA).
+
+For example, Newton’s second law ``F = ma`` [can be derived from minimizing the "action"](https://vixra.org/pdf/2501.0036v1.pdf)—the time integral of the difference between kinetic and potential energy for a particle. Many branches of physics that describe motion can be formulated through similar derivations.
+
+
+![](https://github.com/bmlip/course/blob/main/assets/figures/FEP.png?raw=true)
+
+
+The Free Energy Principle (FEP) can be viewed as a kind of PLA as well—one that governs the necessary “motion” of beliefs (ie, necessary information processing) in systems that maintain their structural and functional integrity over time. All living systems fall under its scope.
+
+"""
 
 # ╔═╡ 2784c270-d294-11ef-2b9b-43c9bdd56bae
 md"""
-## The Brain's Action-Perception Loop by FE Minimization
+## Active Inference and The Scientific Inquiry Loop
 
-In the Machine Learning Overview lecture, we introduced a picture illustrating the [scientific inquiry loop](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html#Machine-Learning-and-the-Scientific-Inquiry-Loop). that The above derivations are not trivial, but we have just shown that FE-minimizing agents accomplish variational Bayesian perception (a la Kalman filtering), and a balanced exploration-exploitation trade-off for policy selection. 
+In the [Machine Learning Overview lecture](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html), we introduced a picture illustrating the [Scientific Inquiry Loop](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html#Machine-Learning-and-the-Scientific-Inquiry-Loop). 
 
-Moreover, the FE by itself serves as a proper objective across a very wide range of problems, since it scores both the cost of the problem statement and the cost of inferring the solution. 
+Active inference completes this “scientific loop” as a fully variational inference process. Under the FEP, experimental or trial design is driven by expected free energy (EFE) minimization. Bayesian probability theory—and the FEP—provide all the equations needed to run the process of scientific inquiry.
 
-The current FEP theory claims that minimization of FE (and EFE) is all that brains do, i.e., FE minimization leads to perception, policy selection, learning, structure adaptation, attention, learning of problems and solutions, etc.
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/brain-design-cycle.png?raw=true)
-
-Active inference also completes the "scientific loop" picture. Under the FEP, experimental/trial design is driven by EFE minimization. Bayesian probability theory (and FEP) contains all the equations for running scientific inquiry.
 
 ![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-complete.png?raw=true)
 
-Essentially, AIF is an automated Scientific Inquiry Loop with an engineering twist. If there would be no goal prior, AIF would just lead to learning of a veridical ("true") generative model of the environment. This is what science is about. However, since we have goal prior constraints in the generative model, AIF leads to generating behavior (actions) with a purpose! For instance, when you want to cross a road, the goal prior "I am not going to get hit by a car", leads to inference of behavior that fulfills that prior. Similarly, through appropriate goal priors, the brain is able to design algorithms for object recognition, locomotion, speech generation, etc. In short, AIF is an automated Bayes-optimal engineering design loop!!
+In essence, active inference is an automated scientific inquiry loop with an engineering twist. Without goal priors, it would simply converge to a veridical (“true”) generative model of the environment—pure science. With goal priors, however, active inference generates purposeful behavior. For example, the goal prior “I will not get hit by a car” leads to the inference of actions that safely get you across the road. Similarly, carefully designed goal priors enable the brain to develop solutions for object recognition, locomotion, speech generation, and more.
 
-The big engineering challenge remains the computational load of AIF. The human brain consumes about 20 Watt and the neocortex only about 4 Watt (which is about the power consumption of a bicycle light). This is multiple orders of magnitude (at least 1 million times) cheaper than what we can engineer on silicon for similar tasks.
+In short, **AIF is an automated Bayes-optimal engineering design loop**.
+
+The challenge is computational efficiency: the human brain runs on about 20 W, with the neocortex using just 4 W—roughly the power of a bicycle light—yet performs tasks that would consume millions of times more power on current silicon hardware.
 
 """
 
@@ -848,57 +917,6 @@ end
 @meta function car_meta()
     dzdt() -> DeltaMeta(method = Linearization())
 end
-
-# ╔═╡ 39127d53-7050-47fb-8ca5-428991598f25
-begin
-	
-	ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy", 
-	md""" Starting from Eq.(G1),
-	```math										
-	\begin{align}
-	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
-	&= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
-	\end{align}		
-	```										
-	""");
-	
-	novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information", 
-	md""" Starting from Eq.(G1), 
-	```math
-	\begin{align}
-	\mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
-	&= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
-	&= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
-	&= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
-	\end{align}
-	```		
-	""");
-
-
-	
-end
-
-# ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
-md"""
-## Interpretation of Expected Free Energy ``G(u)``
-
-``G(u)`` is a cost function defined over a sequence of future actions ``u = (u_{t+1},u_{t+2}, \ldots, u_{T})``, commonly referred to as a **policy**. ``G(u)`` decomposes into three distinct components:
-
-###### risk
-  - The risk term is the KL divergence between ``q(x|u)``, the *predicted* future states under policy ``u``, and ``\hat{p}(x)``, the *desired* future states (the goal prior). As a result, ``G(u)`` penalizes policies that lead to expectations which diverge from the agent’s preferences — that is, from what the agent wants to happen.
-
-###### ambiguity
-  - Ambiguity can be expressed as ``\mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]``, which quantifies the expected entropy of future observations ``y``, under policy ``u``. It measures how ambiguous or noisy the relationship is between hidden states ``x`` and observations ``y``. Policies with low ambiguity are preferable because they lead to observations that are more informative about the hidden state, thus facilitating more accurate inference and better decision-making.
-  - $(ambiguity_as_expected_entropy)
-
-
-###### novelty
-  - The novelty term can be worked out to ``\mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]``, where ``I[\theta,y\,|x]`` is the [mutual information](https://en.wikipedia.org/wiki/Mutual_information) between parameters ``\theta`` and observations ``y``, given states ``x``. Novelty complements the ambiguity term. While ambiguity scores information-seeking behavior aimed at reducing uncertainty about hidden states ``x``, the novelty term extends this idea to parameters ``\theta`` of the generative model. It encourages policies that are expected to lead to observations that reduce uncertainty about ``\theta``, i.e., learning about the structure or dynamics of the environment itself.
-  - $(novelty_as_mutual_information)
-
-Clearly, policies with lower Expected Free Energy are preferred. Such policies strike a balance between goal-directed behavior—by minimizing risk—and information-seeking behavior—by minimizing ambiguity (to infer hidden states) and maximizing novelty (to learn about model parameters). This unified objective naturally promotes both exploitation and exploration.
-
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2907,6 +2925,7 @@ version = "1.9.2+0"
 # ╟─97136f81-3468-439a-8a22-5aae96725937
 # ╟─4e990b76-a2fa-49e6-8392-11f98d769ca8
 # ╟─aaa07dc5-9105-4f70-b924-6e51e5c36600
+# ╟─aec84a6d-33fc-4541-80c0-091998f8c4d1
 # ╟─bed6a9bd-9bf8-4d7b-8ece-08c77fddb6d7
 # ╟─ef54a162-d0ba-47ef-af75-88c92276ed66
 # ╟─94391132-dee6-4b22-9900-ba394f4ad66b
@@ -2937,8 +2956,9 @@ version = "1.9.2+0"
 # ╟─8d7058c4-0e13-4d05-b131-32b1f118129f
 # ╟─1c53d48b-6950-4921-bf03-292b5ed8980e
 # ╟─d823599e-a87f-4586-999f-fbbd99d0db65
+# ╟─acefdbf6-1beb-4ce5-9106-0fc7be63dabe
 # ╟─6d697856-cc58-4d6a-afd3-c0c6bfbc0d88
-# ╠═eccea480-1eda-47b0-bfbf-e9e406898606
+# ╟─345fa88c-98c2-4c41-b046-0c2d868b1d36
 # ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
 # ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
 # ╠═97a0384a-0596-4714-a3fc-bf422aed4474
@@ -2947,6 +2967,5 @@ version = "1.9.2+0"
 # ╟─7c07fe1b-3bc3-415c-ae5f-3fcf2ba22322
 # ╟─0c12e2dc-15a0-45ca-bade-30ed49bf1cad
 # ╟─74181be4-02d3-4049-882c-04d64152dad8
-# ╠═39127d53-7050-47fb-8ca5-428991598f25
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
