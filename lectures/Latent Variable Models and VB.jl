@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.13
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true"
@@ -150,12 +150,33 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 \end{align*}
 ```
 
-**Proof**: see [exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb). 
+
+"""
+
+# ╔═╡ c7351bf1-447e-475b-8965-d259c01bfd57
+details("Click for proof",
+md"""
+
+```math
+\begin{align}
+p(x_n) &= \sum_{z_n} p(x_n,z_n) \\
+  &= \sum_{z_n} \prod_{k=1}^K \left(\pi_k \cdot \mathcal{N}\left( x_n | \mu_k, \Sigma_k\right) \right)^{z_{nk}} \\ 
+&= \sum_{j=1}^K \prod_{k=1}^K \left( \pi_k \cdot \mathcal{N}\left( x_n | \mu_k, \Sigma_k\right) \right)^{I_{kj}}  \;\; \text{(use }z_n \text{ is one-hot coded)}\\  
+&= \sum_{j=1}^K  \pi_j \cdot \mathcal{N}\left( x_n | \mu_j, \Sigma_j\right) 
+  \end{align}
+```
+
+where ``I_{kj} = 1`` if ``k=j`` and ``0`` otherwise.
+	
+""")
+
+# ╔═╡ 3deadfd0-9fbb-476a-a7de-5dd694e55a65
+md"""
+
 
 Eq. B-9.12 reveals the link to the name Gaussian *mixture model*. The priors ``\pi_k`` for the ``k``-th class are also called **mixture coefficients**. 
 
 Be aware that Eq. B-9.12 is not the generative model for the GMM! The generative model is the joint distribution ``p(x,z)`` over all variables, including the latent variables. 
-
 """
 
 # ╔═╡ 26c5d734-d294-11ef-20a3-afd2c3324323
@@ -282,12 +303,29 @@ To explain inference by VFE minimization (abbreviated as VFEM), we first rewrite
 ```math
 \begin{align*}
  F[q] &= \underbrace{ \int q(z) \log \frac{q(z)}{p(z)} \mathrm{d}z }_{\text{complexity}} - \underbrace{\int q(z) \log p(x|z) \mathrm{d}z}_{\text{accuracy}} \\
+ &= \underbrace{\int q(z) \log \frac{q(z)}{p(z|x)}\mathrm{d}z}_{\text{inference bound}\geq 0} - \underbrace{\log p(x)}_{\text{log-evidence}} 
+ \end{align*}
+```
+
+
+
+"""
+
+# ╔═╡ ae7ed1fc-fc36-4327-be55-a142477ca0ad
+details("Click for proof", 
+md"""
+```math
+\begin{align*}
+ F[q] &= \underbrace{ \int q(z) \log \frac{q(z)}{p(z)} \mathrm{d}z }_{\text{complexity}} - \underbrace{\int q(z) \log p(x|z) \mathrm{d}z}_{\text{accuracy}} \\
  &= \int q(z) \log \frac{q(z)}{ p(x|z) p(z) }\mathrm{d}z \\
  &= \int q(z) \log \frac{q(z)}{ p(z|x) p(x)}\mathrm{d}z \quad \text{( since }  p(x|z) p(z) =  p(z|x) p(x)\text{ )} \\
  &= \underbrace{\int q(z) \log \frac{q(z)}{p(z|x)}\mathrm{d}z}_{\text{inference bound}\geq 0} - \underbrace{\log p(x)}_{\text{log-evidence}} 
  \end{align*}
 ```
+""")
 
+# ╔═╡ de16b831-7afa-408f-83fa-99c6e24840f5
+md"""
 Note that the inference bound is a [Kullback-Leibler (KL) divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) between an (approximate) posterior ``q(z)`` and the (perfect) Bayesian posterior ``p(z|x)``. See this [slide in the BML Class](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#KLD) for more info on the KL divergence. 
 
 Since the second term (log-evidence) does not involve ``q(z)``, VFEM over ``q`` will bring ``q(z)`` closer to the Bayesian posterior ``p(z|x)``.
@@ -312,7 +350,6 @@ where
    F[q^*] &= -\log p(x) \tag{evidence}
 \end{align}
 ```
-
 """
 
 # ╔═╡ e6aeee80-9e63-4937-9edf-428d5e3e38d3
@@ -998,6 +1035,101 @@ In contrast to traditional algorithm design, where solving a problem might requi
 
 """
 
+# ╔═╡ 56bea391-b812-4fc4-8f27-fcb4cb984cf4
+md"""
+# Exercises
+"""
+
+# ╔═╡ 5a94e2a4-7134-462e-9dc5-56083769049f
+md"""
+#### Entropy and The Free Energy Functional (*)
+
+The Free energy functional ``\mathrm{F}[q] = -\sum_z q(z) \log p(x,z) - \sum_z q(z) \log \frac{1}{q(z)}`` decomposes into "Energy minus Entropy". So apparently the entropy of the posterior ``q(z)`` is maximized. This entropy maximization may seem puzzling at first because inference should intuitively lead to *more* informed posteriors, i.e., posterior distributions whose entropy is smaller than the entropy of the prior. Explain why entropy maximization is still a reasonable objective. 
+
+ 
+"""
+
+# ╔═╡ 747a7e1e-b921-4882-b00a-1b00bef8433d
+details("Click for answer",
+md"""
+
+Note that Free Energy minimization is a balancing act: FE minimization implies entropy maximization *and at the same time* energy minimization. Minimizing the energy term leads to aligning ``q(z)`` with ``\log p(x,z)``, ie, it tries to move the bulk of the function ``q(z)`` to areas in ``z``-space where ``p(x,z)`` is large (``p(x,z)`` is here just a function of ``z``, since x is observed). 
+	   
+However, aside from aligning with ``p(x,z)``, we want ``q(z)`` to be as uninformative as possible. Everything that can be inferred should be represented in ``p(x,z)`` (which is prior times likelihood). We don't want to learn anything that is not in either the prior or the likelihood. The entropy term balances the energy term by favoring distributions that are as uninformative as possible.
+ 
+""")
+
+# ╔═╡ 2d4adbf6-6de8-4e3a-ad6f-fa8bbfa5999e
+md"""
+
+#### Mean Updating (*)
+
+Explain the following update rule for the [mean of the Gaussian cluster-conditional data distribution](#update-equations):
+
+```math
+m_k = \frac{1}{\beta_k} \left( \beta_0 m_0 + N_k \bar{x}_k \right) \tag{B-10.61} 
+```
+
+"""
+
+# ╔═╡ 208ba1bb-a4bf-4b8c-93d2-0d6c6c8d16d4
+details("Click for answer",
+md"""
+We see here an example of "precision-weighted means add" when two sources of information are fused, just like precision-weighted means add when two Gaussians are multiplied, eg a prior and likelihood. In this case, the prior is ``m_0`` and the likelihood estimate is ``\bar{x}``. ``\beta_0`` can be interpreted as the number of pseudo-observations in the prior.
+
+""")
+
+# ╔═╡ 2f490e1f-e495-4f55-a3f8-60d6fd716d4e
+md"""
+#### The Expectation-Maximization (EM) algorithm (**)
+
+Consider a model ``p(x,z|\theta)``, where ``D=\{x_1,x_2,\ldots,x_N\}`` is observed, ``z`` are unobserved variables, and ``\theta`` are parameters. The **Expectation-Maximization** (EM) algorithm estimates the parameters by iterating over the following two equations (``i`` is the iteration index):
+
+```math
+\begin{align*}
+q^{(i)}(z) &= p(z|D,\theta^{(i-1)}) \\
+\theta^{(i)} &= \arg\max_\theta \sum_z q^{(i)}(z) \cdot \log p(D,z|\theta)
+\end{align*}
+```
+
+Proof that this algorithm minimizes the Free Energy functional 
+
+```math
+\begin{align*}
+F[q](\theta) =  \sum_z q(z) \log \frac{q(z)}{p(D,z|\theta)} 
+\end{align*}
+```
+
+
+"""
+
+# ╔═╡ b91bc3b6-b815-4942-b297-c0e2b4b99654
+details("Click for answer",
+md"""
+		
+Let's start with a prior estimate ``\theta^{(i-1)}`` and we want to minimize the free energy functional wrt ``q``. This leads to
+
+
+```math
+\begin{align*}
+q^{(i)}(z) &= \arg\min_q F[q](\theta^{(i-1)}) \\
+  &= \arg\min_q \sum_z q(z) \log \frac{q(z)}{p(D,z|\theta^{(i-1)})} \\
+  &= \arg\min_q \sum_z q(z) \log \frac{q(z)}{p(z|D,\theta^{(i-1)}) \cdot p(D|\theta^{(i-1)})} \\
+  &= p(z|D,\theta^{(i-1)})
+\end{align*}
+```
+
+Next, we use ``q^{(i)}(z)=p(z|D,\theta^{(i-1)})`` and minimize the free energy w.r.t. ``\theta``, leading to
+
+```math
+\begin{align*}
+  \theta^{(i)} &= \arg\min_\theta F[q^{(i)}](\theta) \\
+  &= \arg\min_\theta \sum_z p(z|D,\theta^{(i-1)}) \log \frac{p(z|D,\theta^{(i-1)})}{p(D,z|\theta)} \\
+  &= \arg\max_\theta \sum_z \underbrace{p(z|D,\theta^{(i-1)})}_{q^{(i)}(z)} \log p(D,z|\theta)
+\end{align*}
+```
+		""")
+
 # ╔═╡ 26c8160c-d294-11ef-2a74-6f7009a7c51e
 md"""
 # $(HTML("<span id='optional-slides'>OPTIONAL SLIDES</span>"))
@@ -1139,9 +1271,8 @@ We'll perform clustering on the data set from the [illustrative example](#illust
 """
 
 # ╔═╡ de049d59-9863-4bac-91c3-32851cad15d9
-md"""
-# TODO: verify the `π_hat` situation in the code above
-"""
+TODO("verify the `π_hat` situation in the code above")
+
 
 # ╔═╡ 26c8a2a4-d294-11ef-1cd3-850e877d7a25
 md"""
@@ -1235,11 +1366,7 @@ where
 
 and ``\mathbb{E}_{q_{k}}\left[\cdot\right]`` is an expectation w.r.t. all ``q(x_k)`` with ``k \in N(a)\setminus {j}``.
 
-```math
-\nu_a(x_j)
-```
-
-and ``\nu_b(x_j)``  can be locally computed in nodes ``a`` and ``b`` respectively and can be interpreted as colliding messages over edge ``x_j``. 
+``\nu_a(x_j)`` and ``\nu_b(x_j)``  can be locally computed in nodes ``a`` and ``b`` respectively and can be interpreted as colliding messages over edge ``x_j``. 
 
 Local free energy minimization is achieved by setting
 
@@ -1257,23 +1384,15 @@ Procedure VMP, see [Dauwels (2007), section 3](https://github.com/bmlip/course/b
 > 1. Initialize all messages ``q`` and ``ν``, e.g., ``q(\cdot) \propto 1`` and ``\nu(\cdot) \propto 1``. <br/>
 > 2. Select an edge ``z_k`` in the factor graph of ``f(z_1,\ldots,z_m)``.<br/>
 > 3. Compute the two messages ``\overrightarrow{\nu}(z_k)`` and ``\overleftarrow{\nu}(z_k)`` by applying the following generic rule:
-
-
-```math
-  \overrightarrow{\nu}(y) \propto \exp\left( \mathbb{E}_{q}\left[ \log g(x_1,\dots,x_n,y)\right] \right) 
-  
-```
-
+> ```math
+>   \overrightarrow{\nu}(y) \propto \exp\left( \mathbb{E}_{q}\left[ \log > g(x_1,\dots,x_n,y)\right] \right)   
+> ```
 > 4. Compute the marginal ``q(z_k)``
-
-
-```math
-  q(z_k) \propto \overrightarrow{\nu}(z_k) \overleftarrow{\nu}(z_k)
-  
-```
-
-and send it to the two nodes connected to the edge ``x_k``.<br/>
-
+> ```math
+>  q(z_k) \propto \overrightarrow{\nu}(z_k) \overleftarrow{\nu}(z_k)  
+> ```
+>  and send it to the two nodes connected to the edge ``x_k``.
+>
 > 5. Iterate 2–4 until convergence.
 
 
@@ -3125,6 +3244,8 @@ version = "1.9.2+0"
 # ╟─26c5b896-d294-11ef-1d8e-0feb99d2d45b
 # ╟─26c5c1ae-d294-11ef-15c6-13cae5bc0dc8
 # ╟─26c5cfb4-d294-11ef-05bb-59d5e27cf37c
+# ╟─c7351bf1-447e-475b-8965-d259c01bfd57
+# ╟─3deadfd0-9fbb-476a-a7de-5dd694e55a65
 # ╟─26c5d734-d294-11ef-20a3-afd2c3324323
 # ╟─26c5f8d6-d294-11ef-3bcd-4d5e0391698d
 # ╟─26c623f6-d294-11ef-13c0-19edd43592c0
@@ -3135,6 +3256,8 @@ version = "1.9.2+0"
 # ╟─f1f7407d-86a1-4f24-b78a-61a411d1f371
 # ╟─26c67f04-d294-11ef-03a4-838ae255689d
 # ╟─26c6e002-d294-11ef-15a4-33e30d0d76ec
+# ╟─ae7ed1fc-fc36-4327-be55-a142477ca0ad
+# ╟─de16b831-7afa-408f-83fa-99c6e24840f5
 # ╟─e6aeee80-9e63-4937-9edf-428d5e3e38d3
 # ╟─baec0494-9557-49d1-b4d8-a8030d3281b7
 # ╟─40ce0abb-a086-4977-9131-10f60ab44152
@@ -3169,12 +3292,19 @@ version = "1.9.2+0"
 # ╟─06170e31-e865-4178-8af0-41d82df95d71
 # ╟─bbdca8c2-022f-42be-bcf7-80d86f7f269c
 # ╟─26c8068a-d294-11ef-3983-a1be55128b3f
+# ╟─56bea391-b812-4fc4-8f27-fcb4cb984cf4
+# ╟─5a94e2a4-7134-462e-9dc5-56083769049f
+# ╟─747a7e1e-b921-4882-b00a-1b00bef8433d
+# ╟─2d4adbf6-6de8-4e3a-ad6f-fa8bbfa5999e
+# ╟─208ba1bb-a4bf-4b8c-93d2-0d6c6c8d16d4
+# ╟─2f490e1f-e495-4f55-a3f8-60d6fd716d4e
+# ╟─b91bc3b6-b815-4942-b297-c0e2b4b99654
 # ╟─26c8160c-d294-11ef-2a74-6f7009a7c51e
 # ╟─26c82f16-d294-11ef-0fe1-07326b56282f
 # ╟─26c85a22-d294-11ef-3c8e-7b72a4313ced
 # ╟─26c867d8-d294-11ef-2372-d75ed0bcc02d
 # ╟─7a3c0ff7-0b32-4954-ae28-b644f4d966ef
-# ╟─de049d59-9863-4bac-91c3-32851cad15d9
+# ╠═de049d59-9863-4bac-91c3-32851cad15d9
 # ╟─26c8a2a4-d294-11ef-1cd3-850e877d7a25
 # ╟─26c8b682-d294-11ef-1331-2bcf8baec73f
 # ╟─26c8c7fa-d294-11ef-0444-6555ecf5c721
