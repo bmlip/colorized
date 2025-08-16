@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.13
 
 #> [frontmatter]
 #> description = "Bayesian and maximum likelihood density estimation for discretely valued data sets."
@@ -93,7 +93,7 @@ md"""
 
 Consider a toss with a ``K``-sided die. We use a one-hot coding scheme, i.e., the outcome is encoded as 
 ```math
-x_{k} = \begin{cases} 1 & \text{if the throw landed on $k$th face}\\
+x_{k} = \begin{cases} 1 & \text{if the throw landed on $k$-th face}\\
 0 & \text{otherwise} \end{cases} \,.
 ```
 
@@ -103,7 +103,7 @@ Assume the probabilities
 ```math 
 p(x_{k}=1) = \mu_k \quad \text{with } \sum_k \mu_k  = 1 \,.
 ```
-The data generating distribution for outcome ``x = \{x_{1},x_{2},\ldots,x_{K}\}`` is then given by 
+The data generating distribution for one-hot encoded outcome ``x = (x_{1},x_{2},\ldots,x_{K})`` (and ``\mu = (\mu_1,\mu_2,\dots,\mu_k)^T``) is then given by 
 
 ```math
 p(x|\mu) = \mu_1^{x_1} \mu_2^{x_2} \cdots \mu_K^{x_K}=\prod_{k=1}^K \mu_k^{x_k} \tag{B-2.26}
@@ -115,7 +115,7 @@ This generalized Bernoulli distribution is called the [**categorical distributio
 
 # ╔═╡ d843540a-d294-11ef-3846-2bf27b7e9b30
 md"""
-## Bayesian Density Estimation for a Loaded Die
+# Bayesian Density Estimation for a Loaded Die
 
 Now let's proceed with learning the parameters for a model for ``N`` independent-and-identically-distributed (IID) rolls of a ``K``-sided die, based on observed data set ``D=\{x_1,\ldots,x_N\}``. 
 
@@ -124,17 +124,17 @@ Now let's proceed with learning the parameters for a model for ``N`` independent
 
 # ╔═╡ d84369a4-d294-11ef-38f7-7f393869b705
 md"""
-#### Model specification
+## Model specification
 
-##### data-generating distribution
+#### data-generating distribution
 
 The outcomes ``x_n`` are encoded as
 ```math
-x_{nk} = \begin{cases} 1 & \text{if the $n$th throw landed on $k$th face}\\
+x_{nk} = \begin{cases} 1 & \text{if the $n$-th throw landed on $k$-th face}\\
 0 & \text{otherwise} \end{cases}
 ```
 
-and the data-generating PDF is now
+and the likelihood function for ``\mu`` is now
 
 ```math
 p(D|\mu) = \prod_n \prod_k \mu_k^{x_{nk}} = \prod_k \mu_k^{\sum_n x_{nk}} = \prod_k \mu_k^{m_k} \tag{B-2.29}
@@ -149,9 +149,9 @@ This distribution depends on the observations **only** through the ''observed'' 
 # ╔═╡ d8439866-d294-11ef-230b-dfde21aedfbf
 md"""
 
-##### prior distribution
+#### prior distribution
 
-Next, we need a prior for the parameters ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)``. 
+Next, we need a prior for the parameters ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)^T``. 
 
 In the [binary coin toss example](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#beta-prior), we used a [beta distribution](https://en.wikipedia.org/wiki/Beta_distribution) that was conjugate with the binomial and forced us to choose prior pseudo-counts. 
 
@@ -171,7 +171,7 @@ As before for the Beta distribution in the coin toss experiment, you can interpr
 
 # ╔═╡ d843a338-d294-11ef-2748-b95f2af1396b
 md"""
-#### Inference for ``\{\mu_k\}``
+## Inference for ``\{\mu_k\}``
 
 The posterior for  ``\{\mu_k\}`` can be obtained through Bayes rule:
 
@@ -215,7 +215,7 @@ This is actually a generalization of the conjugate relation that we found for th
 
 # ╔═╡ d843d0c4-d294-11ef-10b6-cb982615d58a
 md"""
-#### $(HTML("<span id='prediction-loaded-die'>Prediction of next toss for the loaded die</span>"))
+## $(HTML("<span id='prediction-loaded-die'>Prediction of next toss for the loaded die</span>"))
 
 Let's apply what we have learned about the loaded die to compute the probability that we throw the ``k``-th face at the next toss. 
 
@@ -258,19 +258,7 @@ p(D_m|\mu) =\frac{N!}{m_1! m_2!\ldots m_K!} \,\prod_k \mu_k^{m_k}\,.
 
 # ╔═╡ d84422a6-d294-11ef-148b-c762a90cd620
 md"""
-We insert this slide only to alert you to the difference between using outcomes ``D`` as the data, versus using counts ``D_m`` as the data. When used as a likelihood function for ``\mu``, it makes no difference whether you use ``p(D|\mu)`` or ``p(D_m|\mu)``. Why? 
-
-"""
-
-# ╔═╡ d8443e38-d294-11ef-25db-b16df87850f4
-md"""
-##### Home [Exercise](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Multinomial-Distribution.ipynb)
-
-Verify for yourself that
-
-  * the categorial distribution is a special case of the multinomial for ``N=1``.
-  * the Bernoulli is a special case of the categorial distribution for ``K=2``.
-  * the binomial is a special case of the multinomial for ``K=2``.
+We insert this slide only to alert you to the difference between using one-hot encoded outcomes ``D=\{x_1,x_2,\ldots,x_N\}`` as the data, versus using counts ``D_m = \{m_1mm_3,\ldots,m_K\}`` as the data. When used as a likelihood function for ``\mu``, it makes no difference whether you use ``p(D|\mu)`` or ``p(D_m|\mu)``. Why? 
 
 """
 
@@ -280,13 +268,27 @@ md"""
 
 #### Maximum likelihood as a special case of Bayesian estimation
 
-We can get the maximum likelihood estimate ``\hat{\mu}_k`` for ``\mu_k`` based on ``N`` throws of a ``K``-sided die from the Bayesian framework by using a uniform prior for ``\mu`` and taking the mode of the posterior for ``\mu``:
+We can obtain the maximum likelihood estimate for ``\mu_k`` based on ``N`` throws of a ``K``-sided die within the Bayesian framework by letting the prior for ``\mu`` approach a uniform distribution. For a Dirichlet prior ``\mathrm{Dir}(\mu | \alpha)``, this corresponds to setting
+``\alpha \rightarrow (1, 1, \dots, 1)``.
+
+
+Proof for yourself that 
 
 ```math
 \begin{align*}
+\hat{\mu}_k &= \arg\max_{\mu_k} p(D|\mu) = \frac{m_k}{N}\,.
+\end{align*}
+```
+
+"""
+
+# ╔═╡ 4482e857-af6b-4459-a0a2-cd7ad57ed94f
+details("Click for proof",
+md"""
+```math
+\begin{align*}
 \hat{\mu}_k &= \arg\max_{\mu_k} p(D|\mu) \\
-&= \arg\max_{\mu_k} p(D|\mu)\cdot \mathrm{Uniform}(\mu) \\
-&= \arg\max_{\mu_k} p(D|\mu) \cdot \left.\mathrm{Dir}(\mu|\alpha)\right|_{\alpha=(1,1,\ldots,1)} \\
+&= \arg\max_{\mu_k} p(D|\mu) \cdot \underbrace{\left.\mathrm{Dir}(\mu|\alpha)\right|_{\alpha=(1,1,\ldots,1)}}_{\text{uniform distr.}} \\
 &= \arg\max_{\mu_k} \left.p(\mu|D,\alpha)\right|_{\alpha=(1,1,\ldots,1)}  \\
 &= \arg\max_{\mu_k} \left.\mathrm{Dir}\left( \mu | m + \alpha \right)\right|_{\alpha=(1,1,\ldots,1)} \\
 &= \frac{m_k}{\sum_k m_k} = \frac{m_k}{N}
@@ -295,7 +297,7 @@ We can get the maximum likelihood estimate ``\hat{\mu}_k`` for ``\mu_k`` based o
 
 where we used the fact that the [maximum of the Dirichlet distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution#Mode) ``\mathrm{Dir}(\{\alpha_1,\ldots,\alpha_K\})`` is obtained at  ``(\alpha_k-1)/(\sum_k\alpha_k - K)``.
 
-"""
+		""")
 
 # ╔═╡ d844bcfa-d294-11ef-0874-b154f3ed810b
 md"""
@@ -321,7 +323,7 @@ When doing ML estimation, we must obey the constraint ``\sum_k \mu_k  = 1``, whi
 \tilde{\mathrm{L}}(\mu) = \sum_k m_k \log \mu_k  + \lambda \cdot \big(1 - \sum_k \mu_k \big)
 ```
 
-The method of Lagrange multipliers is a mathematical method for transferring a constrained optimization problem to an unconstrained optimization problem (see Bishop App.E). Unconstrained optimization problems can be solved by setting the derivative to zero. 
+The method of Lagrange multipliers is a mathematical method for transforming a constrained optimization problem to an unconstrained optimization problem (see [Bishop App.E](https://www.microsoft.com/en-us/research/wp-content/uploads/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf#page=727)). Unconstrained optimization problems can be solved by setting the derivative to zero. 
 
 """
 
@@ -349,26 +351,14 @@ where we get ``\lambda`` from the constraint
 
 """
 
-# ╔═╡ d8453aac-d294-11ef-24c7-71ec0301c913
+# ╔═╡ d8455278-d294-11ef-2455-376c205e7edf
 md"""
-## Recap Maximum Likelihood Estimation for Gaussian and Multinomial Distributions
+
+# Summary
 
 Assume a data set of ``N`` IID observations ``D=\{x_1,\dotsc,x_N\}``.
 
-For a **multivariate Gaussian** model ``p(x_n) = \mathcal{N}(x_n|\mu,\Sigma)``, we find that the Maximum Likelihood (ML) estimates for the mean and variance parameters coincide with the sample mean and sample variance, respectively, 
-
-```math
-\begin{align}
-\hat \mu &= \frac{1}{N} \sum_n x_n \tag{sample mean} \\
-\hat \Sigma &= \frac{1}{N} \sum_n (x_n-\hat\mu)(x_n - \hat \mu)^T \tag{sample variance}
-\end{align}
-```
-
-"""
-
-# ╔═╡ d8455278-d294-11ef-2455-376c205e7edf
-md"""
-Similarly, for discrete outcomes modeled by a 1-of-K **categorical distribution**, ``p(x_n) = \mathrm{Cat}(x_n|\mu)``, we find that the ML estimate of ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)^T`` is given by the sample proportions:
+For discrete outcomes modeled by a 1-of-K **categorical distribution**, ``p(x_n) = \mathrm{Cat}(x_n|\mu)``, we find that the Maximum Likelihood (ML) estimate of ``\mu = (\mu_1,\mu_2,\ldots,\mu_K)^T`` is given by the sample proportions:
 
 ```math
 \begin{align}
@@ -376,8 +366,147 @@ Similarly, for discrete outcomes modeled by a 1-of-K **categorical distribution*
 \end{align}
 ```
 
-Note the similarity for the means between discrete and continuous data. 
+Let us contrast this with the earlier results for a multivariate **Gaussian model**, where the ML estimates for the mean and variance parameters coincide with the sample mean and sample variance, respectively.
+
+```math
+\begin{align}
+\hat{\mu} &= \frac{1}{N}\sum_{n=1}^N x_n \tag{sample mean} \\  
+\hat{\Sigma} &= \frac{1}{N} \sum_{n=1}^N (x_n-\mu)(x_n-\mu)^T \tag{sample variance}
+\end{align}
+```
+
+
+Note the similarity for the ML estimates of the mean. 
+
+
 """
+
+# ╔═╡ 204bec3f-6fde-48c1-b2b6-9f88d484c130
+md"""
+# Exercises
+"""
+
+# ╔═╡ 62b42d1d-be91-4740-bac6-b4527494959d
+md"""
+
+####  Maximum Likelihood estimation (**)
+
+We consider IID data ``D = \{x_1,x_2,\ldots,x_N\}`` obtained from tossing a ``K``-sided die. We use a *binary selection variable*
+
+```math
+x_{nk} \equiv \begin{cases} 1 & \text{if $x_n$ lands on $k$-th face}\\
+    0 & \text{otherwise}
+\end{cases}
+```
+
+with probabilities ``p(x_{nk} = 1)=\mu_k``.         
+
+- (a) Derive the log-likelihood ``\log p(D|\mu)``.        
+- (b) Derive the maximum likelihood estimate for ``\mu``.
+
+"""
+
+# ╔═╡ 01c4c590-fece-49a5-8979-6e0d54f7850a
+details("Click for solution",
+md"""
+Derivations are in the lecture notes.        
+		
+- (a)
+
+
+```math
+p(x_n|\mu) = \prod_k \mu_k^{x_{nk}} \quad \text{subject to} \quad \sum_k \mu_k = 1 \,.
+```
+
+```math
+p(D|\mu)  = \sum_k m_k \log \mu_k
+```
+
+where ``m_k = \sum_n x_{nk}``.       
+
+- (b)
+
+
+```math
+\hat \mu = \frac{m_k}{N}\,,
+```
+
+which is the *sample proportion*.
+""")
+
+# ╔═╡ d8443e38-d294-11ef-25db-b16df87850f4
+md"""
+#### Discrete Distributions (*)
+
+Show that
+
+- (a) the categorial distribution is a special case of the multinomial for ``N=1``.  
+
+- (b) the Bernoulli is a special case of the categorial distribution for ``K=2``.    
+
+- (c) the binomial is a special case of the multinomial for ``K=2``.
+
+"""
+
+# ╔═╡ 448d0679-b47a-4db9-ad7d-a45786350fef
+details("Click for solution",
+md"""
+
+- (a) The probability mass function of a **multinomial distribution** is 
+```math 
+	p(D_m|\mu) =\frac{N!}{m_1! m_2!\ldots m_K!} \,\prod_k \mu_k^{m_k}
+```
+over the data frequencies ``D_m=\{m_1,\ldots,m_K\}`` with constraints that ``\sum_k \mu_k = 1`` and ``\sum_k m_k=N``. 
+
+Setting ``N=1``, we see that ``p(D_m|\mu) \propto \prod_k \mu_k^{m_k}`` with ``\sum_k m_k=1``, making the sample-space one-hot coded. This is the **categorical distribution**.       
+		
+- (b) When ``K=2``, the constraint for the categorical distribution takes the form ``m_1=1-m_2`` leading to 
+
+```math
+	p(D_m|\mu) \propto \mu_1^{m_1}(1-\mu_1)^{1-m_1}
+```
+which is associated with the **Bernoulli distribution**.       
+
+- (c) Plugging ``K=2`` into the multinomial distribution leads to ``p(D_m|\mu) =\frac{N!}{m_1! m_2!}\mu_1^{m_1}\left(\mu_2^{m_2}\right)`` with the constraints ``m_1+m_2=N`` and ``\mu_1+\mu_2=1``. Then plugging the constraints back in we obtain 
+```math
+	p(D_m|\mu) = \frac{N!}{m_1! (N-m1)!}\mu_1^{m_1}\left(1-\mu_1\right)^{N-m_1}
+```
+which is the **binomial distribution**.
+
+
+""")
+
+# ╔═╡ 72f24b54-ab22-4a54-9ece-7433048f4769
+md"""
+
+#### Laplace's Generalized Rule of Succession (**) 
+
+Show that Laplace's generalized rule of succession can be worked out to a prediction that is composed of a prior prediction and data-based correction term.
+
+
+"""
+
+# ╔═╡ 3c2ee96d-18a6-45d0-a2cf-f2ebbf5e22f0
+details("Click for solution",
+md"""
+
+```math
+\begin{align*}
+p(&x_{\bullet,k}=1|D) = \frac{m_k + \alpha_k }{ N+ \sum_k \alpha_k} \\
+&= \frac{m_k}{N+\sum_k \alpha_k}  + \frac{\alpha_k}{N+\sum_k \alpha_k}\\
+&= \frac{m_k}{N+\sum_k \alpha_k} \cdot \frac{N}{N} + \frac{\alpha_k}{N+\sum_k \alpha_k}\cdot \frac{\sum_k \alpha_k}{\sum_k\alpha_k} \\
+&= \frac{N}{N+\sum_k \alpha_k} \cdot \frac{m_k}{N} + \frac{\sum_k \alpha_k}{N+\sum_k \alpha_k} \cdot \frac{\alpha_k}{\sum_k\alpha_k} \\
+&= \frac{N}{N+\sum_k \alpha_k} \cdot \frac{m_k}{N} + \bigg( \frac{\sum_k \alpha_k}{N+\sum_k \alpha_k} + \underbrace{\frac{N}{N+\sum_k \alpha_k} - \frac{N}{N+\sum_k \alpha_k}}_{0}\bigg) \cdot \frac{\alpha_k}{\sum_k\alpha_k} \\
+&= \frac{N}{N+\sum_k \alpha_k} \cdot \frac{m_k}{N} + \bigg( 1 - \frac{N}{N+\sum_k \alpha_k}\bigg) \cdot \frac{\alpha_k}{\sum_k\alpha_k} \\
+&= \underbrace{\frac{\alpha_k}{\sum_k\alpha_k}}_{\text{prior prediction}} + \underbrace{\frac{N}{N+\sum_k \alpha_k} \cdot \underbrace{\left(\frac{m_k}{N} - \frac{\alpha_k}{\sum_k\alpha_k}\right)}_{\text{prediction error}}}_{\text{data-based correction}}
+\end{align*}
+```
+
+(If you know how to do it shorter and more elegantly, please post in Piazza.)
+
+This decomposition is the natural consequence of doing Bayesian estimation, which always involves a prior-based prediction term and a likelihood-based (or data-based) correction term that can be interpreted as a (precision-weighted) prediction error. 
+		
+		""")
 
 # ╔═╡ 59fb1e66-cf05-4f2b-8027-7ff3b1a57c15
 md"""
@@ -805,13 +934,19 @@ version = "17.4.0+2"
 # ╟─d843defc-d294-11ef-358b-f56f514dcf93
 # ╟─d843efdc-d294-11ef-0f3a-630ecdd0acee
 # ╟─d84422a6-d294-11ef-148b-c762a90cd620
-# ╟─d8443e38-d294-11ef-25db-b16df87850f4
 # ╟─d8449f1a-d294-11ef-3cfa-4fc33a5daa00
+# ╟─4482e857-af6b-4459-a0a2-cd7ad57ed94f
 # ╟─d844bcfa-d294-11ef-0874-b154f3ed810b
 # ╟─d844d564-d294-11ef-0454-416352d43524
 # ╟─d844fa76-d294-11ef-172a-85e68842c252
-# ╟─d8453aac-d294-11ef-24c7-71ec0301c913
 # ╟─d8455278-d294-11ef-2455-376c205e7edf
+# ╟─204bec3f-6fde-48c1-b2b6-9f88d484c130
+# ╟─62b42d1d-be91-4740-bac6-b4527494959d
+# ╟─01c4c590-fece-49a5-8979-6e0d54f7850a
+# ╟─d8443e38-d294-11ef-25db-b16df87850f4
+# ╟─448d0679-b47a-4db9-ad7d-a45786350fef
+# ╟─72f24b54-ab22-4a54-9ece-7433048f4769
+# ╟─3c2ee96d-18a6-45d0-a2cf-f2ebbf5e22f0
 # ╟─59fb1e66-cf05-4f2b-8027-7ff3b1a57c15
 # ╠═d3a4a1dc-3fdf-479d-a51c-a1e23073c556
 # ╟─00000000-0000-0000-0000-000000000001
