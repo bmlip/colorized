@@ -132,7 +132,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>28-Nov-2025 <em>(Fri)</em></td>
             <td>⚪️ B5: Continuous Data and the Gaussian Distribution</td>
             <td><a href="https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html">B5</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-The-Gaussian-Distribution.ipynb">B5-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-The-Gaussian-Distribution.ipynb">B5-sol</a></td>
+            <td></td>
             <td></td>
             <td> <a href="https://youtu.be/WS6gWO5vgtc">B5.1</a>, <a href="https://youtu.be/Ma3jXNbNCyc">B5.2 </a> </td>
          </tr>
