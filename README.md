@@ -200,7 +200,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>19-Dec-2025 <em>(Fri)</em></td>
             <td>⚪️ B10: Latent Variable Models and Variational Bayes</td>
             <td><a href="https://bmlip.github.io/course/lectures/Latent%20Variable%20Models%20and%20VB.html">B10</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Latent-Variable-Models-and-VB.ipynb">B10-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Latent-Variable-Models-and-VB.ipynb">B10-sol</a></td>
+            <td></td>
             <td></td>
             <td><a href="https://youtu.be/pVWdm9fQT6Y">B10.1</a>, <a href="https://youtu.be/mg9HGykqEbw">B10.2</a></td>
          </tr>
