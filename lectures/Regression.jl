@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.14
+# v0.20.13
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-bishop12.png?raw=true"
@@ -133,15 +133,15 @@ md"""
 
 We observe ``N`` IID data **pairs** ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` with ``x_n \in \mathbb{R}^M`` and ``y_n \in \mathbb{R}``.
 
-Assume that, based on the data set,  we are interested in predicting the response ``y_\bullet`` for a new **given and fixed** input observation ``x_\bullet = \hat{x}_\bullet``? 
+Assume that, based on the data set,  we are interested in predicting the response ``y_\bullet`` for a new **given and fixed** input observation ``x_\bullet = a``? 
 
-In a Bayesian (generative) modeling context, we should develop a joint model for all variables, i.e., we should develop a model ``p(y_n,x_n)``, but in this case we already know ``p(x_n) = \delta(x_n-\hat{x}_n)``.
+In a Bayesian (generative) modeling context, we should develop a joint model for all variables, i.e., we should develop a model ``p(y_n,x_n)``, but in this case we already know ``p(x_n) = \delta(x_n-a)``.
 
 Since
 ```math
 \begin{align}
 p(y_n,x_n) &= p(y_n|x_n) p(x_n) \\
-  &=  p(y_n|x_n) \delta(x_n-\hat{x}_n) \,,
+  &=  p(y_n|x_n) \delta(x_n-a) \,,
 \end{align}
 ```
 
@@ -165,7 +165,7 @@ md"""
 ## Model Specification
 
 
-##### data-generating distribution
+#### data-generating distribution
 
 In a traditional *regression* model, we try to "explain the data" by a purely deterministic function ``f(x_n,w)``, plus a purely random term ``\epsilon_n`` for 'unexplained noise':
 
@@ -202,7 +202,7 @@ In *ordinary linear regression* , it is further assumed that the noise process `
 # ╔═╡ 234c8850-d294-11ef-3707-6722628bd9dc
 md"""
 
-##### likelihood function
+#### likelihood function
 
 For the ordinary linear regression model in Eq. B-3.10, we are interested in learning the parameters ``w`` from an observed data set ``D=\{(x_1,y_1),\dotsc,(x_N,y_N)\}``.
 
@@ -223,7 +223,7 @@ Note that, if parameter ``\beta`` is given, then Eq. B-3.10 is a proper likeliho
 
 # ╔═╡ 234cab14-d294-11ef-1e7c-777fc35ddbd9
 md"""
-##### prior
+#### prior
 
 For full Bayesian learning, we should also choose a prior ``p(w)``. Let's choose a Gaussian prior, 
 
@@ -361,11 +361,6 @@ Then we equate probability masses in both domains:
 
 # ╔═╡ fb113692-f00c-4b48-85cc-d7bba88c7099
 keyconcept("", md"This is a satisfying result: for an ordinary linear regression task, with inputs ``x``, outputs ``y``, and weights ``w``, placing a Gaussian prior on the weights ``w`` leads to both a Gaussian posterior over the weights and a Gaussian predictive distribution for the outputs. Importantly, both distributions can be computed in closed form. ")
-
-# ╔═╡ 6f509800-c726-40c8-92e4-37b77c013452
-md"""
-# Example
-"""
 
 # ╔═╡ f600c228-e048-42aa-b79a-60592b367dec
 section_outline(
@@ -600,9 +595,148 @@ In this lesson, we focused on modelling the map from given inputs ``x`` to uncer
 
 What if you want to fit the best curve through a data set ``\{(x_1,y_1),\dotsc,(x_N,y_N)\}`` where both variables ``x_n`` and ``y_n`` are subject to errors? In other words, we must now also fit a model ``p(x)`` for the inputs, leading to a generative model ``p(y,x) = p(y|x) p(x)``.  
 
-While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin Jaynes discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
+While this is a very common problem that occurs throughout the sciences, a proper solution to this problem is still hardly covered in statistics textbooks. Edwin T. Jaynes (author of the brilliant book [Probability Theory: The Logic of Science](https://bayes.wustl.edu/etj/prob/book.pdf)) discusses a fully Bayesian solution in his 1990 paper on [Straight Line Fitting - A Bayesian Solution](https://github.com/bmlip/course/blob/main/assets/files/Jaynes-1990-straight-line-fitting-a-Bayesian-solution.pdf). (Optional reading).
 
 """
+
+# ╔═╡ 8e2b2c1d-81f3-4283-ae2e-d8b3e9c201b3
+md"""
+# Exercises
+"""
+
+# ╔═╡ bbb461b0-d1eb-4584-89b0-96af3e615484
+md"""
+#### Some Thoughts on Priors (*)
+
+We used the following prior for the weights:
+
+```math
+p(w|\alpha) = \mathcal{N}\left(w | 0, \alpha^{-1} I \right)
+```
+
+- (a) Give some considerations for choosing a Gaussian prior for the weights.  
+
+- (b) We could have chosen a prior with a full (not diagonal) covariance matrix ``p(w|\alpha) = \mathcal{N}\left(w | 0, \Sigma \right)``. Would that be better? Give your thoughts on that issue.             
+
+- (c) Generally, we choose ``\alpha`` as a small positive number. Give your thoughts on that choice as opposed to choosing a large positive value. How about choosing a negative value for ``\alpha``?
+
+
+"""
+
+# ╔═╡ 2705ce62-baea-484d-a7fe-6f284a4a8f71
+details("Click for answers",
+md"""
+- (a) These considerations can be both computational (eg, Gaussian prior times Gaussian likelihood leads to a Gaussian posterior) or based on available information, e.g., among all distributions with the same variance, the Gaussian distribution has the largest entropy. Roughly this means that the Gaussian makes the least amount of assumptions across all distributions with the same variance.      
+		
+- (b) If you have no prior information about covariances, why make that assumption? If you do have some prior information, e.g., based on the physical process, then by all means feel free to add those constraints to the prior. Note that the posterior variance is given by ``S_N = \left( \alpha \mathbf{I} + \beta \mathbf{X}^T\mathbf{X}\right)^{-1}``. Importantly, the term ``\alpha \mathbf{I}`` for small ``\alpha`` makes sure that the matrix is invertible, even for zero observations.      
+		
+- (c) As you can see from the posterior variance (see answer to (b)), for smaller values of ``\alpha``, the data term ``\mathbf{X}^T\mathbf{X}`` gets to play a role after fewer observations. Hence, if you have little prior information, it's better to choose a small value for ``\alpha``.
+		""")
+
+# ╔═╡ d92d1dd3-736b-4911-a8d8-dcf7a297f48d
+md"""
+
+#### Regression Rehearsal (**)
+
+Consider an IID data set ``D=\{(x_1,y_1),\ldots,(x_N,y_N)\}``. We will model this data set with a model
+
+```math
+\begin{align}
+y_n &=\theta^T  f(x_n) + e_n \\   
+e_n &\sim \mathcal{N}(0,\sigma^2)
+\end{align}
+```
+
+where ``y_n`` is a scalar output, ``f(x_n)`` is an ``M``-dimensional feature vector of input ``x_n``,  and ``\sigma^2`` is a given variance.
+
+- (a) Rewrite the model in matrix form by lumping input features in a matrix ``F=[f(x_1),\ldots,f(x_N)]^T``, outputs and noise in the vectors ``y=[y_1,\ldots,y_N]^T`` and ``e=[e_1,\ldots,e_N]^T``, respectively.     
+
+- (b) Now derive an expression for the log-likelihood ``\log p(D|\theta)``. 
+
+- (c) Proof that the maximum likelihood estimate for the parameters is given by
+
+```math
+\hat\theta_{\text{ml}} = (F^T F)^{-1}F^Ty \,.
+```
+
+- (d) What is the predicted output value ``y_\bullet``, given an observation ``x_\bullet`` and the maximum likelihood parameters ``\hat \theta_{\text{ml}}``. Work this expression out in terms of ``F``, ``y``, and ``f(x_\bullet)``.      
+
+- (e) Suppose that, before the data set ``D`` was observed, we had reason to assume a prior distribution ``p(\theta)=\mathcal{N}(0,\sigma_0^2 I)``. Derive the Maximum a posteriori (MAP) estimate ``\hat \theta_{\text{map}}``.(hint: work this out in the ``\log`` domain.)                
+
+"""
+
+# ╔═╡ d8e384c8-fe26-47c3-a7d4-04ae4c592ee5
+details("Click for solution",
+md"""
+- (a) Rewrite the model in matrix form by lumping input features in a matrix ``F=[f(x_1),\ldots,f(x_N)]^T``, outputs and noise in the vectors ``y=[y_1,\ldots,y_N]^T`` and ``e=[e_1,\ldots,e_N]^T``, respectively.     
+
+```math
+\begin{align}
+y &= F\theta + e \\   
+e &\sim \mathcal{N}(0,\sigma^2 I)
+\end{align}
+```
+
+- (b) Now derive an expression for the log-likelihood ``\log p(D|\theta)``. 
+
+```math
+\begin{align*}
+ \log p(D|\theta) &= \log \mathcal{N}(y|\,F\theta,\sigma^2 I )\\
+    &\propto  -\frac{1}{2\sigma^2}\left( {y - F\theta } \right)^T \left( {y - F\theta } \right)
+\end{align*}
+```
+
+- (c) Proof that the maximum likelihood estimate for the parameters is given by
+
+```math
+\hat\theta_{\text{ml}} = (F^T F)^{-1}F^Ty \,.
+```
+
+Taking the derivative to ``\theta``,
+
+
+```math
+\nabla_\theta \log p(D|\theta) = \frac{1}{\sigma^2} F^T (y-F \theta)
+```
+
+Set derivative to zero for maximum likelihood estimate
+
+
+```math
+ \hat\theta_{\text{ml}} = (F^TF)^{-1}F^Ty
+```
+
+- (d) What is the predicted output value ``y_\bullet``, given an observation ``x_\bullet`` and the maximum likelihood parameters ``\hat \theta_{\text{ml}}``. Work this expression out in terms of ``F``, ``y`` and ``f(x_\bullet)``.      
+
+Prediction of new data point: 
+
+```math
+\hat y_\bullet = \hat \theta^T f(x_\bullet) = \left((F^TF)^{-1}F^Ty\right)^T  f(x_\bullet)
+```
+
+- (e) Suppose that, before the data set ``D`` was observed, we had reason to assume a prior distribution ``p(\theta)=\mathcal{N}(0,\sigma_0^2 I)``. Derive the Maximum a posteriori (MAP) estimate ``\hat \theta_{\text{map}}``.(hint: work this out in the ``\log`` domain.)                
+
+```math
+\begin{align*}
+\log p(\theta|D) &\propto \log p(D|\theta) p(\theta) \\
+    &\propto  -\frac{1}{2\sigma^2}\left( {y - F\theta } \right)^T \left( {y - F\theta } \right) - \frac{1}{2 \sigma_0^2}\theta^T \theta
+\end{align*}
+```
+
+Derivative 
+
+```math
+\nabla_\theta \log p(\theta|D) = (1/\sigma^2) F^T(y-F\theta) - (1/ \sigma_0^2) \theta
+```
+
+Set derivative to zero for MAP estimate leads to
+
+
+```math
+\hat\theta_{\text{map}} = \left(F^T F + \frac{\sigma^2}{\sigma_0^2} I\right)^{-1}F^Ty
+```
+
+""")
 
 # ╔═╡ 234f7254-d294-11ef-316a-05ef2edb9699
 md"""
@@ -720,9 +854,9 @@ PlutoUI = "~0.7.62"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.10"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "e6b1e3e2537ab310f4539868a428d84091660dbf"
+project_hash = "9f6ee2c716b3724f3075f719bb750364ee313c5c"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -738,13 +872,15 @@ version = "1.1.3"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+version = "1.11.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+version = "1.11.0"
 
 [[deps.BitFlags]]
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
@@ -780,12 +916,10 @@ deps = ["FixedPointNumbers", "Random"]
 git-tree-sha1 = "67e11ee83a43eb71ddc950302c53bf33f0690dfe"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 version = "0.12.1"
+weakdeps = ["StyledStrings"]
 
     [deps.ColorTypes.extensions]
     StyledStringsExt = "StyledStrings"
-
-    [deps.ColorTypes.weakdeps]
-    StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -802,16 +936,6 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
-
-[[deps.Compat]]
-deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
-uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.18.0"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -835,14 +959,15 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
 [[deps.DataStructures]]
-deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "76b3b7c3925d943edf158ddb7f693ba54eb297a5"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.22"
+version = "0.19.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+version = "1.11.0"
 
 [[deps.Dbus_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
@@ -914,6 +1039,7 @@ version = "7.1.1+0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+version = "1.11.0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra"]
@@ -1036,6 +1162,7 @@ version = "0.2.5"
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+version = "1.11.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
@@ -1097,9 +1224,9 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
+git-tree-sha1 = "52e1296ebbde0db845b356abbbe67fb82a0a116c"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.8"
+version = "0.16.9"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1121,16 +1248,17 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
-version = "8.4.0+0"
+version = "8.6.0+0"
 
 [[deps.LibGit2]]
 deps = ["Base64", "LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
+version = "1.11.0"
 
 [[deps.LibGit2_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "MbedTLS_jll"]
 uuid = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
-version = "1.6.4+0"
+version = "1.7.2+0"
 
 [[deps.LibSSH2_jll]]
 deps = ["Artifacts", "Libdl", "MbedTLS_jll"]
@@ -1139,6 +1267,7 @@ version = "1.11.0+1"
 
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+version = "1.11.0"
 
 [[deps.Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1179,6 +1308,7 @@ version = "2.41.0+0"
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+version = "1.11.0"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
@@ -1198,6 +1328,7 @@ version = "0.3.29"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+version = "1.11.0"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
@@ -1218,6 +1349,7 @@ version = "0.5.16"
 [[deps.Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+version = "1.11.0"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -1228,7 +1360,7 @@ version = "1.1.9"
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
-version = "2.28.2+1"
+version = "2.28.6+0"
 
 [[deps.Measures]]
 git-tree-sha1 = "c13304c81eec1ed3af7fc20e75fb6b26092a1102"
@@ -1243,10 +1375,11 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
-version = "2023.1.10"
+version = "2023.12.12"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -1267,12 +1400,12 @@ version = "1.3.6+0"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+4"
+version = "0.3.27+1"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1282,9 +1415,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
+git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.1+0"
+version = "3.5.2+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1333,9 +1466,13 @@ uuid = "30392449-352a-5448-841d-b1acce4e97dc"
 version = "0.44.2+0"
 
 [[deps.Pkg]]
-deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
+deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.10.0"
+version = "1.11.0"
+weakdeps = ["REPL"]
+
+    [deps.Pkg.extensions]
+    REPLExt = "REPL"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1351,9 +1488,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
+git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.17"
+version = "1.40.18"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1371,15 +1508,15 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
+git-tree-sha1 = "85778cdf2bed372008e6646c64340460764a5b85"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.4"
+version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.68"
+version = "0.7.69"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1389,13 +1526,14 @@ version = "1.2.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
+git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+version = "1.11.0"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "1d36ef11a9aaf1e8b74dacc6a731dd1de8fd493d"
@@ -1439,12 +1577,14 @@ version = "2.11.2"
     Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
-deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+version = "1.11.0"
 
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+version = "1.11.0"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1499,6 +1639,7 @@ version = "1.3.0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+version = "1.11.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -1513,17 +1654,18 @@ version = "1.2.0"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-version = "1.10.0"
+version = "1.11.0"
 
 [[deps.SpecialFunctions]]
 deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -1544,9 +1686,14 @@ uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.3"
 
 [[deps.Statistics]]
-deps = ["LinearAlgebra", "SparseArrays"]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "ae3bb1eb3bba077cd276bc5cfc337cc65c3075c0"
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.10.0"
+version = "1.11.1"
+weakdeps = ["SparseArrays"]
+
+    [deps.Statistics.extensions]
+    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
@@ -1556,9 +1703,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -1574,6 +1721,10 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StyledStrings]]
+uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
+version = "1.11.0"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -1581,7 +1732,7 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
-version = "7.2.1+1"
+version = "7.7.0+0"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1602,6 +1753,7 @@ version = "0.1.1"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 git-tree-sha1 = "0c45878dcfdcfa8480052b6ab162cdd138781742"
@@ -1609,9 +1761,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.11"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -1621,9 +1773,11 @@ version = "1.6.1"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+version = "1.11.0"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+version = "1.11.0"
 
 [[deps.UnicodeFun]]
 deps = ["REPL"]
@@ -1901,7 +2055,7 @@ version = "1.1.7+0"
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
-version = "1.52.0+1"
+version = "1.59.0+0"
 
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1949,7 +2103,6 @@ version = "1.9.2+0"
 # ╟─234d6dd8-d294-11ef-3abf-8d6cb00b1907
 # ╟─ab3baeb4-51d7-4f50-9e06-ed00bb783ebd
 # ╟─fb113692-f00c-4b48-85cc-d7bba88c7099
-# ╟─6f509800-c726-40c8-92e4-37b77c013452
 # ╟─f600c228-e048-42aa-b79a-60592b367dec
 # ╟─c0c57aa6-155a-49a9-9ed2-d568de1b5be2
 # ╟─7a585a05-64c5-4d18-8e07-2d5d0beead53
@@ -1973,6 +2126,11 @@ version = "1.9.2+0"
 # ╟─b6443a13-9301-4559-a5c3-396bae2a27b9
 # ╟─234ef126-d294-11ef-17a9-3da87a7e7d0a
 # ╟─234f5d32-d294-11ef-279f-f331396e47ad
+# ╟─8e2b2c1d-81f3-4283-ae2e-d8b3e9c201b3
+# ╟─bbb461b0-d1eb-4584-89b0-96af3e615484
+# ╟─2705ce62-baea-484d-a7fe-6f284a4a8f71
+# ╟─d92d1dd3-736b-4911-a8d8-dcf7a297f48d
+# ╟─d8e384c8-fe26-47c3-a7d4-04ae4c592ee5
 # ╟─234f7254-d294-11ef-316a-05ef2edb9699
 # ╟─234f8a6e-d294-11ef-175e-f316d6b39583
 # ╟─c6532830-3161-4b2a-97c4-6d27d24762c9
