@@ -69,11 +69,10 @@ You can access all lecture notes, assignments, videos, and exercises online thro
          <tr>
             <th rowspan = "2"; style="text-align:center">Date</th>
             <th rowspan = "2"; style="text-align:center">lesson</th>
-            <th colspan = "4"; style="text-align:center">materials</th>
+            <th colspan = "3"; style="text-align:center">materials</th>
          </tr>
          <tr>
             <th style="text-align:center">lecture notes</th>
-            <th style="text-align:center">exercises</th>
             <th style="text-align:center">assignments</th>
             <th style="text-align:center">video recordings</th>
          </tr>
@@ -83,14 +82,12 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             ⚪️ B1: Machine Learning Overview</td>
             <td><a href="https://bmlip.github.io/course/lectures/Course%20Syllabus.html">B0</a>, <a href="https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html">B1</a></td>
             <td></td>
-            <td></td>
             <td> <a href="https://youtu.be/GtukVrtcXe8">B0</a>,  <a href="https://youtu.be/mPc3j7XgZHM">B1</a></td>
          </tr>
          <tr>
             <td>14-Nov-2025 <em>(Fri)</em></td>
             <td>⚪️ B2: Probability Theory Review</td>
             <td><a href="https://bmlip.github.io/course/lectures/Probability%20Theory%20Review.html">B2</a></td>
-            <td></td>
             <td></td>
             <td><a href="https://youtu.be/PGbN5rv6HL4">B2.1</a>, <a href="https://youtu.be/LKh2ypFVGwY">B2.2</a></td>
          </tr>
@@ -99,14 +96,12 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B3: Bayesian Machine Learning</td>
             <td><a href="https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html">B3</a></td>
             <td></td>
-            <td></td>
             <td> <a href="https://youtu.be/OPGrqnnEfU0">B3.1</a>, <a href="https://youtu.be/BOUmzY1Nx5g">B3.2</a> </td>
          </tr>
          <tr>
             <td >21-Nov-2025 <em>(Fri)</em></td>
             <td >⚪️ B4: Factor Graphs and the Sum-Product Algorithm</td>
             <td><a href="https://bmlip.github.io/course/lectures/Factor%20Graphs.html">B4</a></td>
-             <td></td>
              <td></td>
              <td><a href="https://youtu.be/C2vvsf_Ts2g">B4.1</a>, <a href="https://youtu.be/HbUuYBMZOKw">B4.2</a></td>
          </tr>
@@ -116,12 +111,10 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td><a href="http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/Julia-Programming.ipynb">W0</a></td>
             <td></td>
             <td></td>
-            <td></td>
          </tr>
          <tr>
             <td>28-Nov-2025 <em>(Fri)</em></td>
             <td>🔴 Pick-up Julia programming assignment A0</td>
-            <td></td>
             <td></td>
             <td>
             <a href="https://github.com/bmlip/course/blob/main/assignments/%5B5SSD0%5D%20Julia%20programming%20assignment.zip">A0</a>
@@ -133,7 +126,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B5: Continuous Data and the Gaussian Distribution</td>
             <td><a href="https://bmlip.github.io/course/lectures/The%20Gaussian%20Distribution.html">B5</a></td>
             <td></td>
-            <td></td>
             <td> <a href="https://youtu.be/WS6gWO5vgtc">B5.1</a>, <a href="https://youtu.be/Ma3jXNbNCyc">B5.2 </a> </td>
          </tr>
          <tr>
@@ -141,20 +133,17 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B6: Discrete Data and the Multinomial Distribution</td>
             <td><a href="https://bmlip.github.io/course/lectures/The%20Multinomial%20Distribution.html">B6</a></td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/vyh8RvXxnT8">B6</a> </td>
          <tr >
             <td>05-Dec-2025 <em>(Fri)</em></td>
             <td>🟢 Probabilistic Programming 1 - Bayesian inference with conjugate models</td>
             <td><a href="https://bmlip.github.io/course/probprog/PP1%20-%20Bayesian%20inference%20in%20conjugate%20models.html">W1</a></td>
             <td></td>
-            <td></td>
             <td> <a href="https://youtu.be/ynfvgtjOnqo">W1.1</a>, <a href="https://youtu.be/h9nODl50m_M">W1.2 </a> </td>
                      </tr>
           <tr>
             <td>05-Dec-2025</td>
             <td>🔴 Submission deadline assignment A0</td>
-            <td></td>
             <td></td>
             <td><a href="mailto:w.m.kouw@tue.nl?subject=Julia programming assignment">submit</a>
             </td>
@@ -164,7 +153,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
          <tr>
             <td>05-Dec-2025</td>
             <td>🔴 Pick-up probabilistic programming assignment A1</td>
-            <td></td>
             <td></td>
             <td>
             <a href="https://github.com/bmlip/course/blob/main/assignments/%5B5SSD0%5D%20Probabilistic%20programming%201.zip">A1</a>
@@ -176,7 +164,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B7: Regression</td>
             <td><a href="https://bmlip.github.io/course/lectures/Regression.html">B7</a></td>
             <td></td>
-            <td></td>
             <td> <a href="https://youtu.be/2llpaRSN2Wc">B7.1</a>, <a href="https://youtu.be/TSoYnO6oXhw">B7.2 </a></td>
          </tr>
          <tr>
@@ -185,14 +172,12 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             </td>
             <td><a href="https://bmlip.github.io/course/lectures/Generative%20Classification.html">B8</a>, <a href="https://bmlip.github.io/course/lectures/Discriminative%20Classification.html">B9</a></td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/IzNDzIcrhLA">B8</a>, <a href="https://youtu.be/Y7q0JQKNfjM">B9</a></td>
          </tr>
          <tr>
             <td>17-Dec-2025 <em>(Wed)</em></td>
             <td>🟢 Probabilistic Programming 2 - Bayesian regression & classification</td>
             <td><a href="http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/probprog/Probabilistic-Programming-2.ipynb">W2</a></td>
-            <td></td>
             <td></td>
             <td><a href="https://youtu.be/TKvI5uUYY8A">W2.1</a>, <a href="https://youtu.be/WCtInHz5-zA">W2.2</a></td>
          </tr>
@@ -201,13 +186,11 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B10: Latent Variable Models and Variational Bayes</td>
             <td><a href="https://bmlip.github.io/course/lectures/Latent%20Variable%20Models%20and%20VB.html">B10</a></td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/pVWdm9fQT6Y">B10.1</a>, <a href="https://youtu.be/mg9HGykqEbw">B10.2</a></td>
          </tr>
          <tr>
             <td>19-Dec-2025</td>
             <td>🔴 Submission deadline assignment A1</td>
-            <td></td>
             <td></td>
             <td><a href="mailto:w.m.kouw@tue.nl?subject=Programming assignment 1">submit</a>
             <!---
@@ -224,7 +207,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>🟢 Probabilistic Programming 3 - Variational Bayesian inference</td>
             <td><a href="https://bmlip.github.io/course/probprog/PP3%20-%20variational%20Bayesian%20inference.html">W3</a></td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/z_hKaRqpNQM">W3.1</a>, <a href="https://youtu.be/FLKbzyiQlLo">W3.2</a></td>
          </tr>
          <tr>
@@ -233,13 +215,11 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B11: Dynamic Models</td>
             <td><a href="https://bmlip.github.io/course/lectures/Dynamic%20Models.html">B11</a></td>
             <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Dynamic-Models.ipynb">B11-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Dynamic-Models.ipynb">B11-sol</a></td>
-            <td></td>
             <td><a href="https://youtu.be/W1AkZJAjvqI">B11</a></td>
          </tr>
          <tr>
             <td>09-Jan-2026</td>
             <td>🔴 Pick-up probabilistic programming assignment A2</td>
-            <td></td>
             <td></td>
             <td>
             <a href="https://github.com/bmlip/course/blob/main/assignments/%5B5SSD0%5D%20Probabilistic%20programming%202.zip">A2</a>
@@ -251,7 +231,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>⚪️ B12: Intelligent Agents and Active Inference</td>
             <td><a href="https://bmlip.github.io/course/lectures/Intelligent%20Agents%20and%20Active%20Inference.html">B12,</a><br/> <a href="https://github.com/bmlip/course/blob/main/assets/files/BdV-Jan2024-Natural-Artificial-Intelligence.ppsx">slides</a> </td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/fBm1oAzlv0w">B12.1</a>,  <a href="https://youtu.be/UbOuLxv9EdI">B12.2</a> </td>
          </tr>
          <tr>
@@ -259,13 +238,11 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>🟢 Probabilistic Programming 4 - Bayesian filters & smoothers</td>
             <td><a href="http://nbviewer.jupyter.org/github/bertdv/BMLIP/blob/master/lessons/notebooks/probprog/Probabilistic-Programming-4.ipynb">W4</a></td>
             <td></td>
-            <td></td>
             <td><a href="https://youtu.be/Yp2vhndnjng">W4.1</a>, <a href="https://youtu.be/qnWofDRh5eo">W4.2</a></td>
          </tr>
          <tr>
             <td>23-Jan-2026 <em>(Fri)</em></td>
             <td>🔴 Submission deadline assignment A2</td>
-            <td></td>
             <td></td>
             <td><a href="mailto:w.m.kouw@tue.nl?subject=Programming assignment 2">submit</a>
             <!---
@@ -282,7 +259,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td> - </td>
             <td>🔴 Pick-up resit programming assignment</td>
             <td></td>
-            <td></td>
             <td><a href="https://github.com/bmlip/course/blob/main/assignments/%5B5SSD0%5D%20Probabilistic%20programming%20resit.zip">download</a>
             </td>
             <td></td>
@@ -290,7 +266,6 @@ You can access all lecture notes, assignments, videos, and exercises online thro
          <tr>
             <td> - </td>
             <td>🔴 Submission deadline resit assignment</td>
-            <td></td>
             <td></td>
             <td><a href="mailto:w.m.kouw@tue.nl?subject=5SSD0_Programming assignment resit">submit</a>
             </td>
