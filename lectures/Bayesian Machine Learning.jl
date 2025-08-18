@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.15
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
@@ -1594,7 +1594,7 @@ Distributions = "~0.25.119"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
 PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.69"
+PlutoUI = "~0.7.70"
 SpecialFunctions = "~2.5.1"
 StatsPlots = "~0.15.7"
 """
@@ -1603,9 +1603,9 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "abd58c9f6700767f652d81b5f75ddf0c01e33a11"
+project_hash = "0f2bb960d16a7f620f0cb1fdaf5628d4ef89335d"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -2317,7 +2317,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -2426,9 +2426,9 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "2d7662f95eafd3b6c346acdbfc11a762a2256375"
+git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.69"
+version = "0.7.70"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
