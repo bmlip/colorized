@@ -702,20 +702,7 @@ The **Gaussian Distribution** is very common in science! What makes this distrib
 """
 
 # ╔═╡ 0dd88110-b7c6-11ef-0b82-2ffe13a68cad
-md"""
-### Example: Gaussian Signals in a Linear System
 
-<p style="text-align:center;"><img src="./figures/fig-linear-system.png" width="400px"></p>
-
-Given independent variables
-
-```math
-x \sim \mathcal{N}(\mu_x,\sigma_x^2)
-```
-
-and ``y \sim \mathcal{N}(\mu_y,\sigma_y^2)``, what is the PDF for ``z = A\cdot(x -y) + b`` ? (for answer, see [Exercises](https://github.com/bmlip/course/tree/main/exercises/Exercises-The-Gaussian-Distribution.ipynb))
-
-"""
 
 # ╔═╡ 0dd88a84-b7c6-11ef-133c-3d85f0703c19
 md"""

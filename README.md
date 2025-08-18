@@ -214,7 +214,7 @@ You can access all lecture notes, assignments, videos, and exercises online thro
             <td>09-Jan-2026 <em>(Fri)</em></td>
             <td>⚪️ B11: Dynamic Models</td>
             <td><a href="https://bmlip.github.io/course/lectures/Dynamic%20Models.html">B11</a></td>
-            <td><a href="https://github.com/bmlip/course/blob/main/exercises/Exercises-Dynamic-Models.ipynb">B11-ex</a><br/> <a href="https://github.com/bmlip/course/blob/main/exercises/Solutions-Dynamic-Models.ipynb">B11-sol</a></td>
+            <td></td>
             <td><a href="https://youtu.be/W1AkZJAjvqI">B11</a></td>
          </tr>
          <tr>
