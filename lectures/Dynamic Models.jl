@@ -839,7 +839,7 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
-BmlipTeachingTools = "~1.0.0"
+BmlipTeachingTools = "~1.1.0"
 Distributions = "~0.25.118"
 Images = "~0.26.1"
 LaTeXStrings = "~1.4.0"
@@ -1019,9 +1019,9 @@ version = "1.7.0"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

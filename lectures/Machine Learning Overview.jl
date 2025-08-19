@@ -316,7 +316,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 
 [compat]
-BmlipTeachingTools = "~1.0.0"
+BmlipTeachingTools = "~1.1.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -347,9 +347,9 @@ version = "1.11.0"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]

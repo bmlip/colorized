@@ -1586,7 +1586,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
-BmlipTeachingTools = "~1.0.0"
+BmlipTeachingTools = "~1.1.0"
 Distributions = "~0.25.119"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
@@ -1673,9 +1673,9 @@ version = "0.1.9"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

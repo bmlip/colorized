@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-linear-system.png?raw=true"
@@ -36,20 +36,8 @@ using BmlipTeachingTools
 # ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
 using Distributions, Plots, LaTeXStrings
 
-# ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
-begin
-  using SpecialFunctions
-  let
-	X = Normal(0, 1)
-	Y = Normal(0, 1)
-	pdf_product_std_normals(z::Real) = besselk(0, abs(z))/π
-	
-	range1 = range(-4,stop=4,length=100)
-	plot(range1, t -> pdf(X, t); label=L"p(X)=p(Y)=\mathcal{N}(0,1)", fill=(0, 0.1))
-	plot!(range1, t -> pdf(X,t)*pdf(Y,t); label=L"p(X)*p(Y)", fill=(0, 0.1))
-	plot!(range1, pdf_product_std_normals; label=L"p(Z=X*Y)", fill=(0, 0.1))
-  end
-end
+# ╔═╡ 00482666-0772-4e5d-bb35-df7b6fb67a1b
+using SpecialFunctions
 
 # ╔═╡ b9a38e20-d294-11ef-166b-b5597125ed6d
 title("Continuous Data and the Gaussian Distribution")
@@ -83,7 +71,7 @@ md"""
 """
 
 # ╔═╡ 82025c2f-a21f-4080-b301-3ffe3715442d
-BmlipTeachingTools.challenge_statement("Classify a Gaussian Sample" , color= "red" )
+challenge_statement("Classify a Gaussian Sample" , color= "red" )
 
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
@@ -1720,6 +1708,18 @@ We plot ``p(Z=XY)`` and ``p(X)p(Y)`` for ``X\sim\mathcal{N}(0,1)`` and ``Y \sim 
 """
 
 
+# ╔═╡ b9abf984-d294-11ef-1eaa-3358379f8b44
+let
+	X = Normal(0, 1)
+	Y = Normal(0, 1)
+	pdf_product_std_normals(z::Real) = besselk(0, abs(z))/π
+	
+	range1 = range(-4,stop=4,length=100)
+	plot(range1, t -> pdf(X, t); label=L"p(X)=p(Y)=\mathcal{N}(0,1)", fill=(0, 0.1))
+	plot!(range1, t -> pdf(X,t)*pdf(Y,t); label=L"p(X)*p(Y)", fill=(0, 0.1))
+	plot!(range1, pdf_product_std_normals; label=L"p(Z=X*Y)", fill=(0, 0.1))
+end
+
 # ╔═╡ b9ac09c4-d294-11ef-2cb8-270289d01f25
 md"""
 In short, Gaussian-distributed variables remain Gaussian in linear systems, but this is not the case in non-linear systems. 
@@ -1730,9 +1730,6 @@ In short, Gaussian-distributed variables remain Gaussian in linear systems, but 
 md"""
 # Code
 """
-
-# ╔═╡ 00482666-0772-4e5d-bb35-df7b6fb67a1b
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1747,7 +1744,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-BmlipTeachingTools = "~1.0.0"
+BmlipTeachingTools = "~1.1.0"
 Distributions = "~0.25.120"
 HCubature = "~1.7.0"
 LaTeXStrings = "~1.4.0"
@@ -1761,7 +1758,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "d8704325068420080ca34f0e3ce5631c3f1790d4"
+project_hash = "07a127c4fa2593ca07bbc3eec98e4cf0edebbb0c"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1794,9 +1791,9 @@ version = "0.1.9"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1947,9 +1944,9 @@ version = "0.1.11"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
+git-tree-sha1 = "7bb1361afdb33c7f2b085aa49ea8fe1b0fb14e58"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.6.5+0"
+version = "2.7.1+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -2121,9 +2118,9 @@ version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
+git-tree-sha1 = "e95866623950267c1e4878846f848d94810de475"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.1.1+0"
+version = "3.1.2+0"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
