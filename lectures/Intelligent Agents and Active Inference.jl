@@ -16,13 +16,10 @@ using InteractiveUtils
 using LinearAlgebra, Plots, RxInfer
 
 # ╔═╡ 97a0384a-0596-4714-a3fc-bf422aed4474
-using PlutoUI, PlutoTeachingTools, HypertextLiteral
+using BmlipTeachingTools
 
 # ╔═╡ 278382c0-d294-11ef-022f-0d78e9e2d04c
-md"""
-# Intelligent Agents and Active Inference
-
-"""
+title("Intelligent Agents and Active Inference")
 
 # ╔═╡ 9fbae8bf-2132-4a9a-ab0b-ef99e1b954a4
 PlutoUI.TableOfContents()
@@ -81,7 +78,7 @@ In this lesson, we will describe how **goal-directed behavior** by biological (a
 """
 
 # ╔═╡ aed436fd-6773-4932-a5d8-d01cf99c10ec
-section_outline("Challenge:", "The Mountain Car Problem", color="red")
+challenge_statement("The Mountain Car Problem", color="red")
 
 # ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
 md"""
@@ -426,7 +423,7 @@ md"""
 """
 
 # ╔═╡ 64474167-bf52-456c-9099-def288bd17bf
-section_outline("Challenge Revisited:", "The Mountain Car Problem", color="green")
+challenge_solution("The Mountain Car Problem", color="green")
 
 # ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
 md"""
@@ -921,20 +918,16 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 HypergeometricFunctions = "~0.3.28"
-HypertextLiteral = "~0.9.5"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.62"
 RxInfer = "~4.4.2"
 """
 
@@ -944,7 +937,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "c4b2d1b6d8a28da3218c10c86ea67db9c8a9342c"
+project_hash = "f58e5307e6a89686f632ef82f9f537f006df12b1"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -1084,6 +1077,12 @@ version = "1.7.0"
     [deps.BlockArrays.weakdeps]
     Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
     BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

@@ -30,10 +30,7 @@ using Plots, LaTeXStrings
 using Distributions
 
 # ╔═╡ b305a905-06c2-4a15-8042-72ef6375720f
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 7910a84c-18b3-4081-9f01-e59258a01adb
-using HypertextLiteral
+using BmlipTeachingTools
 
 # ╔═╡ 42b47af6-b850-4987-a2d7-805a2cb64e43
 # The Disease Diagnosis example uses a combination of:
@@ -46,10 +43,7 @@ using MarkdownLiteral: @mdx
 using Printf
 
 # ╔═╡ 3e17df5e-d294-11ef-38c7-f573724871d8
-md"""
-# Probability Theory Review
-
-"""
+title("Probability Theory Review")
 
 # ╔═╡ bcb4be20-0439-4809-a166-8c50b6b9206b
 PlutoUI.TableOfContents()
@@ -116,7 +110,7 @@ In this lesson we introduce *Probability Theory* (PT) again. As we will see in t
 
 # ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
 md"""
-$(section_outline("Challenge:", "Disease Diagnosis"))
+$(challenge_statement("Disease Diagnosis"))
 
 ##### Problem
   - Given is a disease with a prevalence of 1%  and a test procedure with sensitivity ('true positive' rate) of 95%, and specificity ('true negative' rate) of 85%. What is the chance that somebody who tests positive actually has the disease?
@@ -528,7 +522,7 @@ This rule is called the [law of total probability](https://en.wikipedia.org/wiki
 """
 
 # ╔═╡ 5377c5a4-77c4-4fa7-9f84-0c511e3bf708
-details("Click for proof", 
+hide_proof( 
 	   md"""
 		```math
 \begin{align*}
@@ -742,7 +736,7 @@ md"""
 # ╔═╡ 3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
 md"""
 
-$(section_outline("Code Example:", "Sampling Distribution and Likelihood Function for the Coin Toss"))
+$(code_example("Sampling Distribution and Likelihood Function for the Coin Toss"))
 
 
 Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
@@ -813,7 +807,7 @@ $(section_outline("Inference Exercise:", "Which color has the ball?"))
 """
 
 # ╔═╡ 4c639e65-e06b-4c5e-b6e7-aabed6b6c0b4
-details("Click for solution", 
+hide_solution( 
 	   md"""
 There are two hypotheses: let ``H = 0`` mean that the original ball in the bag was white and ``H = 1`` that it was black. Assume the prior probabilities are equal, i.e.,
 ```math
@@ -860,7 +854,7 @@ $(section_outline("Inference Exercise:", "Causality?"))
 """
 
 # ╔═╡ 727dc817-0284-4c0f-9a92-21dcbea50807
-details("Click for solution", 
+hide_solution( 
 md"""
 
 (a) ``p(S_1=R) = \frac{N_\text{red}}{N_\text{red}+N_\text{green}} = \frac{5}{12}``
@@ -887,7 +881,7 @@ keyconcept("", md"Probabilities describe beliefs (a ''state of knowledge''), rat
 # ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
 ## Revisiting the Challenge: Disease Diagnosis
 md"""
-$(section_outline("Revisiting the Challenge:", "Disease Diagnosis"; big=true, header_level=2))
+$(challenge_solution("Disease Diagnosis"; big=true))
 
 ##### Problem 
 
@@ -938,7 +932,7 @@ The **covariance** matrix between *vectors* ``x`` and ``y`` is a mixed central m
 
 Clearly, if ``x`` and ``y`` are independent, then ``\Sigma_{xy} = 0``, since in that case ``\mathbb{E}[x y^T] = \mathbb{E}[x] \mathbb{E}[y^T] = \mu_x \mu_y^T``.
 
-Home exercise: Proof that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T = B^TA^T``).
+Home exercise: Prove that ``\Sigma_{xy} = \Sigma_{yx}^{T}`` (making use of ``(AB)^T = B^TA^T``).
 
 """
 
@@ -965,7 +959,7 @@ No matter the specification of ``p(X)``, the mean and covariance matrix for ``Z`
 """
 
 # ╔═╡ d2202628-e4f9-4289-b48e-23b5a0073f94
-details("Click for proof",
+hide_proof(
 md"""
 Let ``\mathbb{E}[\cdot]`` refer to the expectation (mean) operator. By linearity of expectation and the fact that ``A`` and ``b`` are constants,
 ```math 
@@ -985,7 +979,7 @@ For the covariance matrix,
 )
 
 # ╔═╡ 58f70d3e-4b64-414e-b560-327be2a0c4c2
-section_outline("Exercise:", "The PDF for the Sum of Two Variables")
+exercise_statement("The PDF for the Sum of Two Variables")
 
 # ╔═╡ 3e1ea442-d294-11ef-1364-8dd9986325f7
 md"""
@@ -1002,7 +996,7 @@ where ``\Sigma_{yx} = \Sigma_{xy}^T``.
 """
 
 # ╔═╡ 6d07be25-53d0-46b9-b197-a3680d830952
-details("Click for solution",
+hide_solution(
 md"""
 Define ``A = \begin{pmatrix} I & I \end{pmatrix}`` and ``w = \begin{pmatrix} x \\ y \end{pmatrix}``, where ``I`` is the identity matrix. Then 
 ```math
@@ -1083,7 +1077,7 @@ NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.ht
 
 # ╔═╡ 3e1f225a-d294-11ef-04c6-f3ca018ab286
 md"""
-$(section_outline("Code Example:", "Sum of Two Gaussian-distributed Variables"; big=true, header_level=2))  
+$(code_example("Sum of Two Gaussian-distributed Variables"; big=true, header_level=2))  
 
 Consider two independent Gaussian-distributed variables ``X`` and ``Y`` (see [wikipedia normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) for definition of a Gaussian (=Normal) distribution):
 
@@ -1193,7 +1187,7 @@ P_y(y) = P_x(g(y))\,.
 """
 
 # ╔═╡ 3e1f8e48-d294-11ef-0f8a-b58294a8543d
-details("Click for proof",
+hide_proof(
 md"""
 ```math		
 P_y(\hat{y}) = P(y=\hat{y}) = P(h(x)=\hat{y}) = P(x=g(\hat{y})) = P_x(g(\hat{y})) \,.
@@ -1213,7 +1207,7 @@ which is also known as the [Change-of-Variable theorem](https://en.wikipedia.org
 """
 
 # ╔═╡ 50bdc2fe-f48d-4c4e-8b4e-170782681366
-details("Click for proof",
+hide_proof(
 md"""
 We assume again that ``y = h(x)`` is a one-to-one function with ``x = g(y) = h^{-1}(y)``. Let ``a=g(c)`` and ``b=g(d)``. Then
 
@@ -1241,7 +1235,7 @@ If the transformation ``y=h(x)`` is not invertible, then ``x=g(y)`` does not exi
 
 # ╔═╡ 3e1fb370-d294-11ef-1fb6-63a41a024691
 md"""
-$(section_outline("Exercise:", "Transformation of a Gaussian Variable"; big=true, header_level=2))  
+$(exercise_statement("Transformation of a Gaussian Variable"; big=true, header_level=2))  
 
 ##### Problem
 
@@ -1251,7 +1245,7 @@ Evaluate ``p_y(y)`` as a Gaussian distribution.
 """
 
 # ╔═╡ 317707a3-9ef1-4c67-b451-6adcfcff50f0
-details("Click for solution",
+hide_solution(
 md"""
 Note that ``h(x)`` is invertible with ``x = g(y) = \sigma y + \mu``. The change-of-variable formula leads to
 
@@ -1343,7 +1337,7 @@ hint(
 )
 
 # ╔═╡ 3b1b0869-b815-4697-9dba-3c4b4cb5ac47
-details("Click for solution", 
+hide_solution( 
 md"""
 ```math
 \begin{align}
@@ -1373,7 +1367,7 @@ Box 1 contains 8 apples and 4 oranges. Box 2 contains 10 apples and 2 oranges. B
 """
 
 # ╔═╡ 5613e9b7-ff0d-435a-9de6-aaf293ebf592
-details("Click for solution",
+hide_solution(
 md"""
 The following probabilities are given in the problem statement,
 ```math
@@ -1401,7 +1395,7 @@ Is a speech signal a "probabilistic" (random) or a deterministic signal?
 """
 
 # ╔═╡ 66ebe33c-8360-4938-9b51-625e5bed176c
-details("Click for solution",
+hide_solution(
 md"""
 That depends. The term “probabilistic” refers to a state-of-knowledge (or beliefs) about something—in this case, about the values of a speech signal. The key point is that the signal itself is neither inherently probabilistic nor deterministic; these labels describe our knowledge about it.
 
@@ -1418,7 +1412,7 @@ md"""
 """
 
 # ╔═╡ 91dd40f0-c373-48b3-b83b-6e8df2c43e5a
-details("Click for solution",
+hide_solution(
 md"""
 We use variables ``S_1 \in \{\text{t},\text{f}\}`` and ``S_2 \in \{\text{y},\text{n}\}`` for statements 1 and 2 and shorthand "y", "n", "t" and "f" for "yes", "no", "true" and "false", respectively. The problem statement provides us with the following probabilities,
 ```math		
@@ -1448,7 +1442,7 @@ When considering the distribution ``p(D|\theta)``, is it more correct to speak a
 """
 
 # ╔═╡ d3b003c6-70ca-419f-a343-e35b266323f3
-details("Click for solution",
+hide_solution(
 md"""
 Yes, it’s more correct to speak about the likelihood of the model parameters, not of the observed data set. Once ``D`` has been observed, it is no longer a random variable; it’s just a fixed outcome. What varies is ``\theta``, so ``L(\theta) = p(D|\theta)`` is a function of the parameters, not of the data.
 
@@ -1459,6 +1453,9 @@ Saying “likelihood of the data” is misleading because it confuses likelihood
 md"""
 # Appendix
 """
+
+# ╔═╡ 7910a84c-18b3-4081-9f01-e59258a01adb
+
 
 # ╔═╡ 70d79732-0f55-40ba-929d-fba431318848
 md"""
@@ -1498,23 +1495,19 @@ Many people have trouble distinguishing ``p(A|B)`` from ``p(B|A)`` in their head
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.120"
-HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 MarkdownLiteral = "~0.1.2"
 Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.2"
-PlutoUI = "~0.7.68"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1523,7 +1516,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "8762d7a94d1973a2d37e08d665972f0ad8b8f4de"
+project_hash = "7b4461a6af820173caf56df9fa1f688e38ce8abb"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1553,6 +1546,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

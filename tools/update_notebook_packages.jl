@@ -27,7 +27,7 @@ end
 
 all_files_recursive = [getfrom("lectures")..., getfrom("minis")...]
 
-all_notebooks = filter(Pluto.is_pluto_notebook, all_files_recursive)
+all_notebooks = filter!(Pluto.is_pluto_notebook, all_files_recursive)
 
 level = getfield(Pkg, Symbol("UPLEVEL_$(ARGS[1])"))
 

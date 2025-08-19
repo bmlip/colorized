@@ -31,7 +31,7 @@ using HCubature, LinearAlgebra# Numerical integration package
 using Random
 
 # ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 3ec821fd-cf6c-4603-839d-8c59bb931fa9
 using Distributions, Plots, LaTeXStrings
@@ -51,14 +51,8 @@ begin
   end
 end
 
-# ╔═╡ 00482666-0772-4e5d-bb35-df7b6fb67a1b
-using HypertextLiteral
-
 # ╔═╡ b9a38e20-d294-11ef-166b-b5597125ed6d
-md"""
-# Continuous Data and the Gaussian Distribution
-
-"""
+title("Continuous Data and the Gaussian Distribution")
 
 # ╔═╡ 5e9a51b1-c6e5-4fb5-9df3-9b189f3302e8
 PlutoUI.TableOfContents()
@@ -89,7 +83,7 @@ md"""
 """
 
 # ╔═╡ 82025c2f-a21f-4080-b301-3ffe3715442d
-section_outline("Challenge:", "Classify a Gaussian Sample" , color= "red" )
+challenge_statement("Classify a Gaussian Sample" , color= "red" )
 
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
@@ -252,7 +246,7 @@ md"""
 
 A commonly occurring example of a linear transformation is the *sum of two independent Gaussian variables*:
 
-Let ``x \sim \mathcal{N} \left(\mu_x, \sigma_x^2 \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \sigma_y^2 \right)``. Proof that the PDF for ``z=x+y`` is given by
+Let ``x \sim \mathcal{N} \left(\mu_x, \sigma_x^2 \right)`` and ``y \sim \mathcal{N} \left(\mu_y, \sigma_y^2 \right)``. Prove that the PDF for ``z=x+y`` is given by
 
 ```math
 p(z) = \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 \right) \tag{SRG-8}
@@ -262,7 +256,7 @@ p(z) = \mathcal{N} \left(z\,|\,\mu_x+\mu_y, \sigma_x^2 +\sigma_y^2 \right) \tag{
 """
 
 # ╔═╡ 36eff7bc-72f2-4b48-a109-1861af6834aa
-details("Click for proof",
+hide_proof(
 md"""	   
 First, recognize that ``z=x+y`` can be written as a linear transformation ``z=A w``, where
 ```math
@@ -388,7 +382,7 @@ Let us derive the maximum likelihood estimates for the parameters ``\mu`` and ``
 md"""
 
 ##### Evaluation of log-likelihood function
-Let ``\theta =\{\mu,\Sigma\}``. Proof that the log-likelihood (LLH) function ``\log p(D|\theta)`` can be worked out to
+Let ``\theta =\{\mu,\Sigma\}``. Prove that the log-likelihood (LLH) function ``\log p(D|\theta)`` can be worked out to
 
 ```math
 \log p(D|\theta) =
@@ -416,7 +410,7 @@ details("click to see proof",
 md"""
 ##### Maximum likelihood estimate of mean
 
-Proof that the maximum likelihood estimate of the mean is given by
+Prove that the maximum likelihood estimate of the mean is given by
 ```math
 \hat{\mu} = \frac{1}{N}\sum_n x_n \,.
 ```
@@ -675,7 +669,7 @@ NotebookCard("https://bmlip.github.io/course/minis/Distributions%20in%20Julia.ht
 
 # ╔═╡ b9a7073a-d294-11ef-2330-49ffa7faff21
 md"""
-$(section_outline("Code Example:", "Product of Two Gaussian PDFs"))
+$(code_example("Product of Two Gaussian PDFs"))
 
 Let's plot the exact product of two Gaussian PDFs as well as the normalized product according to the above derivation.
 """
@@ -759,7 +753,7 @@ As an exercise, interpret the formula for the conditional mean (``\mathbb{E}[y|x
 
 # ╔═╡ b9a9565c-d294-11ef-1b67-83d1ab18035b
 md"""
-$(section_outline("Code Example:", "Joint, Marginal, and Conditional Gaussian Distributions"))
+$(code_example("Joint, Marginal, and Conditional Gaussian Distributions"))
 
 Let's plot the joint, marginal, and conditional distributions for some Gaussians.
 
@@ -940,7 +934,7 @@ Note that uncertainty about ``x_{N+1}`` involves both uncertainty about the para
 """
 
 # ╔═╡ 922f0eb6-9e29-4b6c-9701-cb7b2f07bb7a
-details("Click for solution",
+hide_solution(
 md"""
 ```math
 \begin{align*}
@@ -961,7 +955,7 @@ and transition ``2`` derives from using the multiplication rule for Gaussians.
 """)
 
 # ╔═╡ 9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
-section_outline("Challenge Revisited:", "Classify a Gaussian Sample", header_level=2, color="red")
+challenge_solution("Classify a Gaussian Sample", header_level=2, color="red")
 
 # ╔═╡ b9ac2d3c-d294-11ef-0d37-65a65525ad28
 md"""
@@ -1008,7 +1002,7 @@ To determine the MLE of ``\mu`` as a special case of Bayesian inference, we let 
 """
 
 # ╔═╡ 0d303dba-51d4-4413-8001-73ed98bf74df
-details("Click for proof",
+hide_proof(
 md"""
 ```math
 \begin{align}
@@ -1034,7 +1028,7 @@ md"""
 
 Having an expression for the maximum likelihood estimate, it is now possible to rewrite the (Bayesian) posterior mean for ``\mu`` as the combination of a prior-based prediction and likelihood-based (data-based) correction. 
 
-Proof that 
+Prove that 
 
 ```math
 \underbrace{\mu_N}_{\substack{\text{posterior} \\ \text{mean}}}= \overbrace{\underbrace{\mu_0}_{\substack{\text{prior} \\ \text{mean}}}}^{\substack{\text{prior-based} \\ \text{prediction}}} + \overbrace{\underbrace{\frac{N \sigma_0^2}{N \sigma_0^2 + \sigma^2}}_{\text{gain}}\cdot \underbrace{\left(\mu_{\text{ML}} - \mu_0 \right)}_{\text{prediction error}}}^{\text{data-based correction}}\tag{B-2.141}
@@ -1044,7 +1038,7 @@ Proof that
 """
 
 # ╔═╡ d05975bb-c5cc-470a-a6f3-60bc43c51e89
-details("Click for proof", 
+hide_proof( 
 md"""		
 ```math
 \begin{align*}
@@ -1167,7 +1161,7 @@ Recursive Bayesian estimation as discussed here is the basis for **adaptive sign
 
 # ╔═╡ b9ab2e32-d294-11ef-2ccc-9760ead59972
 md"""
-$(section_outline("Code Example:", "Kalman Filtering"))
+$(code_example("Kalman Filtering"))
 
 Let's implement the Kalman filter described above. We'll use it to recursively estimate the value of ``\theta`` based on noisy observations.
 
@@ -1331,7 +1325,7 @@ md"""
 """
 
 # ╔═╡ f711b053-dccf-4bf1-b285-e8da94a48b68
-details("Click for solution",
+hide_solution(
 md"""
 
 - (a) Evaluate the outgoing message ``\overrightarrow{\mu}_{Z}(z)``. 
@@ -1407,7 +1401,7 @@ We assume that ``\sigma`` has a known value and are interested in deriving an es
 """
 
 # ╔═╡ fa197526-6706-47ce-b84b-5675eee00610
-details("Click for solution",
+hide_solution(
 md"""
 - (a) Derive the Bayesian (posterior) estimate ``p(A|D)``.   
 
@@ -1487,7 +1481,7 @@ p(z) = p\left(\begin{bmatrix} x \\ \theta \end{bmatrix}\right) = \mathcal{N} \le
 """
 
 # ╔═╡ 03c399e1-d0d8-493a-9f95-4209918d132a
-details("Click for solution",
+hide_solution(
 md"""
 Let's first compute the moments for the marginals ``p(x)`` and ``p(\theta)``:
 
@@ -1718,7 +1712,7 @@ where  ``\mathrm{K}_n(z)`` is a [modified Bessel function of the second kind](ht
 
 # ╔═╡ b9abdc7e-d294-11ef-394a-a708c96c86fc
 md"""
-$(section_outline("Code Example:", "Product of Gaussian Distributions"))
+$(code_example("Product of Gaussian Distributions"))
 
 
 We plot ``p(Z=XY)`` and ``p(X)p(Y)`` for ``X\sim\mathcal{N}(0,1)`` and ``Y \sim \mathcal{N}(0,1)`` to give an idea of how these distributions differ.
@@ -1737,28 +1731,27 @@ md"""
 # Code
 """
 
+# ╔═╡ 00482666-0772-4e5d-bb35-df7b6fb67a1b
+
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.120"
 HCubature = "~1.7.0"
-HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.4"
-PlutoUI = "~0.7.68"
 SpecialFunctions = "~2.5.1"
 """
 
@@ -1768,7 +1761,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "3af7b7a1e24ddf3753ac4474e9b19716a9f90072"
+project_hash = "d8704325068420080ca34f0e3ce5631c3f1790d4"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1798,6 +1791,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

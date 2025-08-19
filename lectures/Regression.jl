@@ -25,10 +25,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ f8c69b91-4415-454e-a50d-c4a37ada89d1
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 5f00f990-1c7c-4c78-9d86-2dfc88a90a36
-using HypertextLiteral
+using BmlipTeachingTools
 
 # ╔═╡ 33ca4c67-d96f-457f-bc19-171f4b4b03c6
 using LinearAlgebra, Random
@@ -37,10 +34,7 @@ using LinearAlgebra, Random
 using Plots, Distributions, LaTeXStrings
 
 # ╔═╡ 234b77a8-d294-11ef-15d5-ff54ed5bec1e
-md"""
-# Regression
-
-"""
+title("Regression")
 
 # ╔═╡ 66998cd5-78d6-4b22-a9c9-886436cba4dd
 PlutoUI.TableOfContents()
@@ -78,7 +72,7 @@ md"""
 # ╔═╡ 234ba8c2-d294-11ef-36f6-b1f61f65557a
 
 
-section_outline("Challenge:", "Finding a Secret Function" , color= "Red" )
+challenge_statement("Finding a Secret Function" , color= "Red" )
 
 
 
@@ -363,8 +357,7 @@ Then we equate probability masses in both domains:
 keyconcept("", md"This is a satisfying result: for an ordinary linear regression task, with inputs ``x``, outputs ``y``, and weights ``w``, placing a Gaussian prior on the weights ``w`` leads to both a Gaussian posterior over the weights and a Gaussian predictive distribution for the outputs. Importantly, both distributions can be computed in closed form. ")
 
 # ╔═╡ f600c228-e048-42aa-b79a-60592b367dec
-section_outline(
-	"Challenge Revisited:", "Finding a Secret Function" , color= "Green" )
+challenge_solution("Finding a Secret Function" , color= "Green" )
 
 # ╔═╡ c0c57aa6-155a-49a9-9ed2-d568de1b5be2
 md"""
@@ -535,7 +528,7 @@ As an aside, note that the dimension of ``\Lambda`` increases with the number of
 """
 
 # ╔═╡ 691429de-2966-485e-8123-cbcb20c7f218
-section_outline("Code Example:", "Least Squares vs Weighted Least Squares" , color= "Green" )
+code_example("Least Squares vs Weighted Least Squares" , color= "Green" )
 
 # ╔═╡ 234ec962-d294-11ef-1033-7b1599057825
 md"""
@@ -653,7 +646,7 @@ where ``y_n`` is a scalar output, ``f(x_n)`` is an ``M``-dimensional feature vec
 
 - (b) Now derive an expression for the log-likelihood ``\log p(D|\theta)``. 
 
-- (c) Proof that the maximum likelihood estimate for the parameters is given by
+- (c) Prove that the maximum likelihood estimate for the parameters is given by
 
 ```math
 \hat\theta_{\text{ml}} = (F^T F)^{-1}F^Ty \,.
@@ -666,7 +659,7 @@ where ``y_n`` is a scalar output, ``f(x_n)`` is an ``M``-dimensional feature vec
 """
 
 # ╔═╡ d8e384c8-fe26-47c3-a7d4-04ae4c592ee5
-details("Click for solution",
+hide_solution(
 md"""
 - (a) Rewrite the model in matrix form by lumping input features in a matrix ``F=[f(x_1),\ldots,f(x_N)]^T``, outputs and noise in the vectors ``y=[y_1,\ldots,y_N]^T`` and ``e=[e_1,\ldots,e_N]^T``, respectively.     
 
@@ -686,7 +679,7 @@ e &\sim \mathcal{N}(0,\sigma^2 I)
 \end{align*}
 ```
 
-- (c) Proof that the maximum likelihood estimate for the parameters is given by
+- (c) Prove that the maximum likelihood estimate for the parameters is given by
 
 ```math
 \hat\theta_{\text{ml}} = (F^T F)^{-1}F^Ty \,.
@@ -783,6 +776,9 @@ md"""
 # Appendix
 """
 
+# ╔═╡ 5f00f990-1c7c-4c78-9d86-2dfc88a90a36
+
+
 # ╔═╡ 3b2ca3c2-ada2-447f-818d-e3cc7c52facb
 md"""
 # scratchbook (to be removed in final version)
@@ -832,22 +828,18 @@ And some plots of draws of posteriors for the functions ``w^T \phi(x)`` (Bishop,
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.120"
-HypertextLiteral = "~0.9.5"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.4"
-PlutoUI = "~0.7.62"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -856,7 +848,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "9f6ee2c716b3724f3075f719bb750364ee313c5c"
+project_hash = "61c8164fc50937999e83534a3a559f7fe70b536f"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -886,6 +878,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

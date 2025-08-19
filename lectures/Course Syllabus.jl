@@ -12,13 +12,10 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ f96d047f-9efa-4889-8b4e-a8d96677d072
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 0cfd4bc0-d294-11ef-3537-630954a9dd27
-md"""
-# 5SSD0 Course Syllabus
-
-"""
+title("5SSD0 Course Syllabus")
 
 # ╔═╡ 467c8189-b5d3-4eaf-8886-6ae53136dd8f
 PlutoUI.TableOfContents()
@@ -189,12 +186,10 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 
 [compat]
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.70"
+BmlipTeachingTools = "~1.0.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -203,7 +198,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "488f17c0ecac3e1a18f0c355ec86750587e5f38a"
+project_hash = "e635641d8e55b0485ecb2515c1996f4b47f0454e"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -222,6 +217,12 @@ version = "1.11.0"
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 version = "1.11.0"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]

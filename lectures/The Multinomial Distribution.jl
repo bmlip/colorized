@@ -12,13 +12,10 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ d3a4a1dc-3fdf-479d-a51c-a1e23073c556
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ d8422bf2-d294-11ef-0144-098f414c6454
-md"""
-# Discrete Data and the Multinomial Distribution
-
-"""
+title("Discrete Data and the Multinomial Distribution")
 
 # ╔═╡ 1c6d16be-e8e8-45f1-aa32-c3fb08af19ce
 PlutoUI.TableOfContents()
@@ -283,7 +280,7 @@ Proof for yourself that
 """
 
 # ╔═╡ 4482e857-af6b-4459-a0a2-cd7ad57ed94f
-details("Click for proof",
+hide_proof(
 md"""
 ```math
 \begin{align*}
@@ -407,7 +404,7 @@ with probabilities ``p(x_{nk} = 1)=\mu_k``.
 """
 
 # ╔═╡ 01c4c590-fece-49a5-8979-6e0d54f7850a
-details("Click for solution",
+hide_solution(
 md"""
 Derivations are in the lecture notes.        
 		
@@ -449,7 +446,7 @@ Show that
 """
 
 # ╔═╡ 448d0679-b47a-4db9-ad7d-a45786350fef
-details("Click for solution",
+hide_solution(
 md"""
 
 - (a) The probability mass function of a **multinomial distribution** is 
@@ -487,7 +484,7 @@ Show that Laplace's generalized rule of succession can be worked out to a predic
 """
 
 # ╔═╡ 3c2ee96d-18a6-45d0-a2cf-f2ebbf5e22f0
-details("Click for solution",
+hide_solution(
 md"""
 
 ```math
@@ -516,12 +513,10 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 
 [compat]
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.62"
+BmlipTeachingTools = "~1.0.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -530,7 +525,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "ee1f42b0c8046fe5b276d1fd6249db2a2a211573"
+project_hash = "e635641d8e55b0485ecb2515c1996f4b47f0454e"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -549,6 +544,12 @@ version = "1.11.0"
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 version = "1.11.0"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]

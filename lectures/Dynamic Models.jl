@@ -31,13 +31,10 @@ using RxInfer, LinearAlgebra
 using Plots, Distributions, Images, LaTeXStrings
 
 # ╔═╡ e66b2193-87c8-4645-bfcc-643ee006383a
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 27289f68-d294-11ef-37d6-e399ed72a1d0
-md"""
-# Dynamic Models
-
-"""
+title("Dynamic Models")
 
 # ╔═╡ 6107b57e-cda2-46fb-b6f8-bd0e3787516d
 PlutoUI.TableOfContents()
@@ -67,7 +64,7 @@ md"""
 # ╔═╡ 2728b7c8-d294-11ef-06e6-5329a76c16be
 md"""
 
-$(section_outline("Challenge:", "Tracking of Cart Position"; color="red"))
+$(challenge_statement("Tracking of Cart Position"; color="red"))
 
 ##### Problem 
 
@@ -427,7 +424,7 @@ V_t &= \left(I-K_t C \right) P_{t}  \tag{posterior state variance}
 
 # ╔═╡ 272a0d3a-d294-11ef-2537-39a6e410e56b
 md"""
-$(section_outline("Challenge Revisited:", "Tracking of Cart Position"; color="green"))
+$(challenge_solution("Tracking of Cart Position"; color="green"))
 
 ##### Inference by explicit Kalman filtering
 
@@ -562,7 +559,7 @@ Given the Markov property
 p(x_n|x_{n-1},x_{n-2},\ldots,x_1) = p(x_n|x_{n-1}) \tag{A1}
 ```
 
-proof that, for any ``n``,
+Prove that, for any ``n``,
 
 ```math
 \begin{align}
@@ -576,7 +573,7 @@ In statistics and machine learning, the **Markov blanket** of a set of random va
 """
 
 # ╔═╡ e8cab5ea-4906-4c64-b1bb-f33e267762a1
-details("Click for proof",
+hide_proof(
 md"""
 First, we rewrite (A2) as
 
@@ -833,22 +830,20 @@ md"""
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.118"
 Images = "~0.26.1"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.10"
-PlutoTeachingTools = "~0.4.2"
-PlutoUI = "~0.7.68"
 RxInfer = "~4.5.0"
 """
 
@@ -858,7 +853,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "77ae6d4da195960e9acd0b80642cf4dafce8b625"
+project_hash = "c4b417c8923c4c30aabaefeeeef41f3820c5b8c2"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -1021,6 +1016,12 @@ version = "1.7.0"
     [deps.BlockArrays.weakdeps]
     Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
     BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

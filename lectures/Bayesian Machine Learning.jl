@@ -31,13 +31,10 @@ using Distributions, StatsPlots, SpecialFunctions
 using Plots, LaTeXStrings, Plots.PlotMeasures
 
 # ╔═╡ caba8eee-dfea-45bc-a8a7-1dd20a1fa994
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 6a23b828-d294-11ef-371a-05d061144a43
-md"""
-# Bayesian Machine Learning
-
-"""
+title("Bayesian Machine Learning")
 
 # ╔═╡ 6be2e966-4048-44d0-a37e-95060e3fe30b
 PlutoUI.TableOfContents()
@@ -67,7 +64,7 @@ md"""
 
 # ╔═╡ 6a24376c-d294-11ef-348a-e9027bd0ec29
 md"""
-$(section_outline("Challenge:", "Predicting a Coin Toss"))
+$(challenge_statement("Predicting a Coin Toss"))
 
 ##### Problem 
 
@@ -258,7 +255,7 @@ Then, solve the desired inference problem for the posterior over the model ``m_k
 """
 
 # ╔═╡ 74fa1925-0d9f-47f6-a6bd-b822948a4fbc
-details("Proof this yourself, and click for solution",
+details("Prove this yourself, and click for solution",
 md"""
 ```math
 \begin{align} 
@@ -348,7 +345,7 @@ As an aside, in the (statistics and machine learning) literature, performance co
 """
 
 # ╔═╡ 99db44c9-185c-4f39-ae5e-1a4cd751d980
-details("Proof this yourself, and click for solution",
+details("Prove this yourself, and click for solution",
 md"""
 ```math
 \begin{align*}
@@ -400,7 +397,7 @@ p(x|D) = \int \underbrace{p(x|\theta)}_{\substack{\text{data } \\ \text{generati
 """
 
 # ╔═╡ f6ee5570-9b92-42b6-baf3-3eed5352a060
-details("Proof this yourself, and click for solution",
+details("Prove this yourself, and click for solution",
 md"""
 ```math
 \begin{align*}
@@ -518,7 +515,7 @@ md"""
 """ 
 
 # ╔═╡ 6a9ad1c4-dfb2-4987-9ddc-da6131605083
-details("Click for proof", 
+hide_proof(
 md"""
 ```math
 \begin{flalign}
@@ -739,7 +736,7 @@ where ``B(\alpha,\beta) \triangleq \frac{\Gamma(\alpha) \Gamma(\beta)}{\Gamma(\a
 """
 
 # ╔═╡ b426df32-5629-4773-b862-101cfbd82d42
-details("Proof this, and click for solution",
+details("Prove this, and click for solution",
 md"""
 ```math
 \begin{flalign*}
@@ -873,7 +870,7 @@ md"""
 """ 
 
 # ╔═╡ 90f691ad-046c-4595-99b0-19a1d6cb599e
-details("Proof this yourself, and click for solution",
+details("Prove this yourself, and click for solution",
 md"""
 ```math
 \begin{align*}
@@ -902,7 +899,7 @@ For large ``N``, the gain goes to ``1`` and ``\left. p(x_\bullet=1|D)\right|_{N\
 """
 
 # ╔═╡ 6a2abb16-d294-11ef-0243-d376e8a39bb0
-section_outline("Code Example:", "Bayesian Evolution for the Coin Toss")
+code_example("Bayesian Evolution for the Coin Toss")
 
 # ╔═╡ 6a2acb7e-d294-11ef-185c-9d49ce79c31b
 md"""
@@ -1249,7 +1246,7 @@ $(section_outline("Excercises","",header_level=1))
 \,\mathrm{d}{\theta}
 ```
 
-Proof that the Bayes estimate minimizes the mean-squared error, i.e., proof that
+Prove that the Bayes estimate minimizes the mean-squared error, i.e., Prove that
 
 ```math
 \hat \theta_{bayes} = \arg\min_{\hat \theta} \int_\theta (\hat \theta -\theta)^2 p \left( \theta |D \right) \,\mathrm{d}{\theta}
@@ -1257,7 +1254,7 @@ Proof that the Bayes estimate minimizes the mean-squared error, i.e., proof that
 """
 
 # ╔═╡ 7dd9a456-9dca-47c8-98c5-51f87f28e6a4
-details("Click for solution",
+hide_solution(
 md"""
 To minimize the expected mean-squared error we will look for ``\hat{\theta}`` that makes the gradient of the integral with respect to ``\hat{\theta}`` vanish.
 
@@ -1296,7 +1293,7 @@ and a given data set ``D=\{x_1, x_2,\ldots,x_N\}``.
 """
 
 # ╔═╡ 664d4183-edb6-4818-a44b-bf4c0a22a33c
-details("Click for solution",
+hide_solution(
 md"""
 - (a) The likelihood is given by ``p(D|\mu) = \mu^n\cdot (1-\mu)^{(N-n)}``. It follows that
 
@@ -1387,7 +1384,7 @@ Now assume that the model priors are given by
 """
 
 # ╔═╡ de08c2a1-c5e3-4add-8b22-2c633247da48
-details("Click for solutions",
+hide_solution(
 md"""
 - (a) Work out the probability ``p(x=1|m_1)``.    
 
@@ -1581,20 +1578,18 @@ wideq(x) = PlutoUI.ExperimentalLayout.Div([x]; style="min-width: max-content;") 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.119"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.70"
 SpecialFunctions = "~2.5.1"
 StatsPlots = "~0.15.7"
 """
@@ -1605,7 +1600,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "0f2bb960d16a7f620f0cb1fdaf5628d4ef89335d"
+project_hash = "c32aa4de72bf9cb3845a24e6c53ef8abfcfaabe9"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1675,6 +1670,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]

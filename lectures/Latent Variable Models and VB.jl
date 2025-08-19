@@ -16,19 +16,13 @@ using InteractiveUtils
 using LinearAlgebra, PDMats, SpecialFunctions, Random
 
 # ╔═╡ df171940-eb54-48e2-a2b8-1a8162cabf3e
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 58bd0d43-743c-4745-b353-4a89b35e85ba
 using Distributions, Plots, StatsPlots
 
-# ╔═╡ 9d2068d7-db54-460e-930c-b7c3273162ee
-using HypertextLiteral
-
 # ╔═╡ 26c56fd8-d294-11ef-236d-81deef63f37c
-md"""
-# Latent Variable Models and Variational Bayes
-
-"""
+title("Latent Variable Models and Variational Bayes")
 
 # ╔═╡ ce7d086b-ff20-4da1-a4e8-52b5b7dc9e2b
 PlutoUI.TableOfContents()
@@ -59,6 +53,17 @@ md"""
       * Senoz et al. (2021), [Variational Message Passing and Local Constraint Manipulation in Factor Graphs](https://research.tue.nl/nl/publications/variational-message-passing-and-local-constraint-manipulation-in-)
       * Dauwels (2007), [On variational message passing on factor graphs](https://github.com/bmlip/course/blob/main/assets/files/Dauwels-2007-on-variational-message-passing-on-factor-graphs.pdf)
       * Shore and Johnson (1980), [Axiomatic Derivation of the Principle of Maximum Entropy and the Principle of Minimum Cross-Entropy](https://github.com/bmlip/course/blob/main/assets/files/ShoreJohnson-1980-Axiomatic-Derivation-of-the-Principle-of-Maximum-Entropy.pdf)
+
+"""
+
+# ╔═╡ 26c591fc-d294-11ef-0423-b7a854d09bad
+md"""
+
+$(challenge_statement("Density Modeling for the Old Faithful Data Set"))
+
+You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
+
+![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
 
 """
 
@@ -154,7 +159,7 @@ p(x_n) &= \sum_{z_n} p(x_n,z_n)  \\
 """
 
 # ╔═╡ c7351bf1-447e-475b-8965-d259c01bfd57
-details("Click for proof",
+hide_proof(
 md"""
 
 ```math
@@ -312,7 +317,7 @@ To explain inference by VFE minimization (abbreviated as VFEM), we first rewrite
 """
 
 # ╔═╡ ae7ed1fc-fc36-4327-be55-a142477ca0ad
-details("Click for proof", 
+hide_proof(
 md"""
 ```math
 \begin{align*}
@@ -585,6 +590,19 @@ S_k &= \frac{1}{N_k} \sum_{n=1}^N r_{nk} \left( x_n - \bar{x}_k\right) \left( x_
 # ╔═╡ 26c75b5e-d294-11ef-173e-b3f46a1df536
 md"""
 Exam guide: Working out VFE minimization for the GMM to these update equations (eqs B-10.58 through B-10.63) is not something that you need to reproduce without assistance at the exam. Rather, the essence is that *it is possible* to arrive at closed-form variational update equations for the GMM. You should understand though how FEM works conceptually and in principle be able to derive variational update equations for very simple models that do not involve clever mathematical tricks.
+
+"""
+
+# ╔═╡ 95d47a10-f3f8-479b-afe0-21241104b758
+code_example("VFEM for GMM on Old Faithfull data set")
+
+
+# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
+md"""
+
+
+
+Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by VFE minimization, with the constraints as specified above. 
 
 """
 
@@ -1050,7 +1068,7 @@ The Free energy functional ``\mathrm{F}[q] = -\sum_z q(z) \log p(x,z) - \sum_z q
 """
 
 # ╔═╡ 747a7e1e-b921-4882-b00a-1b00bef8433d
-details("Click for answer",
+hide_solution(
 md"""
 
 Note that Free Energy minimization is a balancing act: FE minimization implies entropy maximization *and at the same time* energy minimization. Minimizing the energy term leads to aligning ``q(z)`` with ``\log p(x,z)``, ie, it tries to move the bulk of the function ``q(z)`` to areas in ``z``-space where ``p(x,z)`` is large (``p(x,z)`` is here just a function of ``z``, since x is observed). 
@@ -1073,7 +1091,7 @@ m_k = \frac{1}{\beta_k} \left( \beta_0 m_0 + N_k \bar{x}_k \right) \tag{B-10.61}
 """
 
 # ╔═╡ 208ba1bb-a4bf-4b8c-93d2-0d6c6c8d16d4
-details("Click for answer",
+hide_solution(
 md"""
 We see here an example of "precision-weighted means add" when two sources of information are fused, just like precision-weighted means add when two Gaussians are multiplied, eg a prior and likelihood. In this case, the prior is ``m_0`` and the likelihood estimate is ``\bar{x}``. ``\beta_0`` can be interpreted as the number of pseudo-observations in the prior.
 
@@ -1092,7 +1110,7 @@ q^{(i)}(z) &= p(z|D,\theta^{(i-1)}) \\
 \end{align*}
 ```
 
-Proof that this algorithm minimizes the Free Energy functional 
+Prove that this algorithm minimizes the Free Energy functional 
 
 ```math
 \begin{align*}
@@ -1104,7 +1122,7 @@ F[q](\theta) =  \sum_z q(z) \log \frac{q(z)}{p(D,z|\theta)}
 """
 
 # ╔═╡ b91bc3b6-b815-4942-b297-c0e2b4b99654
-details("Click for answer",
+hide_solution(
 md"""
 		
 Let's start with a prior estimate ``\theta^{(i-1)}`` and we want to minimize the free energy functional wrt ``q``. This leads to
@@ -1627,90 +1645,29 @@ begin
 	plot(plots..., layout=(2,3), size=(1100, 600))
 end
 
+# ╔═╡ 9d2068d7-db54-460e-930c-b7c3273162ee
+
+
 # ╔═╡ deba376e-59bd-4b07-814c-8f7937db52a5
-challenge_header(
-	title; 
-	color="green",
-	big::Bool=false,
-	header_level::Int=2,
-	challenge_text="Challenge:",
-) = HypertextLiteral.@htl """
-<$("h$header_level") class="ptt-section $(big ? "big" : "")" style="--ptt-accent: $(color);"><span>$(challenge_text)</span> $(title)</$("h$header_level")>
-	
-<style>
-.ptt-section::before {
-	content: "";
-	display: block;
-	position: absolute;
-	left: -25px;
-	right: -6px;
-	top: -4px;
-	height: 200px;
-	border: 4px solid salmon;
-	border-bottom: none;
-	border-image-source: linear-gradient(to bottom, var(--ptt-accent), transparent);
-	border-image-slice: 1;
-	opacity: .7;
-	pointer-events: none;
-}
 
-.big.ptt-section::before {
-	height: 500px;
-}
-	
-
-.ptt-section > span {
-	color: color-mix(in hwb, var(--ptt-accent) 60%, black);
-	@media (prefers-color-scheme: dark) {
-		color: color-mix(in hwb, var(--ptt-accent) 30%, white);
-	}
-	font-style: italic;
-}
-</style>
-"""
-
-# ╔═╡ 26c591fc-d294-11ef-0423-b7a854d09bad
-md"""
-
-$(challenge_header("Density Modeling for the Old Faithful Data Set"; challenge_text="Challenge:"))
-
-You're now asked to build a density model for a data set ([Old Faithful](https://en.wikipedia.org/wiki/Old_Faithful), Bishop pg. 681) that clearly is not distributed as a single Gaussian:
-
-![](https://github.com/bmlip/course/blob/v2/assets/figures/fig-Bishop-A5-Old-Faithfull.png?raw=true)
-
-"""
-
-# ╔═╡ 26c7696e-d294-11ef-25f2-dbc0946c0858
-md"""
-
-$(challenge_header("VFEM for GMM on Old Faithfull data set"; challenge_text="Code Example:"))
-
-
-Below we exemplify training of a Gaussian Mixture Model on the Old Faithful data set by VFE minimization, with the constraints as specified above. 
-
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
+BmlipTeachingTools = "~1.0.0"
 Distributions = "~0.25.118"
-HypertextLiteral = "~0.9.5"
 PDMats = "~0.11.32"
 Plots = "~1.40.10"
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.23"
 SpecialFunctions = "~2.5.0"
 StatsPlots = "~0.15.7"
 """
@@ -1721,7 +1678,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "4814e4c68e33c93d3ee8b54e19f580ffe01a62f3"
+project_hash = "5fbaba1f25045f81a3ec3163b3be43339a946399"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1791,6 +1748,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -3229,6 +3192,7 @@ version = "1.9.2+0"
 # ╟─93e7c7d5-a940-4764-8784-07af2f056e49
 # ╟─26c74c9a-d294-11ef-2d31-67bd57d56d7c
 # ╟─26c75b5e-d294-11ef-173e-b3f46a1df536
+# ╟─95d47a10-f3f8-479b-afe0-21241104b758
 # ╟─26c7696e-d294-11ef-25f2-dbc0946c0858
 # ╠═c90176ea-918b-4643-a10f-cef277c5ea75
 # ╟─cc547bfa-a130-4382-af47-73de56e4741b

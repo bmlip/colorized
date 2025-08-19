@@ -19,10 +19,7 @@ using Plots, LinearAlgebra, LaTeXStrings
 using RxInfer, Random
 
 # ╔═╡ 5a8dcadb-f0c2-4fb0-b8cd-db8cf49cc292
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 981b08cc-7fb4-4880-8e8a-0b60a5dd72a2
-using HypertextLiteral
+using BmlipTeachingTools
 
 # ╔═╡ 96547560-d294-11ef-0fa7-6b6489f7baba
 md"""
@@ -753,7 +750,7 @@ md"""
 """
 
 # ╔═╡ 206c34b3-1873-460b-911e-f2cd4f8886af
-details("Click for solution",
+hide_solution(
 md"""
 
 - (a) Rewrite the state-space equations as a set of conditional probability distributions.                 
@@ -861,7 +858,7 @@ f_+(x,y,z) = \delta(z-x-y)
 """)
 
 # ╔═╡ e8a35c28-6d6d-4066-8251-f091f28622a9
-details("Click for solution", 
+hide_solution( 
 md"""
 
 We use the sum-product rule to compute
@@ -1096,24 +1093,23 @@ md"""
 # Appendix
 """
 
+# ╔═╡ 981b08cc-7fb4-4880-8e8a-0b60a5dd72a2
+
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
-HypertextLiteral = "~0.9.5"
+BmlipTeachingTools = "~1.0.0"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.13"
-PlutoTeachingTools = "~0.4.5"
-PlutoUI = "~0.7.62"
 RxInfer = "~4.4.2"
 """
 
@@ -1123,7 +1119,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "c8f1780f3e99bc3bf46b7facba9b0096c829457d"
+project_hash = "2c267c977cf5e1509686d4affec06b6e95203285"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -1263,6 +1259,12 @@ version = "1.7.0"
     [deps.BlockArrays.weakdeps]
     Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
     BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.0.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
