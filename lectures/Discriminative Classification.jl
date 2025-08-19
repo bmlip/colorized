@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.15
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Figure4.9.png?raw=true"
@@ -37,11 +37,10 @@ using MarkdownLiteral: @mdx
 using Distributions
 
 # ╔═╡ e379cc2a-43f8-432f-84fc-a88fd4f3ad0a
-using PlutoUI, PlutoTeachingTools
+using BmlipTeachingTools
 
 # ╔═╡ 25eefb10-d294-11ef-0734-2daf18636e8e
-md"""
-# Discriminative Classification
+title("Discriminative Classification")
 
 """
 
@@ -70,7 +69,7 @@ md"""
 """
 
 # ╔═╡ fe66a986-2f55-4417-a71d-b3b99f6369cc
-section_outline("Challenge:", "difficult class-conditional data distributions" , color= "red" )
+challenge_statement("difficult class-conditional data distributions" , color= "red" )
 
 # ╔═╡ 25ef2806-d294-11ef-3cb6-0f3e76b9177e
 md"""
@@ -421,7 +420,7 @@ The gradient ``\nabla_{w_k} \mathrm{L}(w)`` to the weight  ``w_k`` can be worked
 """
 
 # ╔═╡ 3b24b142-2239-4951-9177-ff87b5da4b68
-details("Click for proof", 
+hide_proof(
 	   md"""
 The Log-likelihood is 
 
@@ -466,7 +465,7 @@ until convergence.
 """
 
 # ╔═╡ 7932fff4-0568-49de-b34c-711e51487ae3
-section_outline("Challenge Revisited:", "Bayesian Logistic Regression for Difficult Class-conditional Data Distributions" , color= "green" )
+challenge_solution("Bayesian Logistic Regression for Difficult Class-conditional Data Distributions" , color= "green" )
 
 # ╔═╡ 25f3bef2-d294-11ef-1438-e9f7e469336f
 md"""
@@ -599,7 +598,7 @@ is a straight line.
 """
 
 # ╔═╡ 9554ed0b-69dd-443c-9538-03a4117eeb78
-details("Click for solution",
+hide_proof(
 md"""
 		
 ```math
@@ -755,32 +754,30 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
+BmlipTeachingTools = "~1.1.0"
 Distributions = "~0.25.120"
 LaTeXStrings = "~1.4.0"
 MarkdownLiteral = "~0.1.2"
 Optim = "~1.13.2"
 Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.4"
-PlutoUI = "~0.7.69"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "3af9d070de921b89310e964c2b511252864a26e8"
+project_hash = "4c1f4566735b2d723283baf2680f47646d64d470"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -871,6 +868,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.1.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1017,9 +1020,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "53970db0989d231937cd96c0b0ace67f38da274e"
+git-tree-sha1 = "38989b1532a3c6e2341d52b77c5475c42c3318a8"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.5"
+version = "0.7.6"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1552,7 +1555,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.15
 
 #> [frontmatter]
 #> description = "Can you teach a computer to tell apples from peaches? Discover generative classification!"
@@ -24,27 +24,16 @@ macro bind(def, element)
 end
 
 # ╔═╡ f1a40378-a27c-4aa0-a62c-600ffde0032f
-using PlutoUI, PlutoTeachingTools
-
-# ╔═╡ 1b304964-6833-4cae-b84e-a5073f9586cd
-using Markdown
-
-# ╔═╡ 05ccf8cf-0711-4751-b378-5b0953eeedd0
-using InteractiveUtils
-
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+using BmlipTeachingTools
 
 # ╔═╡ 6631c0e4-4941-442e-8dd4-fa307ee7a8c0
 using Random
 
 # ╔═╡ f1575443-c9fb-4674-bbce-bf3a5a6d5a8d
-using Plots, Distributions, HypertextLiteral
+using Plots, Distributions
 
 # ╔═╡ 23c689fc-d294-11ef-086e-47c4f871bed2
-md"""
-# Generative Classification
-
-"""
+title("Generative Classification")
 
 # ╔═╡ fe9d4fbc-f264-459b-8fbe-26663500f6c5
 PlutoUI.TableOfContents()
@@ -69,7 +58,7 @@ md"""
 """
 
 # ╔═╡ f7a19975-a919-4659-9b6a-d8963a1cd6d9
-section_outline("Challenge:", "Apple or Peach?" , color= "red" )
+challenge_statement("Apple or Peach?" , color= "red" )
 
 # ╔═╡ 51a46b5e-0c35-4841-a4f3-413d5d294805
 md"""
@@ -196,7 +185,7 @@ In principle, a full Bayesian treatment requires us to specify prior distributio
 """
 
 # ╔═╡ ffc80e65-a454-4b45-a9b7-76b01c7e96c0
-section_outline("Exercise:", "Evaluate log-likelihood" , color= "yellow", header_level=4 )
+exercise_statement("Evaluate log-likelihood" , color= "yellow", header_level=4 )
 
 # ╔═╡ 2e1ccf78-6097-4097-8bc8-1f1ec2d9c3ff
 md"""
@@ -212,7 +201,7 @@ where we used ``m_k \triangleq \sum_n y_{nk}``.
 """
 
 # ╔═╡ 32cb67f6-1ed2-4d30-8493-e4eed9651526
-details("Click for answer", 
+hide_solution(
 md"""	   
 ```math
 \begin{align*}
@@ -384,7 +373,7 @@ are lines (hyperplanes) in the feature space.
 """
 
 # ╔═╡ 5c746070-19a9-464b-aedc-401d016dfdb6
-section_outline("Exercise:", "Discrimination boundaries" , color= "yellow", header_level=4 )
+exercise_statement("Discrimination boundaries" , color= "yellow", header_level=4 )
 
 # ╔═╡ 8d78f9d3-7ba8-46b0-8d6f-231e681caa49
 md"""
@@ -392,7 +381,7 @@ Show that the discrimination boundaries for the posterior class probabilities in
 """
 
 # ╔═╡ 25e18c78-9cac-4faa-bb7c-ac036d0eac90
-details("Click for answer",
+hide_solution(
 md"""
 ```math
 \begin{align}
@@ -419,7 +408,7 @@ What do the decision boundaries look like in this case?
 """
 
 # ╔═╡ b01a4a56-bed2-4a06-991a-831adc84aa3e
-details("Click for answer",
+hide_solution(
 md""" 
 Following the same derivation as above (in the cell "Click for proof of (4)"), the posterior class probability evaluates to		
 		```math
@@ -432,7 +421,7 @@ Because the quadratic term ``x_\bullet^T \hat{\Sigma}_k^{-1} x_\bullet`` is now 
 """	)
 
 # ╔═╡ 1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
-section_outline("Challenge Revisited:", "Apple or Peach", header_level=2, color="green")
+challenge_solution("Apple or Peach", header_level=2, color="green")
 
 # ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
 md"""
@@ -590,7 +579,7 @@ Compute the **total** error probability  ``p(\text{error})`` for the Bayes class
 """
 
 # ╔═╡ 66172ab6-7df8-4068-a748-b33b3f345d6d
-details("Click for solution",
+hide_solution(
 md"""
 - (a) We choose ``C_1`` if ``p(C_1|x)/p(C_2|x) > 1``. This condition can be worked out as
 
@@ -643,7 +632,7 @@ Using (4.57) and (4.58) (from Bishop's book), derive the result (4.65) for the p
 """
 
 # ╔═╡ ef1e5885-7153-4b55-9f97-1e984c2504e6
-details("Click for solution",
+hide_solution(
 md"""
 Substitute 4.64 into 4.58 to get
 
@@ -664,18 +653,6 @@ Substituting this into the right-most form of (4.57) we obtain (4.65), with ``w`
 md"""
 # Appendix
 """
-
-# ╔═╡ 3804c03c-6769-4258-806a-62e3d18221b5
-macro bind(def, element)
-    #! format: off
-    return quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-    #! format: on
-end
 
 # ╔═╡ 86f217fc-379c-46a0-a720-de956d456b2a
 md"""
@@ -729,9 +706,6 @@ d1 = fit_mle(FullNormal, X_apples')  # MLE density estimation d1 = N(μ₁, Σ�
 
 # ╔═╡ cd310392-aabd-40e0-b06f-f8297c7eed6f
 d2 = fit_mle(FullNormal, X_peaches') # MLE density estimation d2 = N(μ₂, Σ₂)
-
-# ╔═╡ ba9fa93f-093c-4783-988f-27f4ba228e88
-Σ_computed = π_hat[1]*cov(d1) + π_hat[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
 
 # ╔═╡ 46d2d5e9-bb6b-409a-acdc-cdffd1a6f797
 conditionals = [
@@ -790,33 +764,33 @@ let
 	plot!(x1, discriminant_x2, fillrange=10, alpha=0.2, color=:red, xlims=(-0.5, 3), ylims=(-1, 4), label="")
 end
 
+# ╔═╡ ba9fa93f-093c-4783-988f-27f4ba228e88
+Σ_computed = Σ = π_hat[1]*cov(d1) + π_hat[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
+
+# ╔═╡ aefc2f7d-96ed-45cc-b2d9-35d9b2a94f45
+Σ = Σ_computed;
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
-Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
-PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
+BmlipTeachingTools = "~1.1.0"
 Distributions = "~0.25.120"
-HypertextLiteral = "~0.9.5"
-Plots = "~1.40.17"
-PlutoTeachingTools = "~0.4.4"
-PlutoUI = "~0.7.62"
+Plots = "~1.40.18"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.4"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "def3744cfb9ac0d0939e72d808a6a7f037d39060"
+project_hash = "fc70636cdfa8aaa33082903a96453a1611278503"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -846,6 +820,12 @@ version = "1.11.0"
 git-tree-sha1 = "0691e34b3bb8be9307330f88d1a3c3f25466c24d"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
 version = "0.1.9"
+
+[[deps.BmlipTeachingTools]]
+deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
+git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
+uuid = "656a7065-6f73-6c65-7465-6e646e617262"
+version = "1.1.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -897,16 +877,6 @@ git-tree-sha1 = "37ea44092930b1811e666c3bc38065d7d87fcc74"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.1"
 
-[[deps.Compat]]
-deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
-uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.18.0"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
-
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
@@ -929,10 +899,10 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.16.0"
 
 [[deps.DataStructures]]
-deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
+deps = ["OrderedCollections"]
+git-tree-sha1 = "76b3b7c3925d943edf158ddb7f693ba54eb297a5"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.22"
+version = "0.19.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -1194,9 +1164,9 @@ version = "1.4.0"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "4f34eaabe49ecb3fb0d58d6015e32fd31a733199"
+git-tree-sha1 = "52e1296ebbde0db845b356abbbe67fb82a0a116c"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.8"
+version = "0.16.9"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1375,7 +1345,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+4"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1385,9 +1355,9 @@ version = "1.5.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "87510f7292a2b21aeff97912b0898f9553cc5c2c"
+git-tree-sha1 = "2ae7d4ddec2e13ad3bddf5c0796f7547cf682391"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.5.1+0"
+version = "3.5.2+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -1458,9 +1428,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3db9167c618b290a05d4345ca70de6d95304a32a"
+git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.17"
+version = "1.40.18"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1478,15 +1448,15 @@ version = "1.40.17"
 
 [[deps.PlutoTeachingTools]]
 deps = ["Downloads", "HypertextLiteral", "Latexify", "Markdown", "PlutoUI"]
-git-tree-sha1 = "d0f6e09433d14161a24607268d89be104e743523"
+git-tree-sha1 = "85778cdf2bed372008e6646c64340460764a5b85"
 uuid = "661c6b06-c737-4d37-b85c-46df65de6f69"
-version = "0.4.4"
+version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "ec9e63bd098c50e4ad28e7cb95ca7a4860603298"
+git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.68"
+version = "0.7.70"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -1496,9 +1466,9 @@ version = "1.2.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "9306f6085165d270f7e3db02af26a400d580f5c6"
+git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.4.3"
+version = "1.5.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1628,9 +1598,9 @@ version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "66e0a8e672a0bdfca2c3f5937efb8538b9ddc085"
+git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.1"
+version = "1.2.2"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
@@ -1673,9 +1643,9 @@ version = "1.7.1"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "b81c5035922cc89c2d9523afc6c54be512411466"
+git-tree-sha1 = "2c962245732371acd51700dbb268af311bddd719"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.5"
+version = "0.34.6"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -1731,9 +1701,9 @@ uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.11.3"
 
 [[deps.Tricks]]
-git-tree-sha1 = "0fc001395447da85495b7fef1dfae9789fdd6e31"
+git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.11"
+version = "0.1.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "bef26fb046d031353ef97a82e3fdb6afe7f21b1a"
@@ -2058,7 +2028,7 @@ version = "1.9.2+0"
 # ╟─f7a19975-a919-4659-9b6a-d8963a1cd6d9
 # ╟─51a46b5e-0c35-4841-a4f3-413d5d294805
 # ╟─876f47d8-b272-4e23-b5ec-5c7d615ff618
-# ╟─69732524-90fd-46f4-9706-c07ce6226d2b
+# ╠═69732524-90fd-46f4-9706-c07ce6226d2b
 # ╟─e774041a-672d-40f3-ac8f-fc5dbf1bfc59
 # ╟─5730758d-80cd-4d95-b16c-399c38cf585b
 # ╟─23c73302-d294-11ef-0c12-571686b202a9
@@ -2101,6 +2071,7 @@ version = "1.9.2+0"
 # ╠═33d5d6e7-1208-4c5b-b651-429b3b6ad50b
 # ╠═723e09fc-ec63-4c47-844c-d821515ce0f4
 # ╟─3791ac2a-8dc2-4d9a-8310-beae13d5a694
+# ╠═aefc2f7d-96ed-45cc-b2d9-35d9b2a94f45
 # ╠═b06c93fa-3439-4ed1-84ed-befc1ab7e40b
 # ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
 # ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
@@ -2118,12 +2089,9 @@ version = "1.9.2+0"
 # ╟─ef1e5885-7153-4b55-9f97-1e984c2504e6
 # ╟─e65e0e33-3e4f-4765-84ea-a4fb5d43269e
 # ╠═f1a40378-a27c-4aa0-a62c-600ffde0032f
-# ╠═1b304964-6833-4cae-b84e-a5073f9586cd
-# ╠═05ccf8cf-0711-4751-b378-5b0953eeedd0
-# ╠═3804c03c-6769-4258-806a-62e3d18221b5
 # ╠═6631c0e4-4941-442e-8dd4-fa307ee7a8c0
 # ╠═f1575443-c9fb-4674-bbce-bf3a5a6d5a8d
-# ╠═86f217fc-379c-46a0-a720-de956d456b2a
+# ╟─86f217fc-379c-46a0-a720-de956d456b2a
 # ╟─a4463d74-04ea-428a-b5a5-504d96432a0a
 # ╠═3842654e-6dd7-427c-bb77-8b35a2f324fb
 # ╠═eac2821e-b25c-4605-857a-cd3bd06303c1

@@ -1,4 +1,4 @@
-if !isdir("pluto-deployment-environment") || length(ARGS) != 1
+if !isdir("pluto-slider-server-environment") || length(ARGS) != 1
     error("""
     Run me from the root of the repository directory, using:
 
@@ -13,7 +13,7 @@ if !(v"1.11.0-aaa" < VERSION < v"1.12.0")
 end
 
 import Pkg
-Pkg.activate("./pluto-deployment-environment")
+Pkg.activate("./pluto-slider-server-environment")
 Pkg.instantiate()
 
 import Pluto
@@ -21,11 +21,13 @@ import Pluto
 flatmap(args...) = vcat(map(args...)...)
 
 
-all_files_recursive = flatmap(walkdir("src")) do (root, _dirs, files)
+getfrom(dir) = flatmap(walkdir("lectures")) do (root, _dirs, files)
     joinpath.((root,), files)
 end
 
-all_notebooks = filter(Pluto.is_pluto_notebook, all_files_recursive)
+all_files_recursive = [getfrom("lectures")..., getfrom("minis")...]
+
+all_notebooks = filter!(Pluto.is_pluto_notebook, all_files_recursive)
 
 level = getfield(Pkg, Symbol("UPLEVEL_$(ARGS[1])"))
 
