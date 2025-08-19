@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> description = "Can you teach a computer to tell apples from peaches? Discover generative classification!"
@@ -707,6 +707,9 @@ d1 = fit_mle(FullNormal, X_apples')  # MLE density estimation d1 = N(μ₁, Σ�
 # ╔═╡ cd310392-aabd-40e0-b06f-f8297c7eed6f
 d2 = fit_mle(FullNormal, X_peaches') # MLE density estimation d2 = N(μ₂, Σ₂)
 
+# ╔═╡ ba9fa93f-093c-4783-988f-27f4ba228e88
+Σ_computed = Σ = π_hat[1]*cov(d1) + π_hat[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
+
 # ╔═╡ 46d2d5e9-bb6b-409a-acdc-cdffd1a6f797
 conditionals = [
 	MvNormal(mean(d1), Σ_computed)
@@ -764,12 +767,6 @@ let
 	plot!(x1, discriminant_x2, fillrange=10, alpha=0.2, color=:red, xlims=(-0.5, 3), ylims=(-1, 4), label="")
 end
 
-# ╔═╡ ba9fa93f-093c-4783-988f-27f4ba228e88
-Σ_computed = Σ = π_hat[1]*cov(d1) + π_hat[2]*cov(d2) # Combine Σ₁ and Σ₂ into Σ
-
-# ╔═╡ aefc2f7d-96ed-45cc-b2d9-35d9b2a94f45
-Σ = Σ_computed;
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -790,7 +787,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "fc70636cdfa8aaa33082903a96453a1611278503"
+project_hash = "2b1dacbedc2f54a3470343559415575c67cedefc"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -2071,7 +2068,6 @@ version = "1.9.2+0"
 # ╠═33d5d6e7-1208-4c5b-b651-429b3b6ad50b
 # ╠═723e09fc-ec63-4c47-844c-d821515ce0f4
 # ╟─3791ac2a-8dc2-4d9a-8310-beae13d5a694
-# ╠═aefc2f7d-96ed-45cc-b2d9-35d9b2a94f45
 # ╠═b06c93fa-3439-4ed1-84ed-befc1ab7e40b
 # ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
 # ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
