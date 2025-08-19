@@ -83,7 +83,7 @@ md"""
 """
 
 # ╔═╡ 82025c2f-a21f-4080-b301-3ffe3715442d
-challenge_statement("Classify a Gaussian Sample" , color= "red" )
+BmlipTeachingTools.challenge_statement("Classify a Gaussian Sample" , color= "red" )
 
 # ╔═╡ b9a48c60-d294-11ef-3b90-03053fcd82fb
 md"""
