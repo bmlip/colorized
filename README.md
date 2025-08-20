@@ -60,10 +60,10 @@ Bishop](http://research.microsoft.com/en-us/um/people/cmbishop/index.htm) (2006)
 Please follow the [software installation instructions]() TODO ADD URL. If you encounter any problems, please contact us in class or on Piazza.
 
 
-### <a name="lectures">Lecture notes, exercises, assignment and video recordings</a>
+### <a name="lectures">Lecture notes, assignments and video recordings</a>
 
 
-You can access all lecture notes, assignments, videos, and exercises online through the links below:
+You can access all lecture materials online through the links below:
 
 <table border = "1">
          <tr>
