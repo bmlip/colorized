@@ -74,7 +74,7 @@ You can access all lecture materials online through the links below:
          <tr>
             <th style="text-align:center">lecture notes</th>
             <th style="text-align:center">assignments</th>
-            <th style="text-align:center">video recordings</th>
+            <th style="text-align:center">video recordings (2023/24)</th>
          </tr>
          <tr>
             <td>12-Nov-2025 <em>(Wed)</em></td>
