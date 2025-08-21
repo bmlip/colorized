@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.16
+# v0.20.13
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true"
@@ -78,32 +78,31 @@ In this lesson, we will describe how **goal-directed behavior** by biological (a
 """
 
 # ╔═╡ aed436fd-6773-4932-a5d8-d01cf99c10ec
-challenge_statement("The Door-Key Minigrid Problem", color="red")
+challenge_statement("The Door-Key MiniGrid Problem", color="red")
+
+# ╔═╡ 983873d0-e1bc-4e1b-9b6c-3df0a17d83f6
+TwoColumn(
+	md"""##### Problem
+In this example, we consider [the Door-Key MiniGrid problem](https://minigrid.farama.org/environments/minigrid/DoorKeyEnv/), which is part of the challenging MiniGrid environment family. In these environments, an agent is positioned in a gridworld and has to solve a particular task. The red triangle indicates the agent’s location and viewing direction, while the green square marks the target location. """, 
+	md"""
+![Minigrid environment](https://github.com/bmlip/course/blob/main/assets/ai_agent/minigrid_environment.png?raw=true)
+""")
+
 
 # ╔═╡ 2783b312-d294-11ef-2ebb-e5ede7a86583
 md"""
-##### Problem
+At each timestep, the agent observes the portion of the environment contained within the shaded rectangle in front of its viewing direction. The agent’s task is to find the key, use it to open the door (yellow square in the third column), and then navigate to the target square.
 
-In this example, we consider [the door-key minigrid problem](https://minigrid.farama.org/environments/minigrid/DoorKeyEnv/), which is part of the challenging minigrid environment family. In these environments, and agent is positioned in a gridworld and has to solve a particular task. 
+We assume that the agent has complete knowledge of the environmental process dynamics (e.g., how to walk or which action corresponds to picking up a key). However, the locations of the key and door are randomized and therefore unknown.
 
-At every timestep, the agent receives an observation encoding a field-of-view image of the environment. The agent has to localize itself within the environment, find a key, use the key to open a door and move to the target square. 
-
-We will assume that the agent's knowledge about the environment process dynamics (i.e., how walking works, what action should be done to pick up a key) is known, however, since the key and door locations are randomized, these are not known.
-
-Your challenge is to design an agent that guides the agent to the target square. (The agent should be specified as a probabilistic model and the control signal should be formulated as a Bayesian inference task).  
-
-"""
-
-# ╔═╡ 2783b9ca-d294-11ef-0bf7-e767fbfad74a
-md"""
-![Minigrid environment](https://github.com/bmlip/course/blob/main/assets/ai_agent/minigrid_environment.png?raw=true)
+The challenge is to design an agent that autonomously navigates to the target square. The agent should be defined as a probabilistic model, with its control signals obtained by casting action selection as a Bayesian inference problem.
 
 """
 
 # ╔═╡ 939e74b0-8ceb-4214-bbc0-407c8f0b2f26
 md"""
 ##### Solution 
-At the end of this lesson
+At the [end of this lesson](#Challenge-Revisited:-The-Door-Key-MiniGrid-Problem)
 """
 
 # ╔═╡ e3d5786b-49e0-40f7-9056-13e26e09a4cf
@@ -273,28 +272,27 @@ details("Click for proof of the EFE Theorem",
 
 # ╔═╡ aec84a6d-33fc-4541-80c0-091998f8c4d1
 begin
-
     ambiguity_as_expected_entropy = details("Click to show derivation of ambiguity as an expected entropy",
-        md""" Starting from Eq.(G1),
-       	```math										
-       	\begin{align}
-       	\mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
-       	&= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
-       	\end{align}		
-       	```	
-       """)
+md""" Starting from Eq.(G1),
+```math										
+\begin{align}
+  \mathbb{E}_{q(y,x|u)}\bigg[ \log \frac{1}{q(y|x)}\bigg] &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y|x)} \big[\log \frac{1}{q(y|x)}\big] \bigg] \\ 
+  &= \mathbb{E}_{q(x|u)}\left[H[q(y|x)] \right]
+\end{align}		
+```	
+""")
 
-    novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information",
-        md""" Starting from Eq.(G1), 
-        ```math
-        \begin{align}
-        \mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
-        &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
-        &= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
-        &= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
+novelty_as_mutual_information = details("Click to show derivation of novelty in terms of mutual information",
+md""" Starting from Eq.(G1), 
+```math
+\begin{align}
+    \mathbb{E}_{q(y,x,\theta|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] &= \mathbb{E}_{q(y,\theta|x) q(x|u)}\bigg[ \log \frac{q(\theta|y,x)}{q(\theta|x)}\bigg] \\  
+    &= \mathbb{E}_{q(x|u)}\bigg[ \mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta|y,x)}{q(\theta|x)} \big] \bigg] \\ 
+    &= \mathbb{E}_{q(x|u)}\bigg[ \underbrace{\mathbb{E}_{q(y,\theta|x)} \big[ \log \frac{q(\theta,y|x)}{q(\theta|x) q(y|x)} \big]}_{I[\theta,y\,|x]} \bigg] \\  
+    &= \mathbb{E}_{q(x|u)}\big[ I[\theta,y\,|x] \big]
         \end{align}
-        ```									
-        """)
+```									
+""")
 end;
 
 # ╔═╡ aaa07dc5-9105-4f70-b924-6e51e5c36600
@@ -423,15 +421,14 @@ md"""
 """
 
 # ╔═╡ 64474167-bf52-456c-9099-def288bd17bf
-challenge_solution("The Door-Key Minigrid Problem", color="green")
+challenge_solution("The Door-Key MiniGrid Problem", color="green")
 
 # ╔═╡ 2784f45e-d294-11ef-0439-1903016c1f14
 md"""
 
-Here we solve the door-key minigrid problem as stated at the beginning of this lesson. In these lecture notes, we will sketch a solution based on the Expected Free Energy theorem. A concrete implementation of this solution with full code can be found [here](https://github.com/biaslab/EFEasVFE). 
-Note that this is a research implementation and not a production-ready code.
+We now return to the Door-Key MiniGrid problem from the [beginning of this lesson](#Challenge:-The-Door-Key-MiniGrid-Problem). Below, we present RxInfer pseudocode for the augmented generative model of the MiniGrid agent. The key insight from this code fragment is that there is no explicit “algorithmic” planning code: in an AIF agent, all processes reduce to VFE minimization (of [Eq. (F1)](#The-Expected-Free-Energy-Theorem)), which is carried out automatically by the RxInfer inference engine.
 
-Below we give a pseudocode implementation of the generative model used to do active inference in RxInfer, after which we will show the result of an episode in the minigrid environment.
+*NB: A complete implementation of this solution is available [here](https://github.com/biaslab/EFEasVFE). Please note that the full code is a research prototype and not yet production-ready.*
 """
 
 
@@ -452,14 +449,14 @@ Below we give a pseudocode implementation of the generative model used to do act
 	state[end] ~ Goal(target_location)
 end
 
+# ╔═╡ 8ac328de-b7ba-457f-add6-9af506832282
+md"""
+The animation below is a recording of representative agent behavior during the VFE minimization process. Initially, the agent rotates to search for the key—an uncertainty-reducing strategy **driven by the ambiguity term** of the Expected Free Energy. Once the key’s location is revealed, the agent retrieves it and proceeds to the goal location. This constitutes goal-directed behavior that **minimizes the risk term** in the EFE. Because the environmental dynamics are assumed to be known, no novelty-driven exploration occurs in this example.
+"""
+
 # ╔═╡ 651a4081-68f1-4237-9503-d4e28969a836
 Resource("https://github.com/bmlip/course/raw/refs/heads/main/assets/ai_agent/minigrid_solved.mp4", :width => 300)
 
-
-# ╔═╡ 1510b299-24e6-4eac-a860-60c0c28fb523
-md"
-As we can see, our agent searches for the key, uses it to open the door, and goes to the goal.
-"
 
 # ╔═╡ f4509603-36be-4d24-8933-eb7a705eb933
 md"""
@@ -481,28 +478,28 @@ AIF agents fundamentally differ from DT agents in that variational free energy (
 
 From an engineering perspective, what is gained by moving from DT to AIF agents? While our treatment here is necessarily brief and not intended as a comprehensive academic assessment, several key advantages already stand out:
 
-- A principled grounding in fundamental physics
+- **A principled grounding in fundamental physics**
   - If we aim to understand how brains—human or animal—give rise to intelligent behavior, we must start from the premise that they operate entirely within the laws of physics. The FEP is consistent with this physical grounding.
 
-- Balanced goal-directed and information-seeking behavior
+- **Balanced goal-directed and information-seeking behavior**
   - The epistemic components that emerge naturally from the EFE functional often need to be added through ad hoc mechanisms in decision-theoretic frameworks that do not explicitly score beliefs about future states.
 
-- No need for task-specific reward (or value) functions
+- **No need for task-specific reward (or value) functions**
   - In DT agents, a recurring question is: where do the reward functions come from? These functions are typically hand-crafted. In an AIF agent, preferences are encoded as prior distributions over desired outcomes. These priors can be parameterized and updated through hyper-priors and Bayesian learning at higher levels of the generative model, allowing agents to adapt their preferences on the fly, rather than relying on externally specified reward functions.
 
-- A Universal Cost Function for All Problems
+- **A universal cost function for all problems**
   - A related limitation of the DT systems is that the value function must be specified anew for each problem. Brains, however, cannot afford to construct a different value function for every task, given that thousands of novel problems are encountered daily. In contrast, AIF agents employ the same free-energy functional ``F`` that measures the quality of the beliefs, for all problems. The structure of ``F`` (complexity minus accuracy) does not change and applies universally.
 
-- AIF agents are explainable and trustworthy by nature
+- **AIF agents are explainable and trustworthy by nature**
   - Explainability and trustworthiness are critical concerns in AI, for instance, in medical AI applications. An AIF agent’s reasoning process is Bayes-optimal, and therefore logically consistent and inherently *trustworthy*. Crucially, domain-specific knowledge and inference are cleanly separated: all domain-specific assumptions reside in the model. As a result, the agent’s behavior can be *explained* as the logical (Bayesian) consequence of its generative model.
 
-- Robustness by realization as a reactive message passing process!
+- **Robustness by realization as a reactive message passing process!**
   - In contrast to decision-theoretic (DT) agents, an active inference (AIF) agent can be fully realized as a reactive variational message passing (RMP) process, since variational free energy (VFE) minimization is the only ongoing process. RMP is an event-driven, fully distributed process—both in time and space—that exhibits robustness to fluctuating computational resources. It “lands softly” when resources such as power, data, or time become limited. As a result, an AIF agent continues to function during power dips, handles missing or noisy observations gracefully, and can be interrupted at any time during decision-making without catastrophic failure, making it naturally suited for real-world, resource-constrained environments.
 
-- Easy to code! 
+- **Easy to code!** 
   - Since VFE minimization can be automated by a toolbox, the engineer’s primary task is to specify the generative model and priors, which typically fits within a single page of code. 
 
-- Other advantages
+- **Other advantages**
   - Additional advantages include the potential for scalability, particularly in real-time applications. Realizing this potential will require further research into efficient, real-time message passing capabilities that are difficult to match in frameworks that cannot be implemented as reactive message passing processes.
 
 While the advantages listed above hold great promise for the future of synthetic AIF agents in solving complex engineering problems, it’s important to acknowledge current limitations. The vast majority of engineers and scientists have been trained within DT frameworks, and the **tooling and methodologies for DT agents are far more mature**. For many practical problems, several of the above-mentioned advantages of AIF agents have yet to be conclusively demonstrated in real-world applications.
@@ -587,17 +584,17 @@ BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
-BmlipTeachingTools = "~1.1.0"
-RxInfer = "~4.4.2"
+BmlipTeachingTools = "~1.2.1"
+RxInfer = "~4.5.1"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.6"
+julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "cc31883916ce2a1d2138d335745afc8d2f963cd4"
+project_hash = "0dc7c39b2f794078a8a747fa66a5835ffec15ddd"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -718,17 +715,11 @@ git-tree-sha1 = "aa19428fb6ad21db22f8568f068de4f443d3bacc"
 uuid = "0f2f92aa-23a3-4d05-b791-88071d064721"
 version = "1.1.5"
 
-[[deps.BitTwiddlingConvenienceFunctions]]
-deps = ["Static"]
-git-tree-sha1 = "f21cfd4950cb9f0587d5067e69405ad2acd27b87"
-uuid = "62783981-4cbd-42fc-bca8-16325de8dc4b"
-version = "0.1.6"
-
 [[deps.BlockArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "291532989f81db780e435452ccb2a5f902ff665f"
+git-tree-sha1 = "84a4360c718e7473fec971ae27f409a2f24befc8"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "1.7.0"
+version = "1.7.1"
 
     [deps.BlockArrays.extensions]
     BlockArraysAdaptExt = "Adapt"
@@ -740,21 +731,9 @@ version = "1.7.0"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
+git-tree-sha1 = "65337543996a6be4383f92aed118716dcafa6b0d"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.1.0"
-
-[[deps.CPUSummary]]
-deps = ["CpuId", "IfElse", "PrecompileTools", "Preferences", "Static"]
-git-tree-sha1 = "f3a21d7fc84ba618a779d1ed2fcca2e682865bab"
-uuid = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
-version = "0.2.7"
-
-[[deps.CloseOpenIntervals]]
-deps = ["Static", "StaticArrayInterface"]
-git-tree-sha1 = "05ba0d07cd4fd8b7a39541e31a7b0254704ea581"
-uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
-version = "0.1.13"
+version = "1.2.1"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -827,17 +806,6 @@ weakdeps = ["IntervalSets", "LinearAlgebra", "StaticArrays"]
     ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
     ConstructionBaseStaticArraysExt = "StaticArrays"
 
-[[deps.CpuId]]
-deps = ["Markdown"]
-git-tree-sha1 = "fcbb72b032692610bfbdb15018ac16a36cf2e406"
-uuid = "adafc99b-e345-5852-983c-f28acb93d879"
-version = "0.3.1"
-
-[[deps.Crayons]]
-git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
-uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
-version = "4.1.1"
-
 [[deps.DataAPI]]
 git-tree-sha1 = "abe83f3a2f1b857aac70ef8b269080af17764bbe"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
@@ -848,11 +816,6 @@ deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
 git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 version = "0.18.22"
-
-[[deps.DataValueInterfaces]]
-git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
-uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
-version = "1.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -1133,12 +1096,6 @@ git-tree-sha1 = "2eaa69a7cab70a52b9687c8bf950a5a93ec895ae"
 uuid = "076d061b-32b6-4027-95e0-9a2c6f6d7e74"
 version = "0.2.0"
 
-[[deps.HostCPUFeatures]]
-deps = ["BitTwiddlingConvenienceFunctions", "IfElse", "Libdl", "Static"]
-git-tree-sha1 = "8e070b599339d622e9a081d17230d74a5c473293"
-uuid = "3e5b6fbb-0976-4d2c-9146-d79de83f2fb0"
-version = "0.1.17"
-
 [[deps.HypergeometricFunctions]]
 deps = ["LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
 git-tree-sha1 = "68c173f4f449de5b438ee67ed0c9c748dc31a2ec"
@@ -1203,11 +1160,6 @@ git-tree-sha1 = "e2222959fbc6c19554dc15174c81bf7bf3aa691c"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.4"
 
-[[deps.IteratorInterfaceExtensions]]
-git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
-uuid = "82899510-4779-5014-852e-03e436cf321d"
-version = "1.0.0"
-
 [[deps.JLD2]]
 deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "ScopedValues", "TranscodingStreams"]
 git-tree-sha1 = "d97791feefda45729613fafeccc4fbef3f539151"
@@ -1252,12 +1204,6 @@ version = "0.16.9"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
     tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
-
-[[deps.LayoutPointers]]
-deps = ["ArrayInterface", "LinearAlgebra", "ManualMemory", "SIMDTypes", "Static", "StaticArrayInterface"]
-git-tree-sha1 = "a9eaadb366f5493a5654e843864c13d8b107548c"
-uuid = "10f19ff3-798f-405d-979b-55457f8fc047"
-version = "0.1.17"
 
 [[deps.LazyArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "MacroTools", "SparseArrays"]
@@ -1343,21 +1289,6 @@ git-tree-sha1 = "f02b56007b064fbfddb4c9cd60161b6dd0f40df3"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
-[[deps.LoopVectorization]]
-deps = ["ArrayInterface", "CPUSummary", "CloseOpenIntervals", "DocStringExtensions", "HostCPUFeatures", "IfElse", "LayoutPointers", "LinearAlgebra", "OffsetArrays", "PolyesterWeave", "PrecompileTools", "SIMDTypes", "SLEEFPirates", "Static", "StaticArrayInterface", "ThreadingUtilities", "UnPack", "VectorizationBase"]
-git-tree-sha1 = "e5afce7eaf5b5ca0d444bcb4dc4fd78c54cbbac0"
-uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
-version = "0.12.172"
-
-    [deps.LoopVectorization.extensions]
-    ForwardDiffExt = ["ChainRulesCore", "ForwardDiff"]
-    SpecialFunctionsExt = "SpecialFunctions"
-
-    [deps.LoopVectorization.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
@@ -1367,11 +1298,6 @@ version = "1.1.0"
 git-tree-sha1 = "1e0228a030642014fe5cfe68c2c0a818f9e3f522"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 version = "0.5.16"
-
-[[deps.ManualMemory]]
-git-tree-sha1 = "bcaef4fc7a0cfe2cba636d84cda54b5e4e4ca3cd"
-uuid = "d125e4d3-2237-4719-b19c-fa641b8a4667"
-version = "0.1.8"
 
 [[deps.Markdown]]
 deps = ["Base64"]
@@ -1435,15 +1361,6 @@ version = "0.14.3"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
-
-[[deps.OffsetArrays]]
-git-tree-sha1 = "117432e406b5c023f665fa73dc26e79ec3630151"
-uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.17.0"
-weakdeps = ["Adapt"]
-
-    [deps.OffsetArrays.extensions]
-    OffsetArraysAdaptExt = "Adapt"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1527,21 +1444,15 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
+git-tree-sha1 = "8329a3a4f75e178c11c1ce2342778bcbbbfa7e3c"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.70"
+version = "0.7.71"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
 git-tree-sha1 = "9f6139650ff57f9d8528cd809ebc604c7e9738b1"
 uuid = "c636ee4f-4591-4d8c-9fae-2dea21daa433"
 version = "1.2.6"
-
-[[deps.PolyesterWeave]]
-deps = ["BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "Static", "ThreadingUtilities"]
-git-tree-sha1 = "645bed98cd47f72f67316fd42fc47dee771aefcd"
-uuid = "1d0040c9-8b98-4ee7-8388-3f51789ca0ad"
-version = "0.2.2"
 
 [[deps.PositiveFactorizations]]
 deps = ["LinearAlgebra"]
@@ -1560,12 +1471,6 @@ deps = ["TOML"]
 git-tree-sha1 = "0f27480397253da18fe2c12a4ba4eb9eb208bf3d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.5.0"
-
-[[deps.PrettyTables]]
-deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "Reexport", "StringManipulation", "Tables"]
-git-tree-sha1 = "1101cd475833706e4d0e7b122218257178f48f34"
-uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "2.4.0"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1601,10 +1506,10 @@ uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 version = "1.11.0"
 
 [[deps.ReactiveMP]]
-deps = ["BayesBase", "DataStructures", "DiffResults", "Distributions", "DomainIntegrals", "DomainSets", "ExponentialFamily", "FastCholesky", "FastGaussQuadrature", "FixedArguments", "ForwardDiff", "HCubature", "LazyArrays", "LinearAlgebra", "LoopVectorization", "MacroTools", "MatrixCorrectionTools", "Optim", "PolyaGammaHybridSamplers", "PositiveFactorizations", "Random", "Rocket", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers", "Tullio", "TupleTools", "Unrolled"]
-git-tree-sha1 = "feff187996d9163f0e277673c17c0f458f5f6dbe"
+deps = ["BayesBase", "DataStructures", "DiffResults", "Distributions", "DomainIntegrals", "DomainSets", "ExponentialFamily", "FastCholesky", "FastGaussQuadrature", "FixedArguments", "ForwardDiff", "HCubature", "LazyArrays", "LinearAlgebra", "MacroTools", "MatrixCorrectionTools", "Optim", "PolyaGammaHybridSamplers", "PositiveFactorizations", "Random", "Rocket", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers", "Tullio", "TupleTools", "Unrolled"]
+git-tree-sha1 = "1655e7d94fb3ab77ae3d26bca601ab61a7eba491"
 uuid = "a194aa59-28ba-4574-a09c-4a745416d6e3"
-version = "5.4.7"
+version = "5.5.9"
 
     [deps.ReactiveMP.extensions]
     ReactiveMPOptimisersExt = "Optimisers"
@@ -1646,31 +1551,22 @@ uuid = "df971d30-c9d6-4b37-b8ff-e965b2cb3a40"
 version = "1.8.2"
 
 [[deps.RxInfer]]
-deps = ["BayesBase", "DataStructures", "Dates", "Distributions", "DomainSets", "ExponentialFamily", "FastCholesky", "GraphPPL", "HTTP", "JSON", "LinearAlgebra", "Logging", "MacroTools", "Optim", "Preferences", "PrettyTables", "ProgressMeter", "Random", "ReactiveMP", "Reexport", "Rocket", "Static", "Statistics", "TupleTools", "UUIDs"]
-git-tree-sha1 = "c820266d2e70f4d7bac1254186b2f9cefda3bb1e"
+deps = ["BayesBase", "DataStructures", "Dates", "Distributions", "DomainSets", "ExponentialFamily", "FastCholesky", "GraphPPL", "HTTP", "JSON", "LinearAlgebra", "Logging", "MacroTools", "Optim", "Preferences", "ProgressMeter", "Random", "ReactiveMP", "Reexport", "Rocket", "Static", "Statistics", "TupleTools", "UUIDs"]
+git-tree-sha1 = "92a21ab59bf6f1e4ffc29ce9a839a7af95412ca7"
 uuid = "86711068-29c9-4ff7-b620-ae75d7495b3d"
-version = "4.4.3"
+version = "4.5.1"
 
     [deps.RxInfer.extensions]
+    PrettyTablesExt = "PrettyTables"
     ProjectionExt = "ExponentialFamilyProjection"
 
     [deps.RxInfer.weakdeps]
     ExponentialFamilyProjection = "17f509fa-9a96-44ba-99b2-1c5f01f0931b"
+    PrettyTables = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
-
-[[deps.SIMDTypes]]
-git-tree-sha1 = "330289636fb8107c5f32088d2741e9fd7a061a5c"
-uuid = "94e857df-77ce-4151-89e5-788b33177be4"
-version = "0.1.0"
-
-[[deps.SLEEFPirates]]
-deps = ["IfElse", "Static", "VectorizationBase"]
-git-tree-sha1 = "456f610ca2fbd1c14f5fcf31c6bfadc55e7d66e0"
-uuid = "476501e8-09a2-5ece-8869-fb82de89a1fa"
-version = "0.6.43"
 
 [[deps.ScopedValues]]
 deps = ["HashArrayMappedTries", "Logging"]
@@ -1737,17 +1633,6 @@ git-tree-sha1 = "f737d444cb0ad07e61b3c1bef8eb91203c321eff"
 uuid = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 version = "1.2.0"
 
-[[deps.StaticArrayInterface]]
-deps = ["ArrayInterface", "Compat", "IfElse", "LinearAlgebra", "PrecompileTools", "Static"]
-git-tree-sha1 = "96381d50f1ce85f2663584c8e886a6ca97e60554"
-uuid = "0d7ed370-da01-4f52-bd93-41d350b8b718"
-version = "1.8.0"
-weakdeps = ["OffsetArrays", "StaticArrays"]
-
-    [deps.StaticArrayInterface.extensions]
-    StaticArrayInterfaceOffsetArraysExt = "OffsetArrays"
-    StaticArrayInterfaceStaticArraysExt = "StaticArrays"
-
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
 git-tree-sha1 = "cbea8a6bd7bed51b1619658dec70035e07b8502f"
@@ -1803,12 +1688,6 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
-[[deps.StringManipulation]]
-deps = ["PrecompileTools"]
-git-tree-sha1 = "725421ae8e530ec29bcbdddbe91ff8053421d023"
-uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
-version = "0.4.1"
-
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -1823,18 +1702,6 @@ deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
 
-[[deps.TableTraits]]
-deps = ["IteratorInterfaceExtensions"]
-git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
-uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
-version = "1.0.1"
-
-[[deps.Tables]]
-deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
-uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.12.1"
-
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
@@ -1844,12 +1711,6 @@ version = "1.10.0"
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 version = "1.11.0"
-
-[[deps.ThreadingUtilities]]
-deps = ["ManualMemory"]
-git-tree-sha1 = "d969183d3d244b6c33796b5ed01ab97328f2db85"
-uuid = "8290d209-cae3-49c0-8002-c8c24d57dab5"
-version = "0.5.5"
 
 [[deps.TinyHugeNumbers]]
 git-tree-sha1 = "83c6abf376718345a85c071b249ef6692a8936d4"
@@ -1914,12 +1775,6 @@ git-tree-sha1 = "6cc9d682755680e0f0be87c56392b7651efc2c7b"
 uuid = "9602ed7d-8fef-5bc8-8597-8f21381861e8"
 version = "0.1.5"
 
-[[deps.VectorizationBase]]
-deps = ["ArrayInterface", "CPUSummary", "HostCPUFeatures", "IfElse", "LayoutPointers", "Libdl", "LinearAlgebra", "SIMDTypes", "Static", "StaticArrayInterface"]
-git-tree-sha1 = "4ab62a49f1d8d9548a1c8d1a75e5f55cf196f64e"
-uuid = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
-version = "0.21.71"
-
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
@@ -1947,8 +1802,8 @@ version = "17.4.0+2"
 # ╟─27839788-d294-11ef-30a2-8ff6357aa68b
 # ╟─2783a99e-d294-11ef-3163-bb455746bf52
 # ╟─aed436fd-6773-4932-a5d8-d01cf99c10ec
+# ╟─983873d0-e1bc-4e1b-9b6c-3df0a17d83f6
 # ╟─2783b312-d294-11ef-2ebb-e5ede7a86583
-# ╟─2783b9ca-d294-11ef-0bf7-e767fbfad74a
 # ╟─939e74b0-8ceb-4214-bbc0-407c8f0b2f26
 # ╟─e3d5786b-49e0-40f7-9056-13e26e09a4cf
 # ╟─2783c686-d294-11ef-3942-c75d2b559fb3
@@ -1970,8 +1825,8 @@ version = "17.4.0+2"
 # ╟─2784f45e-d294-11ef-0439-1903016c1f14
 # ╠═0b5b816b-2dd2-4fe8-8f84-4eb2d58b5d59
 # ╠═1f468b26-b4fe-4f61-af41-0a15fdc44365
+# ╟─8ac328de-b7ba-457f-add6-9af506832282
 # ╟─651a4081-68f1-4237-9503-d4e28969a836
-# ╟─1510b299-24e6-4eac-a860-60c0c28fb523
 # ╟─f4509603-36be-4d24-8933-eb7a705eb933
 # ╟─8d7058c4-0e13-4d05-b131-32b1f118129f
 # ╟─1c53d48b-6950-4921-bf03-292b5ed8980e
@@ -1981,6 +1836,6 @@ version = "17.4.0+2"
 # ╟─345fa88c-98c2-4c41-b046-0c2d868b1d36
 # ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
 # ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
-# ╠═97a0384a-0596-4714-a3fc-bf422aed4474
+# ╟─97a0384a-0596-4714-a3fc-bf422aed4474
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
