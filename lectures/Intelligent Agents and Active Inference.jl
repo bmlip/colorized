@@ -453,11 +453,8 @@ Below we give a pseudocode implementation of the generative model used to do act
 end
 
 # ╔═╡ 651a4081-68f1-4237-9503-d4e28969a836
-md"""
+Resource("https://github.com/bmlip/course/raw/refs/heads/main/assets/ai_agent/minigrid_solved.mp4", :width => 300)
 
-$(Resource("https://github.com/bmlip/course/blob/main/assets/ai_agent/minigrid_solved.mp4?raw=true", :width => 300))
-
-"""
 
 # ╔═╡ 1510b299-24e6-4eac-a860-60c0c28fb523
 md"
