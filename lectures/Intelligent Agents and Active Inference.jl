@@ -345,8 +345,8 @@ q^*(u) &\triangleq \arg\min_q F[q]  \\
 where
 - ``\sigma(\cdot)`` denotes the softmax function,
 - ``G(u)`` is the expected free energy, defined in Eq. (G1), scoring both goal-directed and epistemic value of each policy,
-- ``C(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.    
-- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
+- ``C(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``,     
+- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model.
 
 """
 
