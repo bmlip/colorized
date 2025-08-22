@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> description = "Review of probability theory as a foundation for rational reasoning and Bayesian inference."
@@ -106,17 +106,6 @@ Does this fragment resonate with your own experience?
 
 In this lesson we introduce *Probability Theory* (PT) again. As we will see in the next lessons, PT is all you need to make sense of machine learning, artificial intelligence, statistics, etc. 
 
-"""
-
-# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
-md"""
-$(challenge_statement("Disease Diagnosis"))
-
-##### Problem
-  - Given is a disease with a prevalence of 1%  and a test procedure with sensitivity ('true positive' rate) of 95%, and specificity ('true negative' rate) of 85%. What is the chance that somebody who tests positive actually has the disease?
-
-##### Solution
-  - Use probabilistic inference, to be discussed in this lecture. 
 """
 
 # ╔═╡ 840ab4dc-0d2e-4bf8-acc7-5f1ee2b0dcaf
@@ -878,19 +867,6 @@ In this case, knowledge about the future influences our state of knowledge about
 # ╔═╡ 178721d2-624c-4ac4-8fa1-ded23da7feef
 keyconcept("", md"Probabilities describe beliefs (a ''state of knowledge''), rather than actual properties of nature.")
 
-# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
-## Revisiting the Challenge: Disease Diagnosis
-md"""
-$(challenge_solution("Disease Diagnosis"; big=true))
-
-##### Problem 
-
-- Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(@bind prevalence Scrubbable(0:0.01:1; format=".0%", default=0.01)) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(@bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)) and specificity (true negative' rate) of $(@bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)), what is the chance that somebody who tests positive actually has the disease?
-
-_The percentages are interactive! **Click and drag** to change the values._
-
-"""
-
 # ╔═╡ ef264651-854e-4374-8ea8-5476c85150c4
 md"# Moments and Transformations"
 
@@ -1454,12 +1430,40 @@ md"""
 # Appendix
 """
 
-# ╔═╡ 7910a84c-18b3-4081-9f01-e59258a01adb
-
-
 # ╔═╡ 70d79732-0f55-40ba-929d-fba431318848
 md"""
 ### Disease diagnosis implementation
+"""
+
+# ╔═╡ 4f6dd225-c64d-4b76-b075-0bf71c863b5a
+begin
+	prevalence_bond = @bind prevalence Scrubbable(0:0.01:1; format=".0%", default=0.01)
+	sensitivity_bond = @bind sensitivity Scrubbable(0:0.01:1; format=".0%", default=0.95)
+	specificity_bond = @bind specificity Scrubbable(0:0.01:1; format=".0%", default=0.85)
+end;
+
+# ╔═╡ 3e185ab0-d294-11ef-3f7d-9bd465518274
+md"""
+$(challenge_statement("Disease Diagnosis"))
+
+##### Problem
+  - Given is a disease with a prevalence of $(prevalence_bond) and a test procedure with sensitivity ('true positive' rate) of $(sensitivity_bond), and specificity ('true negative' rate) of $(specificity_bond). What is the chance that somebody who tests positive actually has the disease?
+
+##### Solution
+  - Use probabilistic inference, to be discussed in this lecture. 
+"""
+
+# ╔═╡ 3e1d6d00-d294-11ef-1081-e11b8397eb91
+## Revisiting the Challenge: Disease Diagnosis
+md"""
+$(challenge_solution("Disease Diagnosis"; big=true))
+
+##### Problem 
+
+- Given a disease ``D \in \{0, 1\}`` with prevalence (overall occurence percentage) of $(prevalence_bond) and a test procedure ``T  \in \{0, 1\}`` with sensitivity (true positive rate) of $(sensitivity_bond) and specificity (true negative' rate) of $(specificity_bond), what is the chance that somebody who tests positive actually has the disease?
+
+_The percentages are interactive! **Click and drag** to change the values._
+
 """
 
 # ╔═╡ a8046381-ff11-40af-ae2b-078d71c586e7
@@ -1503,7 +1507,7 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-BmlipTeachingTools = "~1.1.0"
+BmlipTeachingTools = "~1.2.1"
 Distributions = "~0.25.120"
 LaTeXStrings = "~1.4.0"
 MarkdownLiteral = "~0.1.2"
@@ -1516,7 +1520,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "7b4461a6af820173caf56df9fa1f688e38ce8abb"
+project_hash = "e40d37a129181591b70713a388c890af9599ac02"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1549,9 +1553,9 @@ version = "0.1.9"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
+git-tree-sha1 = "65337543996a6be4383f92aed118716dcafa6b0d"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.1.0"
+version = "1.2.1"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1693,9 +1697,9 @@ version = "0.1.11"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
+git-tree-sha1 = "7bb1361afdb33c7f2b085aa49ea8fe1b0fb14e58"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.6.5+0"
+version = "2.7.1+0"
 
 [[deps.FFMPEG]]
 deps = ["FFMPEG_jll"]
@@ -1733,9 +1737,9 @@ version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
-git-tree-sha1 = "301b5d5d731a0654825f1f2e906990f7141a106b"
+git-tree-sha1 = "f85dac9a96a01087df6e3a749840015a0ca3817d"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.16.0+0"
+version = "2.17.1+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
@@ -1861,9 +1865,9 @@ version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
+git-tree-sha1 = "e95866623950267c1e4878846f848d94810de475"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.1.1+0"
+version = "3.1.2+0"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1961,9 +1965,9 @@ version = "1.18.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "a31572773ac1b745e0343fe5e2c8ddda7a37e997"
+git-tree-sha1 = "706dfd3c0dd56ca090e86884db6eda70fa7dd4af"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.41.0+0"
+version = "2.41.1+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -1973,9 +1977,9 @@ version = "4.7.1+0"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "321ccef73a96ba828cd51f2ab5b9f917fa73945a"
+git-tree-sha1 = "d3c8af829abaeba27181db4acb485b18d15d89c6"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.41.0+0"
+version = "2.41.1+0"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
@@ -2166,9 +2170,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
+git-tree-sha1 = "0c5a5b7e440c008fe31416a3ac9e0d2057c81106"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.18"
+version = "1.40.19"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -2192,9 +2196,9 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
+git-tree-sha1 = "8329a3a4f75e178c11c1ce2342778bcbbbfa7e3c"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.70"
+version = "0.7.71"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
@@ -2886,8 +2890,8 @@ version = "1.9.2+0"
 # ╟─d3b003c6-70ca-419f-a343-e35b266323f3
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
-# ╠═7910a84c-18b3-4081-9f01-e59258a01adb
 # ╟─70d79732-0f55-40ba-929d-fba431318848
+# ╠═4f6dd225-c64d-4b76-b075-0bf71c863b5a
 # ╟─a8046381-ff11-40af-ae2b-078d71c586e7
 # ╠═42b47af6-b850-4987-a2d7-805a2cb64e43
 # ╠═a66ab9df-897c-42e5-8b0f-c520ceaffa23
