@@ -359,7 +359,7 @@ details(md"""Click for proof of ``q^*(u)``""",
     \begin{align}
     F[q] &=\mathbb{E}_{q(u)}\left[ G(u)\right] + \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right] \tag{F2} \\  
     &=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{C(u)}	\bigg]	\\
-    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-C(u))}\Big]	\bigg]	\\
+    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u))} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-C(u))}\Big]	\bigg]	\\
     &= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - C(u))}\bigg]	
     \end{align}
     ```
