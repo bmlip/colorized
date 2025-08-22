@@ -389,7 +389,7 @@ From an engineering perspective, if one accepts that effective decision-making s
 md"""
 ## Interpretation of the Epistemic Priors
 
-Where do the epistemic costs (ambiguity and novelty) in the EFE function come from? In the formulation introduced in Eq. (E1), the epistemic prior
+In the formulation introduced in Eq. (E1), the epistemic prior
 ``\tilde{p}(u) = \exp\big(H[q(x | u)]\big)`` biases the agent toward selecting policies ``u`` that maximize the entropy of the predicted future states ``x``.
 
 This reflects an information-seeking preference: high entropy over future states implies that the agent is actively maintaining flexibility and postponing premature commitment. Rather than treating uncertainty as something to avoid, this formulation encourages the agent to seek out policies that enable adaptation as new observations arrive.
