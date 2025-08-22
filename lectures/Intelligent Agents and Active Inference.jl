@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.13
+# v0.20.15
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/ai_agent/agent-cart-interaction2.png?raw=true"
@@ -175,7 +175,7 @@ where ``y`` denotes future observations, ``x`` refers to internal (hidden) futur
 Since model (P1) is designed to predict how the future is expected to unfold, we refer to (P1) as the **predictive model**. A typical example is a rollout to the future of a state-space model,
 
 ```math
-p(y,x,\theta,u) = p(x_t) \underbrace{\prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)}_{\text{rollout to the future}}\,.
+p(y,x,\theta,u) = p(x_t) p(\theta)\underbrace{\prod_{k=t+1}^T  p(y_k|x_k,\theta) p(x_k|x_{k-1},u_k) p(u_k)}_{\text{rollout to the future}}\,.
 ```
 
 In addition to the predictive model, we assume that the agent holds beliefs ``\hat{p}(x)`` about the *desired* future states. For example, the owl in our earlier example holds the belief that it will not be hungry in the future. We refer to ``\hat{p}(x)`` as the **goal prior**.
@@ -237,29 +237,29 @@ details("Click for proof of the EFE Theorem",
     \begin{flalign}
         F[q] &= E_{q(y x \theta u )}\bigg[ \log \frac{q(y x \theta u )}{p(y x \theta u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)} \bigg] \\
         &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
-        + \underbrace{E_{q(yx\theta | u)}\big[ \log \frac{q(y x \theta | u)}{p(yx \theta|u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)}\big]}_{C(u)}  
+        + \underbrace{E_{q(yx\theta | u)}\big[ \log \frac{q(y x \theta | u)}{p(yx \theta|u)  \hat{p}(x) \tilde{p}(u) \tilde{p}(x)  \tilde{p}(yx)}\big]}_{B(u)}  
          \bigg] \; &&\text{(C1)}\\
          &= E_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} 
-        + \underbrace{G(u) +E_{q(yx\theta | u)} \big[\log \frac{q(yx\theta|u)}{p(yx\theta|u)}\big]}_{=C(u) \text{ if conditions (E1), (E2) and (E3) hold}}  
+        + \underbrace{G(u) +E_{q(yx\theta | u)} \big[\log \frac{q(yx\theta|u)}{p(yx\theta|u)}\big]}_{=B(u) \text{ if conditions (E1), (E2) and (E3) hold}}  
          \bigg] &&\text{(C2)} \\
         &= E_{q(u)}\big[ G(u)\big]+ E_{q(yx\theta u)}\bigg[\log \frac{q(yx\theta u)}{p(yx\theta u)}\bigg]\,,   
     \end{flalign}
     ```		
     if the conditions in Eqs. ``(\mathrm{E}1)``, ``(\mathrm{E}2)``, and ``(\mathrm{E}3)`` hold.
     	
-    In the above derivation, we still need to prove the equivalence of ``C(u)`` in
+    In the above derivation, we still need to prove the equivalence of ``B(u)`` in
     Eqs. ``(\mathrm{C}1)`` and ``(\mathrm{C}2)``, which we address next. 
     In the following, all expectations are with respect to ``q(y,x,\theta|u)`` unless otherwise indicated. 
 
     ```math
     \begin{flalign}
-    C(&u) = E\bigg[ \log \frac{ \overbrace{q(yx\theta|u)}^{\text{posterior}} }{ \underbrace{p(yx\theta|u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goals}} \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)}_{\text{epistemic priors}}} \bigg]  \; &&\text{(C3)} \\
+    B(&u) = E\bigg[ \log \frac{ \overbrace{q(yx\theta|u)}^{\text{posterior}} }{ \underbrace{p(yx\theta|u)}_{\text{predictive}} \underbrace{\hat{p}(x)}_{\text{goals}} \underbrace{\tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)}_{\text{epistemic priors}}} \bigg]  \; &&\text{(C3)} \\
     &= \underbrace{ E\bigg[\log\bigg( \underbrace{\frac{q(x|u)}{\hat{p}(x)}}_{\text{risk}}\cdot \underbrace{\frac{1}{q(y|x  )}}_{\text{ambiguity}} \cdot \underbrace{\frac{ q(\theta|x)}{ q(\theta|yx )}}_{-\text{novelty}} \bigg) \bigg] }_{G(u) = \text{Expected Free Energy}} +   \\
     &\quad + E\bigg[ \log\bigg( \underbrace{\frac{\hat{p}(x) q(y|x ) q(\theta| yx)}{q(x|u) q(\theta|x)}}_{\text{inverse factors from }G(u)} \cdot \underbrace{\frac{q(yx\theta|u)}{p(yx\theta|u) \hat{p}(x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx) }}_{\text{leftover factors from (C3)}} \bigg)\bigg] \notag \\
-    &= G(u) + \underbrace{E\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg]}_{=B(u)} + \underbrace{E\bigg[ \log  \frac{q(y|x ) q(\theta|yx)}{q(x|u) q(\theta|x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)} \bigg]}_{\text{choose epistemic priors to let this vanish}} \\
-    &= G(u) + B(u) +  \\
+    &= G(u) + \underbrace{E\bigg[ \log \frac{q(yx\theta|u)}{p(yx\theta|u)}\bigg]}_{=C(u)} + \underbrace{E\bigg[ \log  \frac{q(y|x ) q(\theta|yx)}{q(x|u) q(\theta|x) \tilde{p}(u) \tilde{p}(x) \tilde{p}(yx)} \bigg]}_{\text{choose epistemic priors to let this vanish}} \\
+    &= G(u) + C(u) +  \\
     &\quad + E\bigg[\log \frac{1}{q(x|u) \tilde{p}(u)} \bigg] + E\bigg[ \log  \frac{q(y|x)}{\tilde{p}(x)} \bigg] + E\bigg[ \log  \frac{q(\theta|yx)}{q(\theta|x) \tilde{p}(yx) } \bigg] \notag \\
-    &= G(u) + B(u) +  \\
+    &= G(u) + C(u) +  \\
     &\qquad + \sum_{y\theta} q(y\theta|x) \bigg( \underbrace{\underbrace{-\sum_x q(x|u) \log q(x|u)}_{= H[q(x|u)]} - \sum_x q(x|u) \log \tilde{p}(u)}_{=0 \text{ if }\tilde{p}(u) = \exp(H[q(x|u)])}\bigg) \\
     &\qquad + \sum_{x} q(x|u) \bigg( \underbrace{\underbrace{\sum_{y} q(y|x) \log q(y|x)}_{= -H[q(y|x)]} - \sum_{y} q(y|x) \log \tilde{p}(x)}_{=0 \text{ if }\tilde{p}(x) = \exp(-H[q(y|x)])} \bigg)   \notag \\
     &\qquad + \sum_{yx} q(yx|u) \bigg( \underbrace{\underbrace{\sum_\theta q(\theta|yx) \log \frac{q(\theta|yx)}{q(\theta|x)}}_{D[q(\theta|yx),q(\theta|x)]} - \sum_\theta q(\theta|yx) \log \tilde{p}(yx)}_{=0 \text{ if } \tilde{p}(yx) = \exp(D[q(\theta|yx),q(\theta|x)])} \bigg) \notag \\
@@ -331,14 +331,14 @@ Assume that our agent is continually engaged in minimizing its variational free 
 ```math
 \begin{align}
 q^*(u) &\triangleq \arg\min_q F[q]  \\ 
-&= \sigma\left( -P(u) - G(u) -B(u)\right) \,, \tag{Q*}
+&= \sigma\left( -P(u) - G(u) -C(u)\right) \,, \tag{Q*}
 \end{align}
 ```
 where
 - ``\sigma(\cdot)`` denotes the softmax function,
 - ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
 - ``G(u)`` is the expected free energy, defined in Eq. (G1), scoring both goal-directed and epistemic value of each policy,
-- ``B(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.
+- ``C(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.
 
 
 """
@@ -350,15 +350,15 @@ details(md"""Click for proof of ``q^*(u)``""",
     ```math
     \begin{align}
     F[q] &=\mathbb{E}_{q(u)}\left[ G(u)\right] + \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right] \tag{F2} \\  
-    &=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{B(u)}	\bigg]	\\
-    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-B(u))}\Big]	\bigg]	\\
-    &= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - B(u))}\bigg]	
+    &=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{C(u)}	\bigg]	\\
+    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{p(u)} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-C(u))}\Big]	\bigg]	\\
+    &= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - C(u))}\bigg]	
     \end{align}
     ```
     which is (proportional to) a Kullback-Leibler divergence that is minimized for 
     ```math
     \begin{align}
-    q^*(u) = \sigma\left(-P(u) -G(u) - B(u) \right)	\,.
+    q^*(u) = \sigma\left(-P(u) -G(u) - C(u) \right)	\,.
     \end{align}
     ```	
     """)
@@ -584,7 +584,6 @@ BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
-BmlipTeachingTools = "~1.2.1"
 RxInfer = "~4.5.1"
 """
 
@@ -592,9 +591,9 @@ RxInfer = "~4.5.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "0dc7c39b2f794078a8a747fa66a5835ffec15ddd"
+project_hash = "cedb08a49633d204b9392bc7f09ca6ff7739f787"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -717,9 +716,9 @@ version = "1.1.5"
 
 [[deps.BlockArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "84a4360c718e7473fec971ae27f409a2f24befc8"
+git-tree-sha1 = "291532989f81db780e435452ccb2a5f902ff665f"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "1.7.1"
+version = "1.7.0"
 
     [deps.BlockArrays.extensions]
     BlockArraysAdaptExt = "Adapt"
@@ -731,9 +730,9 @@ version = "1.7.1"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "65337543996a6be4383f92aed118716dcafa6b0d"
+git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.2.1"
+version = "1.0.0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -842,9 +841,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "38989b1532a3c6e2341d52b77c5475c42c3318a8"
+git-tree-sha1 = "53970db0989d231937cd96c0b0ace67f38da274e"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.6"
+version = "0.7.5"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1370,7 +1369,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1444,9 +1443,9 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "8329a3a4f75e178c11c1ce2342778bcbbbfa7e3c"
+git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.71"
+version = "0.7.70"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
