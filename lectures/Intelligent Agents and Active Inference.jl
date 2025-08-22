@@ -37,23 +37,31 @@ md"""
   * Mandatory
 
       * These lecture notes
-      * Bert de Vries - 2021 - Presentation on [Beyond deep learning: natural AI systems](https://youtu.be/QYbcm6G_wsk?si=G9mkjmnDrQH9qk5k) (video)
+     
   * Optional
 
-      * Bert de Vries, Tim Scarfe and Keith Duggar - 2023 - Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
-          * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
+     * Noumenal labs (2025), [WTF is the FEP? A short explainer on the free energy principle](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle)
+        *  A concise, accessible introduction to the Free Energy Principle, aimed at demystifying it for a broader audience—matching the tone and intent suggested by the playful but clear title.   
 
-      * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bmlip/course/blob/main/assets/files/WIRED-Friston.pdf).
-          * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
+     * De Vries et al. (2025), [Expected Free Energy-based Planning as Variational Inference](https://arxiv.org/pdf/2504.14898)
+        * On minimizing expected free energy by variational free energy minimization.
 
-      * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
-          * Friston's vision on the future of AI.
+     * Bert de Vries, Tim Scarfe and Keith Duggar (2023), Podcast on [Active Inference](https://youtu.be/2wnJ6E6rQsU?si=I4_k40j42_8E4igP). Machine Learning Street Talk podcast
+        * Quite extensive discussion on many aspect regarding the Free Energy Principle and Active Inference, in particular relating to its implementation.
 
-      * De Vries et al. (2025), [Expected Free Energy-based Planning as Variational Inference](https://arxiv.org/pdf/2504.14898)
-          * On minimizing expected free energy by variational free energy minimization.
+     * Friston et al. (2022), [Designing Ecosystems of Intelligence from First Principles](https://arxiv.org/abs/2212.01354)
+       * Friston's vision on the future of AI.
 
-    * Noumenal labs (2025), [WTF is the FEP? A short explainer on the free energy principle](https://www.noumenal.ai/post/wtf-is-the-fep-a-short-explainer-on-the-free-energy-principle)
-         *  A concise, accessible introduction to the Free Energy Principle, aimed at demystifying it for a broader audience—matching the tone and intent suggested by the playful but clear title.    
+     * Bert de Vries (2021), Presentation on [Beyond deep learning: natural AI systems](https://youtu.be/QYbcm6G_wsk?si=G9mkjmnDrQH9qk5k) (video)
+     * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bmlip/course/blob/main/assets/files/WIRED-Friston.pdf).
+        * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
+     * Karl Friston (2011), [What Is Optimal about Motor Control?](https://doi.org/10.1016/j.neuron.2011.10.018), Neuron 72-3, p488-498
+        * Critiques classical optimal control theory as a sufficient model for biological motor control, highlighting its limitations in explaining how the brain handles uncertainty, noise, and complexity. Instead, Friston reframes motor control as an active inference process under the Free Energy Principle.
+ 
+
+ 
+
+  
 
 """
 
@@ -559,16 +567,17 @@ md"""
 
 In the [Machine Learning Overview lecture](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html), we introduced a picture illustrating the [Scientific Inquiry Loop](https://bmlip.github.io/course/lectures/Machine%20Learning%20Overview.html#Machine-Learning-and-the-Scientific-Inquiry-Loop). 
 
-Active inference completes this “scientific loop” as a fully variational inference process. Under the FEP, experimental or trial design is driven by expected free energy (EFE) minimization. Bayesian probability theory—and the FEP—provide all the equations needed to run the process of scientific inquiry.
+Active inference completes this “scientific loop” as a fully variational inference process. Under the FEP, all processes, including state updating, learning, and trial design (in living systems: perception, learning, and control/behavior, respectively) are driven by VFE minimization. Bayesian probability theory, together with the FEP, provides all the equations needed to run the process of scientific inquiry.
 
+The figure below illustrates this process. We do not depict the epistemic priors as an external input, since it can be computed internally by the agent itself.
 
-![](https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-complete.png?raw=true)
+![](https://github.com/bmlip/course/blob/main/assets/figures/AIF-agent-loop.png?raw=true)
 
-In essence, active inference is an automated scientific inquiry loop with an engineering twist. Without goal priors, it would simply converge to a veridical (“true”) generative model of the environment—pure science. With goal priors, however, active inference generates purposeful behavior. For example, the goal prior “I will not get hit by a car” leads to the inference of actions that safely get you across the road. Similarly, carefully designed goal priors enable the brain to develop solutions for object recognition, locomotion, speech generation, and more.
+If an agent has no goal priors, then active inference reduces to an automated (Bayes-optimal) scientist: the agent’s generative model will converge to a veridical (“true”) description of the environment. With goal priors, however, an active inference agent becomes a (Bayes-optimal) engineer: its model converges to beliefs that generate purposeful behavior. For example, the goal prior “I will not get hit by a car” leads to the inference of actions that allow safe crossing of the road. In the same way, carefully structured goal priors enable the brain to develop solutions for tasks such as object recognition, locomotion, and speech generation.
 
-In short, **AIF is an automated Bayes-optimal engineering design loop**.
+In short, **AIF is an automated (Bayes-optimal) engineering design loop**.
 
-The challenge is computational efficiency: the human brain runs on about 20 W, with the neocortex using just 4 W—roughly the power of a bicycle light—yet performs tasks that would consume millions of times more power on current silicon hardware.
+The challenge is computational efficiency: the human brain runs on about 20 [W], with the neocortex using just 4 [W], roughly the power of a bicycle light, yet performs tasks that would consume millions of times more power on current silicon hardware.
 
 """
 
@@ -584,6 +593,7 @@ BmlipTeachingTools = "656a7065-6f73-6c65-7465-6e646e617262"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
 
 [compat]
+BmlipTeachingTools = "~1.2.1"
 RxInfer = "~4.5.1"
 """
 
@@ -593,7 +603,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "cedb08a49633d204b9392bc7f09ca6ff7739f787"
+project_hash = "0dc7c39b2f794078a8a747fa66a5835ffec15ddd"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -716,9 +726,9 @@ version = "1.1.5"
 
 [[deps.BlockArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "291532989f81db780e435452ccb2a5f902ff665f"
+git-tree-sha1 = "84a4360c718e7473fec971ae27f409a2f24befc8"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "1.7.0"
+version = "1.7.1"
 
     [deps.BlockArrays.extensions]
     BlockArraysAdaptExt = "Adapt"
@@ -730,9 +740,9 @@ version = "1.7.0"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "abada1706d775aa2b6d41e8659e1a64cfe977cc0"
+git-tree-sha1 = "65337543996a6be4383f92aed118716dcafa6b0d"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.0.0"
+version = "1.2.1"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -841,9 +851,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "53970db0989d231937cd96c0b0ace67f38da274e"
+git-tree-sha1 = "16946a4d305607c3a4af54ff35d56f0e9444ed0e"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.5"
+version = "0.7.7"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1443,9 +1453,9 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
+git-tree-sha1 = "8329a3a4f75e178c11c1ce2342778bcbbbfa7e3c"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.70"
+version = "0.7.71"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
@@ -1835,6 +1845,6 @@ version = "17.4.0+2"
 # ╟─345fa88c-98c2-4c41-b046-0c2d868b1d36
 # ╟─2784c270-d294-11ef-2b9b-43c9bdd56bae
 # ╟─be0dc5c0-6340-4d47-85ae-d70e06df1676
-# ╟─97a0384a-0596-4714-a3fc-bf422aed4474
+# ╠═97a0384a-0596-4714-a3fc-bf422aed4474
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
