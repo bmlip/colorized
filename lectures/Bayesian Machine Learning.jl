@@ -1235,7 +1235,7 @@ keyconcept(" ",
 
 # ╔═╡ f2969d91-4a5b-4665-9fa5-521db750302f
 md"""
-$(section_outline("Excercises","",header_level=1))
+$(section_outline("Exercises","",header_level=1))
 
 #####  Bayes estimate (**)
 

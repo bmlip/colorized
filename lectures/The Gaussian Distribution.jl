@@ -272,7 +272,7 @@ Following the example above, now compute the PDF for ``z`` if ``x`` and ``y`` we
 """
 
 # ╔═╡ 9c2bf0a2-4bb6-4769-b47b-6a02c4e73044
-details("Click for answer",
+hide_solution(
 md"""	   
 In this case, we assume that 
 ```math
@@ -316,7 +316,7 @@ z =a \cdot (x-y) + b \,\text{?}
 """)
 
 # ╔═╡ 673360e8-27ed-471c-a866-15af550df5e7
-details("click for answer",
+hide_solution(
 md"""
 
 		
@@ -381,7 +381,7 @@ Let ``\theta =\{\mu,\Sigma\}``. Prove that the log-likelihood (LLH) function ``\
 """
 
 # ╔═╡ f008a742-6900-4e18-ab4e-b5da53fb64a6
-details("click to see proof",
+hide_proof(
 		
 		md" ```math
 \begin{align*}
@@ -406,7 +406,7 @@ Prove that the maximum likelihood estimate of the mean is given by
 """
 
 # ╔═╡ 8d2732e8-479f-4744-9b1f-d0364f0c6488
-details("click to see proof",		
+hide_proof(	
 md""" 
 ```math
 \begin{align*}
@@ -438,7 +438,7 @@ The gradient of the LLH with respect to the variance ``\Sigma`` is a bit more in
 
 
 # ╔═╡ 2767b364-6f9a-413d-aa9e-88741cd2bbb1
-details("click to see proof",		
+hide_proof(	
 md""" 
 ```math
 \begin{align*}
@@ -1744,7 +1744,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-BmlipTeachingTools = "~1.1.0"
+BmlipTeachingTools = "~1.2.0"
 Distributions = "~0.25.120"
 HCubature = "~1.7.0"
 LaTeXStrings = "~1.4.0"
@@ -1758,7 +1758,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "07a127c4fa2593ca07bbc3eec98e4cf0edebbb0c"
+project_hash = "26811b1fd9205302df71e77acd2ee768b00bf473"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1791,9 +1791,9 @@ version = "0.1.9"
 
 [[deps.BmlipTeachingTools]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "PlutoTeachingTools", "PlutoUI", "Reexport"]
-git-tree-sha1 = "17747c9318a7e81cd8ca4ee3d414d96e7d8bba3e"
+git-tree-sha1 = "2e6f3d3748599bcdf8de11677824b58564ea9d2d"
 uuid = "656a7065-6f73-6c65-7465-6e646e617262"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2417,9 +2417,9 @@ version = "1.4.3"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "TOML", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "9a9216c0cf706cb2cc58fd194878180e3e51e8c0"
+git-tree-sha1 = "0c5a5b7e440c008fe31416a3ac9e0d2057c81106"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.18"
+version = "1.40.19"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -3044,7 +3044,7 @@ version = "1.9.2+0"
 # ╟─b9a5589a-d294-11ef-3fc3-0552a69df7b2
 # ╟─9501922f-b928-46e2-8f23-8eb9c64f6198
 # ╟─b9a5889c-d294-11ef-266e-d90225222e10
-# ╟─56510a09-073c-4fc8-b0b7-17b20dbb95f0
+# ╠═56510a09-073c-4fc8-b0b7-17b20dbb95f0
 # ╟─a82378ae-d1be-43f9-b63a-2f897767d1fb
 # ╟─36eff7bc-72f2-4b48-a109-1861af6834aa
 # ╟─87f400ac-36f2-4778-a3ba-06dd7652e279

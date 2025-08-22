@@ -42,8 +42,6 @@ using BmlipTeachingTools
 # ╔═╡ 25eefb10-d294-11ef-0734-2daf18636e8e
 title("Discriminative Classification")
 
-"""
-
 # ╔═╡ e7c45ff8-9fa2-4ea3-a06f-5769d877540e
 PlutoUI.TableOfContents()
 
