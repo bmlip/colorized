@@ -401,13 +401,6 @@ Because the quadratic term ``x_\bullet^T \hat{\Sigma}_k^{-1} x_\bullet`` is now 
 # ╔═╡ 1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
 challenge_solution("Apple or Peach", header_level=2, color="green")
 
-# ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
-md"""
-
-We'll apply the above results to solve the "apple or peach" example problem.
-
-"""
-
 # ╔═╡ 4481b38d-dc67-4c1f-ac0b-b348f0aea461
 md"""
 #### Multinomial (in this case binomial) density estimation
@@ -653,8 +646,11 @@ y = let
 		y = rand(MersenneTwister(23), Bernoulli(p_apple), N)
     end
 
+# ╔═╡ 1c67b796-fd70-4e0c-9027-d69eaf295419
+y
+
 # ╔═╡ cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
-p_apple_est = sum(y.==true) / length(y)
+p_apple_est = sum(y) / length(y)
 
 # ╔═╡ 19360d53-93d8-46fe-82d5-357015e75e22
 π_hat = [p_apple_est; 1-p_apple_est]
@@ -788,6 +784,13 @@ You are also given a test fruit $unknown_marker, which has known feature values 
 ##### Solution
 
   - Later in this lecture.
+"""
+
+# ╔═╡ 23c82e10-d294-11ef-286a-ff6fee0f2805
+md"""
+
+We'll apply the above results to solve the "apple $apple_marker or peach $peach_marker" example problem.
+
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2077,9 +2080,10 @@ version = "1.9.2+0"
 # ╟─25e18c78-9cac-4faa-bb7c-ac036d0eac90
 # ╟─a8adaf31-bee2-40e9-8d9b-bb9f1ad996ca
 # ╟─b01a4a56-bed2-4a06-991a-831adc84aa3e
-# ╠═1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
+# ╟─1a890e4b-b8a9-4a6e-b1f3-17863e1416d7
 # ╟─23c82e10-d294-11ef-286a-ff6fee0f2805
 # ╟─4481b38d-dc67-4c1f-ac0b-b348f0aea461
+# ╠═1c67b796-fd70-4e0c-9027-d69eaf295419
 # ╠═cc8144d9-9ecf-4cbd-aea9-0c7a2fca2d94
 # ╠═19360d53-93d8-46fe-82d5-357015e75e22
 # ╟─5092090d-cfac-4ced-b61e-fb7107a4c638
