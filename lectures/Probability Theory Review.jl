@@ -722,25 +722,11 @@ md"""
 # Examples
 """
 
-# ╔═╡ 3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
+# ╔═╡ e3157dc0-5a64-4479-a37a-40fe25cccc07
+code_example("Sampling Distribution and Likelihood Function for the Coin Toss")
+
+# ╔═╡ 7d493e09-f7cc-4e13-a506-b792edcbf390
 md"""
-
-$(code_example("Sampling Distribution and Likelihood Function for the Coin Toss"))
-
-
-Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter ``\theta \in [0,1]``:
-
-```math
-\begin{align*}
-p(y|\theta) = \theta^y (1-\theta)^{1-y}\\
-\end{align*}
-```
-
-Next, we use Julia to plot both the sampling distribution 
-
-```math
-p(y|\theta=0.5) = \begin{cases} 0.5 & \text{if }y=0 \\ 0.5 & \text{if } y=1 \end{cases}
-```
 
 and the likelihood function 
 
@@ -753,9 +739,34 @@ L(\theta) \triangleq p(y=1|\theta) = \theta \,.
 # ╔═╡ fc733d61-fd0f-4a13-9afc-4505ac0253df
 f(y,θ) = θ.^y .* (1 .- θ).^(1 .- y) # p(y|θ)
 
+# ╔═╡ 3e1d20e0-d294-11ef-2044-e1fe6590a600
+md"""
+!!! note
+	The (discrete) sampling distribution is a valid probability distribution. 
+	
+	However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L(\theta) \mathrm{d}\theta = 0.5 \neq 1``. 
+"""
+
+# ╔═╡ ab223dea-8ba8-4d30-94f4-72c8e070aadf
+θ_bond = @bind θ Scrubbable(0.0:0.02:1; format=".2f");
+
+# ╔═╡ d93f73d4-2783-4777-b0ce-cdc0444cb300
+md"""
+
+Consider the following simple model for the outcome ``y \in \{0,1\}`` (tail = ``0``, head = ``1``) of a biased coin toss with a real parameter $θ_bond ``= \theta \in [0,1]``:
+
+```math
+\begin{align*}
+p(y|\theta) = \theta^y (1-\theta)^{1-y}\\
+\end{align*}
+```
+
+Next, we use Julia to plot both the sampling distribution 
+
+"""
+
 # ╔═╡ 8a7dd8b7-5faf-4091-8451-9769f842accb
 let
-	θ = 0.5
 	p1 = plot(
 			[0,1], f([0,1], θ);
 			line=:stem, 
@@ -776,12 +787,9 @@ let
 	plot(p1, p2)
 end
 
-# ╔═╡ 3e1d20e0-d294-11ef-2044-e1fe6590a600
+# ╔═╡ b7445b9b-7fbb-4560-b947-a23af0fcf101
 md"""
-The (discrete) sampling distribution is a valid probability distribution. 
-
-However, the likelihood function ``L(\theta)`` clearly isn't, since ``\int_0^1 L(\theta) \mathrm{d}\theta = 0.5 \neq 1``. 
-
+Click and drag this number to change ``\theta``: $θ_bond.
 """
 
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
@@ -1471,6 +1479,16 @@ result = (sensitivity * prevalence) / (sensitivity * prevalence + (1 - specifici
 
 # ╔═╡ 4a81342c-17c7-4eb9-933b-edb98df7b9c4
 n(x; digits=2) = @sprintf("%.*f", digits, x)
+
+# ╔═╡ 079157c9-5d97-4dbc-8c47-afa8b661db06
+let
+	θ_str = n(θ)
+	@mdx """
+	```math
+	p(y|\\theta=$(n(θ))) = \\begin{cases} $(n(1-θ)) & \\text{if }y=0 \\\\ $(n(θ)) & \\text{if } y=1 \\end{cases}
+	```
+	"""
+end
 
 # ╔═╡ 2156f96e-eebe-4190-8ce9-c76825c6da71
 @mdx """
@@ -2821,11 +2839,16 @@ version = "1.9.2+0"
 # ╟─3e1c9184-d294-11ef-3e35-5393d97fbc44
 # ╟─3e1d33c8-d294-11ef-0a08-bdc419949925
 # ╟─b176ceae-884e-4460-9f66-020c1ac447f1
-# ╟─3e1ca4a8-d294-11ef-1a4f-a3443b74fe63
+# ╟─e3157dc0-5a64-4479-a37a-40fe25cccc07
 # ╠═eeb9a1f5-b857-4843-920b-2e4a9656f66b
+# ╟─d93f73d4-2783-4777-b0ce-cdc0444cb300
+# ╟─079157c9-5d97-4dbc-8c47-afa8b661db06
+# ╟─7d493e09-f7cc-4e13-a506-b792edcbf390
 # ╠═fc733d61-fd0f-4a13-9afc-4505ac0253df
 # ╟─8a7dd8b7-5faf-4091-8451-9769f842accb
+# ╟─b7445b9b-7fbb-4560-b947-a23af0fcf101
 # ╟─3e1d20e0-d294-11ef-2044-e1fe6590a600
+# ╟─ab223dea-8ba8-4d30-94f4-72c8e070aadf
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
 # ╟─4c639e65-e06b-4c5e-b6e7-aabed6b6c0b4
 # ╟─ff9142ba-3a85-48cf-8b78-07e0b554e280
