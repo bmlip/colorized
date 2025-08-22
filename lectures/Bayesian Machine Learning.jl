@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/scientific-inquiry-loop-w-BML-eqs.png?raw=true"
@@ -899,9 +899,9 @@ For large ``N``, the gain goes to ``1`` and ``\left. p(x_\bullet=1|D)\right|_{N\
 """
 
 # ╔═╡ 6a2abb16-d294-11ef-0243-d376e8a39bb0
-code_example("Bayesian Evolution for the Coin Toss")
+code_example("Bayesian Evolution for the Coin Toss"; big=true)
 
-# ╔═╡ 6a2acb7e-d294-11ef-185c-9d49ce79c31b
+# ╔═╡ 54cb380d-8864-4158-ba68-55027ae68971
 md"""
 Let's code an example for a sequence of coin tosses, where we assume that the true coin generates data ``x_n \in \{0,1\}`` by a Bernoulli distribution:
 
@@ -911,11 +911,20 @@ p(x_n|\mu=0.4)=0.4^{x_n} \cdot 0.6^{1-x_n}
 
 So, this coin is biased!
 
-To predict the outcomes of future coin tosses, we'll compare **two models**. Both models have the same data-generating distribution (also Bernoulli):
+"""
+
+# ╔═╡ 9da43d0f-e605-41b7-9bc6-db5be95bc87f
+secret_distribution = Bernoulli(0.4);
+
+# ╔═╡ 280e0819-674e-4a58-854d-5a66e0777074
+md"""
+### Two models
+To predict the outcomes of future coin tosses, we'll compare **two models**: ``m_1`` and ``m_2``. Both models have the same data-generating distribution (also Bernoulli):
 
 ```math
 p(x_n|\mu,m_k) = \mu^{x_n} (1-\mu)^{1-x_n} \quad \text{for }k=1,2 \,,
 ```
+
 
 but they have different priors:
 
@@ -926,39 +935,51 @@ p(\mu|m_2) &= \mathrm{Beta}(\mu|\alpha=8,\beta=13). \\
 \end{aligned}
 ```
 
-You can verify that model ``m_2`` has the best prior, since
+"""
 
-```math
-\begin{align*}
-p(x_n=1|m_1) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_1} = 100/600 \approx 0.17 \\
-p(x_n=1|m_2) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_2} = 8/21 \approx 0.38 \,,
-\end{align*}
-```
+# ╔═╡ e47b6eb6-2bb3-4c2d-bda6-f1535f2f94c4
+priors = [
+	Beta(100., 500.), 
+	Beta(8., 13.)
+];
 
-(but you are not supposed to know that the real coin has a probability ``0.4`` for heads.) 
-
-Let's run ``500`` tosses:
+# ╔═╡ e55126ef-e956-464d-8ae0-32b077649f21
+md"""
+> #### We can already guess which one is better!
+> 
+> You can verify that model ``m_2`` has the best prior, since
+> 
+> ```math
+> \begin{align*}
+> p(x_n=1|m_1) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_1} = 100/600 \approx 0.17 \\
+> p(x_n=1|m_2) &= \left.\frac{\alpha}{\alpha+\beta}\right|_{m_2} = 8/21 \approx 0.38 \,,
+> \end{align*}
+> ```
+> 
+> (but you are not supposed to know that the real coin has a probability ``0.4`` for heads.) 
+> 
 
 """
 
-# ╔═╡ 8bfc4f37-4bf8-42a3-bd55-f046c8d2624a
-TODO("What code do we want to show, and what do we want to hide? We might want to move cells with hidden code to the end of this section.")
+# ╔═╡ f67136ff-f33c-436e-823b-9c530d257ab0
+md"""
+### Simulation
 
-# ╔═╡ 51829800-1781-49ae-8ee7-ac15c0bfcb88
-# computes log10 of Gamma function
-function log10gamma(num)
-    num = convert(BigInt, num)
-    return log10(gamma(num))
-end
-
-# ╔═╡ de7a1b82-f1c4-4eff-b372-ac76cf11c015
-μ  = 0.4;                        # specify model parameter
+Let's run ``500`` tosses:
+"""
 
 # ╔═╡ d1d2bb84-7083-435a-9c19-4c02074143e3
-n_tosses = 500                   # specify number of coin tosses
+n_tosses = 500;
 
 # ╔═╡ 9c751f8e-f7ed-464f-b63c-41e318bbff2d
-samples = rand(n_tosses) .<= μ   # Flip 500 coins
+samples = rand(secret_distribution, n_tosses)
+
+# ╔═╡ 6922b899-499e-4f73-a6be-ca427fdc14ea
+md"""
+### Bayesian ML
+
+Now, let's update our posteriors iteratively. For every toss, we do a **Bayesian update step** to compute the new posterior for the distribution of ``\mu``. This posterior then becomes the **prior** for the next step.
+"""
 
 # ╔═╡ e99e7650-bb72-4576-8f2a-c3994533b644
 function handle_coin_toss(prior::Beta, observation::Bool)
@@ -966,8 +987,15 @@ function handle_coin_toss(prior::Beta, observation::Bool)
 	return posterior
 end
 
+# ╔═╡ 51829800-1781-49ae-8ee7-ac15c0bfcb88
+# computes log10 of Gamma function
+function log10gamma(num::Real)::Real
+    num = convert(BigInt, num)
+    return log10(gamma(num))
+end
+
 # ╔═╡ 7a624d2f-812a-47a0-a609-9fe299de94f5
-function log_evidence_prior(prior::Beta, N::Int64, n::Int64)
+function log_evidence_prior(prior::Beta, N::Int64, n::Int64)::Real
     log10gamma(prior.α + prior.β) - 
 	log10gamma(prior.α) - 
 	log10gamma(prior.β) + 
@@ -978,17 +1006,16 @@ end
 
 # ╔═╡ 3a903a4d-1fb0-4566-8151-9c86dfc40ceb
 begin
-	priors = [Beta(100., 500.), Beta(8., 13.)]  # specify prior distributions 
-	n_models = length(priors)
-	
 	# save a sequence of posterior distributions for every prior, starting with the prior itself
+	prior_distributions = [d for d in priors]
 	posterior_distributions = [[d] for d in priors] 
 	log_evidences = [[] for _ in priors] 
+
 
 	# for every sample we want to update our posterior
 	for (N, sample) in enumerate(samples)
 		# at every sample we want to update all distributions
-	    for (i, prior) in enumerate(priors)
+	    for (i, prior) in enumerate(prior_distributions)
 
 			# do bayesian updating
 	        posterior = handle_coin_toss(prior, sample)
@@ -1001,47 +1028,127 @@ begin
 	        push!(log_evidences[i], log_evidence)
 	
 	        # the prior for the next sample is the posterior from the current sample
-	        priors[i] = posterior
+	        prior_distributions[i] = posterior
 	    end
 	end
 end
 
+# ╔═╡ 9fcb9c9f-b65f-4a35-8508-7e430ab02c57
+
+
+# ╔═╡ f956e217-3dce-446a-8660-25f2c9cb05e2
+md"""
+We now have a sequence of **posterior distributions** and **log evidences** for each model. 
+
+_Click on the vectors below to see their values._
+"""
+
+# ╔═╡ 2c90eee1-b5d9-434d-bccc-64de8b458a48
+posterior_distributions
+
+# ╔═╡ 9d82af33-8e91-48e9-8c34-fa6ea31492c2
+log_evidences
+
+# ╔═╡ c13472fa-32f8-4ca3-bb3a-8c9ac3aa8f3a
+
+
+# ╔═╡ 25a4721d-78b9-4bde-bb38-887719b5deb7
+md"""
+### First look at the results
+
+The first "posterior" is the prior:
+"""
+
+# ╔═╡ dd0b0e68-c554-4166-acd7-c6062420a876
+first.(posterior_distributions)
+
+# ╔═╡ a1cfcc40-a993-40c1-828e-c4753431c8d4
+first.(posterior_distributions) == priors
+
+# ╔═╡ 2ad2b8f5-bede-495b-a0a3-27ebae822ceb
+md"""
+And the last posterior is the posterior that takes all data into account. This is our updated model, using Bayesian reasoning:
+"""
+
+# ╔═╡ 8c038267-8c62-44d7-99b7-84a232066ab1
+last.(posterior_distributions)
+
+# ╔═╡ 4300c5ba-8d72-422b-81f8-87d06476bc27
+
+
+# ╔═╡ 9611474e-17fe-45b3-803b-52840c6f5e72
+md"""
+Notice that the **means** have shifted, and the **variances** have gone down:
+"""
+
+# ╔═╡ 162fcd41-e23c-4753-a11b-cf0c51cf1fb4
+mean.(priors)
+
+# ╔═╡ f0fa4778-f049-4ec7-89ce-96956f01b299
+mean.(last.(posterior_distributions))
+
+# ╔═╡ 96a55c5c-3efa-42a4-8d98-94fe272de855
+
+
+# ╔═╡ 94f1dce7-0f90-49b9-9baf-8b31cb44f456
+var.(priors)
+
+# ╔═╡ d81dbc07-b084-4311-98e9-568e3e364b37
+var.(last.(posterior_distributions))
+
+# ╔═╡ c5c601e4-c792-4096-aa9e-f6b564137123
+keyconcept(
+	"",
+	md"Bayesian Machine Learning updates a **prior** parameter distribution to generate a **posterior** parameter distribution. The posterior distribution is generally **closer to the true value**."
+)
+
 # ╔═╡ 6a2af90a-d294-11ef-07bd-018326577791
 md"""
-For each model, as a function of the number of coin tosses, we plot the evolution of the parameter posteriors 
+### Results: posteriors visualised
 
-```math
-p(\mu|D_n,m_\bullet)
-```
-
+For each model, we plot the parameter **posteriors** ``p(\mu|D_n,m_\bullet)`` computed after ``n`` iterations.
 """
 
 # ╔═╡ d484c41d-9834-4528-bf47-93ab4e35ebaa
 md"""
-Select iteration: $(@bind toss_index_1 Slider(1:n_tosses; show_value=true))
+Select iteration: $(@bind toss_index_1 Slider(0:n_tosses; show_value=true))
 """
 
 # ╔═╡ 6a2b1106-d294-11ef-0d64-dbc26ba3eb44
 # Animate posterior distributions over time in a gif
 
 let i = toss_index_1
-    p = plot(title=string("n = ", i))
-    for j in 1:n_models
-        plot!(posterior_distributions[j][i+1], xlims = (0, 1), fill=(0, .2,), label=string("Posterior m", j), linewidth=2, ylims=(0,28), xlabel="μ")
+    p = plot(title="n = $i$(i == 0 ? " (priors)" : "")")
+    for (j,post) in enumerate(posterior_distributions)
+        plot!(post[i+1], xlims = (0, 1), fill=(0, .2,), label="Posterior model $j", linewidth=2, ylims=(0,28), xlabel="μ", legend=:topright)
     end
-	p
+	vline!([mean(secret_distribution)]; style=:dash, color="purple", label="True parameter")
 end
+
+# ╔═╡ 7c70558d-4605-408f-9098-989345edac6e
+
 
 # ╔═╡ 6a2b2d44-d294-11ef-33ba-15db357708b1
 md"""
+
+#### What happens with model 1?
+
 Note that both posteriors move toward the "correct" value (``\mu=0.4``). However, the posterior for ``m_1`` (blue) moves much slower because we assumed far more pseudo-observations for ``m_1`` than for ``m_2``. 
 
-As we get more observations, the influence of the prior diminishes. 
 
 """
 
+# ╔═╡ e9b32823-efd2-4a27-b529-4f49752c00bb
+keyconcept(
+	"",
+	md"As we get more observations, the influence of the prior diminishes. "
+)
+
 # ╔═╡ 6a2b3ba4-d294-11ef-3c28-176be260cb15
 md"""
+
+### Results: evidence visualised
+
 We have an intuition that ``m_2`` is superior over ``m_1``. Let's check this by plotting over time the relative Bayesian evidences for each model:
 
 ```math
@@ -1061,12 +1168,12 @@ Select iteration: $(@bind toss_index_2 Slider(1:n_tosses; show_value=true))
 # ╔═╡ 188b5bea-6765-4dcf-9369-3b1fdbe94494
 let i = toss_index_2
 	p = plot(title=string(L"\frac{p_i(\mathbf{x}_{1:n})}{\sum_i p_i(\mathbf{x}_{1:n})}","   n = ", i), ylims=(0, 1), legend=:topleft)
-    total = sum([evidences[j][i] for j in 1:n_models])
-    bar!([(evidences[j][i] / total) for j in 1:n_models], group=["Model $i" for i in 1:n_models])
+    total = sum([e[i] for e in evidences])
+    bar!([(e[i] / total) for e in evidences], group=["Model $i" for i in eachindex(priors)])
 end
 
-# ╔═╡ 84e7ff22-e232-4ab7-a206-ccdd943043dd
-
+# ╔═╡ ee4006aa-e54b-4501-93ee-60b34bdf5c7b
+exercise_statement("Convergence to 0"; header_level=4)
 
 # ╔═╡ 6a2b9676-d294-11ef-241a-89ff7aa676f9
 md"""
@@ -1509,8 +1616,11 @@ function kullback_leibler(q::Normal, p::Normal)
     return log((p.σ / q.σ)) + ((q.σ)^2 + (p.μ - q.μ)^2) / (2*p.σ^2) - (1/2)
 end
 
-# statistics of distributions we'll keep constant (we'll vary the mean of q)
-# feel free to change these and see what happens
+
+# ╔═╡ b504073f-db90-4f01-9b4d-1f86949fd76c
+md"""
+Statistics of the distributions that we keep constant (we'll vary the mean of q). Feel free to change these and see what happens.
+"""
 
 # ╔═╡ ff20449d-1489-430a-aeee-a3a66bece706
 μ_p = 0; σ_p = 1;
@@ -1600,7 +1710,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "c32aa4de72bf9cb3845a24e6c53ef8abfcfaabe9"
+project_hash = "e6b44220ab71d6056dfacd46f1084fdb2c1c6bfe"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -3168,24 +3278,48 @@ version = "1.9.2+0"
 # ╟─6a2a9faa-d294-11ef-1284-cfccb1da444e
 # ╟─6a2aad42-d294-11ef-3129-3be5be8c82d6
 # ╟─6a2abb16-d294-11ef-0243-d376e8a39bb0
-# ╟─6a2acb7e-d294-11ef-185c-9d49ce79c31b
-# ╟─8bfc4f37-4bf8-42a3-bd55-f046c8d2624a
-# ╟─51829800-1781-49ae-8ee7-ac15c0bfcb88
-# ╟─de7a1b82-f1c4-4eff-b372-ac76cf11c015
-# ╟─d1d2bb84-7083-435a-9c19-4c02074143e3
-# ╟─9c751f8e-f7ed-464f-b63c-41e318bbff2d
-# ╟─e99e7650-bb72-4576-8f2a-c3994533b644
+# ╟─54cb380d-8864-4158-ba68-55027ae68971
+# ╠═9da43d0f-e605-41b7-9bc6-db5be95bc87f
+# ╟─280e0819-674e-4a58-854d-5a66e0777074
+# ╠═e47b6eb6-2bb3-4c2d-bda6-f1535f2f94c4
+# ╟─e55126ef-e956-464d-8ae0-32b077649f21
+# ╟─f67136ff-f33c-436e-823b-9c530d257ab0
+# ╠═d1d2bb84-7083-435a-9c19-4c02074143e3
+# ╠═9c751f8e-f7ed-464f-b63c-41e318bbff2d
+# ╟─6922b899-499e-4f73-a6be-ca427fdc14ea
+# ╠═3a903a4d-1fb0-4566-8151-9c86dfc40ceb
+# ╠═e99e7650-bb72-4576-8f2a-c3994533b644
 # ╟─7a624d2f-812a-47a0-a609-9fe299de94f5
-# ╟─3a903a4d-1fb0-4566-8151-9c86dfc40ceb
+# ╟─51829800-1781-49ae-8ee7-ac15c0bfcb88
+# ╟─9fcb9c9f-b65f-4a35-8508-7e430ab02c57
+# ╟─f956e217-3dce-446a-8660-25f2c9cb05e2
+# ╠═2c90eee1-b5d9-434d-bccc-64de8b458a48
+# ╠═9d82af33-8e91-48e9-8c34-fa6ea31492c2
+# ╟─c13472fa-32f8-4ca3-bb3a-8c9ac3aa8f3a
+# ╟─25a4721d-78b9-4bde-bb38-887719b5deb7
+# ╠═dd0b0e68-c554-4166-acd7-c6062420a876
+# ╠═a1cfcc40-a993-40c1-828e-c4753431c8d4
+# ╟─2ad2b8f5-bede-495b-a0a3-27ebae822ceb
+# ╠═8c038267-8c62-44d7-99b7-84a232066ab1
+# ╟─4300c5ba-8d72-422b-81f8-87d06476bc27
+# ╟─9611474e-17fe-45b3-803b-52840c6f5e72
+# ╠═162fcd41-e23c-4753-a11b-cf0c51cf1fb4
+# ╠═f0fa4778-f049-4ec7-89ce-96956f01b299
+# ╟─96a55c5c-3efa-42a4-8d98-94fe272de855
+# ╠═94f1dce7-0f90-49b9-9baf-8b31cb44f456
+# ╠═d81dbc07-b084-4311-98e9-568e3e364b37
+# ╟─c5c601e4-c792-4096-aa9e-f6b564137123
 # ╟─6a2af90a-d294-11ef-07bd-018326577791
 # ╟─6a2b1106-d294-11ef-0d64-dbc26ba3eb44
 # ╟─d484c41d-9834-4528-bf47-93ab4e35ebaa
+# ╟─7c70558d-4605-408f-9098-989345edac6e
 # ╟─6a2b2d44-d294-11ef-33ba-15db357708b1
+# ╟─e9b32823-efd2-4a27-b529-4f49752c00bb
 # ╟─6a2b3ba4-d294-11ef-3c28-176be260cb15
 # ╠═c69c591f-1947-4b07-badb-3882fd097785
 # ╟─188b5bea-6765-4dcf-9369-3b1fdbe94494
 # ╟─ebcfcd1b-7fc8-42b7-a35e-4530f798cfdf
-# ╟─84e7ff22-e232-4ab7-a206-ccdd943043dd
+# ╟─ee4006aa-e54b-4501-93ee-60b34bdf5c7b
 # ╟─6a2b9676-d294-11ef-241a-89ff7aa676f9
 # ╟─9c5d7c89-f65c-4f52-9e49-14692bed2452
 # ╟─6a2bb18a-d294-11ef-23bb-99082caf6e01
@@ -3215,6 +3349,7 @@ version = "1.9.2+0"
 # ╟─6a2ccd16-d294-11ef-22ee-a5cff62ccd9c
 # ╟─6a2cd9be-d294-11ef-33cf-4b23b92e1cbf
 # ╠═10306ea6-6092-463c-9315-7a216c83606e
+# ╟─b504073f-db90-4f01-9b4d-1f86949fd76c
 # ╠═ff20449d-1489-430a-aeee-a3a66bece706
 # ╠═b47a2e71-48bb-4cc7-9a14-c0e654c5d2f8
 # ╠═9a58bf5d-f072-4572-bb90-9b860133dce8
