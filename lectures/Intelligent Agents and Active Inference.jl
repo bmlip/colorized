@@ -569,7 +569,7 @@ In the [Machine Learning Overview lecture](https://bmlip.github.io/course/lectur
 
 Active inference completes this “scientific loop” as a fully variational inference process. Under the FEP, all processes, including state updating, learning, and trial design (in living systems: perception, learning, and control/behavior, respectively) are driven by VFE minimization. Bayesian probability theory, together with the FEP, provides all the equations needed to run the process of scientific inquiry.
 
-The figure below illustrates this process. We do not depict the epistemic priors as an external input, since it can be computed internally by the agent itself.
+The figure below illustrates this process. We do not depict the epistemic priors as an external input, since they can be computed internally by the agent itself.
 
 ![](https://github.com/bmlip/course/blob/main/assets/figures/AIF-agent-loop.png?raw=true)
 
