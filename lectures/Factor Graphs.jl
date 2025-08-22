@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/ffg-example-1.png?raw=true"
@@ -12,11 +12,23 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 965a08f4-d294-11ef-0604-1586ff37c0d4
-using Plots, LinearAlgebra, LaTeXStrings
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
+end
 
 # ╔═╡ 2cb7d369-e7fd-4d66-8321-66a9197a26bd
 using RxInfer, Random
+
+# ╔═╡ 965a08f4-d294-11ef-0604-1586ff37c0d4
+using Plots, LinearAlgebra, LaTeXStrings
 
 # ╔═╡ 5a8dcadb-f0c2-4fb0-b8cd-db8cf49cc292
 using BmlipTeachingTools
@@ -541,11 +553,11 @@ md"""
 The figure above (a screen recording from the [RxInfer webpage](http://rxinfer.com)) is an animated GIF illustrating how RxInfer operates. The model is represented as a graph, where each node passes messages to its neighbors. When messages meet on an edge, the belief about the variable associated with that edge is updated.
 """
 
-# ╔═╡ 96589eb0-d294-11ef-239a-2513a805cdcf
-md"""
-## Code Example: Bayesian Linear Regression by Message Passing
+# ╔═╡ 056daf1a-b52c-43c9-acef-d29029e6ef46
+TODO("For Bert: Our code example below is about estimating a polynomial on R -> R, but the introduction is about a linear R^D -> R. The connection between these two problems could be made more explicit, or we could change the example description.")
 
-"""
+# ╔═╡ a1c957c1-69b7-4178-ab59-c0b2439bb01a
+code_example("Bayesian Linear Regression by Message Passing"; big=true)
 
 # ╔═╡ 9658c106-d294-11ef-01db-cfcff611ed81
 md"""
@@ -555,7 +567,7 @@ Assume we want to estimate some function ``f: \mathbb{R}^D \rightarrow \mathbb{R
 
 # ╔═╡ 96594d44-d294-11ef-22b8-95165fb08ce4
 md"""
-#### model specification
+### Model specification
 
 We will assume a linear model with white Gaussian noise and a Gaussian prior on the coefficients ``w``:
 
@@ -594,91 +606,136 @@ The left figure shows the factor graph for this model for one observation ``(x,y
 
 """
 
-# ╔═╡ 9659ab66-d294-11ef-027a-d3f7206050af
-md"""
-#### Inference Execution (by RxInfer)
-
-Let's solve this problem by message passing-based inference with Julia's FFG toolbox [RxInfer](https://biaslab.github.io/rxinfer-website/).
-
-"""
-
-# ╔═╡ 6d90a958-6f2b-4f18-a121-0d1bab9e4d91
-md"""
-#### Parameters
-"""
-
-# ╔═╡ 1070063a-ef85-4527-ae82-1f01c1a506ff
-Σ = 1e5 * Diagonal(I,3) # Covariance matrix of prior on w
-
-# ╔═╡ ba7a2dbd-f068-4249-bc29-77f2d0804676
-σ2 = 2.0;                # Noise variance
-
 # ╔═╡ 480165f9-33d9-4db1-bf05-8d99f0d9fb3e
 md"""
-#### Generating a data set
+#### Generating a dataset
+"""
+
+# ╔═╡ ca290536-ecf7-4c2e-93f9-d51c27dde210
+md"""
+Here is the function `f`. The true weights `w` are given here to generate data – we will want to find this value ``w`` using Bayesian ML 
 """
 
 # ╔═╡ aec4726a-954e-4e76-aae5-2dd6c979b12d
-w = [1.0; 2.0; 0.25]
-
-# ╔═╡ 1c9c7994-672c-42a3-8ae7-8ce092ada9f0
-N = 30;
-
-# ╔═╡ 99265e22-e8dc-40fe-989f-0d2a6c72faac
-z = 10.0*rand(N)
-
-# ╔═╡ e20e9048-1271-41c7-97d3-635f320aa365
-x_train = [[1.0; z; z^2] for z in z] # Feature vector x = [1.0; z; z^2]
+secret_true_w = [1.0; 2.0; 0.25]
 
 # ╔═╡ 96ef3cfb-ca18-46d6-bcac-0122c2c85fba
-f(x) = (w'*x)[1];
+f(x::Vector)::Real = secret_true_w' * x;
 
-# ╔═╡ 34ebbbe1-2a6b-422b-aeb1-cd2953acddca
-y_train = map(f, x_train) + sqrt(σ2)*randn(N) # y[i] = w' * x[i] + ϵ
+# ╔═╡ 79a0d02b-368f-4371-854c-cf2cea9328e5
+f([3.0^0, 3.0^1, 3.0^2])
 
-# ╔═╡ 7764541a-c11e-4e12-bbac-f8906cbc5dc6
-scatter(z, y_train, label="data", xlabel=L"z", ylabel=L"f([1.0, z, z^2]) + \epsilon")
+# ╔═╡ 05b733c6-2faf-4463-a0fd-48455757a28c
+
+
+# ╔═╡ 1c9c7994-672c-42a3-8ae7-8ce092ada9f0
+begin
+	N_bond = @bindname N Slider(1:30; default=20, show_value=true)
+end
+
+# ╔═╡ f6fc4fad-70fb-432f-b77d-8e6ad42eef6c
+md"""
+Feature vector `x = [1.0; z; z^2]`:
+"""
+
+# ╔═╡ 3a045b5c-9d87-46a6-a404-85c4bd77dd61
+md"""
+Now we can generate our dataset ``y`` coordinates:
+"""
+
+# ╔═╡ ba7a2dbd-f068-4249-bc29-77f2d0804676
+data_noise_σ² = 2.0;
+
+# ╔═╡ f153c139-94c8-42af-9628-24455ee70cd1
+md"""
+Let's take a look at our data:
+"""
+
+# ╔═╡ aca1f927-bc3b-48f6-af5c-12ee2ea4a49b
+N_bond
 
 # ╔═╡ 965a1df0-d294-11ef-323c-3da765f1104a
 md"""
+### RxInfer solution
+
 Now build the factor graph in RxInfer, perform sum-product message passing and plot results (mean of posterior).
 
 """
 
+# ╔═╡ 1070063a-ef85-4527-ae82-1f01c1a506ff
+prior_Σ = 1e5 * Diagonal(I,3) # Covariance matrix of prior on w
+
 # ╔═╡ fd338a30-9622-405a-96fa-caca6bd4ccfb
-@model function linear_regression(y,x, N, Σ, σ2)
+@model function linear_regression(y,x, N, Σ, σ²)
 
     w ~ MvNormalMeanCovariance(zeros(3),Σ)
     
     for i in 1:N
-        y[i] ~ NormalMeanVariance(dot(w , x[i]), σ2)
+        y[i] ~ NormalMeanVariance(dot(w, x[i]), σ²)
     end
 end
 
-# ╔═╡ c03b1140-adce-467a-b953-50ad1bf3bc34
-# Run message passing algorithm 
-results = infer(
-    model      = linear_regression(N=length(x_train), Σ=Σ, σ2=σ2),
-    data       = (y = y_train, x = x_train),
-    returnvars = (w = KeepLast(),),
-    iterations = 20,
+# ╔═╡ 9431bc9a-bd83-4e4d-b64d-0571c1d01c87
+md"""
+It worked! Now we have a **posterior distribution for `w`**:
+"""
+
+# ╔═╡ 4a10044c-e044-43e1-bd44-847f56019061
+keyconcept(
+	"RxInfer does Bayesian ML",
+	md"""
+	RxInfer can perform **Bayesian updating automatically**: it can give a posterior distribution for ``w``, based on a prior an observations.
+
+	We did not use RxInfer in the Coin Toss example in the [Bayesian Machine Learning lecture](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#handle_coin_toss), so we had to derive and implement the Bayesian update algorithm [by hand](https://bmlip.github.io/course/lectures/Bayesian%20Machine%20Learning.html#posterior_distributions). 
+	"""
 )
 
-# ╔═╡ 83a70a4b-b114-4351-8fa2-dd565ebc9916
-convert(MvNormal, results.posteriors[:w])
+# ╔═╡ d97c5fc3-9148-4f44-b15e-f540baf4b52b
 
-# ╔═╡ 965a37e8-d294-11ef-340f-0930b229dd32
-let
-	plt = scatter(z, y_train, label="data", xlabel=L"z", ylabel=L"f([1.0, z, z^2]) + \epsilon")
-	z_test = collect(0:0.2:12)
-	x_test = [[1.0; z; z^2] for z in z_test]
-	for i=1:10
-	    w_sample = rand(results.posteriors[:w])
-	    f_est(x) = (w_sample'*x)[1]
-	    plot!(plt, z_test, map(f_est, x_test), alpha=0.3, label=nothing);
-	end
-	plt
-end
+
+# ╔═╡ fb61c774-34a3-493a-b149-c870993b6d46
+md"""
+### Sampling the posterior of ``w``
+
+We can sample from this posterior, to get possible values for ``w``. Here are 10 sampled values for ``w``.
+"""
+
+# ╔═╡ 6af85c84-bb70-4f1b-9518-585cbc9bf192
+N_bond
+
+# ╔═╡ f4a261cf-03a8-4fd4-96da-247cdd4b3c98
+md"""
+Change the value of `N`, and see how the samples of ``w`` get closer to the true value of ``w`` (below) as we get more observations.
+"""
+
+# ╔═╡ 61d589a3-26f4-428c-94ee-37f990a8a1e8
+secret_true_w
+
+# ╔═╡ 2fc6da3d-e2f8-4767-896d-974d49461c89
+
+
+# ╔═╡ 1152e01d-f216-4baa-8c20-f453b96de7c9
+md"""
+Let's see the scatter plot again. Now, **for each sample of ``w``, we plot the corresponding function**
+
+```math
+f_w: x \mapsto w^Tx
+```
+"""
+
+# ╔═╡ 5bcefd5f-4cd2-4cfe-8c1f-1129e5020d9a
+N_bond
+
+# ╔═╡ 1832bffd-2729-4d3f-86f4-0e2d9ab26ba3
+md"""
+Notice how the samples of ``f_w`` lie closer together as we get more observations!
+"""
+
+# ╔═╡ 3c1c4a9a-7fc2-4727-af70-fe16399ad51f
+keyconcept(
+	"",
+	md"With Bayesian ML, like with any other ML method, you can find a parameter ``w`` that matches observations. But with **Bayesian ML**, you know exactly how accurate this prediction is."
+)
 
 # ╔═╡ 965a6c20-d294-11ef-1c91-4bd237afbd20
 md"""
@@ -746,6 +803,17 @@ md"""
 - (e) Now assume that our belief about parameter ``\Sigma_v`` is instead given by a distribution ``p(\Sigma_v)`` (rather than a known value). Adapt the factor graph drawing of the previous answer to reflect our belief about ``\Sigma_v``.  
 """
 
+# ╔═╡ 45251c19-6eae-41e7-b0ed-8bd70a67d4e0
+ex_d_sol = TwoColumn(
+	md"""
+	- (d) Copy the graph onto your exam paper and draw the message passing schedule for computing ``p(z_k|z_{k-1},x_k,\theta)`` by drawing arrows in the factor graph. Indicate the order of the messages by assigning numbers to the arrows.      
+	
+	Some permutations of this order are also possible. The most important thing here is that you recognize the tree with ``Z_k`` as a root of the tree and pass messages from the terminals (e.g., ``Z_{k-1}``, ``X_k``, etc.) towards the root.
+	""", 
+	@htl """
+	<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-5SSB0-exam-Kalman-filter-wMessages-wUncertainSigmaV.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
+	""");
+
 # ╔═╡ 206c34b3-1873-460b-911e-f2cd4f8886af
 hide_solution(
 md"""
@@ -806,29 +874,14 @@ p(x^n,z^n|\theta) &= p(z_0|\Sigma_0) \prod_{k=1}^n p(x_k|z_k,C,\Sigma_v) \,p(z_k
 
 Yes, since the generative model ``p(x^n,z^n|\theta)`` is (one big) Gaussian.
 
+$ex_d_sol
+
+- (e) Now assume that our belief about parameter ``\Sigma_v`` is instead given by a distribution ``p(\Sigma_v)`` (rather than a known value). Adapt the factor graph drawing of the previous answer to reflects our belief about ``\Sigma_v``.      
+
+For answer, see drawing for answer (d).
+
 
 """)
-
-# ╔═╡ a9a9f3a2-67e7-4ff5-bc94-29229656ca40
-TODO("FONS, I like to put a two-column block into one foldable solution, so that answers for (d) and (e) are also in the details() function.")
-
-# ╔═╡ 45251c19-6eae-41e7-b0ed-8bd70a67d4e0
-TwoColumn(
-	md"""
-	- (d) Copy the graph onto your exam paper and draw the message passing schedule for computing ``p(z_k|z_{k-1},x_k,\theta)`` by drawing arrows in the factor graph. Indicate the order of the messages by assigning numbers to the arrows.      
-	
-	Some permutations of this order are also possible. The most important thing here is that you recognize the tree with ``Z_k`` as a root of the tree and pass messages from the terminals (e.g., ``Z_{k-1}``, ``X_k``, etc.) towards the root.
-	""", 
-	@htl """
-	<img src="https://github.com/bmlip/course/blob/main/assets/figures/ffg-5SSB0-exam-Kalman-filter-wMessages-wUncertainSigmaV.png?raw=true" alt=" " style="display: block; width: 100%; margin: 0 auto;">
-	""")
-
-# ╔═╡ 7f4c06cb-139e-4e15-a032-b8991183634f
-md"""
-	- (e) Now assume that our belief about parameter ``\Sigma_v`` is instead given by a distribution ``p(\Sigma_v)`` (rather than a known value). Adapt the factor graph drawing of the previous answer to reflects our belief about ``\Sigma_v``.      
-	
-	For answer, see drawing for answer (d).
-	"""
 
 # ╔═╡ a6e155eb-7376-4e57-8e63-628934e14e78
 md"""
@@ -1091,7 +1144,60 @@ md"""
 """
 
 # ╔═╡ 981b08cc-7fb4-4880-8e8a-0b60a5dd72a2
+stable_rand(args...; seed=nothing) = rand(MersenneTwister(543432 + hash(seed)), args...)
 
+# ╔═╡ 99265e22-e8dc-40fe-989f-0d2a6c72faac
+z = stable_rand(Uniform(0, 10), N; seed=1234)
+
+# ╔═╡ e20e9048-1271-41c7-97d3-635f320aa365
+x_train = [[1.0; z; z^2] for z in z]
+
+# ╔═╡ 34ebbbe1-2a6b-422b-aeb1-cd2953acddca
+# y[i]  = w' * x[i]   + ϵ
+y_train = f.(x_train) + stable_rand(Normal(0, sqrt(data_noise_σ²)), N; seed=4566)
+
+# ╔═╡ 7764541a-c11e-4e12-bbac-f8906cbc5dc6
+scatter(z, y_train;
+	xlim=(-.2,10.2),
+	ylim=(-1,51),
+	label="data", 
+	xlabel=L"z", 
+	ylabel=L"f([1.0, z, z^2]) + \epsilon"
+)
+
+# ╔═╡ c03b1140-adce-467a-b953-50ad1bf3bc34
+# Run message passing algorithm 
+results = infer(
+    model      = linear_regression(N=length(x_train), Σ=prior_Σ, σ²=data_noise_σ²),
+    data       = (y = y_train, x = x_train),
+    returnvars = (w = KeepLast(),),
+    iterations = 20,
+)
+
+# ╔═╡ 83a70a4b-b114-4351-8fa2-dd565ebc9916
+convert(MvNormal, results.posteriors[:w])
+
+# ╔═╡ 92f7bcfd-00a4-4cb7-a3eb-c1e101fdbcf6
+w_samples = rand(results.posteriors[:w], 10)       |> eachcol .|> collect
+
+# ╔═╡ 965a37e8-d294-11ef-340f-0930b229dd32
+let
+	plt = scatter(
+		z, y_train;
+		xlim=(-.2,10.2),
+		ylim=(-1,51),
+		label="data", 
+		xlabel=L"z", 
+		ylabel=L"f([1.0, z, z^2]) + \epsilon"
+	)
+	z_test = collect(0:0.2:12)
+	x_test = [[1.0; z; z^2] for z in z_test]
+	for w in w_samples
+	    f_est(x) = w'*x
+	    plot!(plt, z_test, map(f_est, x_test), alpha=0.5, label=nothing);
+	end
+	plt
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1116,7 +1222,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "2c267c977cf5e1509686d4affec06b6e95203285"
+project_hash = "5ad1eecd681556b7eddbd0fd3d9f72efb0e21df1"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -3131,39 +3237,55 @@ version = "1.9.2+0"
 # ╟─96587a66-d294-11ef-2c7a-9fd7bea76582
 # ╟─89e2757e-a09f-40c6-8dd7-9b4b4d232e17
 # ╟─c4b5b124-e52a-41fc-b27e-a58181622e5c
-# ╟─96589eb0-d294-11ef-239a-2513a805cdcf
+# ╟─056daf1a-b52c-43c9-acef-d29029e6ef46
+# ╟─a1c957c1-69b7-4178-ab59-c0b2439bb01a
 # ╟─9658c106-d294-11ef-01db-cfcff611ed81
 # ╟─96594d44-d294-11ef-22b8-95165fb08ce4
 # ╟─96597ce0-d294-11ef-3478-25c6bbef601e
 # ╟─965998a8-d294-11ef-1d18-85876e3656c5
-# ╟─9659ab66-d294-11ef-027a-d3f7206050af
-# ╠═965a08f4-d294-11ef-0604-1586ff37c0d4
-# ╟─6d90a958-6f2b-4f18-a121-0d1bab9e4d91
-# ╠═1070063a-ef85-4527-ae82-1f01c1a506ff
-# ╠═ba7a2dbd-f068-4249-bc29-77f2d0804676
 # ╟─480165f9-33d9-4db1-bf05-8d99f0d9fb3e
-# ╠═aec4726a-954e-4e76-aae5-2dd6c979b12d
-# ╠═1c9c7994-672c-42a3-8ae7-8ce092ada9f0
-# ╠═99265e22-e8dc-40fe-989f-0d2a6c72faac
-# ╠═e20e9048-1271-41c7-97d3-635f320aa365
+# ╟─ca290536-ecf7-4c2e-93f9-d51c27dde210
 # ╠═96ef3cfb-ca18-46d6-bcac-0122c2c85fba
+# ╠═aec4726a-954e-4e76-aae5-2dd6c979b12d
+# ╠═79a0d02b-368f-4371-854c-cf2cea9328e5
+# ╟─05b733c6-2faf-4463-a0fd-48455757a28c
+# ╟─1c9c7994-672c-42a3-8ae7-8ce092ada9f0
+# ╠═99265e22-e8dc-40fe-989f-0d2a6c72faac
+# ╟─f6fc4fad-70fb-432f-b77d-8e6ad42eef6c
+# ╠═e20e9048-1271-41c7-97d3-635f320aa365
+# ╟─3a045b5c-9d87-46a6-a404-85c4bd77dd61
+# ╠═ba7a2dbd-f068-4249-bc29-77f2d0804676
 # ╠═34ebbbe1-2a6b-422b-aeb1-cd2953acddca
-# ╠═7764541a-c11e-4e12-bbac-f8906cbc5dc6
+# ╟─f153c139-94c8-42af-9628-24455ee70cd1
+# ╟─7764541a-c11e-4e12-bbac-f8906cbc5dc6
+# ╟─aca1f927-bc3b-48f6-af5c-12ee2ea4a49b
 # ╟─965a1df0-d294-11ef-323c-3da765f1104a
+# ╠═1070063a-ef85-4527-ae82-1f01c1a506ff
 # ╠═2cb7d369-e7fd-4d66-8321-66a9197a26bd
 # ╠═fd338a30-9622-405a-96fa-caca6bd4ccfb
 # ╠═c03b1140-adce-467a-b953-50ad1bf3bc34
+# ╟─9431bc9a-bd83-4e4d-b64d-0571c1d01c87
 # ╠═83a70a4b-b114-4351-8fa2-dd565ebc9916
+# ╟─4a10044c-e044-43e1-bd44-847f56019061
+# ╟─d97c5fc3-9148-4f44-b15e-f540baf4b52b
+# ╟─fb61c774-34a3-493a-b149-c870993b6d46
+# ╠═92f7bcfd-00a4-4cb7-a3eb-c1e101fdbcf6
+# ╟─6af85c84-bb70-4f1b-9518-585cbc9bf192
+# ╟─f4a261cf-03a8-4fd4-96da-247cdd4b3c98
+# ╠═61d589a3-26f4-428c-94ee-37f990a8a1e8
+# ╟─2fc6da3d-e2f8-4767-896d-974d49461c89
+# ╟─1152e01d-f216-4baa-8c20-f453b96de7c9
 # ╟─965a37e8-d294-11ef-340f-0930b229dd32
+# ╟─5bcefd5f-4cd2-4cfe-8c1f-1129e5020d9a
+# ╟─1832bffd-2729-4d3f-86f4-0e2d9ab26ba3
+# ╟─3c1c4a9a-7fc2-4727-af70-fe16399ad51f
 # ╟─965a6c20-d294-11ef-1c91-4bd237afbd20
 # ╟─25492eea-e649-43f9-b71f-ac6d1a80d0ee
 # ╟─a5cd774f-57ad-4cb5-86c0-35987aa6e221
 # ╟─b6de3f00-d3b8-44d8-b72a-48cd5628b607
 # ╟─05375a01-4d1b-44cc-b1c4-a5eb4b6c5c5b
 # ╟─206c34b3-1873-460b-911e-f2cd4f8886af
-# ╟─a9a9f3a2-67e7-4ff5-bc94-29229656ca40
 # ╟─45251c19-6eae-41e7-b0ed-8bd70a67d4e0
-# ╟─7f4c06cb-139e-4e15-a032-b8991183634f
 # ╟─a6e155eb-7376-4e57-8e63-628934e14e78
 # ╟─9dc870d7-a5f3-447c-96ee-ad23199bc253
 # ╟─e8a35c28-6d6d-4066-8251-f091f28622a9
@@ -3198,6 +3320,7 @@ version = "1.9.2+0"
 # ╠═fffa27d5-eb68-4dd3-9995-4a53fba6c1e4
 # ╟─578ec319-337d-4396-bb75-eaf99d95a38d
 # ╟─89da2fc0-a7c8-4a9d-82d9-622a311d010d
+# ╠═965a08f4-d294-11ef-0604-1586ff37c0d4
 # ╠═5a8dcadb-f0c2-4fb0-b8cd-db8cf49cc292
 # ╠═981b08cc-7fb4-4880-8e8a-0b60a5dd72a2
 # ╟─00000000-0000-0000-0000-000000000001
