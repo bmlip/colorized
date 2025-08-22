@@ -339,15 +339,14 @@ Assume that our agent is continually engaged in minimizing its variational free 
 ```math
 \begin{align}
 q^*(u) &\triangleq \arg\min_q F[q]  \\ 
-&= \sigma\left( -P(u) - G(u) -C(u)\right) \,, \tag{Q*}
+&= \sigma\left( - G(u) -C(u) -P(u) \right) \,, \tag{Q*}
 \end{align}
 ```
 where
 - ``\sigma(\cdot)`` denotes the softmax function,
-- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
 - ``G(u)`` is the expected free energy, defined in Eq. (G1), scoring both goal-directed and epistemic value of each policy,
-- ``C(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.
-
+- ``C(u) = \mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]`` is a complexity term, capturing divergence between the variational posterior and prior beliefs for a given policy ``u``.    
+- ``P(u) = -\log p(u)`` reflects prior preferences over policies from the generative model,
 
 """
 
@@ -358,15 +357,15 @@ details(md"""Click for proof of ``q^*(u)``""",
     ```math
     \begin{align}
     F[q] &=\mathbb{E}_{q(u)}\left[ G(u)\right] + \mathbb{E}_{q(y,x,\theta,u)}\left[ \log \frac{q(y,x,\theta,u)}{p(y,x,\theta,u)}\right] \tag{F2} \\  
-    &=\mathbb{E}_{q(u)}\bigg[\log \frac{q(u)}{p(u)} + G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{C(u)}	\bigg]	\\
-    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u))} +  \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-C(u))}\Big]	\bigg]	\\
-    &= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-P(u) -G(u) - C(u))}\bigg]	
+    &=\mathbb{E}_{q(u)}\bigg[G(u) + \underbrace{\mathbb{E}_{q(y,x,\theta|u)}\Big[ \log \frac{q(y,x,\theta|u)}{p(y,x,\theta|u)}\Big]}_{C(u)}	+ \log \frac{q(u)}{p(u)}  \bigg]	\\
+    &=\mathbb{E}_{q(u)}\bigg[ \log \frac{1}{\exp(-G(u))} + \log \frac{1}{\exp(-C(u))} + \log \frac{q(u)}{\exp(-P(u))}  \Big]	\bigg]	\\
+    &= 	\mathbb{E}_{q(u)}\bigg[ \log \frac{q(u)}{\exp(-G(u) - C(u) -P(u) )}\bigg]	
     \end{align}
     ```
     which is (proportional to) a Kullback-Leibler divergence that is minimized for 
     ```math
     \begin{align}
-    q^*(u) = \sigma\left(-P(u) -G(u) - C(u) \right)	\,.
+    q^*(u) = \sigma\left(-G(u) - C(u) -P(u) \right)	\,.
     \end{align}
     ```	
     """)
