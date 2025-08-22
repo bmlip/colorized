@@ -60,32 +60,10 @@ md"""
 # ╔═╡ f7a19975-a919-4659-9b6a-d8963a1cd6d9
 challenge_statement("Apple or Peach?" , color= "red" )
 
-# ╔═╡ 51a46b5e-0c35-4841-a4f3-413d5d294805
-md"""
-
-You're given the numerical values for two features (let's say, _sugar content_ and _acidity_) of a bunch of fruits. Each piece of fruit is either an apple or a peach. Generate these data yourself by selecting the total number of fruits with the slider.
-
-"""
-
 # ╔═╡ 876f47d8-b272-4e23-b5ec-5c7d615ff618
 begin
 	N_bond = @bindname N Slider(1:250; show_value=true, default=50)
 end
-
-# ╔═╡ e774041a-672d-40f3-ac8f-fc5dbf1bfc59
-md"""
-In the scatter plot, the two features are represented along the two ``x``-coordinates, while the fruit label ``y \in \{\text{apple}, \text{peach}\}`` is encoded by the marker style.
-
-You are also given a test fruit, shown as a yellow marker, which has known feature values but an unknown fruit label. 
-
-##### problem
-
-  - Based on the observed data, what is the probability that the test fruit is an apple? 
-
-##### solution
-
-  - Later in this lecture.
-"""
 
 # ╔═╡ 5730758d-80cd-4d95-b16c-399c38cf585b
 md"""
@@ -758,7 +736,7 @@ end # let
 let
 	scatter(X_apples[:,1], X_apples[:,2], label="apples", marker=:x, markerstrokewidth=3)
 	scatter!(X_peaches[:,1], X_peaches[:,2], label="peaches", marker=:+,  markerstrokewidth=3)
-	scatter!([x_test[1]], [x_test[2]], label="unknown") # 'new' unlabelled data point
+	scatter!([x_test[1]], [x_test[2]], label="unknown", color="yellow") # 'new' unlabelled data point
 
 	# Discrimination boundary
 	x1 = range(-1,length=10,stop=3)
@@ -766,6 +744,51 @@ let
 	plot!(x1, discriminant_x2, fillrange=-10, alpha=0.2, color=:blue, label="")
 	plot!(x1, discriminant_x2, fillrange=10, alpha=0.2, color=:red, xlims=(-0.5, 3), ylims=(-1, 4), label="")
 end
+
+# ╔═╡ c79525b1-7b44-4585-8292-84abe20a1a3d
+md"""
+Markers
+"""
+
+# ╔═╡ 79fa1b47-460f-457e-aebc-646f60ffecc1
+unknown_marker = @htl """ <svg style="vertical-align: -.15em;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="10" fill="#ffff00" stroke="#000" stroke-width="2"/>
+</svg> """
+
+# ╔═╡ a985e1d3-4867-4991-a60e-e85a9730311b
+apple_marker = @htl """<svg style="vertical-align: -.15em;" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+  <line x1="2" y1="2" x2="14" y2="14" stroke="#009af9" stroke-width="3" />
+  <line x1="14" y1="2" x2="2" y2="14" stroke="#009af9" stroke-width="3" />
+</svg>"""
+
+# ╔═╡ e8cbfc78-04dd-4196-8011-90283969e5b1
+peach_marker = @htl """<svg style="vertical-align: -.15em;" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+  <line x1="2" y1="8" x2="14" y2="8" stroke="#e26f46" stroke-width="3" />
+  <line x1="8" y1="2" x2="8" y2="14" stroke="#e26f46" stroke-width="3" />
+</svg>"""
+
+# ╔═╡ 51a46b5e-0c35-4841-a4f3-413d5d294805
+md"""
+
+You're given the numerical values for two features (let's say, _sugar content_ and _acidity_) of a bunch of fruits. Each piece of fruit is either an apple $apple_marker or a peach $peach_marker. 
+
+Generate this data yourself by selecting the total number of fruits with the slider:
+"""
+
+# ╔═╡ e774041a-672d-40f3-ac8f-fc5dbf1bfc59
+md"""
+In the scatter plot, the two features are represented along the two ``x``-coordinates, while the fruit label ``y \in \{\text{apple}, \text{peach}\}`` is encoded by the marker style.
+
+You are also given a test fruit $unknown_marker, which has known feature values but an **unknown fruit label**.
+
+##### Problem
+
+  - Based on the observed data, what is the **probability that the test fruit is an apple $apple_marker, and not a peach $peach_marker?**
+
+##### Solution
+
+  - Later in this lecture.
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2025,7 +2048,7 @@ version = "1.9.2+0"
 # ╟─f7a19975-a919-4659-9b6a-d8963a1cd6d9
 # ╟─51a46b5e-0c35-4841-a4f3-413d5d294805
 # ╟─876f47d8-b272-4e23-b5ec-5c7d615ff618
-# ╠═69732524-90fd-46f4-9706-c07ce6226d2b
+# ╟─69732524-90fd-46f4-9706-c07ce6226d2b
 # ╟─e774041a-672d-40f3-ac8f-fc5dbf1bfc59
 # ╟─5730758d-80cd-4d95-b16c-399c38cf585b
 # ╟─23c73302-d294-11ef-0c12-571686b202a9
@@ -2071,7 +2094,7 @@ version = "1.9.2+0"
 # ╠═b06c93fa-3439-4ed1-84ed-befc1ab7e40b
 # ╠═8610196d-2e0b-4a7f-96b2-2ca09078ffd6
 # ╠═25002ffd-79c9-44bf-85d8-28c87df6c9df
-# ╠═d5a342ff-6c5c-45af-affb-baf66ac7a7c1
+# ╟─d5a342ff-6c5c-45af-affb-baf66ac7a7c1
 # ╟─21602809-d98b-43d7-8c41-80dc8de6da57
 # ╟─23c85d90-d294-11ef-375e-7101d4d3cbfa
 # ╟─23c8698e-d294-11ef-2ae8-83bebd89d6c0
@@ -2094,5 +2117,9 @@ version = "1.9.2+0"
 # ╠═156d7866-00e1-47d8-ac38-52d72158f4d8
 # ╠═24d3c1f4-432f-419f-8854-69d8bfc135f8
 # ╠═d9efe8bb-c32c-40f4-89d9-8ace7a0665ba
+# ╟─c79525b1-7b44-4585-8292-84abe20a1a3d
+# ╟─79fa1b47-460f-457e-aebc-646f60ffecc1
+# ╟─a985e1d3-4867-4991-a60e-e85a9730311b
+# ╟─e8cbfc78-04dd-4196-8011-90283969e5b1
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
