@@ -525,8 +525,6 @@ In this lecture, we’ve seen how the FEP can be used to describe the dynamics o
 
 For example, the Expected Free Energy used to evaluate policies is not just an arbitrary cost function—it follows naturally from common assumptions in fundamental physics. EFE-based policy scoring also makes sense from a philosophical standpoint: if minimizing variational free energy is the only process driving the system, then it is a logical consequence to rank policies by how much VFE we expect them to minimize in the future. 
 
-It will be clear from this and previous lectures that I am an unapologetic supporter of the Bayesian modeling framework and the Free Energy Principle as a foundation for AI. Of course, different researchers may hold differing views—and rightly so—but for those willing to seriously engage with the foundational ideas of the FEP and active inference, I can promise you that the intellectual rewards are substantial. This framework offers a powerful and unifying lens through which to understand life, cognition, and intelligent systems at their most fundamental level.
-
 Looking ahead to the future of artificial intelligence, adaptive robotics, and agentic AI, the Free Energy Principle stands out as a framework with the potential to transform not only how we build intelligent systems, but how we fundamentally understand their nature, purpose, and place within the broader landscape of self-organizing life.
 
 """
