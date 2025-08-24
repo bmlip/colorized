@@ -17,6 +17,7 @@ This course covers the fundamentals of a Bayesian (i.e., probabilistic) approach
 <h2 style="color:red;">
 News and Announcements
 </h2>
+
 - See Piazza
 <!---
 - (13-Nov-2024) Please sign up for Piazza (Q&A platform) at [signup link](https://piazza.com/tue.nl/winter2025/5ssd0). As much as possible we will use the Piazza site for new announcements as well.
