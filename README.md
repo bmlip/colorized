@@ -32,16 +32,12 @@ News and Announcements
 
 In principle, all the necessary materials can be downloaded from the links below. This course is based on [Pluto.jl](https://plutojl.org/).
 
-<!--
-
 ### Lecture Notes
 
 The lecture notes form the mandatory preparation material for the exam. They can be accessed through the Table below. Optionally, you may download PDF bundles of the lecture notes here. Please note, however, that the PDF files do not include interactive links and omit the answers to proofs and exercises. For this reason, we strongly recommend using the online materials via the links in the Table.
 
 - Bert de Vries, [PDF bundle of all lecture notes for lessons B0 through B12](https://github.com/bertdv/BMLIP/blob/master/output/BMLIP-5SSD0-lecture-notes.pdf), version 30-Oct-2024.
 - Wouter Kouw, [PDF bundle of all probabilistic programming lecture notes for lessons W1 through W4](https://github.com/bertdv/BMLIP/blob/master/output/BMLIP-5SSD0-prob-prog.pdf) version 30-Oct-2024.
-
--->
 
 ### Books
 
