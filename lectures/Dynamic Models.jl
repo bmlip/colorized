@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true"
@@ -93,6 +93,17 @@ See later in this lecture.
 
 
 """
+
+# ╔═╡ e841a707-895d-45d0-8320-b9a9deddcd3d
+TODO(md"""
+	 Why are ``z_t`` and ``\dot{z_t}`` "hidden" states?
+
+	 Is ``\dot{z_t}`` (velocity) part of the observations? Should we include that in the illustration above?
+	 
+	 """)
+
+# ╔═╡ 054b59b2-fe8f-4584-8ef5-5f96c3edf137
+TODO("show viz here, with just the noisy observations")
 
 # ╔═╡ fc919736-d9e3-4ca0-a53c-5fac18539ab5
 md"""
@@ -432,9 +443,14 @@ We can now solve the cart tracking problem of the introductory example by execut
 
 """
 
+# ╔═╡ e8c172c6-8d0d-43fa-a68d-62a95a560668
+md"""
+### Model parameters
+"""
+
 # ╔═╡ 0f845342-af59-4448-aac6-1c301a41536d
-# Specify the model parameters
-Δt = 1.0                                            # assume the time steps to be equal in size
+# assume the time steps to be equal in size
+Δt = 1.0
 
 # ╔═╡ 9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 A = [1.0 Δt;
@@ -443,29 +459,55 @@ A = [1.0 Δt;
 # ╔═╡ 3bda634c-e2fa-4c98-925d-7ed1ba62fe15
 b = [0.5*Δt^2; Δt]
 
+# ╔═╡ da1e8bd1-c67d-4371-9de0-059c642a9714
+md"""
+Process noise covariance:
+"""
+
 # ╔═╡ bcb6ad76-39e3-4b3d-ba4c-2a98df0195af
-Σz = convert(Matrix,Diagonal([0.2*Δt; 0.1*Δt]))     # process noise covariance
+Σz = collect(Diagonal([0.2*Δt; 0.1*Δt]))
+
+# ╔═╡ bd58f70e-04b4-4e50-b82e-13ad0e3a9abe
+md"""
+Observation noise covariance:
+"""
 
 # ╔═╡ 17ca9dc4-98bd-4135-bec2-74fd97a9bc56
-Σx = convert(Matrix,Diagonal([1.0; 2.0]))           # observation noise covariance;
+Σx = collect(Diagonal([1.0; 2.0]))
 
-# Generate noisy observations
+# ╔═╡ 130edb3e-f5f9-40d2-970d-d0fc822fd82a
+md"""
+### Generate noisy observations
+"""
 
 # ╔═╡ e3056eeb-777a-4323-9d2e-f376cae2e1ca
-n_steps = 10                                              # execute 10 timesteps
+n_steps = 40
 
 # ╔═╡ a67d22cd-e375-4382-ae3d-749893754beb
-z_start = [10.0; 2.0]                               # initial state
+# initial state
+z_start = [10.0; -0.0]
+# z_start = [10.0; 2.0]
 
 # ╔═╡ b3ea45da-6976-454a-b7ed-d85d739a3021
-u = 0.2 * ones(n_steps)                                   # constant input u
+# constant input u
+u = 0.2 * ones(n_steps)
 
-# ╔═╡ 4c570a74-b77e-406a-896d-4bdbf3cd7f51
-TODO("Can you do a foldable box here that shows the code below for executing the KF?")
+# ╔═╡ 3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
+
+
+# ╔═╡ db220fea-4524-4c1c-bc9d-ed63c6ef1023
+md"""
+### Closed form solution
+
+Select a time step:
+"""
+
+# ╔═╡ 83587586-8a88-4bbb-b2bf-1ca9a8cf6339
+@bind closed_form_i Slider(3:n_steps; show_value=true)
 
 # ╔═╡ 272a4b2e-d294-11ef-2762-47a3479186ad
 md"""
-#####  Inference by Message Passing
+###  Inference by Message Passing
 
 Let's now solve the cart tracking problem by sum-product message passing in a factor graph. All we have to do is create factor nodes for the state-transition model ``p(z_t|z_{t-1})`` and the observation model ``p(x_t|z_t)``. Then we let [RxInfer](https://rxinfer.com) execute the message passing schedule. 
 
@@ -503,6 +545,11 @@ import RxInfer.ReactiveMP: messageout, getinterface, materialize!
 
 # ╔═╡ 07fe12dc-501c-407b-ab39-ba9a4845762c
 import RxInfer.Rocket: getrecent
+
+# ╔═╡ 557b0052-b1a4-489e-be53-2327033954f2
+md"""
+Select a time step:
+"""
 
 # ╔═╡ 272ab9b2-d294-11ef-0510-c3b68d2f1099
 md"""
@@ -717,66 +764,70 @@ function generateNoisyMeasurements( z_start::Vector{Float64},
     d = length(z_start)
 
     # Sanity checks
-    (n>0) || error("u should contain at least one value")
-    (d>0) || error("z_start has an invalid dimensionality")
-    (size(A) == (d,d)) || error("Transition matrix A does not have correct dimensions")
-    (length(b) == d) || error("b does not have the correct dimensionality")
-    (size(Σz) == (d,d)) || error("Covariance matrix Σz does not have correct dimensions")
-    (size(Σx) == (d,d)) || error("Covariance matrix Σx does not have correct dimensions")
+    @assert(n>0, "u should contain at least one value")
+    @assert(d>0, "z_start has an invalid dimensionality")
+    @assert(size(A) == (d,d), "Transition matrix A does not have correct dimensions")
+    @assert(length(b) == d, "b does not have the correct dimensionality")
+    @assert(size(Σz) == (d,d), "Covariance matrix Σz does not have correct dimensions")
+    @assert(size(Σx) == (d,d), "Covariance matrix Σx does not have correct dimensions")
 
-    x = Vector[] # x will be a list of n vectors
+    result = Vector[] # result will be a list of n vectors of size d
     z = copy(z_start)
-    chol_Σz = cholesky(Σz)
-    chol_Σx = cholesky(Σx)
-    proc_noise = convert(Matrix,chol_Σz) * randn(d)
+
     for i=1:n
-        proc_noise = convert(Matrix,chol_Σz) * randn(d)
-        z = A*z + b*u[i] + proc_noise
-        obs_noise = convert(Matrix,chol_Σx) * randn(length(z))
-        push!(x, z + obs_noise)
+		# the new position is calculated from the old one, with process noise
+        z = rand(MvNormal(A*z + b*u[i], Σz))
+		# we observe this position, with measurement noise
+        output = rand(MvNormal(z, Σx))
+		push!(result, output)
     end
 
-    return x
+	return accumulate(1:n; init=(z_start, z_start)) do (z, z_observed), i
+		z = rand(MvNormal(A*z + b*u[i], Σz))
+		return z, rand(MvNormal(z, Σx))
+	end
+
+    return result
 end
 
 # ╔═╡ 6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-noisy_x = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx);
+gen_measurements_output = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx)
+
+# ╔═╡ 2618d09b-4fd6-4cdc-9d80-45f7d0b262db
+xs_measurement = last.(gen_measurements_output)
 
 # ╔═╡ 25b3697e-6171-402c-97a5-201ca6bbe3a7
-z_prev_m_0 = noisy_x[1]
+z_prev_m_0 = xs_measurement[1]
 
 # ╔═╡ c481c23f-2971-484a-995d-bfa5aaa0a176
 result = infer(
     model=cart_tracking(n=n_steps, A=A,B=b, Σz=Σz, Σx=Σx, z_prev_m_0=z_prev_m_0, z_prev_v_0=z_prev_v_0,u=u), 
-    data=(x=noisy_x,), 
+    data=(x=xs_measurement,), 
     free_energy=true
 )
 
 # ╔═╡ e22bbe92-bac3-48ad-83bf-5e1857d572a7
-@bind which_timestep Slider(eachindex(result.posteriors[:z]); show_value=true)
+@bind rxinfer_i Slider(eachindex(result.posteriors[:z]); show_value=true)
 
-# ╔═╡ a0116427-cff8-44e5-b3bb-8dee2ecf73c2
-bg_img_path = download("https://github.com/bmlip/course/blob/v2/assets/figures/cart-bg.png?raw=true")
+# ╔═╡ 24f6c005-173d-4831-8c93-c54a9ba0334e
+xs_real = first.(gen_measurements_output)
 
-# ╔═╡ 0b41c9ab-ee04-446e-a3fc-decfeb9d1571
-const bg_img = load(bg_img_path)[end:-1:1, :]; # flipped vertically because images are stored with inverted Y axis
-
-# ╔═╡ bf08323f-6715-44be-af41-0ac7caf205d1
-function plotCartPrediction(predictive_mean, predictive_cov, mean, cov,measurement_position, measurement_cov; kwargs...)
-    # Make a fancy plot of the Kalman-filtered cart position
-    p = Normal(predictive_mean, predictive_cov)
-    m = Normal(measurement_position, measurement_cov)
-    c = Normal(mean, cov)
-    plot_range = range(mean-8*sqrt(predictive_cov), mean+8*sqrt(predictive_cov), length=300)
-    height = floor((plot_range[end] - plot_range[1])/3)
-    sz = size(bg_img)
-    x, y = LinRange(plot_range[begin], plot_range[end], sz[1]), collect(LinRange(0, 5, sz[2]))
-	
-    result = plot(x, y, bg_img; xlabel="Position", legend=:bottom, kwargs...)
-    plot!(plot_range, height*pdf.(p, plot_range); label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
-    plot!(plot_range, height*pdf.(m, plot_range); label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
-    plot!(plot_range, height*pdf.(c, plot_range); label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", xrange = (plot_range[begin], plot_range[end]), yrange=(-3, height), fill=(0, .1))
-    yflip!(false)
+# ╔═╡ ae8c57ce-b74d-4543-b25b-eee57ad2e415
+function plotCartPrediction(
+	;
+	predictive::Normal,
+	measurement::Normal,
+	corrected::Normal,
+	real::Float64,
+	kwargs...
+)
+    
+	result = plot(; xlim=(10,50), ylim=(-.5, 1), xlabel="Position", legend=:bottomright, kwargs...)
+    # result = plot(x, y, bg_img; xlabel="Position", legend=:bottom, kwargs...)
+    plot!(z -> pdf(predictive, z); label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
+    plot!(z -> pdf(measurement, z); label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
+    plot!(z -> pdf(corrected, z); label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", fill=(0, .1))
+	vline!([real]; label="Real position")
     return result
 end
 
@@ -784,43 +835,88 @@ end
 let
 	local m_pred_z, V_pred_z # (these will be defined later)
 	
-	m_z = noisy_x[1]                                # initial predictive mean
+	m_z = xs_measurement[1]                         # initial predictive mean
 	V_z = A * (1e8*Diagonal(I,2) * A') + Σz         # initial predictive covariance
 	
-	for t = 2:n_steps
-		
+	for t = 2:closed_form_i
 		#predict
 		m_pred_z = A * m_z + b * u[t]                   # predictive mean
 		V_pred_z = A * V_z * A' + Σz                    # predictive covariance
 		
 		#update
 		gain = V_pred_z * inv(V_pred_z + Σx)            # Kalman gain
-		m_z = m_pred_z + gain * (noisy_x[t] - m_pred_z) # posterior mean update
+		m_z = m_pred_z + gain * (xs_measurement[t] - m_pred_z) # posterior mean update
 		V_z = (Diagonal(I,2)-gain)*V_pred_z             # posterior covariance update
 	end
 	
 	@debug("Prediction: ", MvNormalMeanCovariance(m_pred_z,V_pred_z))
-	@debug("Measurement: ", MvNormalMeanCovariance(noisy_x[n_steps],Σx))
+	@debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[closed_form_i],Σx))
 	@debug("Posterior: ", MvNormalMeanCovariance(m_z,V_z))
-	plotCartPrediction(m_pred_z[1], V_pred_z[1], m_z[1], V_z[1], noisy_x[n_steps][1], Σx[1][1])
+
+	
+	plotCartPrediction(
+		predictive=Normal(m_pred_z[1], V_pred_z[1]),
+		corrected=Normal(m_z[1], V_z[1]), 
+		measurement=Normal(xs_measurement[closed_form_i][1], Σx[1,1]),
+		real=xs_real[closed_form_i][1],
+	)
 end
 
 # ╔═╡ 272aaaf6-d294-11ef-0162-c76ba8ba7232
 let
-	if which_timestep == 1
+	if rxinfer_i == 1
 	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z_prior])
 	else
-	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z][which_timestep-1])
+	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z][rxinfer_i-1])
 	end
-	μz_prediction, Σz_prediction = (A*z_prev_m + b*u[which_timestep], A*z_prev_S*A' + Σz)
-	μz_posterior, Σz_posterior = mean_cov.(result.posteriors[:z])[which_timestep]
+	μz_prediction, Σz_prediction = (A*z_prev_m + b*u[rxinfer_i], A*z_prev_S*A' + Σz)
+	μz_posterior, Σz_posterior = mean_cov.(result.posteriors[:z])[rxinfer_i]
 	
 	@debug("Prediction: ",MvNormalMeanCovariance(μz_prediction, Σz_prediction))
-	@debug("Measurement: ", MvNormalMeanCovariance(noisy_x[which_timestep], Σx))
+	@debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[rxinfer_i], Σx))
 	@debug("Posterior: ", MvNormalMeanCovariance(μz_posterior, Σz_posterior))
-	plotCartPrediction(μz_prediction[1], Σz_prediction[1], μz_posterior[1], Σz_posterior[1], noisy_x[n_steps][1], Σx[1][1])
+	plotCartPrediction(
+		predictive=Normal(μz_prediction[1], Σz_prediction[1]), 
+		corrected=Normal(μz_posterior[1], Σz_posterior[1]), 
+		measurement=Normal(xs_measurement[rxinfer_i][1], Σx[1,1]),
+		real=xs_real[rxinfer_i][1],
+	)
 
 end
+
+# ╔═╡ bf08323f-6715-44be-af41-0ac7caf205d1
+# function plotCartPrediction(
+# 	predictive_mean, 
+# 	predictive_cov, 
+# 	mean, 
+# 	cov,
+# 	measurement_position, 
+# 	measurement_cov; 
+# 	kwargs...
+# )
+#     # Make a fancy plot of the Kalman-filtered cart position
+#     p = Normal(predictive_mean, predictive_cov)
+#     m = Normal(measurement_position, measurement_cov)
+#     c = Normal(mean, cov)
+#     plot_range = range(mean-8*sqrt(predictive_cov), mean+8*sqrt(predictive_cov), length=300)
+#     height = floor((plot_range[end] - plot_range[1])/3)
+#     sz = size(bg_img)
+#     x, y = LinRange(plot_range[begin], plot_range[end], sz[1]), collect(LinRange(0, 5, sz[2]))
+
+# 	result = plot()
+#     # result = plot(x, y, bg_img; xlabel="Position", legend=:bottom, kwargs...)
+#     plot!(plot_range, height*pdf.(p, plot_range); label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
+#     plot!(plot_range, height*pdf.(m, plot_range); label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
+#     plot!(plot_range, height*pdf.(c, plot_range); label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", xrange = (plot_range[begin], plot_range[end]), yrange=(-3, height), fill=(0, .1))
+#     yflip!(false)
+#     return result
+# end
+
+# ╔═╡ a0116427-cff8-44e5-b3bb-8dee2ecf73c2
+bg_img_path = download("https://github.com/bmlip/course/blob/v2/assets/figures/cart-bg.png?raw=true")
+
+# ╔═╡ 0b41c9ab-ee04-446e-a3fc-decfeb9d1571
+const bg_img = load(bg_img_path)[end:-1:1, :]; # flipped vertically because images are stored with inverted Y axis
 
 # ╔═╡ f44e0303-dd28-48ad-9de2-7f7882f3923d
 md"""
@@ -853,7 +949,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "c4b417c8923c4c30aabaefeeeef41f3820c5b8c2"
+project_hash = "34b928627c970cabb3e373500d669652fbe46825"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -3274,6 +3370,8 @@ version = "1.9.2+0"
 # ╟─6107b57e-cda2-46fb-b6f8-bd0e3787516d
 # ╟─2728adf0-d294-11ef-2467-f176bb42fb8b
 # ╟─2728b7c8-d294-11ef-06e6-5329a76c16be
+# ╟─e841a707-895d-45d0-8320-b9a9deddcd3d
+# ╟─054b59b2-fe8f-4584-8ef5-5f96c3edf137
 # ╟─fc919736-d9e3-4ca0-a53c-5fac18539ab5
 # ╟─2728c344-d294-11ef-1c5e-8d601b7ac3f9
 # ╟─2728d136-d294-11ef-27bc-6de51ace159c
@@ -3296,17 +3394,25 @@ version = "1.9.2+0"
 # ╟─272a00a6-d294-11ef-18ba-a3700f78b13f
 # ╟─272a0d3a-d294-11ef-2537-39a6e410e56b
 # ╠═f2a42c4d-9607-4f50-bbda-9a9a4942faab
+# ╟─e8c172c6-8d0d-43fa-a68d-62a95a560668
 # ╠═0f845342-af59-4448-aac6-1c301a41536d
 # ╠═9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 # ╠═3bda634c-e2fa-4c98-925d-7ed1ba62fe15
+# ╟─da1e8bd1-c67d-4371-9de0-059c642a9714
 # ╠═bcb6ad76-39e3-4b3d-ba4c-2a98df0195af
+# ╟─bd58f70e-04b4-4e50-b82e-13ad0e3a9abe
 # ╠═17ca9dc4-98bd-4135-bec2-74fd97a9bc56
+# ╟─130edb3e-f5f9-40d2-970d-d0fc822fd82a
 # ╠═e3056eeb-777a-4323-9d2e-f376cae2e1ca
 # ╠═a67d22cd-e375-4382-ae3d-749893754beb
 # ╠═b3ea45da-6976-454a-b7ed-d85d739a3021
+# ╠═2618d09b-4fd6-4cdc-9d80-45f7d0b262db
+# ╟─3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
+# ╠═24f6c005-173d-4831-8c93-c54a9ba0334e
 # ╠═6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-# ╠═4c570a74-b77e-406a-896d-4bdbf3cd7f51
-# ╠═ad05de22-40db-413e-85bd-24e6ef448656
+# ╟─db220fea-4524-4c1c-bc9d-ed63c6ef1023
+# ╟─83587586-8a88-4bbb-b2bf-1ca9a8cf6339
+# ╟─ad05de22-40db-413e-85bd-24e6ef448656
 # ╟─272a4b2e-d294-11ef-2762-47a3479186ad
 # ╠═272a620a-d294-11ef-2cc6-13b26c4a0ea9
 # ╟─272a6f96-d294-11ef-13e4-1b2b12867c9b
@@ -3315,8 +3421,9 @@ version = "1.9.2+0"
 # ╠═c481c23f-2971-484a-995d-bfa5aaa0a176
 # ╠═dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
 # ╠═07fe12dc-501c-407b-ab39-ba9a4845762c
-# ╠═e22bbe92-bac3-48ad-83bf-5e1857d572a7
-# ╠═272aaaf6-d294-11ef-0162-c76ba8ba7232
+# ╟─557b0052-b1a4-489e-be53-2327033954f2
+# ╟─e22bbe92-bac3-48ad-83bf-5e1857d572a7
+# ╟─272aaaf6-d294-11ef-0162-c76ba8ba7232
 # ╟─272ab9b2-d294-11ef-0510-c3b68d2f1099
 # ╠═87da590d-ad40-4fd3-b388-3f879b593840
 # ╟─272ac73e-d294-11ef-0526-55f6dfa019d1
@@ -3332,7 +3439,8 @@ version = "1.9.2+0"
 # ╟─272b07f8-d294-11ef-3bfe-bffd9e3623aa
 # ╟─272b17b6-d294-11ef-1e58-a75484ab56d9
 # ╠═60201d93-64e8-42ce-85ab-8eb661223427
-# ╟─84018669-bff5-4d06-a8f1-df515910c4d9
+# ╠═84018669-bff5-4d06-a8f1-df515910c4d9
+# ╠═ae8c57ce-b74d-4543-b25b-eee57ad2e415
 # ╠═bf08323f-6715-44be-af41-0ac7caf205d1
 # ╠═0b41c9ab-ee04-446e-a3fc-decfeb9d1571
 # ╠═a0116427-cff8-44e5-b3bb-8dee2ecf73c2
