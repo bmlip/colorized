@@ -68,7 +68,7 @@ $(challenge_statement("Predicting a Coin Toss"))
 
 ##### Problem 
 
-  * We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly: 
+  * We observe the following sequence of heads (outcome ``=1``) and tails (outcome ``=0``) when tossing the same coin repeatedly:
 
 ```math
 D=\{1011001\}\,.
