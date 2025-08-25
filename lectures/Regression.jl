@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/fig-bishop12.png?raw=true"
@@ -553,14 +553,14 @@ v(x) &= 10e^{2x^2}-9.5
 # ╔═╡ 234ef126-d294-11ef-17a9-3da87a7e7d0a
 let
 	# Model specification: y|x ~ 𝒩(f(x), v(x))
-	f(x) = 5*x .- 2 
-	v(x) = 10*exp.(2*x.^2) .- 9.5 # input dependent noise variance
+	f(x) = 5x - 2 
+	v(x) = 10exp(2*x^2) .- 9.5 # input dependent noise variance
 	x_test = [0.0, 1.0]
-	plot(x_test, f(x_test), ribbon=sqrt.(v(x_test)), label=L"f(x)") # plot f(x)
+	plot(x_test, f.(x_test), ribbon=sqrt.(v.(x_test)), label=L"f(x)") # plot f(x)
 	
 	# Generate N samples (x,y), where x ~ Unif[0,1]
 	x = rand(MersenneTwister(345435), N)
-	y = f(x) + sqrt.(v(x)) .* randn(MersenneTwister(8484893), N)
+	y = f.(x) + sqrt.(v.(x)) .* rand(MersenneTwister(848483), Normal(0,1), N)
 	scatter!(x, y, xlabel="x", ylabel="y", label=L"y") # Plot samples
 	
 	# Add constant to input so we can estimate both the offset and the slope
@@ -572,12 +572,17 @@ let
 	plot!(x_test, _x_test*w_ls, color=:red, label="LS") # plot LS solution
 	
 	# Weighted LS regression
-	W = Diagonal(1 ./ v(x)) # weight matrix
+	W = Diagonal(1 ./ v.(x)) # weight matrix
 	w_wls = inv(_x'*W*_x) * _x' * W * y
 	plot!(x_test, _x_test*w_wls, color=:green, label="WLS") # plot WLS solution
 
 	plot!(legend=:topleft, ylim=(-12,16))
 end
+
+# ╔═╡ e9804f92-29b0-4463-bf37-872183061ee2
+md"""
+_Reading this lecture online? Click **"View code"** in the top right to read the implementation of this visualisation._
+"""
 
 # ╔═╡ 234f5d32-d294-11ef-279f-f331396e47ad
 md"""
@@ -848,7 +853,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "61c8164fc50937999e83534a3a559f7fe70b536f"
+project_hash = "8f82368119a1c152e87bacee1ce5eb82d6b55bf3"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -2123,6 +2128,7 @@ version = "1.9.2+0"
 # ╟─234ec962-d294-11ef-1033-7b1599057825
 # ╟─b6443a13-9301-4559-a5c3-396bae2a27b9
 # ╟─234ef126-d294-11ef-17a9-3da87a7e7d0a
+# ╟─e9804f92-29b0-4463-bf37-872183061ee2
 # ╟─234f5d32-d294-11ef-279f-f331396e47ad
 # ╟─8e2b2c1d-81f3-4283-ae2e-d8b3e9c201b3
 # ╟─bbb461b0-d1eb-4584-89b0-96af3e615484
