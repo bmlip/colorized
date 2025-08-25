@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.15
+# v0.20.16
 
 #> [frontmatter]
 #> image = "https://github.com/bmlip/course/blob/v2/assets/figures/Faragher-2012-cart-1.png?raw=true"
@@ -24,14 +24,14 @@ macro bind(def, element)
     #! format: on
 end
 
+# ╔═╡ e66b2193-87c8-4645-bfcc-643ee006383a
+using BmlipTeachingTools
+
 # ╔═╡ f2a42c4d-9607-4f50-bbda-9a9a4942faab
 using RxInfer, LinearAlgebra
 
 # ╔═╡ 60201d93-64e8-42ce-85ab-8eb661223427
-using Plots, Distributions, Images, LaTeXStrings
-
-# ╔═╡ e66b2193-87c8-4645-bfcc-643ee006383a
-using BmlipTeachingTools
+using Plots, Distributions, Images, LaTeXStrings, StatsPlots
 
 # ╔═╡ 27289f68-d294-11ef-37d6-e399ed72a1d0
 title("Dynamic Models")
@@ -61,10 +61,11 @@ md"""
 
 """
 
+# ╔═╡ 50c601c9-ec68-4155-932c-190bced1ac9a
+challenge_statement("Tracking of Cart Position"; color="red", big=true)
+
 # ╔═╡ 2728b7c8-d294-11ef-06e6-5329a76c16be
 md"""
-
-$(challenge_statement("Tracking of Cart Position"; color="red"))
 
 ##### Problem 
 
@@ -86,13 +87,36 @@ The hidden states are the position ``z_t`` and velocity ``\dot z_t`` of the cart
 Task: Infer the position ``z_t`` after 10 time steps, i.e., infer ``p(z_{10}|x_{1:10})``. 
 
 
+"""
+
+# ╔═╡ f77d215f-d1f1-4f14-9c92-fcf1b66f99b0
+keyconcept(
+	"Dynamical Models example",
+	md"""
+	The illustration above shows the real cart position, and the measured position. 
+	
+	💡 We know the equations of motion of the cart, and we have previous measurements. With Bayesian ML we can **combine this information** (current measurement + old measurements + system knowledge) into an optimal estimate for the cart position, which is _more precise_ than the measurement alone.
+	"""
+)
+
+# ╔═╡ 6b7f6d3b-8ad6-434a-babe-2597e86299fa
+md"""
+
+
 ##### Solution 
 
 See later in this lecture.
 
 
-
 """
+
+# ╔═╡ e841a707-895d-45d0-8320-b9a9deddcd3d
+TODO(md"""
+	 Explain why ``z_t`` and ``\dot{z_t}`` are "hidden" states? (Because we don't observe them directly)
+
+	 Is ``\dot{z_t}`` (velocity) part of the observations? Should we include that in the illustration above?
+	 
+	 """)
 
 # ╔═╡ fc919736-d9e3-4ca0-a53c-5fac18539ab5
 md"""
@@ -422,19 +446,41 @@ V_t &= \left(I-K_t C \right) P_{t}  \tag{posterior state variance}
 
 """
 
-# ╔═╡ 272a0d3a-d294-11ef-2537-39a6e410e56b
+# ╔═╡ bbaa44b9-9bac-4fb8-8014-fbf400a93039
+challenge_solution("Tracking of Cart Position", color="green", header_level=1)
+
+# ╔═╡ e8c172c6-8d0d-43fa-a68d-62a95a560668
 md"""
-$(challenge_solution("Tracking of Cart Position"; color="green"))
-
-##### Inference by explicit Kalman filtering
-
-We can now solve the cart tracking problem of the introductory example by executing the Kalman filter equations KF-2.
+## Model Parameters
 
 """
 
+# ╔═╡ e3056eeb-777a-4323-9d2e-f376cae2e1ca
+n_steps = 40;
+
+# ╔═╡ 49fd6d97-8ef1-49cd-8dcb-dafddb14814c
+@bind intro_i Slider(2:n_steps; show_value=true)
+
+# ╔═╡ 54a90995-cc15-41fa-a2fc-e1f191a3853b
+md"""
+#### Initial position and force function:
+
+"""
+
+# ╔═╡ a67d22cd-e375-4382-ae3d-749893754beb
+z_start = [10.0; 0.0];
+
+# ╔═╡ b3ea45da-6976-454a-b7ed-d85d739a3021
+u = 0.2 * ones(n_steps)   # constant force
+
+# ╔═╡ 1026d399-2af4-4e2b-918f-9a607ffd37d4
+md"""
+
+#### Equations of motion:
+"""
+
 # ╔═╡ 0f845342-af59-4448-aac6-1c301a41536d
-# Specify the model parameters
-Δt = 1.0                                            # assume the time steps to be equal in size
+Δt = 1.0;
 
 # ╔═╡ 9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 A = [1.0 Δt;
@@ -443,29 +489,55 @@ A = [1.0 Δt;
 # ╔═╡ 3bda634c-e2fa-4c98-925d-7ed1ba62fe15
 b = [0.5*Δt^2; Δt]
 
+# ╔═╡ da1e8bd1-c67d-4371-9de0-059c642a9714
+md"""
+#### Process noise covariance:
+"""
+
 # ╔═╡ bcb6ad76-39e3-4b3d-ba4c-2a98df0195af
-Σz = convert(Matrix,Diagonal([0.2*Δt; 0.1*Δt]))     # process noise covariance
+Σz = collect(Diagonal([0.2*Δt; 0.1*Δt]))
+
+# ╔═╡ bd58f70e-04b4-4e50-b82e-13ad0e3a9abe
+md"""
+### Observation noise covariance:
+"""
 
 # ╔═╡ 17ca9dc4-98bd-4135-bec2-74fd97a9bc56
-Σx = convert(Matrix,Diagonal([1.0; 2.0]))           # observation noise covariance;
+Σx = collect(Diagonal([1.0; 2.0]))
 
-# Generate noisy observations
+# ╔═╡ 130edb3e-f5f9-40d2-970d-d0fc822fd82a
+md"""
+## Generate noisy observations
 
-# ╔═╡ e3056eeb-777a-4323-9d2e-f376cae2e1ca
-n_steps = 10                                              # execute 10 timesteps
+This vector contains our measurements. Each elements corresponds to a time step, and it is a 2-element vector with `[position, velocity]`.
+"""
 
-# ╔═╡ a67d22cd-e375-4382-ae3d-749893754beb
-z_start = [10.0; 2.0]                               # initial state
+# ╔═╡ 3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
+md"""
+We call an [function from the Appendix](#generateNoisyMeasurements) to generate the measurements.
+"""
 
-# ╔═╡ b3ea45da-6976-454a-b7ed-d85d739a3021
-u = 0.2 * ones(n_steps)                                   # constant input u
+# ╔═╡ 272a0d3a-d294-11ef-2537-39a6e410e56b
+md"""
 
-# ╔═╡ 4c570a74-b77e-406a-896d-4bdbf3cd7f51
-TODO("Can you do a foldable box here that shows the code below for executing the KF?")
+## Inference by explicit Kalman filtering
+
+We can now solve the cart tracking problem of the introductory example by executing the Kalman filter equations KF-2.
+"""
+
+# ╔═╡ 83587586-8a88-4bbb-b2bf-1ca9a8cf6339
+md"""
+Select a time step: $(@bind closed_form_i Slider(3:n_steps; show_value=true))
+"""
+
+# ╔═╡ f2e5dd92-b4bf-495a-8c11-2f34f2667041
+md"""
+Center the graph around cart position? $(@bind closed_form_rolling CheckBox(default=false))
+"""
 
 # ╔═╡ 272a4b2e-d294-11ef-2762-47a3479186ad
 md"""
-#####  Inference by Message Passing
+##  Inference by Message Passing
 
 Let's now solve the cart tracking problem by sum-product message passing in a factor graph. All we have to do is create factor nodes for the state-transition model ``p(z_t|z_{t-1})`` and the observation model ``p(x_t|z_t)``. Then we let [RxInfer](https://rxinfer.com) execute the message passing schedule. 
 
@@ -496,22 +568,18 @@ Now that we've built the model, we can perform Kalman filtering by inserting mea
 """
 
 # ╔═╡ c7532c8c-deab-4cad-9900-9ffb1cbc4221
-z_prev_v_0 = A * (1e8*diageye(2) * A') + Σz ;
+z_prev_v_0 = A * (1e8*diageye(2) * A') + Σz
 
-# ╔═╡ dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
-import RxInfer.ReactiveMP: messageout, getinterface, materialize!
-
-# ╔═╡ 07fe12dc-501c-407b-ab39-ba9a4845762c
-import RxInfer.Rocket: getrecent
+# ╔═╡ b7d0c2e7-418b-417d-992a-c93ae3598f9e
+md"""
+Center the graph around cart position? $(@bind rxinfer_rolling CheckBox(default=false))
+"""
 
 # ╔═╡ 272ab9b2-d294-11ef-0510-c3b68d2f1099
 md"""
 Note that both the analytical Kalman filtering solution and the message passing solution lead to the same results. The advantage of message passing-based inference with RxInfer is that we did not need to derive any inference equations. RxInfer took care of all that. 
 
 """
-
-# ╔═╡ 87da590d-ad40-4fd3-b388-3f879b593840
-TODO("the axis limits dont make sense, the cart is not moving")
 
 # ╔═╡ 272ac73e-d294-11ef-0526-55f6dfa019d1
 md"""
@@ -700,132 +768,177 @@ Using the methods of the previous lessons, it is possible to create your own new
 
 """
 
+# ╔═╡ f44e0303-dd28-48ad-9de2-7f7882f3923d
+md"""
+# Appendix
+"""
+
+# ╔═╡ dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
+import RxInfer.ReactiveMP: messageout, getinterface, materialize!
+
+# ╔═╡ 07fe12dc-501c-407b-ab39-ba9a4845762c
+import RxInfer.Rocket: getrecent
+
 # ╔═╡ 84018669-bff5-4d06-a8f1-df515910c4d9
 function generateNoisyMeasurements( z_start::Vector{Float64},
-                                    u::Vector{Float64},
-                                    A::Matrix{Float64},
-                                    b::Vector{Float64},
-                                    Σz::Matrix{Float64},
-                                    Σx::Matrix{Float64})
-    # Simulate linear state-space model
-    # z[t] = A*z[t-1] + b*u[t] + N(0,Σz)
-    # x[t] = N(z[t],Σx)
+									u::Vector{Float64},
+									A::Matrix{Float64},
+									b::Vector{Float64},
+									Σz::Matrix{Float64},
+									Σx::Matrix{Float64})
+	# Simulate linear state-space model
+	# z[t] = A*z[t-1] + b*u[t] + N(0,Σz)
+	# x[t] = N(z[t],Σx)
 
-    # Return noisy observations [x[1],...,x[n]]
+	# Return noisy observations [x[1],...,x[n]]
 
-    n = length(u)
-    d = length(z_start)
+	n = length(u)
+	d = length(z_start)
 
-    # Sanity checks
-    (n>0) || error("u should contain at least one value")
-    (d>0) || error("z_start has an invalid dimensionality")
-    (size(A) == (d,d)) || error("Transition matrix A does not have correct dimensions")
-    (length(b) == d) || error("b does not have the correct dimensionality")
-    (size(Σz) == (d,d)) || error("Covariance matrix Σz does not have correct dimensions")
-    (size(Σx) == (d,d)) || error("Covariance matrix Σx does not have correct dimensions")
+	# Sanity checks
+	@assert(n>0, "u should contain at least one value")
+	@assert(d>0, "z_start has an invalid dimensionality")
+	@assert(size(A) == (d,d), "Transition matrix A does not have correct dimensions")
+	@assert(length(b) == d, "b does not have the correct dimensionality")
+	@assert(size(Σz) == (d,d), "Covariance matrix Σz does not have correct dimensions")
+	@assert(size(Σx) == (d,d), "Covariance matrix Σx does not have correct dimensions")
 
-    x = Vector[] # x will be a list of n vectors
-    z = copy(z_start)
-    chol_Σz = cholesky(Σz)
-    chol_Σx = cholesky(Σx)
-    proc_noise = convert(Matrix,chol_Σz) * randn(d)
-    for i=1:n
-        proc_noise = convert(Matrix,chol_Σz) * randn(d)
-        z = A*z + b*u[i] + proc_noise
-        obs_noise = convert(Matrix,chol_Σx) * randn(length(z))
-        push!(x, z + obs_noise)
-    end
+	result = Vector[] # result will be a list of n vectors of size d
+	z = copy(z_start)
 
-    return x
+	for i=1:n
+		# the new position is calculated from the old one, with process noise
+		z = rand(MvNormal(A*z + b*u[i], Σz))
+		# we observe this position, with measurement noise
+		output = rand(MvNormal(z, Σx))
+		push!(result, output)
+	end
+
+	return accumulate(1:n; init=(z_start, z_start)) do (z, z_observed), i
+		z = rand(MvNormal(A*z + b*u[i], Σz))
+		z_observed = rand(MvNormal(z, Σx))
+		return z, z_observed
+	end
+
+	return result
 end
 
-# ╔═╡ 6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-noisy_x = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx);
+# ╔═╡ 24f6c005-173d-4831-8c93-c54a9ba0334e
+begin
+	gen_measurements_output = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx);
+	
+	xs_real = first.(gen_measurements_output)
+	xs_measurement = last.(gen_measurements_output)
+
+	Text("gen_measurements_output")
+end
+
+# ╔═╡ 2618d09b-4fd6-4cdc-9d80-45f7d0b262db
+xs_measurement
 
 # ╔═╡ 25b3697e-6171-402c-97a5-201ca6bbe3a7
-z_prev_m_0 = noisy_x[1]
+z_prev_m_0 = xs_measurement[1]
 
 # ╔═╡ c481c23f-2971-484a-995d-bfa5aaa0a176
 result = infer(
-    model=cart_tracking(n=n_steps, A=A,B=b, Σz=Σz, Σx=Σx, z_prev_m_0=z_prev_m_0, z_prev_v_0=z_prev_v_0,u=u), 
-    data=(x=noisy_x,), 
-    free_energy=true
+	model=cart_tracking(n=n_steps, A=A,B=b, Σz=Σz, Σx=Σx, z_prev_m_0=z_prev_m_0, z_prev_v_0=z_prev_v_0,u=u), 
+	data=(x=xs_measurement,), 
+	free_energy=true
 )
 
-# ╔═╡ e22bbe92-bac3-48ad-83bf-5e1857d572a7
-@bind which_timestep Slider(eachindex(result.posteriors[:z]); show_value=true)
+# ╔═╡ 557b0052-b1a4-489e-be53-2327033954f2
+md"""
+Select a time step: $(@bind rxinfer_i Slider(eachindex(result.posteriors[:z]); show_value=true))
+"""
 
-# ╔═╡ a0116427-cff8-44e5-b3bb-8dee2ecf73c2
-bg_img_path = download("https://github.com/bmlip/course/blob/v2/assets/figures/cart-bg.png?raw=true")
-
-# ╔═╡ 0b41c9ab-ee04-446e-a3fc-decfeb9d1571
-const bg_img = load(bg_img_path)[end:-1:1, :]; # flipped vertically because images are stored with inverted Y axis
-
-# ╔═╡ bf08323f-6715-44be-af41-0ac7caf205d1
-function plotCartPrediction(predictive_mean, predictive_cov, mean, cov,measurement_position, measurement_cov; kwargs...)
-    # Make a fancy plot of the Kalman-filtered cart position
-    p = Normal(predictive_mean, predictive_cov)
-    m = Normal(measurement_position, measurement_cov)
-    c = Normal(mean, cov)
-    plot_range = range(mean-8*sqrt(predictive_cov), mean+8*sqrt(predictive_cov), length=300)
-    height = floor((plot_range[end] - plot_range[1])/3)
-    sz = size(bg_img)
-    x, y = LinRange(plot_range[begin], plot_range[end], sz[1]), collect(LinRange(0, 5, sz[2]))
+# ╔═╡ ae8c57ce-b74d-4543-b25b-eee57ad2e415
+function plotCartPrediction(
+	;
+	predictive::Union{Nothing,Normal}=nothing,
+	measurement::Union{Nothing,Normal}=nothing,
+	corrected::Union{Nothing,Normal}=nothing,
+	real::Union{Nothing,Float64}=nothing,
+	rolling::Bool=false,
+	kwargs...
+)
+	result = plot(
+		; 
+		xlim=rolling ? (real - 4, real + 4) : (10,50), 
+		ylim=(-.5, 1), 
+		xlabel="Position", legend=:bottomright, 
+		kwargs...
+	)
 	
-    result = plot(x, y, bg_img; xlabel="Position", legend=:bottom, kwargs...)
-    plot!(plot_range, height*pdf.(p, plot_range); label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
-    plot!(plot_range, height*pdf.(m, plot_range); label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
-    plot!(plot_range, height*pdf.(c, plot_range); label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", xrange = (plot_range[begin], plot_range[end]), yrange=(-3, height), fill=(0, .1))
-    yflip!(false)
-    return result
+	isnothing(predictive) || plot!(predictive; 
+		label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1),
+	)
+	
+	isnothing(measurement) || plot!(measurement; 
+		label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1),
+	)
+	
+	isnothing(corrected) || plot!(corrected; 
+		label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", fill=(0, .1),
+	)
+	
+	isnothing(real) || vline!([real]; 
+		label="Real cart position", color=:purple, style=:dash,
+	)
+	return result
 end
+
+# ╔═╡ 4940b72d-182d-47bb-a446-51ce42724beb
+plotCartPrediction(
+	measurement=Normal(xs_measurement[intro_i][1], Σx[1,1]),
+	real=xs_real[intro_i][1],
+)
 
 # ╔═╡ ad05de22-40db-413e-85bd-24e6ef448656
 let
 	local m_pred_z, V_pred_z # (these will be defined later)
 	
-	m_z = noisy_x[1]                                # initial predictive mean
+	m_z = xs_measurement[1]                         # initial predictive mean
 	V_z = A * (1e8*Diagonal(I,2) * A') + Σz         # initial predictive covariance
 	
-	for t = 2:n_steps
-		
-		#predict
+	for t = 2:closed_form_i
+		## predict
 		m_pred_z = A * m_z + b * u[t]                   # predictive mean
 		V_pred_z = A * V_z * A' + Σz                    # predictive covariance
 		
-		#update
+		## update
 		gain = V_pred_z * inv(V_pred_z + Σx)            # Kalman gain
-		m_z = m_pred_z + gain * (noisy_x[t] - m_pred_z) # posterior mean update
+		m_z = m_pred_z + gain * (xs_measurement[t]-m_pred_z) # posterior mean update
 		V_z = (Diagonal(I,2)-gain)*V_pred_z             # posterior covariance update
 	end
 	
-	@debug("Prediction: ", MvNormalMeanCovariance(m_pred_z,V_pred_z))
-	@debug("Measurement: ", MvNormalMeanCovariance(noisy_x[n_steps],Σx))
-	@debug("Posterior: ", MvNormalMeanCovariance(m_z,V_z))
-	plotCartPrediction(m_pred_z[1], V_pred_z[1], m_z[1], V_z[1], noisy_x[n_steps][1], Σx[1][1])
+	plotCartPrediction(
+		predictive=Normal(m_pred_z[1], V_pred_z[1]),
+		corrected=Normal(m_z[1], V_z[1]), 
+		measurement=Normal(xs_measurement[closed_form_i][1], Σx[1,1]),
+		real=xs_real[closed_form_i][1],
+		rolling=closed_form_rolling,
+	)
 end
 
 # ╔═╡ 272aaaf6-d294-11ef-0162-c76ba8ba7232
 let
-	if which_timestep == 1
+	if rxinfer_i == 1
 	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z_prior])
 	else
-	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z][which_timestep-1])
+	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z][rxinfer_i-1])
 	end
-	μz_prediction, Σz_prediction = (A*z_prev_m + b*u[which_timestep], A*z_prev_S*A' + Σz)
-	μz_posterior, Σz_posterior = mean_cov.(result.posteriors[:z])[which_timestep]
+	μz_prediction, Σz_prediction = (A*z_prev_m + b*u[rxinfer_i], A*z_prev_S*A' + Σz)
+	μz_posterior, Σz_posterior = mean_cov(result.posteriors[:z][rxinfer_i])
 	
-	@debug("Prediction: ",MvNormalMeanCovariance(μz_prediction, Σz_prediction))
-	@debug("Measurement: ", MvNormalMeanCovariance(noisy_x[which_timestep], Σx))
-	@debug("Posterior: ", MvNormalMeanCovariance(μz_posterior, Σz_posterior))
-	plotCartPrediction(μz_prediction[1], Σz_prediction[1], μz_posterior[1], Σz_posterior[1], noisy_x[n_steps][1], Σx[1][1])
+	plotCartPrediction(
+		predictive=Normal(μz_prediction[1], Σz_prediction[1]), 
+		corrected=Normal(μz_posterior[1], Σz_posterior[1]), 
+		measurement=Normal(xs_measurement[rxinfer_i][1], Σx[1,1]),
+		real=xs_real[rxinfer_i][1],
+		rolling=rxinfer_rolling,
+	)
 
 end
-
-# ╔═╡ f44e0303-dd28-48ad-9de2-7f7882f3923d
-md"""
-# Appendix
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -837,6 +950,7 @@ LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 RxInfer = "86711068-29c9-4ff7-b620-ae75d7495b3d"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 BmlipTeachingTools = "~1.1.0"
@@ -845,6 +959,7 @@ Images = "~0.26.1"
 LaTeXStrings = "~1.4.0"
 Plots = "~1.40.10"
 RxInfer = "~4.5.0"
+StatsPlots = "~0.15.7"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -853,7 +968,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "c4b417c8923c4c30aabaefeeeef41f3820c5b8c2"
+project_hash = "28ba169b34e7b8260d2aea7e379b92a9a6d72dc5"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -913,6 +1028,18 @@ deps = ["LinearAlgebra", "Random", "StaticArrays"]
 git-tree-sha1 = "d57bd3762d308bded22c3b82d033bff85f6195c6"
 uuid = "ec485272-7323-5ecc-a04f-4719b315124d"
 version = "0.4.0"
+
+[[deps.Arpack]]
+deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
+git-tree-sha1 = "9b9b347613394885fd1c8c7729bfc60528faa436"
+uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
+version = "0.5.4"
+
+[[deps.Arpack_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "OpenBLAS_jll", "Pkg"]
+git-tree-sha1 = "5ba6c757e8feccf03a1554dfaf3e26b3cfc7fd5e"
+uuid = "68821587-b530-5797-8361-c406ea357684"
+version = "3.5.1+1"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra"]
@@ -1005,9 +1132,9 @@ version = "0.1.6"
 
 [[deps.BlockArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "291532989f81db780e435452ccb2a5f902ff665f"
+git-tree-sha1 = "84a4360c718e7473fec971ae27f409a2f24befc8"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "1.7.0"
+version = "1.7.1"
 
     [deps.BlockArrays.extensions]
     BlockArraysAdaptExt = "Adapt"
@@ -1203,6 +1330,11 @@ git-tree-sha1 = "4e1fe97fdaed23e9dc21d4d664bea76b65fc50a0"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 version = "0.18.22"
 
+[[deps.DataValueInterfaces]]
+git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
+uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
+version = "1.0.0"
+
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -1240,9 +1372,9 @@ version = "1.15.1"
 
 [[deps.DifferentiationInterface]]
 deps = ["ADTypes", "LinearAlgebra"]
-git-tree-sha1 = "38989b1532a3c6e2341d52b77c5475c42c3318a8"
+git-tree-sha1 = "16946a4d305607c3a4af54ff35d56f0e9444ed0e"
 uuid = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
-version = "0.7.6"
+version = "0.7.7"
 
     [deps.DifferentiationInterface.extensions]
     DifferentiationInterfaceChainRulesCoreExt = "ChainRulesCore"
@@ -1369,9 +1501,9 @@ version = "0.1.11"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "d55dffd9ae73ff72f1c0482454dcf2ec6c6c4a63"
+git-tree-sha1 = "7bb1361afdb33c7f2b085aa49ea8fe1b0fb14e58"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
-version = "2.6.5+0"
+version = "2.7.1+0"
 
 [[deps.ExponentialFamily]]
 deps = ["BayesBase", "BlockArrays", "Distributions", "DomainSets", "FastCholesky", "FillArrays", "ForwardDiff", "HCubature", "HypergeometricFunctions", "IntervalSets", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "PositiveFactorizations", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "StatsFuns", "TinyHugeNumbers"]
@@ -1483,9 +1615,9 @@ version = "0.8.5"
 
 [[deps.Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
-git-tree-sha1 = "301b5d5d731a0654825f1f2e906990f7141a106b"
+git-tree-sha1 = "f85dac9a96a01087df6e3a749840015a0ca3817d"
 uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
-version = "2.16.0+0"
+version = "2.17.1+0"
 
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
@@ -1550,10 +1682,10 @@ uuid = "b0724c58-0f36-5564-988d-3bb0596ebc4a"
 version = "0.22.4+0"
 
 [[deps.Ghostscript_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "43ba3d3c82c18d88471cfd2924931658838c9d8f"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Zlib_jll"]
+git-tree-sha1 = "38044a04637976140074d0b0621c1edf0eb531fd"
 uuid = "61579ee1-b43e-5ca0-a5da-69d92c66a64b"
-version = "9.55.0+4"
+version = "9.55.1+0"
 
 [[deps.Giflib_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1732,10 +1864,10 @@ uuid = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 version = "1.4.2"
 
 [[deps.ImageMagick_jll]]
-deps = ["Artifacts", "Ghostscript_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "OpenJpeg_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "6bd99f35bfd26ea2af082caf626b012cadaca79d"
+deps = ["Artifacts", "Bzip2_jll", "FFTW_jll", "Ghostscript_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "OpenJpeg_jll", "Zlib_jll", "Zstd_jll", "libpng_jll", "libwebp_jll", "libzip_jll"]
+git-tree-sha1 = "33fe30dca2835c4681a7b08988feddc7f20eab70"
 uuid = "c73af94c-d91f-53ed-93a7-00f77d67a9d7"
-version = "7.1.2001+0"
+version = "7.1.2002+0"
 
 [[deps.ImageMetadata]]
 deps = ["AxisArrays", "ImageAxes", "ImageBase", "ImageCore"]
@@ -1819,13 +1951,12 @@ version = "1.11.0"
 
 [[deps.Interpolations]]
 deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "f2905febca224eade352a573e129ef43aa593354"
+git-tree-sha1 = "88a101217d7cb38a7b481ccd50d21876e1d1b0e0"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.16.1"
-weakdeps = ["ForwardDiff", "Unitful"]
+version = "0.15.1"
+weakdeps = ["Unitful"]
 
     [deps.Interpolations.extensions]
-    InterpolationsForwardDiffExt = "ForwardDiff"
     InterpolationsUnitfulExt = "Unitful"
 
 [[deps.IntervalSets]]
@@ -1848,6 +1979,11 @@ version = "0.2.4"
 git-tree-sha1 = "42d5f897009e7ff2cf88db414a389e5ed1bdd023"
 uuid = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 version = "1.10.0"
+
+[[deps.IteratorInterfaceExtensions]]
+git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
+uuid = "82899510-4779-5014-852e-03e436cf321d"
+version = "1.0.0"
 
 [[deps.JLD2]]
 deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "ScopedValues", "TranscodingStreams"]
@@ -1885,9 +2021,15 @@ version = "0.1.6"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "eac1206917768cb54957c65a615460d87b455fc1"
+git-tree-sha1 = "e95866623950267c1e4878846f848d94810de475"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
-version = "3.1.1+0"
+version = "3.1.2+0"
+
+[[deps.KernelDensity]]
+deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
+git-tree-sha1 = "ba51324b894edaf1df3ab16e2cc6bc3280a2f1a7"
+uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
+version = "0.6.10"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -2019,9 +2161,9 @@ version = "1.18.0+0"
 
 [[deps.Libmount_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "a31572773ac1b745e0343fe5e2c8ddda7a37e997"
+git-tree-sha1 = "706dfd3c0dd56ca090e86884db6eda70fa7dd4af"
 uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
-version = "2.41.0+0"
+version = "2.41.1+0"
 
 [[deps.Libtiff_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "XZ_jll", "Zlib_jll", "Zstd_jll"]
@@ -2031,9 +2173,9 @@ version = "4.7.1+0"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "321ccef73a96ba828cd51f2ab5b9f917fa73945a"
+git-tree-sha1 = "d3c8af829abaeba27181db4acb485b18d15d89c6"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
-version = "2.41.0+0"
+version = "2.41.1+0"
 
 [[deps.LineSearches]]
 deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
@@ -2174,6 +2316,12 @@ version = "0.3.4"
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.12.12"
 
+[[deps.MultivariateStats]]
+deps = ["Arpack", "Distributions", "LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI", "StatsBase"]
+git-tree-sha1 = "816620e3aac93e5b5359e4fdaf23ca4525b00ddf"
+uuid = "6f286f6a-111f-5878-ab1e-185364afe411"
+version = "0.10.3"
+
 [[deps.NLSolversBase]]
 deps = ["ADTypes", "DifferentiationInterface", "Distributed", "FiniteDiff", "ForwardDiff"]
 git-tree-sha1 = "25a6638571a902ecfb1ae2a18fc1575f86b1d4df"
@@ -2206,6 +2354,11 @@ version = "1.1.1"
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
+
+[[deps.Observables]]
+git-tree-sha1 = "7438a59546cf62428fc9d1bc94729146d37a7225"
+uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
+version = "0.5.5"
 
 [[deps.OffsetArrays]]
 git-tree-sha1 = "117432e406b5c023f665fa73dc26e79ec3630151"
@@ -2393,9 +2546,9 @@ version = "0.4.5"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "fcfec547342405c7a8529ea896f98c0ffcc4931d"
+git-tree-sha1 = "8329a3a4f75e178c11c1ce2342778bcbbbfa7e3c"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.70"
+version = "0.7.71"
 
 [[deps.PolyaGammaHybridSamplers]]
 deps = ["Distributions", "Random", "SpecialFunctions", "StatsFuns"]
@@ -2666,6 +2819,12 @@ git-tree-sha1 = "9b81b8393e50b7d4e6d0a9f14e192294d3b7c109"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.3.0"
 
+[[deps.SentinelArrays]]
+deps = ["Dates", "Random"]
+git-tree-sha1 = "712fb0231ee6f9120e005ccd56297abbc053e7e0"
+uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
+version = "1.4.8"
+
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 version = "1.11.0"
@@ -2816,6 +2975,12 @@ version = "1.5.0"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
+[[deps.StatsPlots]]
+deps = ["AbstractFFTs", "Clustering", "DataStructures", "Distributions", "Interpolations", "KernelDensity", "LinearAlgebra", "MultivariateStats", "NaNMath", "Observables", "Plots", "RecipesBase", "RecipesPipeline", "Reexport", "StatsBase", "TableOperations", "Tables", "Widgets"]
+git-tree-sha1 = "3b1dcbf62e469a67f6733ae493401e53d92ff543"
+uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
+version = "0.15.7"
+
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 version = "1.11.0"
@@ -2833,6 +2998,24 @@ version = "7.7.0+0"
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
+
+[[deps.TableOperations]]
+deps = ["SentinelArrays", "Tables", "Test"]
+git-tree-sha1 = "e383c87cf2a1dc41fa30c093b2a19877c83e1bc1"
+uuid = "ab02a1b2-a7df-11e8-156e-fb1833f50b87"
+version = "1.2.0"
+
+[[deps.TableTraits]]
+deps = ["IteratorInterfaceExtensions"]
+git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
+uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
+version = "1.0.1"
+
+[[deps.Tables]]
+deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
+git-tree-sha1 = "f2c1efbc8f3a609aadf318094f8fc5204bdaf344"
+uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+version = "1.12.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -2989,6 +3172,12 @@ deps = ["CEnum", "ColorTypes", "FileIO", "FixedPointNumbers", "ImageCore", "libw
 git-tree-sha1 = "aa1ca3c47f119fbdae8770c29820e5e6119b83f2"
 uuid = "e3aaa7dc-3e4b-44e0-be63-ffb868ccd7c1"
 version = "0.1.3"
+
+[[deps.Widgets]]
+deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
+git-tree-sha1 = "e9aeb174f95385de31e70bd15fa066a505ea82b9"
+uuid = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
+version = "0.6.7"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -3228,6 +3417,12 @@ git-tree-sha1 = "4e4282c4d846e11dce56d74fa8040130b7a95cb3"
 uuid = "c5f90fcd-3b7e-5836-afba-fc50a0988cb2"
 version = "1.6.0+0"
 
+[[deps.libzip_jll]]
+deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "OpenSSL_jll", "XZ_jll", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "86addc139bca85fdf9e7741e10977c45785727b7"
+uuid = "337d8026-41b4-5cde-a456-74a10e5b31d1"
+version = "1.11.3+0"
+
 [[deps.mtdev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "b4d631fd51f2e9cdd93724ae25b2efc198b059b1"
@@ -3273,7 +3468,13 @@ version = "1.9.2+0"
 # ╟─27289f68-d294-11ef-37d6-e399ed72a1d0
 # ╟─6107b57e-cda2-46fb-b6f8-bd0e3787516d
 # ╟─2728adf0-d294-11ef-2467-f176bb42fb8b
+# ╟─50c601c9-ec68-4155-932c-190bced1ac9a
 # ╟─2728b7c8-d294-11ef-06e6-5329a76c16be
+# ╟─49fd6d97-8ef1-49cd-8dcb-dafddb14814c
+# ╟─4940b72d-182d-47bb-a446-51ce42724beb
+# ╟─f77d215f-d1f1-4f14-9c92-fcf1b66f99b0
+# ╟─6b7f6d3b-8ad6-434a-babe-2597e86299fa
+# ╟─e841a707-895d-45d0-8320-b9a9deddcd3d
 # ╟─fc919736-d9e3-4ca0-a53c-5fac18539ab5
 # ╟─2728c344-d294-11ef-1c5e-8d601b7ac3f9
 # ╟─2728d136-d294-11ef-27bc-6de51ace159c
@@ -3294,31 +3495,38 @@ version = "1.9.2+0"
 # ╟─2729ec24-d294-11ef-2547-cbb5238bb18d
 # ╟─e804a2a0-3f67-4eea-a9c8-f603a8df9a03
 # ╟─272a00a6-d294-11ef-18ba-a3700f78b13f
-# ╟─272a0d3a-d294-11ef-2537-39a6e410e56b
-# ╠═f2a42c4d-9607-4f50-bbda-9a9a4942faab
+# ╟─bbaa44b9-9bac-4fb8-8014-fbf400a93039
+# ╟─e8c172c6-8d0d-43fa-a68d-62a95a560668
+# ╠═e3056eeb-777a-4323-9d2e-f376cae2e1ca
+# ╟─54a90995-cc15-41fa-a2fc-e1f191a3853b
+# ╠═a67d22cd-e375-4382-ae3d-749893754beb
+# ╠═b3ea45da-6976-454a-b7ed-d85d739a3021
+# ╟─1026d399-2af4-4e2b-918f-9a607ffd37d4
 # ╠═0f845342-af59-4448-aac6-1c301a41536d
 # ╠═9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 # ╠═3bda634c-e2fa-4c98-925d-7ed1ba62fe15
+# ╟─da1e8bd1-c67d-4371-9de0-059c642a9714
 # ╠═bcb6ad76-39e3-4b3d-ba4c-2a98df0195af
+# ╟─bd58f70e-04b4-4e50-b82e-13ad0e3a9abe
 # ╠═17ca9dc4-98bd-4135-bec2-74fd97a9bc56
-# ╠═e3056eeb-777a-4323-9d2e-f376cae2e1ca
-# ╠═a67d22cd-e375-4382-ae3d-749893754beb
-# ╠═b3ea45da-6976-454a-b7ed-d85d739a3021
-# ╠═6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-# ╠═4c570a74-b77e-406a-896d-4bdbf3cd7f51
-# ╠═ad05de22-40db-413e-85bd-24e6ef448656
+# ╟─130edb3e-f5f9-40d2-970d-d0fc822fd82a
+# ╠═2618d09b-4fd6-4cdc-9d80-45f7d0b262db
+# ╟─3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
+# ╟─24f6c005-173d-4831-8c93-c54a9ba0334e
+# ╟─272a0d3a-d294-11ef-2537-39a6e410e56b
+# ╟─83587586-8a88-4bbb-b2bf-1ca9a8cf6339
+# ╟─f2e5dd92-b4bf-495a-8c11-2f34f2667041
+# ╟─ad05de22-40db-413e-85bd-24e6ef448656
 # ╟─272a4b2e-d294-11ef-2762-47a3479186ad
 # ╠═272a620a-d294-11ef-2cc6-13b26c4a0ea9
 # ╟─272a6f96-d294-11ef-13e4-1b2b12867c9b
 # ╠═25b3697e-6171-402c-97a5-201ca6bbe3a7
 # ╠═c7532c8c-deab-4cad-9900-9ffb1cbc4221
 # ╠═c481c23f-2971-484a-995d-bfa5aaa0a176
-# ╠═dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
-# ╠═07fe12dc-501c-407b-ab39-ba9a4845762c
-# ╠═e22bbe92-bac3-48ad-83bf-5e1857d572a7
-# ╠═272aaaf6-d294-11ef-0162-c76ba8ba7232
+# ╟─557b0052-b1a4-489e-be53-2327033954f2
+# ╟─b7d0c2e7-418b-417d-992a-c93ae3598f9e
+# ╟─272aaaf6-d294-11ef-0162-c76ba8ba7232
 # ╟─272ab9b2-d294-11ef-0510-c3b68d2f1099
-# ╠═87da590d-ad40-4fd3-b388-3f879b593840
 # ╟─272ac73e-d294-11ef-0526-55f6dfa019d1
 # ╟─272ad3fa-d294-11ef-030a-5b8e2070d654
 # ╟─272ae098-d294-11ef-3214-95b92faefeb5
@@ -3331,12 +3539,13 @@ version = "1.9.2+0"
 # ╟─0c65804b-bd3f-40b7-9752-96f730dbdc96
 # ╟─272b07f8-d294-11ef-3bfe-bffd9e3623aa
 # ╟─272b17b6-d294-11ef-1e58-a75484ab56d9
-# ╠═60201d93-64e8-42ce-85ab-8eb661223427
-# ╟─84018669-bff5-4d06-a8f1-df515910c4d9
-# ╠═bf08323f-6715-44be-af41-0ac7caf205d1
-# ╠═0b41c9ab-ee04-446e-a3fc-decfeb9d1571
-# ╠═a0116427-cff8-44e5-b3bb-8dee2ecf73c2
 # ╟─f44e0303-dd28-48ad-9de2-7f7882f3923d
 # ╠═e66b2193-87c8-4645-bfcc-643ee006383a
+# ╠═f2a42c4d-9607-4f50-bbda-9a9a4942faab
+# ╠═dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
+# ╠═07fe12dc-501c-407b-ab39-ba9a4845762c
+# ╠═60201d93-64e8-42ce-85ab-8eb661223427
+# ╠═84018669-bff5-4d06-a8f1-df515910c4d9
+# ╠═ae8c57ce-b74d-4543-b25b-eee57ad2e415
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
