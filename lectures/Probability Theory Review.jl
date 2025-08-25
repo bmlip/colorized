@@ -23,11 +23,11 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ eeb9a1f5-b857-4843-920b-2e4a9656f66b
-using Plots, LaTeXStrings
-
 # ╔═╡ 5394e37c-ae00-4042-8ada-3bbf32fbca9e
 using Distributions
+
+# ╔═╡ eeb9a1f5-b857-4843-920b-2e4a9656f66b
+using Plots, LaTeXStrings
 
 # ╔═╡ b305a905-06c2-4a15-8042-72ef6375720f
 using BmlipTeachingTools
@@ -792,9 +792,11 @@ md"""
 Click and drag this number to change ``\theta``: $θ_bond.
 """
 
+# ╔═╡ 922770f4-ddc8-4089-b378-f14088276b43
+exercise_statement("Which color has the ball?"; prefix="Inference ")
+
 # ╔═╡ 3e1de32c-d294-11ef-1f63-f190c8361404
 md"""
-$(section_outline("Inference Exercise:", "Which color has the ball?"))
 
 ##### Problem  
 
@@ -836,9 +838,11 @@ Yet, the probability we assign to the color of the ball in the bag changes.
 This illustrates a key point: probabilities describe a person’s state of knowledge, not an intrinsic property of nature.
 """
 
+# ╔═╡ 3e027ede-4ac1-4521-a026-dc00bfca4adf
+exercise_statement("Causality?"; prefix="Inference ")
+
 # ╔═╡ 3e1e2b96-d294-11ef-3a68-fdc78232142e
 md"""
-$(section_outline("Inference Exercise:", "Causality?"))
 
 ##### Problem 
 
@@ -2840,7 +2844,6 @@ version = "1.9.2+0"
 # ╟─3e1d33c8-d294-11ef-0a08-bdc419949925
 # ╟─b176ceae-884e-4460-9f66-020c1ac447f1
 # ╟─e3157dc0-5a64-4479-a37a-40fe25cccc07
-# ╠═eeb9a1f5-b857-4843-920b-2e4a9656f66b
 # ╟─d93f73d4-2783-4777-b0ce-cdc0444cb300
 # ╟─079157c9-5d97-4dbc-8c47-afa8b661db06
 # ╟─7d493e09-f7cc-4e13-a506-b792edcbf390
@@ -2849,9 +2852,11 @@ version = "1.9.2+0"
 # ╟─b7445b9b-7fbb-4560-b947-a23af0fcf101
 # ╟─3e1d20e0-d294-11ef-2044-e1fe6590a600
 # ╟─ab223dea-8ba8-4d30-94f4-72c8e070aadf
+# ╟─922770f4-ddc8-4089-b378-f14088276b43
 # ╟─3e1de32c-d294-11ef-1f63-f190c8361404
 # ╟─4c639e65-e06b-4c5e-b6e7-aabed6b6c0b4
 # ╟─ff9142ba-3a85-48cf-8b78-07e0b554e280
+# ╟─3e027ede-4ac1-4521-a026-dc00bfca4adf
 # ╟─3e1e2b96-d294-11ef-3a68-fdc78232142e
 # ╟─727dc817-0284-4c0f-9a92-21dcbea50807
 # ╟─fae6f2ce-ac8f-4ea6-b2cf-38b30a7e20d4
@@ -2912,6 +2917,7 @@ version = "1.9.2+0"
 # ╟─a8d4a517-84a7-426e-a49e-482c5fd047ae
 # ╟─d3b003c6-70ca-419f-a343-e35b266323f3
 # ╟─dd31ec7c-708d-4fd7-958d-f9887798a5bc
+# ╠═eeb9a1f5-b857-4843-920b-2e4a9656f66b
 # ╠═b305a905-06c2-4a15-8042-72ef6375720f
 # ╟─70d79732-0f55-40ba-929d-fba431318848
 # ╠═4f6dd225-c64d-4b76-b075-0bf71c863b5a
