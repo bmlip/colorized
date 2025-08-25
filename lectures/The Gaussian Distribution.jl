@@ -24,11 +24,14 @@ macro bind(def, element)
     #! format: on
 end
 
+# ╔═╡ 9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
+using Random
+
 # ╔═╡ 5638c1d0-db95-49e4-bd80-528f79f2947e
 using HCubature, LinearAlgebra# Numerical integration package
 
-# ╔═╡ 9edd80d4-d088-4b2f-8843-abaa7a5d9c5e
-using Random
+# ╔═╡ 03a36e87-2378-4efc-bcac-9c0609b52784
+using MarkdownLiteral: @mdx
 
 # ╔═╡ c97c495c-f7fe-4552-90df-e2fb16f81d15
 using BmlipTeachingTools
@@ -81,27 +84,42 @@ Consider a data set as shown in the figure below
 """
 
 
-# ╔═╡ ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
-begin
-	N = 100;
-	generative_dist = MvNormal([0,1.], [0.8 0.5; 0.5 1.0]);
-	D = rand(generative_dist, N);
-	x_dot = rand(generative_dist);
-	
-	let
-		scatter(D[1,:], D[2,:], marker=:x, markerstrokewidth=3, label=L"D")
-		scatter!([x_dot[1]], [x_dot[2]], label=L"x_\bullet")
-		plot!(range(0, 2), [1., 1., 1.], fillrange=2, alpha=0.4, color=:gray,label=L"S")
-	end
-end
+# ╔═╡ 3200f4f9-4c43-46c0-8bdb-9afc95d116e0
+md"""
+
+##### Setup 
+
+We have a dataset `D` of observations. `D` is a Matrix, where each column is an observation ``\in \mathbb{R}^2``:
+"""
+
+# ╔═╡ 4e6c4e40-f744-49e7-9d67-cf982c9fc58d
+md"""
+We now draw an extra observation ``x_\bullet = (a,b)`` from the same data-generating process:
+"""
+
+# ╔═╡ 148f82be-5012-4c12-9002-6a8bcbf5ad08
+md"""
+> ``D`` and ``x_\bullet`` are shown in the plot above.
+"""
+
+# ╔═╡ b1b9bc8f-2653-42af-ad49-6aaaba2ae70e
+
+
+# ╔═╡ c2208520-020b-400a-8bb4-c8fb6786ccf3
+md"""
+##### Problem 
+
+What is the probability that ``x_\bullet`` lies within the shaded rectangle ``S = \{ (x,y) \in \mathbb{R}^2 | 0 \leq x \leq 2, 1 \leq y \leq 2 \} ``?
+"""
+
+# ╔═╡ 3d05a2eb-87aa-4d6a-9caf-feb5758e000a
+S = [[0.0, 2.0], [1.0, 2.0]]
+
+# ╔═╡ 55380883-d269-4f61-bec6-2944765db271
+
 
 # ╔═╡ 02853a5c-f6aa-4af8-8a25-bfffd4b96afc
 md"""
-
-##### Problem 
-
-- Consider a set of observations ``D=\{x_1,…,x_N\}`` in the 2-dimensional plane (see Figure). All observations were generated using the same process. We now draw an extra observation ``x_\bullet = (a,b)`` from the same data-generating process. What is the probability that ``x_\bullet`` lies within the shaded rectangle ``S = \{ (x,y) \in \mathbb{R}^2 | 0 \leq x \leq 2, 1 \leq y \leq 2 \} ``?
-
 
 ##### Solution 
 
@@ -952,25 +970,15 @@ Let's solve the challenge from the beginning of the lecture. We apply maximum li
 
 """
 
-# ╔═╡ b9ac5190-d294-11ef-0a99-a9d369b34045
-let
-	# Maximum likelihood estimation of 2D Gaussian
-	N = length(sum(D,dims=1))
-	μ = 1/N * sum(D,dims=2)[:,1]
-	D_min_μ = D - repeat(μ, 1, N)
-	Σ = Hermitian(1/N * D_min_μ*D_min_μ')
-	m = MvNormal(μ, convert(Matrix, Σ));
-	
-	contour(range(-3, 4, length=100), range(-3, 4, length=100), (x, y) -> pdf(m, [x, y]))
-	
-	# Numerical integration of p(x|m) over S:
-	(val,err) = hcubature((x)->pdf(m,x), [0., 1.], [2., 2.])
-	@debug("p(x⋅∈S|m) ≈ $(val)")
-	
-	scatter!(D[1,:], D[2,:]; marker=:x, markerstrokewidth=3, label=L"D")
-	scatter!([x_dot[1]], [x_dot[2]]; label=L"x_\bullet")
-	plot!(range(0, 2), [1., 1., 1.]; fillrange=2, alpha=0.4, color=:gray, label=L"S")
-end
+# ╔═╡ fb7a09a9-c288-43c5-9207-d9881f47037b
+md"""
+#### Numerical integral
+
+We can use HCubature.jl to numerically evaluate the integral and get a good approximation.
+"""
+
+# ╔═╡ afe559e1-7a15-4dd6-a962-6f5514586d7c
+@bindname compute_integral CheckBox(false)
 
 # ╔═╡ b9a85716-d294-11ef-10e0-a7b08b800a98
 md"""
@@ -1728,7 +1736,93 @@ In short, Gaussian-distributed variables remain Gaussian in linear systems, but 
 
 # ╔═╡ f78bc1f5-cf7b-493f-9c5c-c2fbd6788616
 md"""
-# Code
+# Appendix
+"""
+
+# ╔═╡ 026da6b9-dee1-485e-af00-3b9e35f71b6b
+md"""
+#### Introduction
+"""
+
+# ╔═╡ 6ffabd68-4c38-4024-a21b-1d6fa7c3a6d7
+d(x; kwargs...) = PlutoUI.ExperimentalLayout.Div([x]; kwargs...)
+
+# ╔═╡ 7a8e77b8-1692-41b7-88ef-26560aad5f08
+begin
+	intro_bonds = PlutoUI.ExperimentalLayout.Div([
+	d(@bindname(N, Slider(3:100; default=90, show_value=true)); style="flex: 1 0 max-content"),
+	d(@bind(redraw_button_clicked_count, CounterButton("Redraw x.")); style="flex: 1 1 50%")
+];
+	style="display: flex; flex-drection: row; flex-wrap: wrap;
+    ")
+end
+
+# ╔═╡ 9fc14c8b-98bc-4fe9-9b58-6c5774ac5f64
+intro_bonds
+
+# ╔═╡ ce16666b-aa90-42ae-b3a7-690e71301024
+# macro StableRandom(x=nothing)
+# 	:(MersenneTwister($(hash(__source__)) + hash($(esc(x)))))
+# end
+
+# ╔═╡ 724cac08-a54d-4dea-8416-0bce33c75405
+stable_rand(args...; seed=nothing) = rand(MersenneTwister(543432 + hash(seed)), args...)
+
+# ╔═╡ 92efa7c1-dde6-4b21-bf3b-0fa91931620c
+secret_generative_dist = MvNormal([0,1.], [0.8 0.5; 0.5 1.0]);
+
+# ╔═╡ 46465948-90e1-480f-b656-74bf542756ef
+D = stable_rand(secret_generative_dist, N)
+
+# ╔═╡ c48bd024-4afb-4e5e-af2d-56b2466511c7
+x_dot = stable_rand(secret_generative_dist; seed=redraw_button_clicked_count)
+
+# ╔═╡ 3d0f7af2-082d-4305-a271-349d41fcd166
+md"""
+#### Challenge solution
+"""
+
+# ╔═╡ eaf6794e-66a1-45f0-95ff-7d13983aafa2
+baseplot() = plot(; xlim=(-3,3), ylim=(-2,3))
+
+# ╔═╡ ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
+let
+	baseplot()
+	scatter!(D[1,:], D[2,:], marker=:x, markerstrokewidth=3, label=L"D")
+	scatter!([x_dot[1]], [x_dot[2]], label=L"x_\bullet")
+	plot!(S[1], fill(S[2][1], 2), fillrange=S[2][2], alpha=0.4, color=:gray,label=L"S")
+end
+
+# ╔═╡ b9ac5190-d294-11ef-0a99-a9d369b34045
+begin
+	baseplot()
+	
+	# Maximum likelihood estimation of 2D Gaussian
+	μ = 1/N * sum(D,dims=2)[:,1]
+	D_min_μ = D - repeat(μ, 1, N)
+	Σ = Hermitian(1/N * D_min_μ*D_min_μ')
+	m = MvNormal(μ, convert(Matrix, Σ));
+	
+	contour!(range(-3, 4, length=100), range(-3, 4, length=100), (x, y) -> pdf(m, [x, y]))
+	scatter!(D[1,:], D[2,:]; marker=:x, markerstrokewidth=3, label=L"D")
+	scatter!([x_dot[1]], [x_dot[2]]; label=L"x_\bullet")
+	plot!(range(0, 2), [1., 1., 1.]; fillrange=2, alpha=0.4, color=:gray, label=L"S")
+end
+
+# ╔═╡ dbf97d8d-62f2-4996-a6aa-5ae4601d456b
+if compute_integral
+	
+	(val,err) = hcubature(
+		(x)->pdf(m,x), # function to integrate
+		first.(S), last.(S), # start and end coordinates
+	)
+	
+	@mdx "Answer: ``p(x_⋅ ∈ S | m) ≈ $(round(val; digits=4))``"
+end
+
+# ╔═╡ bc7a875f-e4fa-43fd-b001-cec6aadea3bc
+md"""
+#### Packages
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1739,6 +1833,7 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MarkdownLiteral = "736d6165-7244-6769-4267-6b50796e6954"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
@@ -1748,6 +1843,7 @@ BmlipTeachingTools = "~1.2.0"
 Distributions = "~0.25.120"
 HCubature = "~1.7.0"
 LaTeXStrings = "~1.4.0"
+MarkdownLiteral = "~0.1.2"
 Plots = "~1.40.17"
 SpecialFunctions = "~2.5.1"
 """
@@ -1758,7 +1854,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "26811b1fd9205302df71e77acd2ee768b00bf473"
+project_hash = "333fc5f083a4938b5220511e124ba0955861b0b4"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1849,6 +1945,12 @@ version = "0.13.1"
 git-tree-sha1 = "8010b6bb3388abe68d95743dcbea77650bb2eddf"
 uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 version = "1.0.3"
+
+[[deps.CommonMark]]
+deps = ["PrecompileTools"]
+git-tree-sha1 = "351d6f4eaf273b753001b2de4dffb8279b100769"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.9.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
@@ -2279,6 +2381,12 @@ version = "0.5.16"
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 version = "1.11.0"
+
+[[deps.MarkdownLiteral]]
+deps = ["CommonMark", "HypertextLiteral"]
+git-tree-sha1 = "f7d73634acd573bf3489df1ee0d270a5d6d3a7a3"
+uuid = "736d6165-7244-6769-4267-6b50796e6954"
+version = "0.1.2"
 
 [[deps.MbedTLS]]
 deps = ["Dates", "MbedTLS_jll", "MozillaCACerts_jll", "NetworkOptions", "Random", "Sockets"]
@@ -3035,7 +3143,17 @@ version = "1.9.2+0"
 # ╟─b9a46c3e-d294-11ef-116f-9b97e0118e5b
 # ╟─82025c2f-a21f-4080-b301-3ffe3715442d
 # ╟─b9a48c60-d294-11ef-3b90-03053fcd82fb
+# ╟─7a8e77b8-1692-41b7-88ef-26560aad5f08
 # ╟─ba57ecbb-b64e-4dd8-8398-a90af1ac71f3
+# ╟─3200f4f9-4c43-46c0-8bdb-9afc95d116e0
+# ╠═46465948-90e1-480f-b656-74bf542756ef
+# ╟─4e6c4e40-f744-49e7-9d67-cf982c9fc58d
+# ╠═c48bd024-4afb-4e5e-af2d-56b2466511c7
+# ╟─148f82be-5012-4c12-9002-6a8bcbf5ad08
+# ╟─b1b9bc8f-2653-42af-ad49-6aaaba2ae70e
+# ╟─c2208520-020b-400a-8bb4-c8fb6786ccf3
+# ╠═3d05a2eb-87aa-4d6a-9caf-feb5758e000a
+# ╟─55380883-d269-4f61-bec6-2944765db271
 # ╟─02853a5c-f6aa-4af8-8a25-bfffd4b96afc
 # ╟─71f1c8ee-3b65-4ef8-b36f-3822837de410
 # ╟─b9a4eb62-d294-11ef-06fa-af1f586cbc15
@@ -3095,8 +3213,11 @@ version = "1.9.2+0"
 # ╟─922f0eb6-9e29-4b6c-9701-cb7b2f07bb7a
 # ╟─9bd38e28-73d4-4c6c-a1fe-35c7a0e750b3
 # ╟─b9ac2d3c-d294-11ef-0d37-65a65525ad28
-# ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
+# ╟─9fc14c8b-98bc-4fe9-9b58-6c5774ac5f64
 # ╟─b9ac5190-d294-11ef-0a99-a9d369b34045
+# ╟─fb7a09a9-c288-43c5-9207-d9881f47037b
+# ╟─afe559e1-7a15-4dd6-a962-6f5514586d7c
+# ╠═dbf97d8d-62f2-4996-a6aa-5ae4601d456b
 # ╟─b9a85716-d294-11ef-10e0-a7b08b800a98
 # ╟─0d303dba-51d4-4413-8001-73ed98bf74df
 # ╟─4a2cd378-0960-4089-81ad-87bf1be9a3b2
@@ -3146,6 +3267,16 @@ version = "1.9.2+0"
 # ╟─b9abf984-d294-11ef-1eaa-3358379f8b44
 # ╟─b9ac09c4-d294-11ef-2cb8-270289d01f25
 # ╟─f78bc1f5-cf7b-493f-9c5c-c2fbd6788616
+# ╟─026da6b9-dee1-485e-af00-3b9e35f71b6b
+# ╠═6ffabd68-4c38-4024-a21b-1d6fa7c3a6d7
+# ╠═ce16666b-aa90-42ae-b3a7-690e71301024
+# ╠═724cac08-a54d-4dea-8416-0bce33c75405
+# ╠═92efa7c1-dde6-4b21-bf3b-0fa91931620c
+# ╟─3d0f7af2-082d-4305-a271-349d41fcd166
+# ╠═5638c1d0-db95-49e4-bd80-528f79f2947e
+# ╠═eaf6794e-66a1-45f0-95ff-7d13983aafa2
+# ╠═03a36e87-2378-4efc-bcac-9c0609b52784
+# ╟─bc7a875f-e4fa-43fd-b001-cec6aadea3bc
 # ╠═c97c495c-f7fe-4552-90df-e2fb16f81d15
 # ╠═3ec821fd-cf6c-4603-839d-8c59bb931fa9
 # ╠═00482666-0772-4e5d-bb35-df7b6fb67a1b
