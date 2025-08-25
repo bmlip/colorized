@@ -1,6 +1,11 @@
 ### A Pluto.jl notebook ###
 # v0.20.16
 
+#> [frontmatter]
+#> image = "https://imgur.com/DdKOZVv.png"
+#> title = "Mini: The Kullback-Leibler Divergence"
+#> description = "Introduction to the Kullback-Leibler Divergence with an interactive example."
+
 using Markdown
 using InteractiveUtils
 
