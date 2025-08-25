@@ -86,24 +86,36 @@ The hidden states are the position ``z_t`` and velocity ``\dot z_t`` of the cart
 Task: Infer the position ``z_t`` after 10 time steps, i.e., infer ``p(z_{10}|x_{1:10})``. 
 
 
+"""
+
+# ╔═╡ f77d215f-d1f1-4f14-9c92-fcf1b66f99b0
+keyconcept(
+	"Dynamical Models example",
+	md"""
+	The illustration above shows the real cart position, and the measured position. 
+	
+	💡 We know the equations of motion of the cart, and we have previous measurements. With Bayesian ML we can **combine this information** (current measurement + old measurements + system knowledge) into an optimal estimate for the cart position, which is _more precise_ than the measurement alone.
+	"""
+)
+
+# ╔═╡ 6b7f6d3b-8ad6-434a-babe-2597e86299fa
+md"""
+
+
 ##### Solution 
 
 See later in this lecture.
-
 
 
 """
 
 # ╔═╡ e841a707-895d-45d0-8320-b9a9deddcd3d
 TODO(md"""
-	 Why are ``z_t`` and ``\dot{z_t}`` "hidden" states?
+	 Explain why ``z_t`` and ``\dot{z_t}`` are "hidden" states? (Because we don't observe them directly)
 
 	 Is ``\dot{z_t}`` (velocity) part of the observations? Should we include that in the illustration above?
 	 
 	 """)
-
-# ╔═╡ 054b59b2-fe8f-4584-8ef5-5f96c3edf137
-TODO("show viz here, with just the noisy observations")
 
 # ╔═╡ fc919736-d9e3-4ca0-a53c-5fac18539ab5
 md"""
@@ -433,24 +445,27 @@ V_t &= \left(I-K_t C \right) P_{t}  \tag{posterior state variance}
 
 """
 
-# ╔═╡ 272a0d3a-d294-11ef-2537-39a6e410e56b
-md"""
-$(challenge_solution("Tracking of Cart Position"; color="green"))
-
-##### Inference by explicit Kalman filtering
-
-We can now solve the cart tracking problem of the introductory example by executing the Kalman filter equations KF-2.
-
-"""
+# ╔═╡ bbaa44b9-9bac-4fb8-8014-fbf400a93039
+challenge_solution("Tracking of Cart Position", color="green", header_level=1)
 
 # ╔═╡ e8c172c6-8d0d-43fa-a68d-62a95a560668
 md"""
-### Model parameters
+## Model parameters
+
+Initial position an force function:
+"""
+
+# ╔═╡ a67d22cd-e375-4382-ae3d-749893754beb
+z_start = [10.0; 0.0];
+
+# ╔═╡ 1026d399-2af4-4e2b-918f-9a607ffd37d4
+md"""
+
+Equations of motion:
 """
 
 # ╔═╡ 0f845342-af59-4448-aac6-1c301a41536d
-# assume the time steps to be equal in size
-Δt = 1.0
+Δt = 1.0  # assume the time steps to be equal in size
 
 # ╔═╡ 9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 A = [1.0 Δt;
@@ -475,29 +490,33 @@ Observation noise covariance:
 # ╔═╡ 17ca9dc4-98bd-4135-bec2-74fd97a9bc56
 Σx = collect(Diagonal([1.0; 2.0]))
 
-# ╔═╡ 130edb3e-f5f9-40d2-970d-d0fc822fd82a
-md"""
-### Generate noisy observations
-"""
-
 # ╔═╡ e3056eeb-777a-4323-9d2e-f376cae2e1ca
-n_steps = 40
+n_steps = 40;
 
-# ╔═╡ a67d22cd-e375-4382-ae3d-749893754beb
-# initial state
-z_start = [10.0; -0.0]
-# z_start = [10.0; 2.0]
+# ╔═╡ 49fd6d97-8ef1-49cd-8dcb-dafddb14814c
+@bind intro_i Slider(2:n_steps; show_value=true)
 
 # ╔═╡ b3ea45da-6976-454a-b7ed-d85d739a3021
-# constant input u
-u = 0.2 * ones(n_steps)
+u = 0.2 * ones(n_steps)   # constant force
+
+# ╔═╡ 130edb3e-f5f9-40d2-970d-d0fc822fd82a
+md"""
+## Generate noisy observations
+
+This vector contains our measurements. Each elements corresponds to a time step, and it is a 2-element vector with `[position, velocity]`.
+"""
 
 # ╔═╡ 3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
-
-
-# ╔═╡ db220fea-4524-4c1c-bc9d-ed63c6ef1023
 md"""
-### Closed form solution
+(We call an external function to generate the measurements)
+"""
+
+# ╔═╡ 272a0d3a-d294-11ef-2537-39a6e410e56b
+md"""
+
+## Inference by explicit Kalman filtering
+
+We can now solve the cart tracking problem of the introductory example by executing the Kalman filter equations KF-2.
 
 Select a time step:
 """
@@ -507,7 +526,7 @@ Select a time step:
 
 # ╔═╡ 272a4b2e-d294-11ef-2762-47a3479186ad
 md"""
-###  Inference by Message Passing
+##  Inference by Message Passing
 
 Let's now solve the cart tracking problem by sum-product message passing in a factor graph. All we have to do is create factor nodes for the state-transition model ``p(z_t|z_{t-1})`` and the observation model ``p(x_t|z_t)``. Then we let [RxInfer](https://rxinfer.com) execute the message passing schedule. 
 
@@ -538,7 +557,7 @@ Now that we've built the model, we can perform Kalman filtering by inserting mea
 """
 
 # ╔═╡ c7532c8c-deab-4cad-9900-9ffb1cbc4221
-z_prev_v_0 = A * (1e8*diageye(2) * A') + Σz ;
+z_prev_v_0 = A * (1e8*diageye(2) * A') + Σz
 
 # ╔═╡ dab295ff-5a02-4e4f-8f46-b0842b6bf1ff
 import RxInfer.ReactiveMP: messageout, getinterface, materialize!
@@ -791,7 +810,7 @@ function generateNoisyMeasurements( z_start::Vector{Float64},
 end
 
 # ╔═╡ 6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-gen_measurements_output = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx)
+gen_measurements_output = generateNoisyMeasurements(z_start, u, A, b, Σz, Σx);
 
 # ╔═╡ 2618d09b-4fd6-4cdc-9d80-45f7d0b262db
 xs_measurement = last.(gen_measurements_output)
@@ -801,9 +820,9 @@ z_prev_m_0 = xs_measurement[1]
 
 # ╔═╡ c481c23f-2971-484a-995d-bfa5aaa0a176
 result = infer(
-    model=cart_tracking(n=n_steps, A=A,B=b, Σz=Σz, Σx=Σx, z_prev_m_0=z_prev_m_0, z_prev_v_0=z_prev_v_0,u=u), 
-    data=(x=xs_measurement,), 
-    free_energy=true
+	model=cart_tracking(n=n_steps, A=A,B=b, Σz=Σz, Σx=Σx, z_prev_m_0=z_prev_m_0, z_prev_v_0=z_prev_v_0,u=u), 
+	data=(x=xs_measurement,), 
+	free_energy=true
 )
 
 # ╔═╡ e22bbe92-bac3-48ad-83bf-5e1857d572a7
@@ -815,21 +834,42 @@ xs_real = first.(gen_measurements_output)
 # ╔═╡ ae8c57ce-b74d-4543-b25b-eee57ad2e415
 function plotCartPrediction(
 	;
-	predictive::Normal,
-	measurement::Normal,
-	corrected::Normal,
-	real::Float64,
+	predictive::Union{Nothing,Normal}=nothing,
+	measurement::Union{Nothing,Normal}=nothing,
+	corrected::Union{Nothing,Normal}=nothing,
+	real::Union{Nothing,Float64}=nothing,
 	kwargs...
 )
+	result = plot(
+		; 
+		xlim=(10,50), ylim=(-.5, 1), 
+		xlabel="Position", legend=:bottomright, 
+		kwargs...
+	)
+	
+    isnothing(predictive) || plot!( z -> pdf(predictive, z); 
+		label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1),
+	)
+	
+    isnothing(measurement) || plot!(z -> pdf(measurement, z); 
+		label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1),
+	)
     
-	result = plot(; xlim=(10,50), ylim=(-.5, 1), xlabel="Position", legend=:bottomright, kwargs...)
-    # result = plot(x, y, bg_img; xlabel="Position", legend=:bottom, kwargs...)
-    plot!(z -> pdf(predictive, z); label="Prediction "*L"p(z[n]|z[n-1],u[n])", fill=(0, .1))
-    plot!(z -> pdf(measurement, z); label="Noisy measurement "*L"p(z[n]|x[n])", fill=(0, .1))
-    plot!(z -> pdf(corrected, z); label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", fill=(0, .1))
-	vline!([real]; label="Real position")
+	isnothing(corrected) || plot!(z -> pdf(corrected, z); 
+		label="Corrected prediction "*L"p(z[n]|z[n-1],u[n],x[n])", fill=(0, .1),
+	)
+	
+	isnothing(real) || vline!([real]; 
+		label="Real cart position", color=:purple, style=:dash,
+	)
     return result
 end
+
+# ╔═╡ 4940b72d-182d-47bb-a446-51ce42724beb
+plotCartPrediction(
+	measurement=Normal(xs_measurement[intro_i][1], Σx[1,1]),
+	real=xs_real[intro_i][1],
+)
 
 # ╔═╡ ad05de22-40db-413e-85bd-24e6ef448656
 let
@@ -839,19 +879,19 @@ let
 	V_z = A * (1e8*Diagonal(I,2) * A') + Σz         # initial predictive covariance
 	
 	for t = 2:closed_form_i
-		#predict
+		## predict
 		m_pred_z = A * m_z + b * u[t]                   # predictive mean
 		V_pred_z = A * V_z * A' + Σz                    # predictive covariance
 		
-		#update
+		## update
 		gain = V_pred_z * inv(V_pred_z + Σx)            # Kalman gain
-		m_z = m_pred_z + gain * (xs_measurement[t] - m_pred_z) # posterior mean update
+		m_z = m_pred_z + gain * (xs_measurement[t]-m_pred_z) # posterior mean update
 		V_z = (Diagonal(I,2)-gain)*V_pred_z             # posterior covariance update
 	end
 	
-	@debug("Prediction: ", MvNormalMeanCovariance(m_pred_z,V_pred_z))
-	@debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[closed_form_i],Σx))
-	@debug("Posterior: ", MvNormalMeanCovariance(m_z,V_z))
+	# @debug("Prediction: ", MvNormalMeanCovariance(m_pred_z,V_pred_z))
+	# @debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[closed_form_i],Σx))
+	# @debug("Posterior: ", MvNormalMeanCovariance(m_z,V_z))
 
 	
 	plotCartPrediction(
@@ -870,11 +910,11 @@ let
 	    z_prev_m, z_prev_S = mean_cov(result.posteriors[:z][rxinfer_i-1])
 	end
 	μz_prediction, Σz_prediction = (A*z_prev_m + b*u[rxinfer_i], A*z_prev_S*A' + Σz)
-	μz_posterior, Σz_posterior = mean_cov.(result.posteriors[:z])[rxinfer_i]
+	μz_posterior, Σz_posterior = mean_cov(result.posteriors[:z][rxinfer_i])
 	
-	@debug("Prediction: ",MvNormalMeanCovariance(μz_prediction, Σz_prediction))
-	@debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[rxinfer_i], Σx))
-	@debug("Posterior: ", MvNormalMeanCovariance(μz_posterior, Σz_posterior))
+	# @debug("Prediction: ",MvNormalMeanCovariance(μz_prediction, Σz_prediction))
+	# @debug("Measurement: ", MvNormalMeanCovariance(xs_measurement[rxinfer_i], Σx))
+	# @debug("Posterior: ", MvNormalMeanCovariance(μz_posterior, Σz_posterior))
 	plotCartPrediction(
 		predictive=Normal(μz_prediction[1], Σz_prediction[1]), 
 		corrected=Normal(μz_posterior[1], Σz_posterior[1]), 
@@ -3370,8 +3410,11 @@ version = "1.9.2+0"
 # ╟─6107b57e-cda2-46fb-b6f8-bd0e3787516d
 # ╟─2728adf0-d294-11ef-2467-f176bb42fb8b
 # ╟─2728b7c8-d294-11ef-06e6-5329a76c16be
+# ╟─49fd6d97-8ef1-49cd-8dcb-dafddb14814c
+# ╟─4940b72d-182d-47bb-a446-51ce42724beb
+# ╟─f77d215f-d1f1-4f14-9c92-fcf1b66f99b0
+# ╟─6b7f6d3b-8ad6-434a-babe-2597e86299fa
 # ╟─e841a707-895d-45d0-8320-b9a9deddcd3d
-# ╟─054b59b2-fe8f-4584-8ef5-5f96c3edf137
 # ╟─fc919736-d9e3-4ca0-a53c-5fac18539ab5
 # ╟─2728c344-d294-11ef-1c5e-8d601b7ac3f9
 # ╟─2728d136-d294-11ef-27bc-6de51ace159c
@@ -3392,28 +3435,29 @@ version = "1.9.2+0"
 # ╟─2729ec24-d294-11ef-2547-cbb5238bb18d
 # ╟─e804a2a0-3f67-4eea-a9c8-f603a8df9a03
 # ╟─272a00a6-d294-11ef-18ba-a3700f78b13f
-# ╟─272a0d3a-d294-11ef-2537-39a6e410e56b
-# ╠═f2a42c4d-9607-4f50-bbda-9a9a4942faab
+# ╟─bbaa44b9-9bac-4fb8-8014-fbf400a93039
 # ╟─e8c172c6-8d0d-43fa-a68d-62a95a560668
-# ╠═0f845342-af59-4448-aac6-1c301a41536d
+# ╠═a67d22cd-e375-4382-ae3d-749893754beb
+# ╠═b3ea45da-6976-454a-b7ed-d85d739a3021
+# ╟─1026d399-2af4-4e2b-918f-9a607ffd37d4
+# ╟─0f845342-af59-4448-aac6-1c301a41536d
 # ╠═9c83fad1-58b0-4285-a0b4-00dfe3ce304b
 # ╠═3bda634c-e2fa-4c98-925d-7ed1ba62fe15
 # ╟─da1e8bd1-c67d-4371-9de0-059c642a9714
 # ╠═bcb6ad76-39e3-4b3d-ba4c-2a98df0195af
 # ╟─bd58f70e-04b4-4e50-b82e-13ad0e3a9abe
 # ╠═17ca9dc4-98bd-4135-bec2-74fd97a9bc56
-# ╟─130edb3e-f5f9-40d2-970d-d0fc822fd82a
 # ╠═e3056eeb-777a-4323-9d2e-f376cae2e1ca
-# ╠═a67d22cd-e375-4382-ae3d-749893754beb
-# ╠═b3ea45da-6976-454a-b7ed-d85d739a3021
+# ╟─130edb3e-f5f9-40d2-970d-d0fc822fd82a
 # ╠═2618d09b-4fd6-4cdc-9d80-45f7d0b262db
 # ╟─3b4fe598-c0f2-4f38-9d4c-09f6c39c39de
-# ╠═24f6c005-173d-4831-8c93-c54a9ba0334e
 # ╠═6da2c9d8-769f-4a1d-8dcd-bec14532b26e
-# ╟─db220fea-4524-4c1c-bc9d-ed63c6ef1023
+# ╠═24f6c005-173d-4831-8c93-c54a9ba0334e
+# ╟─272a0d3a-d294-11ef-2537-39a6e410e56b
 # ╟─83587586-8a88-4bbb-b2bf-1ca9a8cf6339
-# ╟─ad05de22-40db-413e-85bd-24e6ef448656
+# ╠═ad05de22-40db-413e-85bd-24e6ef448656
 # ╟─272a4b2e-d294-11ef-2762-47a3479186ad
+# ╠═f2a42c4d-9607-4f50-bbda-9a9a4942faab
 # ╠═272a620a-d294-11ef-2cc6-13b26c4a0ea9
 # ╟─272a6f96-d294-11ef-13e4-1b2b12867c9b
 # ╠═25b3697e-6171-402c-97a5-201ca6bbe3a7
