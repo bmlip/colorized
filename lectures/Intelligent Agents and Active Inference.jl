@@ -53,10 +53,11 @@ md"""
        * Friston's vision on the future of AI.
 
      * Bert de Vries (2021), Presentation on [Beyond deep learning: natural AI systems](https://youtu.be/QYbcm6G_wsk?si=G9mkjmnDrQH9qk5k) (video)
+        * 30-minute introduction to active inference from an engineering point of view.
      * Raviv (2018), [The Genius Neuroscientist Who Might Hold the Key to True AI](https://github.com/bmlip/course/blob/main/assets/files/WIRED-Friston.pdf).
         * Interesting article on Karl Friston, who is a leading theoretical neuroscientist working on a theory that relates life and intelligent behavior to physics (and Free Energy minimization). (**highly recommended**)
      * Karl Friston (2011), [What Is Optimal about Motor Control?](https://doi.org/10.1016/j.neuron.2011.10.018), Neuron 72-3, p488-498
-        * Critiques classical optimal control theory as a sufficient model for biological motor control, highlighting its limitations in explaining how the brain handles uncertainty, noise, and complexity. Instead, Friston reframes motor control as an active inference process under the Free Energy Principle.
+        * This work critiques classical optimal control theory for being an insufficient model of biological motor control, and instead advocates active inference as a more suitable framework.
  
 
  
